@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters: 
+  Environment:
+    Type: String
+
+Resources:
+  FociTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: partitionKey
+          AttributeType: S
+        - AttributeName: sortKey
+          AttributeType: S
+        - AttributeName: documentType
+          AttributeType: S
+        - AttributeName: tournamentId
+          AttributeType: S
+        - AttributeName: teamId
+          AttributeType: S
+        - AttributeName: matchId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: partitionKey
+          KeyType: HASH
+        - AttributeName: sortKey
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+        - IndexName: indexByTournamentId
+          KeySchema:
+            - AttributeName: tournamentId
+              KeyType: HASH
+            - AttributeName: documentType
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: indexByTeamId
+          KeySchema:
+            - AttributeName: teamId
+              KeyType: HASH
+            - AttributeName: documentType
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: indexByMatchId
+          KeySchema:
+            - AttributeName: matchId
+              KeyType: HASH
+            - AttributeName: documentType
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: indexByUserId
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: documentType
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: indexByDocumentType
+          KeySchema:
+            - AttributeName: documentType
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5                        
+
+  FociLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          Effect: Allow
+          Action:
+            - sts:AssumeRole
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+
+  FociPolicy:
+    Type: AWS::IAM::Policy
+    DependsOn:
+      - FociLambdaRole
+    Properties:
+      PolicyName: FociPolicy
+      Roles:
+        - !Ref FociLambdaRole
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:DeleteItem
+              - dynamodb:PutItem
+              - dynamodb:Query
+              - dynamodb:UpdateItem
+            Resource: !GetAtt FociTable.Arn
+          - Effect: Allow
+            Action:
+              - logs:DeleteSubscriptionFilter
+              - logs:DeleteLogStream
+              - logs:CreateExportTask
+              - logs:DeleteResourcePolicy
+              - logs:CreateLogStream
+              - logs:DeleteMetricFilter
+              - logs:TagLogGroup
+              - logs:CancelExportTask
+              - logs:DeleteRetentionPolicy
+              - logs:DeleteLogDelivery
+              - logs:AssociateKmsKey
+              - logs:PutDestination
+              - logs:DisassociateKmsKey
+              - logs:UntagLogGroup
+              - logs:DeleteLogGroup
+              - logs:PutDestinationPolicy
+              - logs:DeleteDestination
+              - logs:PutLogEvents
+              - logs:CreateLogGroup
+              - logs:PutMetricFilter
+              - logs:CreateLogDelivery
+              - logs:PutResourcePolicy
+              - logs:UpdateLogDelivery
+              - logs:PutSubscriptionFilter
+              - logs:PutRetentionPolicy
+            Resource: '*'
+Outputs:
+  FociTable:
+    Value: !Ref FociTable
+    Export:
+      Name: !Sub Foci2020-${Environment}-DynamoTable
+  FociLambdaRoleArn:
+    Value: !GetAtt FociLambdaRole.Arn
+    Export:
+      Name: !Sub Foci2020-${Environment}-LambdaRoleArn

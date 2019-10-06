@@ -5,9 +5,6 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "build": "npm run clean && webpack",
-    "deploy:dev": "export ENV=DEV && npm run build && npm run aws-package && npm run aws-deploy",
-    "aws-package": "aws cloudformation package --template-file sam.yaml --s3-bucket losonczil-packages-eu-west-1 --output-template-file packaged.sam.yaml --profile losonczil",
-    "aws-deploy": "aws cloudformation deploy --template-file packaged.sam.yaml --stack-name foci2020-${ENV}-api --capabilities CAPABILITY_IAM --parameter-overrides Environment=${ENV} --profile losonczil",
     "test": "jest --coverage",
     "test:dev": "jest --watch"
   },

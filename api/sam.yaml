@@ -2,7 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: 'Foci 2020 API'
 Parameters: 
-  Environment:
+  FociLambdaRoleArn:
+    Type: String
+  FociTableName:
     Type: String
 
 Globals:
@@ -14,7 +16,7 @@ Globals:
   Function:
     Environment:
       Variables:
-        DYNAMO_TABLE: !ImportValue Foci2020-DEV-DynamoTable
+        DYNAMO_TABLE: !Ref FociTableName
 
 Resources:
   FociApi:
@@ -28,7 +30,7 @@ Resources:
       CodeUri: ./dist/create-team
       Handler: index.default
       Runtime: nodejs10.x
-      Role: !ImportValue Foci2020-DEV-LambdaRoleArn
+      Role: !Ref FociLambdaRoleArn
       Timeout: 10
       MemorySize: 512
       Events:
@@ -42,4 +44,4 @@ Resources:
 Outputs:
   FociApi:
     Description: "Foci 2020 API"
-    Value: !Sub "https://${FociApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${FociApi}.execute-api.${AWS::Region}.amazonaws.com/${FociApi.Stage}/"

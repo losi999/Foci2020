@@ -1,7 +1,4 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Parameters: 
-  Environment:
-    Type: String
 
 Resources:
   FociTable:
@@ -146,11 +143,7 @@ Resources:
               - logs:PutRetentionPolicy
             Resource: '*'
 Outputs:
-  FociTable:
+  FociTableName:
     Value: !Ref FociTable
-    Export:
-      Name: !Sub Foci2020-${Environment}-DynamoTable
   FociLambdaRoleArn:
     Value: !GetAtt FociLambdaRole.Arn
-    Export:
-      Name: !Sub Foci2020-${Environment}-LambdaRoleArn

@@ -1,0 +1,68 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "build": "npm run clean && webpack",
+    "deploy:dev": "export ENV=DEV && npm run build && npm run aws-package && npm run aws-deploy",
+    "aws-package": "aws cloudformation package --template-file sam.yaml --s3-bucket losonczil-packages-eu-west-1 --output-template-file packaged.sam.yaml --profile losonczil",
+    "aws-deploy": "aws cloudformation deploy --template-file packaged.sam.yaml --stack-name foci2020-${ENV}-api --capabilities CAPABILITY_IAM --parameter-overrides Environment=${ENV} --profile losonczil",
+    "test": "jest --coverage",
+    "test:dev": "jest --watch"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.33",
+    "@types/jest": "^24.0.18",
+    "@types/json-schema": "^7.0.3",
+    "@types/node": "^12.7.11",
+    "@types/uuid": "^3.4.5",
+    "ajv": "^6.10.2",
+    "aws-sdk": "^2.543.0",
+    "jest": "^24.9.0",
+    "jest-date-mock": "^1.0.7",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.1.0",
+    "ts-loader": "^6.2.0",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "tslint-config-airbnb": "^5.11.2",
+    "typescript": "^3.6.3",
+    "uuid": "^3.3.3",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9",
+    "webpack-glob-entry": "^2.1.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "moduleNameMapper": {
+      "\\.(html|txt)$": "<rootDir>/test/jest-mock.ts",
+      "^@/(.+)$": "<rootDir>/src/$1"
+    },
+    "testRegex": ".*\\.spec\\.ts$",
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.{ts,tsx}",
+      "!**/node_modules/**",
+      "!src/entries/*.ts",
+      "!src/dependencies.ts"
+    ],
+    "coverageReporters": [
+      "html"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "setupFiles": [
+      "jest-date-mock"
+    ]
+  }
+}

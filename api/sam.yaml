@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: 'Foci 2020 API'
+Parameters: 
+  Environment:
+    Type: String
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+  Function:
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !ImportValue Foci2020-DEV-DynamoTable
+
+Resources:
+  FociApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+     
+  CreateTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/create-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !ImportValue Foci2020-DEV-LambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociApi
+            Path: /v1/teams
+            Method: POST
+
+Outputs:
+  FociApi:
+    Description: "Foci 2020 API"
+    Value: !Sub "https://${FociApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

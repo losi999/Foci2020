@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  Infrastructure:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: infrastructure/cloudformation.yaml
+  Api:
+    DependsOn: Infrastructure
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: api/sam.yaml
+      Parameters:
+        FociLambdaRoleArn: !GetAtt Infrastructure.Outputs.FociLambdaRoleArn
+        FociTableName: !GetAtt Infrastructure.Outputs.FociTableName

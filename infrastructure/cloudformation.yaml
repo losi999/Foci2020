@@ -6,6 +6,7 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
+      BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: partitionKey
           AttributeType: S
@@ -26,9 +27,6 @@ Resources:
           KeyType: HASH
         - AttributeName: sortKey
           KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
       GlobalSecondaryIndexes:
         - IndexName: indexByTournamentId
           KeySchema:
@@ -38,9 +36,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
         - IndexName: indexByTeamId
           KeySchema:
             - AttributeName: teamId
@@ -49,9 +44,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
         - IndexName: indexByMatchId
           KeySchema:
             - AttributeName: matchId
@@ -60,9 +52,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
         - IndexName: indexByUserId
           KeySchema:
             - AttributeName: userId
@@ -71,18 +60,12 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
         - IndexName: indexByDocumentType
           KeySchema:
             - AttributeName: documentType
               KeyType: HASH
           Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5                        
+            ProjectionType: ALL                  
 
   FociLambdaRole:
     Type: AWS::IAM::Role

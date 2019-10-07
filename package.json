@@ -8,3 +8,4 @@
     "aws-deploy": "aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-${ENV} --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --profile losonczil"
   }
 }
+

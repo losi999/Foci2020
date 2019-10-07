@@ -38,7 +38,7 @@ describe('API request validator handler', () => {
     mockInnerHandler.mockResolvedValue({
       statusCode,
       body
-    })
+    });
     const response = await handler(mockValidatorService)({
       body: {}
     })(mockInnerHandler)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

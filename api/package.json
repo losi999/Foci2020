@@ -6,7 +6,9 @@
     "clean": "rimraf ./dist",
     "build": "npm run clean && webpack",
     "test": "jest --coverage",
-    "test:dev": "jest --watch"
+    "test:dev": "jest --watch",
+    "lint": "tslint --project tsconfig.json",
+    "lintfix": "tslint --project tsconfig.json --fix"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.33",

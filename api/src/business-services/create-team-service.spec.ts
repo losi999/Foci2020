@@ -9,9 +9,9 @@ describe('Create team service', () => {
 
   beforeEach(() => {
     mockSaveTeam = jest.fn();
-    mockDatabaseService = new (jest.fn<IDatabaseService, undefined[]>(() => ({
+    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
       saveTeam: mockSaveTeam
-    })))();
+    })))() as IDatabaseService;
 
     mockUuid = jest.fn();
 

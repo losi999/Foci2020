@@ -1,6 +1,6 @@
 import { dynamoDatabaseService, IDatabaseService } from '@/services/database-service';
 import { DynamoDB } from 'aws-sdk';
-import { TeamDocument } from '@/types';
+import { TeamDocument, TournamentDocument } from '@/types';
 
 describe('Database service', () => {
   let service: IDatabaseService;
@@ -33,6 +33,24 @@ describe('Database service', () => {
       expect(dbPutSpy).toHaveBeenCalledWith({
         TableName: tableName,
         Item: team
+      });
+    });
+  });
+
+  describe('saveTournament', () => {
+    it('should call dynamo.put with correct parameters', async () => {
+      const tournament = {
+        tournamentId: 'tournamentId'
+      } as TournamentDocument;
+      dbPutSpy.mockReturnValue({
+        promise() {
+          return Promise.resolve(undefined);
+        }
+      });
+      await service.saveTournament(tournament);
+      expect(dbPutSpy).toHaveBeenCalledWith({
+        TableName: tableName,
+        Item: tournament
       });
     });
   });

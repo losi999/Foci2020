@@ -13,3 +13,15 @@ export type TeamDocument = {
   shortName: string;
   image: string;
 };
+
+export type TournamentRequest = {
+  tournamentName: string;
+};
+
+export type TournamentDocument = {
+  partitionKey: string;
+  sortKey: 'details';
+  documentType: 'tournament';
+  tournamentId: string;
+  tournamentName: string
+};

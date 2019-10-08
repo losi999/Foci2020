@@ -1,0 +1,40 @@
+import { default as handler } from '@/handlers/create-tournament-handler';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+
+describe('Create tournament handler', () => {
+  let mockCreateTournamentService: jest.Mock;
+
+  beforeEach(() => {
+    mockCreateTournamentService = jest.fn();
+  });
+
+  it('should respond with error if createTournament throws error', async () => {
+    const handlerEvent = {
+      body: '{}'
+    } as APIGatewayProxyEvent;
+
+    const statusCode = 418;
+    const message = 'This is an error';
+    mockCreateTournamentService.mockRejectedValue({
+      statusCode,
+      message
+    });
+
+    const response = await handler(mockCreateTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toEqual(statusCode);
+    expect(response.body).toEqual(message);
+  });
+
+  it('should respond with HTTP 200 is createTournament executes successfully', async () => {
+    const handlerEvent = {
+      body: '{}'
+    } as APIGatewayProxyEvent;
+
+    mockCreateTournamentService.mockResolvedValue(undefined);
+
+    const response = await handler(mockCreateTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+
+    expect(response.statusCode).toEqual(200);
+  });
+});

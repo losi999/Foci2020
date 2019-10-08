@@ -124,6 +124,7 @@ Resources:
               - logs:UpdateLogDelivery
               - logs:PutSubscriptionFilter
               - logs:PutRetentionPolicy
+              - xray:*
             Resource: '*'
 Outputs:
   FociTableName:

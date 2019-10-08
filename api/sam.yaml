@@ -33,6 +33,7 @@ Resources:
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
       MemorySize: 512
+      Tracing: Active
       Events:
         API:
           Type: Api

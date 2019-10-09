@@ -1,6 +1,9 @@
 import { createMatchServiceFactory, ICreateMatchService } from '@/business-services/create-match-service';
 import { IDatabaseService } from '@/services/database-service';
 import { MatchRequest, TeamDocument, TournamentDocument } from '@/types';
+import { advanceTo, clear } from 'jest-date-mock';
+import { addMinutes } from '@/common';
+
 describe('Create match service', () => {
   let mockDatabaseService: IDatabaseService;
   let mockSaveMatch: jest.Mock;
@@ -8,6 +11,8 @@ describe('Create match service', () => {
   let mockQueryTournamentById: jest.Mock;
   let mockUuid: jest.Mock;
   let service: ICreateMatchService;
+
+  const now = new Date(2019, 3, 21, 19, 0, 0);
 
   beforeEach(() => {
     mockSaveMatch = jest.fn();
@@ -22,6 +27,11 @@ describe('Create match service', () => {
     mockUuid = jest.fn();
 
     service = createMatchServiceFactory(mockDatabaseService, mockUuid);
+    advanceTo(now);
+  });
+
+  afterEach(() => {
+    clear();
   });
 
   it('should return undefined if match is saved', async () => {
@@ -29,7 +39,7 @@ describe('Create match service', () => {
     const awayTeamId = 'awayTeamId';
     const homeTeamId = 'homeTeamId';
     const group = 'group';
-    const startTime = 'startTime';
+    const startTime = addMinutes(5.1, now);
     const matchId = 'matchId';
     const partitionKey = 'match-matchId';
     const body: MatchRequest = {
@@ -37,7 +47,7 @@ describe('Create match service', () => {
       homeTeamId,
       awayTeamId,
       group,
-      startTime
+      startTime: startTime.toISOString()
     };
     const homeTeam = {
       teamId: homeTeamId,
@@ -70,6 +80,7 @@ describe('Create match service', () => {
       {
         matchId,
         partitionKey,
+        tournamentId,
         sortKey: 'details',
         documentType: 'match',
         group: body.group,
@@ -78,6 +89,7 @@ describe('Create match service', () => {
       {
         matchId,
         partitionKey,
+        tournamentId,
         sortKey: 'homeTeam',
         documentType: 'match',
         ...homeTeam
@@ -85,6 +97,7 @@ describe('Create match service', () => {
       {
         matchId,
         partitionKey,
+        tournamentId,
         sortKey: 'awayTeam',
         documentType: 'match',
         ...awayTeam
@@ -98,18 +111,62 @@ describe('Create match service', () => {
     ]);
   });
 
-  it('should throw error if unable to query home team', async () => {
+  it('should throw error if startTime is less than 5 minutes from now', async () => {
     const tournamentId = 'tournamentId';
     const awayTeamId = 'awayTeamId';
     const homeTeamId = 'homeTeamId';
     const group = 'group';
-    const startTime = 'startTime';
+    const startTime = addMinutes(4.9, now);
+
     const body: MatchRequest = {
       tournamentId,
       homeTeamId,
       awayTeamId,
       group,
-      startTime
+      startTime: startTime.toISOString()
+    };
+
+    try {
+      await service({ body });
+    } catch (error) {
+      expect(error.statusCode).toEqual(400);
+      expect(error.message).toEqual('Start time has to be at least 5 minutes from now');
+    }
+  });
+
+  it('should throw error if home and away teams are the same', async () => {
+    const tournamentId = 'tournamentId';
+    const teamId = 'teamId';
+    const group = 'group';
+    const startTime = addMinutes(5.1, now);
+    const body: MatchRequest = {
+      tournamentId,
+      group,
+      homeTeamId: teamId,
+      awayTeamId: teamId,
+      startTime: startTime.toISOString()
+    };
+
+    try {
+      await service({ body });
+    } catch (error) {
+      expect(error.statusCode).toEqual(400);
+      expect(error.message).toEqual('Home and away teams cannot be the same');
+    }
+  });
+
+  it('should throw error if unable to query home team', async () => {
+    const tournamentId = 'tournamentId';
+    const awayTeamId = 'awayTeamId';
+    const homeTeamId = 'homeTeamId';
+    const group = 'group';
+    const startTime = addMinutes(5.1, now);
+    const body: MatchRequest = {
+      tournamentId,
+      homeTeamId,
+      awayTeamId,
+      group,
+      startTime: startTime.toISOString()
     };
 
     mockQueryTeamById.mockRejectedValue('This is a dynamo error');
@@ -126,13 +183,13 @@ describe('Create match service', () => {
     const awayTeamId = 'awayTeamId';
     const homeTeamId = 'homeTeamId';
     const group = 'group';
-    const startTime = 'startTime';
+    const startTime = addMinutes(5.1, now);
     const body: MatchRequest = {
       tournamentId,
       homeTeamId,
       awayTeamId,
       group,
-      startTime
+      startTime: startTime.toISOString()
     };
     const homeTeam = {
       teamId: homeTeamId,
@@ -157,13 +214,13 @@ describe('Create match service', () => {
     const awayTeamId = 'awayTeamId';
     const homeTeamId = 'homeTeamId';
     const group = 'group';
-    const startTime = 'startTime';
+    const startTime = addMinutes(5.1, now);
     const body: MatchRequest = {
       tournamentId,
       homeTeamId,
       awayTeamId,
       group,
-      startTime
+      startTime: startTime.toISOString()
     };
     const homeTeam = {
       teamId: homeTeamId,
@@ -196,14 +253,14 @@ describe('Create match service', () => {
     const awayTeamId = 'awayTeamId';
     const homeTeamId = 'homeTeamId';
     const group = 'group';
-    const startTime = 'startTime';
+    const startTime = addMinutes(5.1, now);
     const matchId = 'matchId';
     const body: MatchRequest = {
       tournamentId,
       homeTeamId,
       awayTeamId,
       group,
-      startTime
+      startTime: startTime.toISOString()
     };
     const homeTeam = {
       teamId: homeTeamId,
@@ -243,13 +300,13 @@ describe('Create match service', () => {
     const awayTeamId = 'awayTeamId';
     const homeTeamId = 'homeTeamId';
     const group = 'group';
-    const startTime = 'startTime';
+    const startTime = addMinutes(5.1, now);
     const body: MatchRequest = {
       tournamentId,
       homeTeamId,
       awayTeamId,
       group,
-      startTime
+      startTime: startTime.toISOString()
     };
 
     mockQueryTeamById.mockResolvedValueOnce(undefined);
@@ -267,13 +324,13 @@ describe('Create match service', () => {
     const awayTeamId = 'awayTeamId';
     const homeTeamId = 'homeTeamId';
     const group = 'group';
-    const startTime = 'startTime';
+    const startTime = addMinutes(5.1, now);
     const body: MatchRequest = {
       tournamentId,
       homeTeamId,
       awayTeamId,
       group,
-      startTime
+      startTime: startTime.toISOString()
     };
     const homeTeam = {
       teamId: homeTeamId,
@@ -298,13 +355,13 @@ describe('Create match service', () => {
     const awayTeamId = 'awayTeamId';
     const homeTeamId = 'homeTeamId';
     const group = 'group';
-    const startTime = 'startTime';
+    const startTime = addMinutes(5.1, now);
     const body: MatchRequest = {
       tournamentId,
       homeTeamId,
       awayTeamId,
       group,
-      startTime
+      startTime: startTime.toISOString()
     };
     const homeTeam = {
       teamId: homeTeamId,

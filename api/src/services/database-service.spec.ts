@@ -1,6 +1,6 @@
 import { dynamoDatabaseService, IDatabaseService } from '@/services/database-service';
 import { DynamoDB } from 'aws-sdk';
-import { TeamDocument, TournamentDocument, MatchDocument } from '@/types';
+import { TeamDocument, TournamentDocument, MatchSaveDocument } from '@/types';
 
 describe('Database service', () => {
   let service: IDatabaseService;
@@ -71,7 +71,7 @@ describe('Database service', () => {
         }, {
           sortKey: 'tournament'
         }
-      ] as MatchDocument;
+      ] as MatchSaveDocument;
       dbTransactWrite.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
@@ -118,7 +118,7 @@ describe('Database service', () => {
   });
 
   describe('queryTeamById', () => {
-    it('should call dynamo.put with correct parameters', async () => {
+    it('should call dynamo.query with correct parameters', async () => {
       const teamId = 'teamId';
       dbQuerySpy.mockReturnValue({
         promise() {
@@ -155,7 +155,7 @@ describe('Database service', () => {
   });
 
   describe('queryTournamentById', () => {
-    it('should call dynamo.put with correct parameters', async () => {
+    it('should call dynamo.query with correct parameters', async () => {
       const tournamentId = 'tournamentId';
       dbQuerySpy.mockReturnValue({
         promise() {
@@ -188,6 +188,79 @@ describe('Database service', () => {
       });
       const result = await service.queryTournamentById(tournamentId);
       expect(result).toEqual(tournament1);
+    });
+  });
+
+  describe('queryMatchesByDocumentType', () => {
+    it('should call dynamo.query with correct parameters', async () => {
+      dbQuerySpy.mockReturnValue({
+        promise() {
+          return Promise.resolve({ Items: [] });
+        }
+      });
+      await service.queryMatchesByDocumentType();
+      expect(dbQuerySpy).toHaveBeenCalledWith({
+        TableName: tableName,
+        IndexName: 'indexByDocumentType',
+        KeyConditionExpression: 'documentType = :documentType',
+        ExpressionAttributeValues: {
+          ':documentType': 'match',
+        }
+      });
+    });
+
+    it('should return the queried items', async () => {
+      const tournament1 = {
+        tournamentId: 'tournament1'
+      };
+      const tournament2 = {
+        tournamentId: 'tournament2'
+      };
+      dbQuerySpy.mockReturnValue({
+        promise() {
+          return Promise.resolve({ Items: [tournament1, tournament2] });
+        }
+      });
+      const result = await service.queryMatchesByDocumentType();
+      expect(result).toEqual([tournament1, tournament2]);
+    });
+  });
+
+  describe('queryMatchesByTournamentId', () => {
+    it('should call dynamo.query with correct parameters', async () => {
+      const tournamentId = 'tournamentId';
+      dbQuerySpy.mockReturnValue({
+        promise() {
+          return Promise.resolve({ Items: [] });
+        }
+      });
+      await service.queryMatchesByTournamentId(tournamentId);
+      expect(dbQuerySpy).toHaveBeenCalledWith({
+        TableName: tableName,
+        IndexName: 'indexByTournamentId',
+        KeyConditionExpression: 'tournamentId = :tournamentId and  documentType = :documentType',
+        ExpressionAttributeValues: {
+          ':tournamentId': tournamentId,
+          ':documentType': 'match',
+        }
+      });
+    });
+
+    it('should return the queried items', async () => {
+      const tournamentId = 'tournamentId';
+      const tournament1 = {
+        tournamentId: 'tournament1'
+      };
+      const tournament2 = {
+        tournamentId: 'tournament2'
+      };
+      dbQuerySpy.mockReturnValue({
+        promise() {
+          return Promise.resolve({ Items: [tournament1, tournament2] });
+        }
+      });
+      const result = await service.queryMatchesByTournamentId(tournamentId);
+      expect(result).toEqual([tournament1, tournament2]);
     });
   });
 });

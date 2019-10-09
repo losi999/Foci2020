@@ -16,6 +16,32 @@ export type MatchRequest = {
   tournamentId: string;
 };
 
+export type MatchResponse = {
+  matchId: string,
+  startTime: Date,
+  group: string,
+  homeTeam: {
+    teamId: string,
+    teamName: string,
+    shortName: string,
+    image: string
+  },
+  awayTeam: {
+    teamId: string,
+    teamName: string,
+    shortName: string,
+    image: string
+  },
+  tournament: {
+    tournamentId: string,
+    tournamentName: string
+  },
+  finalScore?: {
+    homeScore: number,
+    awayScore: number
+  }
+};
+
 export type TeamDocument = {
   partitionKey: string;
   sortKey: 'details';
@@ -38,6 +64,7 @@ type MatchDetailsDocument = {
   partitionKey: string;
   sortKey: 'details';
   documentType: 'match';
+  tournamentId: string;
   matchId: string;
   startTime: string;
   group: string;
@@ -47,6 +74,7 @@ type MatchTeamDocument = {
   partitionKey: string;
   sortKey: 'homeTeam' | 'awayTeam';
   documentType: 'match';
+  tournamentId: string;
   teamId: string;
   matchId: string;
   teamName: string
@@ -67,9 +95,13 @@ export type MatchFinalScoreDocument = {
   partitionKey: string;
   sortKey: 'finalScore';
   documentType: 'match';
+  tournamentId: string;
   matchId: string;
   homeScore: number;
   awayScore: number;
 };
 
-export type MatchDocument = [MatchDetailsDocument, MatchTeamDocument, MatchTeamDocument, MatchTournamentDocument];
+export type MatchSaveDocument = [MatchDetailsDocument, MatchTeamDocument, MatchTeamDocument, MatchTournamentDocument];
+export type MatchDocument = MatchDetailsDocument | MatchTeamDocument | MatchTeamDocument | MatchTournamentDocument | MatchFinalScoreDocument;
+
+export type Converter<T, U> = (input: T) => U;

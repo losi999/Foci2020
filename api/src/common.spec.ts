@@ -21,7 +21,7 @@ describe('addMinutes common function', () => {
 
   afterEach(() => {
     clear();
-  })
+  });
   it('should add minutes to the given date parameter', () => {
     const from = new Date(2019, 10, 9, 22, 11, 0);
     const result = addMinutes(5, from);

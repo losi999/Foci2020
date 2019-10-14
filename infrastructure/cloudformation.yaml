@@ -96,9 +96,6 @@ Resources:
               - dynamodb:PutItem
               - dynamodb:Query
               - dynamodb:UpdateItem
-            Resource: !GetAtt FociTable.Arn
-          - Effect: Allow
-            Action:
               - logs:DeleteSubscriptionFilter
               - logs:DeleteLogStream
               - logs:CreateExportTask

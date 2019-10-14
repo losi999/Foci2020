@@ -26,7 +26,7 @@ describe('Create match handler', () => {
     expect(response.body).toEqual(message);
   });
 
-  it('should respond with HTTP 200 is createMatch executes successfully', async () => {
+  it('should respond with HTTP 200 if createMatch executes successfully', async () => {
     const handlerEvent = {
       body: '{}'
     } as APIGatewayProxyEvent;

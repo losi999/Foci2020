@@ -26,7 +26,7 @@ describe('Create tournament handler', () => {
     expect(response.body).toEqual(message);
   });
 
-  it('should respond with HTTP 200 is createTournament executes successfully', async () => {
+  it('should respond with HTTP 200 if createTournament executes successfully', async () => {
     const handlerEvent = {
       body: '{}'
     } as APIGatewayProxyEvent;

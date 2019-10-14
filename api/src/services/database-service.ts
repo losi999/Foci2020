@@ -1,13 +1,15 @@
 import { DynamoDB } from 'aws-sdk';
-import { TeamDocument, TournamentDocument, MatchDocument } from '@/types';
+import { TeamDocument, TournamentDocument, MatchSaveDocument, MatchDocument } from '@/types';
 import { TransactWriteItem, PutItemInputAttributeMap } from 'aws-sdk/clients/dynamodb';
 
 export interface IDatabaseService {
   saveTeam(team: TeamDocument): Promise<any>;
   saveTournament(team: TournamentDocument): Promise<any>;
-  saveMatch(match: MatchDocument): Promise<any>;
+  saveMatch(match: MatchSaveDocument): Promise<any>;
   queryTeamById(teamId: string): Promise<TeamDocument>;
   queryTournamentById(tournamentId: string): Promise<TournamentDocument>;
+  queryMatchesByDocumentType(): Promise<MatchDocument[]>;
+  queryMatchesByTournamentId(tournamentId: string): Promise<MatchDocument[]>;
 }
 
 export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): IDatabaseService => {
@@ -24,7 +26,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         Item: team,
       }).promise();
     },
-    saveMatch: (match: MatchDocument) => {
+    saveMatch: (match: MatchSaveDocument) => {
       return dynamoClient.transactWrite({
         TransactItems: match.map<TransactWriteItem>(m => ({
           Put: {
@@ -54,5 +56,26 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         }
       }).promise()).Items[0] as TournamentDocument;
     },
+    queryMatchesByDocumentType: async () => {
+      return (await dynamoClient.query({
+        TableName: process.env.DYNAMO_TABLE,
+        IndexName: 'indexByDocumentType',
+        KeyConditionExpression: 'documentType = :documentType',
+        ExpressionAttributeValues: {
+          ':documentType': 'match',
+        }
+      }).promise()).Items as MatchDocument[];
+    },
+    queryMatchesByTournamentId: async (tournamentId: string) => {
+      return (await dynamoClient.query({
+        TableName: process.env.DYNAMO_TABLE,
+        IndexName: 'indexByTournamentId',
+        KeyConditionExpression: 'tournamentId = :tournamentId and  documentType = :documentType',
+        ExpressionAttributeValues: {
+          ':tournamentId': tournamentId,
+          ':documentType': 'match',
+        }
+      }).promise()).Items as MatchDocument[];
+    }
   };
 };

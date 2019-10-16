@@ -3,9 +3,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   FociTable:
     Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
     Properties:
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE 
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: partitionKey
@@ -96,6 +98,10 @@ Resources:
               - dynamodb:PutItem
               - dynamodb:Query
               - dynamodb:UpdateItem
+              - dynamodb:GetRecords
+              - dynamodb:GetShardIterator
+              - dynamodb:DescribeStream
+              - dynamodb:ListStreams
               - logs:DeleteSubscriptionFilter
               - logs:DeleteLogStream
               - logs:CreateExportTask
@@ -128,3 +134,5 @@ Outputs:
     Value: !Ref FociTable
   FociLambdaRoleArn:
     Value: !GetAtt FociLambdaRole.Arn
+  FociTableStreamArn:
+    Value: !GetAtt FociTable.StreamArn

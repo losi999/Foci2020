@@ -1,6 +1,8 @@
 import { IDatabaseService } from '@/services/database-service';
-import { MatchResponse, MatchDocument, Converter } from '@/types';
 import { httpError } from '@/common';
+import { MatchResponse } from '@/types/responses';
+import { MatchDocument } from '@/types/documents';
+import { Converter } from '@/types/types';
 
 export interface IListMatchesService {
   (ctx: {
@@ -14,7 +16,7 @@ export const listMatchesServiceFactory = (
 ): IListMatchesService => {
   return async ({ tournamentId }) => {
     const matches = await (!!tournamentId ?
-      databaseService.queryMatchesByTournamentId(tournamentId) :
+      databaseService.queryMatchesByDocumentType() : // TODO
       databaseService.queryMatchesByDocumentType()).catch((error) => {
         console.log('ERROR databaseService.queryMatches', tournamentId, error);
         throw httpError(500, 'Unable to query matches');

@@ -1,11 +1,12 @@
 import { dynamoDatabaseService, IDatabaseService } from '@/services/database-service';
 import { DynamoDB } from 'aws-sdk';
-import { TeamDocument, TournamentDocument, MatchSaveDocument } from '@/types';
+import { TeamDocument, TournamentDocument, MatchSaveDocument } from '@/types/documents';
 
 describe('Database service', () => {
   let service: IDatabaseService;
   let dbPutSpy: jest.SpyInstance;
   let dbQuerySpy: jest.SpyInstance;
+  let dbUpdateSpy: jest.SpyInstance;
   let dbTransactWrite: jest.SpyInstance;
   const tableName = 'table-name';
 
@@ -14,6 +15,7 @@ describe('Database service', () => {
     dbPutSpy = jest.spyOn(dynamoClient, 'put');
     dbQuerySpy = jest.spyOn(dynamoClient, 'query');
     dbTransactWrite = jest.spyOn(dynamoClient, 'transactWrite');
+    dbUpdateSpy = jest.spyOn(dynamoClient, 'update');
     service = dynamoDatabaseService(dynamoClient);
 
     process.env.DYNAMO_TABLE = tableName;
@@ -58,6 +60,53 @@ describe('Database service', () => {
       });
     });
   });
+
+  describe('updateTournament', () => {
+    it('should call dynamo.put with correct parameters', async () => {
+      const tournament = {
+        tournamentId: 'tournamentId'
+      } as TournamentDocument;
+      dbPutSpy.mockReturnValue({
+        promise() {
+          return Promise.resolve(undefined);
+        }
+      });
+      await service.updateTournament(tournament);
+      expect(dbPutSpy).toHaveBeenCalledWith({
+        TableName: tableName,
+        Item: tournament
+      });
+    });
+  });
+
+  // describe('updateMatchWithTournament', () => {
+  //   it('should call dynamo.update with correct parameters', async () => {
+  //     const partitionKey = 'partitionKey';
+  //     const sortKey = 'tournament';
+  //     const tournamentName = 'tournamentName';
+
+  //     dbUpdateSpy.mockReturnValue({
+  //       promise() {
+  //         return Promise.resolve(undefined);
+  //       }
+  //     });
+  //     await service.updateMatchWithTournament({
+  //       partitionKey,
+  //       sortKey
+  //     }, { tournamentName });
+  //     expect(dbUpdateSpy).toHaveBeenCalledWith({
+  //       TableName: tableName,
+  //       Key: {
+  //         partitionKey,
+  //         sortKey
+  //       },
+  //       UpdateExpression: 'set tournamentName = :tournamentName',
+  //       ExpressionAttributeValues: {
+  //         ':tournamentName': tournamentName
+  //       }
+  //     });
+  //   });
+  // });
 
   describe('saveMatch', () => {
     it('should call dynamo.put with correct parameters', async () => {

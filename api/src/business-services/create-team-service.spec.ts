@@ -1,6 +1,6 @@
 import { createTeamServiceFactory, ICreateTeamService } from '@/business-services/create-team-service';
 import { IDatabaseService } from '@/services/database-service';
-import { TeamRequest } from '@/types';
+import { TeamRequest } from '@/types/requests';
 describe('Create team service', () => {
   let mockDatabaseService: IDatabaseService;
   let mockSaveTeam: jest.Mock;

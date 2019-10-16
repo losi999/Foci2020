@@ -17,12 +17,14 @@ module.exports = {
     ]
   },
   target: 'node',
-  externals: {
-    // These modules are already installed on the Lambda instance.
-    'awslambda': 'awslambda',
-    'dynamodb-doc': 'dynamodb-doc',
-    'aws-sdk': 'aws-sdk'
-  },
+  externals: [
+    {
+      // These modules are already installed on the Lambda instance.
+      'awslambda': 'awslambda',
+      'dynamodb-doc': 'dynamodb-doc'
+    },
+    /^aws-sdk.*/
+  ],
   node: {
     // Allow these globals.
     __filename: false,

@@ -1,7 +1,7 @@
-import { TeamRequest } from '@/types';
 import { IDatabaseService } from '@/services/database-service';
 import { v4String } from 'uuid/interfaces';
 import { httpError } from '@/common';
+import { TeamRequest } from '@/types/requests';
 
 export interface ICreateTeamService {
   (ctx: {

@@ -1,6 +1,6 @@
 import { createTournamentServiceFactory, ICreateTournamentService } from '@/business-services/create-tournament-service';
 import { IDatabaseService } from '@/services/database-service';
-import { TournamentRequest } from '@/types';
+import { TournamentRequest } from '@/types/requests';
 describe('Create tournament service', () => {
   let mockDatabaseService: IDatabaseService;
   let mockSaveTournament: jest.Mock;

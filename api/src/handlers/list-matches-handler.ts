@@ -1,6 +1,6 @@
 import { IListMatchesService } from '@/business-services/list-matches-service';
 import { APIGatewayProxyEvent, Handler, APIGatewayProxyResult } from 'aws-lambda';
-import { MatchResponse } from '@/types';
+import { MatchResponse } from '@/types/responses';
 
 export default (listMatches: IListMatchesService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
   return async (event) => {

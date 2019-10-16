@@ -1,7 +1,8 @@
-import { MatchRequest, MatchSaveDocument } from '@/types';
 import { IDatabaseService } from '@/services/database-service';
 import { v4String } from 'uuid/interfaces';
 import { httpError, addMinutes } from '@/common';
+import { MatchRequest } from '@/types/requests';
+import { MatchSaveDocument } from '@/types/documents';
 
 export interface ICreateMatchService {
   (ctx: {
@@ -54,7 +55,6 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
         partitionKey,
         sortKey: 'details',
         documentType: 'match',
-        tournamentId: tournament.tournamentId,
         group: body.group,
         startTime: body.startTime,
       },
@@ -63,7 +63,6 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
         partitionKey,
         sortKey: 'homeTeam',
         documentType: 'match',
-        tournamentId: tournament.tournamentId,
         teamId: homeTeam.teamId,
         image: homeTeam.image,
         shortName: homeTeam.shortName,
@@ -74,7 +73,6 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
         partitionKey,
         sortKey: 'awayTeam',
         documentType: 'match',
-        tournamentId: tournament.tournamentId,
         teamId: awayTeam.teamId,
         image: awayTeam.image,
         shortName: awayTeam.shortName,

@@ -1,4 +1,6 @@
-import { MatchResponse, MatchDocument, Converter } from '@/types';
+import { Converter } from '@/types/types';
+import { MatchDocument } from '@/types/documents';
+import { MatchResponse } from '@/types/responses';
 const converter: Converter<MatchDocument[], MatchResponse> = (documents) => {
   return documents.reduce((accumulator, currentValue) => {
     let temp: MatchResponse;

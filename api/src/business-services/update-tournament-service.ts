@@ -3,23 +3,20 @@ import { IDatabaseService } from '@/services/database-service';
 import { v4String } from 'uuid/interfaces';
 import { httpError } from '@/common';
 
-export interface ICreateTournamentService {
+export interface IUpdateTournamentService {
   (ctx: {
+    tournamentId: string,
     body: TournamentRequest
   }): Promise<any>;
 }
 
-export const createTournamentServiceFactory = (databaseService: IDatabaseService, uuid: v4String): ICreateTournamentService => {
-  return async ({ body }) => {
+export const updateTournamentServiceFactory = (databaseService: IDatabaseService): IUpdateTournamentService => {
+  return async ({ body, tournamentId }) => {
     try {
-      const tournamentId = uuid();
-      await databaseService.saveTournament({
-        ...body,
-        tournamentId,
-        documentType: 'tournament',
+      await databaseService.updateTournament({
         partitionKey: `tournament-${tournamentId}`,
-        sortKey: 'details',
-      });
+        sortKey: 'details'
+      }, body);
     } catch (error) {
       console.log('ERROR databaseService.saveTournament', error);
       throw httpError(500, 'Error while saving tournament');

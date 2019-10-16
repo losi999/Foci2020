@@ -1,6 +1,6 @@
-import { default as schema } from '@/schemas/create-team-body-schema';
+import { default as schema } from '@/schemas/create-team-schemas';
 import { validatorService } from '@/dependencies';
-import { TeamRequest } from '@/types';
+import { TeamRequest } from '@/types/requests';
 
 describe('Create team body schema', () => {
   const instanceType = 'body';

@@ -1,13 +1,17 @@
 import { Handler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { ICreateTournamentService } from '@/business-services/create-tournament-service';
+import { IUpdateTournamentService } from '@/business-services/update-tournament-service';
 import { TournamentRequest } from '@/types/requests';
 
-export default (createTournament: ICreateTournamentService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (updateTournament: IUpdateTournamentService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
   return async (event) => {
     const body = JSON.parse(event.body) as TournamentRequest;
+    const { tournamentId } = event.pathParameters;
 
     try {
-      await createTournament({ body });
+      await updateTournament({
+        body,
+        tournamentId
+      });
     } catch (error) {
       return {
         statusCode: error.statusCode,

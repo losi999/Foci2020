@@ -1,8 +1,9 @@
 import { createMatchServiceFactory, ICreateMatchService } from '@/business-services/create-match-service';
 import { IDatabaseService } from '@/services/database-service';
-import { MatchRequest, TeamDocument, TournamentDocument } from '@/types';
 import { advanceTo, clear } from 'jest-date-mock';
 import { addMinutes } from '@/common';
+import { MatchRequest } from '@/types/requests';
+import { TeamDocument, TournamentDocument } from '@/types/documents';
 
 describe('Create match service', () => {
   let mockDatabaseService: IDatabaseService;
@@ -80,7 +81,6 @@ describe('Create match service', () => {
       {
         matchId,
         partitionKey,
-        tournamentId,
         sortKey: 'details',
         documentType: 'match',
         group: body.group,
@@ -89,7 +89,6 @@ describe('Create match service', () => {
       {
         matchId,
         partitionKey,
-        tournamentId,
         sortKey: 'homeTeam',
         documentType: 'match',
         ...homeTeam
@@ -97,7 +96,6 @@ describe('Create match service', () => {
       {
         matchId,
         partitionKey,
-        tournamentId,
         sortKey: 'awayTeam',
         documentType: 'match',
         ...awayTeam

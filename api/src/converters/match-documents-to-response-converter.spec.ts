@@ -23,16 +23,16 @@ describe('Match documents to response converter', () => {
     input = [{
       matchId,
       group,
-      sortKey: 'details',
+      segment: 'details',
       startTime: startTime.toISOString()
     }, {
-      sortKey: 'homeTeam',
+      segment: 'homeTeam',
       teamName: homeTeamName,
       teamId: homeTeamId,
       shortName: homeTeamShortName,
       image: homeTeamImage
     }, {
-      sortKey: 'awayTeam',
+      segment: 'awayTeam',
       teamName: awayTeamName,
       teamId: awayTeamId,
       shortName: awayTeamShortName,
@@ -40,11 +40,11 @@ describe('Match documents to response converter', () => {
     }, {
       tournamentName,
       tournamentId,
-      sortKey: 'tournament',
+      segment: 'tournament',
     }, {
       homeScore,
       awayScore,
-      sortKey: 'finalScore',
+      segment: 'finalScore',
     }] as MatchDocument[];
   });
 

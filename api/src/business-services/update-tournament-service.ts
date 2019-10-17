@@ -1,6 +1,5 @@
 import { TournamentRequest } from '@/types/requests';
 import { IDatabaseService } from '@/services/database-service';
-import { v4String } from 'uuid/interfaces';
 import { httpError } from '@/common';
 
 export interface IUpdateTournamentService {
@@ -14,8 +13,8 @@ export const updateTournamentServiceFactory = (databaseService: IDatabaseService
   return async ({ body, tournamentId }) => {
     try {
       await databaseService.updateTournament({
-        partitionKey: `tournament-${tournamentId}`,
-        sortKey: 'details'
+        'documentType-id': `tournament-${tournamentId}`,
+        segment: 'details'
       }, body);
     } catch (error) {
       console.log('ERROR databaseService.saveTournament', error);

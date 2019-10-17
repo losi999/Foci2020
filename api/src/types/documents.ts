@@ -1,7 +1,22 @@
 export type DocumentKey<T = 'details'> = {
-  partitionKey: string;
-  sortKey: T;
+  'documentType-id': string;
+  segment: T;
 };
+
+type DocumentBase = {
+  documentType: 'tournament' | 'team' | 'match' | 'bet' | 'standing';
+  orderingValue: string;
+};
+
+export type TournamentUpdateDocument = {
+  tournamentName: string
+};
+
+export type TournamentDocument = DocumentKey & TournamentUpdateDocument & DocumentBase & {
+  documentType: 'tournament';
+  tournamentId: string;
+};
+export type IndexByTournamentIdDocument = Pick<MatchTournamentDocument, keyof DocumentKey | 'tournamentId' | 'documentType'>;
 
 export type TeamUpdateDocument = {
   teamName: string
@@ -9,30 +24,19 @@ export type TeamUpdateDocument = {
   image: string;
 };
 
-export type TeamDocument = DocumentKey & TeamUpdateDocument & {
+export type TeamDocument = DocumentKey & TeamUpdateDocument & DocumentBase & {
   documentType: 'team';
   teamId: string;
 };
-export type TournamentUpdateDocument = {
-  tournamentName: string
-};
-export type TournamentDocument = DocumentKey & TournamentUpdateDocument & {
-  documentType: 'tournament';
-  tournamentId: string;
-};
 
-type MatchDetailsDocument = {
-  partitionKey: string;
-  sortKey: 'details';
+type MatchDetailsDocument = DocumentKey & DocumentBase & {
   documentType: 'match';
   matchId: string;
   startTime: string;
   group: string;
 };
 
-type MatchTeamDocument = {
-  partitionKey: string;
-  sortKey: 'homeTeam' | 'awayTeam';
+type MatchTeamDocument = DocumentKey<'homeTeam' | 'awayTeam'> & DocumentBase & {
   documentType: 'match';
   teamId: string;
   matchId: string;
@@ -41,18 +45,14 @@ type MatchTeamDocument = {
   image: string;
 };
 
-export type MatchTournamentDocument = {
-  partitionKey: string;
-  sortKey: 'tournament';
+export type MatchTournamentDocument = DocumentKey<'tournament'> & DocumentBase & {
   documentType: 'match';
   matchId: string;
   tournamentId: string;
   tournamentName: string
 };
 
-export type MatchFinalScoreDocument = {
-  partitionKey: string;
-  sortKey: 'finalScore';
+export type MatchFinalScoreDocument = DocumentKey<'finalScore'> & DocumentBase & {
   documentType: 'match';
   matchId: string;
   homeScore: number;

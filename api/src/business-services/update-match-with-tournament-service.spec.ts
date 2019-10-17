@@ -13,7 +13,7 @@ describe('Update match with tournament service', () => {
 
     mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
       updateMatchWithTournament: mockUpdateMatchWithTournament,
-      queryMatchesByTournamentId: mockQueryMatchesByTournamentId
+      queryMatchKeysByTournamentId: mockQueryMatchesByTournamentId
     })))() as IDatabaseService;
 
     service = updateMatchWithTournamentServiceFactory(mockDatabaseService);

@@ -1,4 +1,4 @@
-import { TournamentDocument, MatchTournamentDocument } from '@/types/documents';
+import { TournamentDocument, IndexByTournamentIdDocument } from '@/types/documents';
 import { IDatabaseService } from '@/services/database-service';
 
 export interface IUpdateMatchWithTournamentService {
@@ -9,9 +9,9 @@ export interface IUpdateMatchWithTournamentService {
 
 export const updateMatchWithTournamentServiceFactory = (databaseService: IDatabaseService): IUpdateMatchWithTournamentService => {
   return async ({ tournament }) => {
-    let matches: MatchTournamentDocument[];
+    let matches: IndexByTournamentIdDocument[];
     try {
-      matches = await databaseService.queryMatchesByTournamentId(tournament.tournamentId);
+      matches = await databaseService.queryMatchKeysByTournamentId(tournament.tournamentId);
     } catch (error) {
       console.log('Unable to get matches by tournament', tournament.tournamentId, error);
       return;

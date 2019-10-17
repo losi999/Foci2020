@@ -80,30 +80,34 @@ describe('Create match service', () => {
     expect(mockSaveMatch).toHaveBeenCalledWith([
       {
         matchId,
-        partitionKey,
-        sortKey: 'details',
+        'documentType-id': partitionKey,
+        segment: 'details',
         documentType: 'match',
         group: body.group,
         startTime: body.startTime,
+        orderingValue: `${tournamentId}-${body.startTime}`
       },
       {
         matchId,
-        partitionKey,
-        sortKey: 'homeTeam',
+        'documentType-id': partitionKey,
+        segment: 'homeTeam',
         documentType: 'match',
+        orderingValue: `${tournamentId}-${body.startTime}`,
         ...homeTeam
       },
       {
         matchId,
-        partitionKey,
-        sortKey: 'awayTeam',
+        'documentType-id': partitionKey,
+        segment: 'awayTeam',
         documentType: 'match',
+        orderingValue: `${tournamentId}-${body.startTime}`,
         ...awayTeam
       }, {
         matchId,
-        partitionKey,
-        sortKey: 'tournament',
+        'documentType-id': partitionKey,
+        segment: 'tournament',
         documentType: 'match',
+        orderingValue: `${tournamentId}-${body.startTime}`,
         ...tournament
       }
     ]);

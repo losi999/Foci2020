@@ -17,8 +17,9 @@ export const createTournamentServiceFactory = (databaseService: IDatabaseService
         ...body,
         tournamentId,
         documentType: 'tournament',
-        partitionKey: `tournament-${tournamentId}`,
-        sortKey: 'details',
+        'documentType-id': `tournament-${tournamentId}`,
+        segment: 'details',
+        orderingValue: body.tournamentName
       });
     } catch (error) {
       console.log('ERROR databaseService.saveTournament', error);

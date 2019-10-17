@@ -17,8 +17,9 @@ export const createTeamServiceFactory = (databaseService: IDatabaseService, uuid
         ...body,
         teamId,
         documentType: 'team',
-        partitionKey: `team-${teamId}`,
-        sortKey: 'details',
+        'documentType-id': `team-${teamId}`,
+        segment: 'details',
+        orderingValue: body.teamName
       });
     } catch (error) {
       console.log('ERROR databaseService.saveTeam', error);

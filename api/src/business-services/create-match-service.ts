@@ -49,19 +49,22 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
 
     const matchId = uuid();
     const partitionKey = `match-${matchId}`;
+    const orderingValue = `${body.tournamentId}-${body.startTime}`;
     const matchDocument: MatchSaveDocument = [
       {
         matchId,
-        partitionKey,
-        sortKey: 'details',
+        orderingValue,
+        'documentType-id': partitionKey,
+        segment: 'details',
         documentType: 'match',
         group: body.group,
         startTime: body.startTime,
       },
       {
         matchId,
-        partitionKey,
-        sortKey: 'homeTeam',
+        orderingValue,
+        'documentType-id': partitionKey,
+        segment: 'homeTeam',
         documentType: 'match',
         teamId: homeTeam.teamId,
         image: homeTeam.image,
@@ -70,8 +73,9 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
       },
       {
         matchId,
-        partitionKey,
-        sortKey: 'awayTeam',
+        orderingValue,
+        'documentType-id': partitionKey,
+        segment: 'awayTeam',
         documentType: 'match',
         teamId: awayTeam.teamId,
         image: awayTeam.image,
@@ -79,8 +83,9 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
         teamName: awayTeam.teamName
       }, {
         matchId,
-        partitionKey,
-        sortKey: 'tournament',
+        orderingValue,
+        'documentType-id': partitionKey,
+        segment: 'tournament',
         documentType: 'match',
         tournamentId: tournament.tournamentId,
         tournamentName: tournament.tournamentName

@@ -17,8 +17,8 @@ export const updateTournamentServiceFactory = (databaseService: IDatabaseService
         segment: 'details'
       }, body);
     } catch (error) {
-      console.log('ERROR databaseService.saveTournament', error);
-      throw httpError(500, 'Error while saving tournament');
+      console.log('ERROR databaseService.updateTournament', error);
+      throw httpError(500, 'Error while updating tournament');
     }
   };
 };

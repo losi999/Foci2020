@@ -61,52 +61,85 @@ describe('Database service', () => {
     });
   });
 
-  // describe('updateTournament', () => {
-  //   it('should call dynamo.put with correct parameters', async () => {
-  //     const tournament = {
-  //       tournamentId: 'tournamentId'
-  //     } as TournamentDocument;
-  //     dbPutSpy.mockReturnValue({
-  //       promise() {
-  //         return Promise.resolve(undefined);
-  //       }
-  //     });
-  //     await service.updateTournament(tournament);
-  //     expect(dbPutSpy).toHaveBeenCalledWith({
-  //       TableName: tableName,
-  //       Item: tournament
-  //     });
-  //   });
-  // });
+  describe('updateTournament', () => {
+    it('should call dynamo.update with correct parameters', async () => {
+      const tournamentName = 'tournamentName';
+      const partitionKey = 'partitionKey';
+      const tournament = {
+        tournamentName,
+        tournamentId: 'tournamentId',
+      } as TournamentDocument;
+      dbUpdateSpy.mockReturnValue({
+        promise() {
+          return Promise.resolve(undefined);
+        }
+      });
+      await service.updateTournament({
+        'documentType-id': partitionKey,
+        segment: 'details'
+      }, tournament);
+      expect(dbUpdateSpy).toHaveBeenCalledWith({
+        Key: {
+          'documentType-id': partitionKey,
+          segment: 'details'
+        },
+        TableName: tableName,
+        UpdateExpression: 'set tournamentName = :tournamentName, orderingValue = :tournamentName',
+        ExpressionAttributeValues: {
+          ':tournamentName': tournamentName
+        }
+      });
+    });
+  });
 
-  // describe('updateMatchWithTournament', () => {
-  //   it('should call dynamo.update with correct parameters', async () => {
-  //     const partitionKey = 'partitionKey';
-  //     const sortKey = 'tournament';
-  //     const tournamentName = 'tournamentName';
+  describe('updateMatchWithTournament', () => {
+    it('should call dynamo.update with correct parameters', async () => {
+      const partitionKey1 = 'partitionKey1';
+      const partitionKey2 = 'partitionKey2';
+      const tournamentName = 'tournamentName';
 
-  //     dbUpdateSpy.mockReturnValue({
-  //       promise() {
-  //         return Promise.resolve(undefined);
-  //       }
-  //     });
-  //     await service.updateMatchWithTournament({
-  //       partitionKey,
-  //       sortKey
-  //     }, { tournamentName });
-  //     expect(dbUpdateSpy).toHaveBeenCalledWith({
-  //       TableName: tableName,
-  //       Key: {
-  //         partitionKey,
-  //         sortKey
-  //       },
-  //       UpdateExpression: 'set tournamentName = :tournamentName',
-  //       ExpressionAttributeValues: {
-  //         ':tournamentName': tournamentName
-  //       }
-  //     });
-  //   });
-  // });
+      dbTransactWrite.mockReturnValue({
+        promise() {
+          return Promise.resolve(undefined);
+        }
+      });
+      await service.updateMatchesWithTournament([{
+        'documentType-id': partitionKey1,
+        segment: 'tournament'
+      }, {
+        'documentType-id': partitionKey2,
+        segment: 'tournament'
+      }], { tournamentName });
+      expect(dbTransactWrite).toHaveBeenCalledWith({
+        TransactItems: [{
+          Update: {
+            Key: {
+              'documentType-id': partitionKey1,
+              segment: 'tournament'
+            },
+            TableName: tableName,
+            UpdateExpression: 'set tournamentName = :tournamentName',
+            ExpressionAttributeValues: {
+              ':tournamentName': tournamentName
+            }
+          }
+        }, {
+          Update: {
+            Key: {
+              'documentType-id': partitionKey2,
+              segment: 'tournament'
+            },
+            TableName: tableName,
+            UpdateExpression: 'set tournamentName = :tournamentName',
+            ExpressionAttributeValues: {
+              ':tournamentName': tournamentName
+            }
+          }
+        }
+        ]
+      });
+    });
+  });
 
   describe('saveMatch', () => {
     it('should call dynamo.put with correct parameters', async () => {
@@ -248,40 +281,43 @@ describe('Database service', () => {
     });
   });
 
-  // describe('queryMatchesByDocumentType', () => {
-  //   it('should call dynamo.query with correct parameters', async () => {
-  //     dbQuerySpy.mockReturnValue({
-  //       promise() {
-  //         return Promise.resolve({ Items: [] });
-  //       }
-  //     });
-  //     await service.queryMatchesByDocumentType();
-  //     expect(dbQuerySpy).toHaveBeenCalledWith({
-  //       TableName: tableName,
-  //       IndexName: 'indexByDocumentType',
-  //       KeyConditionExpression: 'documentType = :documentType',
-  //       ExpressionAttributeValues: {
-  //         ':documentType': 'match',
-  //       }
-  //     });
-  //   });
+  describe('queryMatches', () => {
+    it('should call dynamo.query with correct parameters', async () => {
+      const tournamentId = 'tournamentId';
+      dbQuerySpy.mockReturnValue({
+        promise() {
+          return Promise.resolve({ Items: [] });
+        }
+      });
+      await service.queryMatches(tournamentId);
+      expect(dbQuerySpy).toHaveBeenCalledWith({
+        TableName: tableName,
+        IndexName: 'indexByDocumentType',
+        KeyConditionExpression: 'documentType = :documentType and begins_with(orderingValue, :tournamentId)',
+        ExpressionAttributeValues: {
+          ':documentType': 'match',
+          ':tournamentId': tournamentId
+        }
+      });
+    });
 
-  //   it('should return the queried items', async () => {
-  //     const tournament1 = {
-  //       tournamentId: 'tournament1'
-  //     };
-  //     const tournament2 = {
-  //       tournamentId: 'tournament2'
-  //     };
-  //     dbQuerySpy.mockReturnValue({
-  //       promise() {
-  //         return Promise.resolve({ Items: [tournament1, tournament2] });
-  //       }
-  //     });
-  //     const result = await service.queryMatchesByDocumentType();
-  //     expect(result).toEqual([tournament1, tournament2]);
-  //   });
-  // });
+    it('should return the queried items', async () => {
+      const tournamentId = 'tournamentId';
+      const match1 = {
+        tournamentId
+      };
+      const match2 = {
+        tournamentId
+      };
+      dbQuerySpy.mockReturnValue({
+        promise() {
+          return Promise.resolve({ Items: [match1, match2] });
+        }
+      });
+      const result = await service.queryMatches(tournamentId);
+      expect(result).toEqual([match1, match2]);
+    });
+  });
 
   describe('queryMatchKeysByTournamentId', () => {
     it('should call dynamo.query with correct parameters', async () => {

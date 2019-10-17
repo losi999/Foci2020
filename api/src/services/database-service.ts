@@ -39,7 +39,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     updateTournament: (key, { tournamentName }) => {
       return dynamoClient.update({
         Key: {
-          ['documentType-id']: key['documentType-id'],
+          'documentType-id': key['documentType-id'],
           segment: key.segment
         },
         TableName: process.env.DYNAMO_TABLE,
@@ -54,7 +54,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         TransactItems: matchKeys.map(key => ({
           Update: {
             Key: {
-              ['documentType-id']: key['documentType-id'],
+              'documentType-id': key['documentType-id'],
               segment: key.segment
             },
             TableName: process.env.DYNAMO_TABLE,

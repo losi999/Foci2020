@@ -4,7 +4,7 @@ import { IDatabaseService } from '@/services/database-service';
 export interface IUpdateMatchWithTournamentService {
   (ctx: {
     tournament: TournamentDocument
-  }): Promise<any>;
+  }): Promise<void>;
 }
 
 export const updateMatchWithTournamentServiceFactory = (databaseService: IDatabaseService): IUpdateMatchWithTournamentService => {
@@ -17,7 +17,7 @@ export const updateMatchWithTournamentServiceFactory = (databaseService: IDataba
       return;
     }
     try {
-      return databaseService.updateMatchesWithTournament(matches, tournament);
+      await databaseService.updateMatchesWithTournament(matches, tournament);
     } catch (error) {
       console.log('Unable to update match', error);
       return;

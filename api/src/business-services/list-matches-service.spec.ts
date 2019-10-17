@@ -64,7 +64,7 @@ describe('List matches service', () => {
     mockConverter.mockReturnValueOnce(matchResponse2);
     mockConverter.mockReturnValueOnce(matchResponse3);
 
-    const result = await service({});
+    const result = await service({ tournamentId: 'tournamentId' });
     expect(result).toEqual([matchResponse1, matchResponse2, matchResponse3]);
     expect(mockConverter).toHaveBeenNthCalledWith(1, [matchDocument1]);
     expect(mockConverter).toHaveBeenNthCalledWith(2, [matchDocument2, matchDocument3]);
@@ -75,7 +75,7 @@ describe('List matches service', () => {
     mockQueryMatches.mockRejectedValue('This is a dynamo error');
 
     try {
-      await service({});
+      await service({ tournamentId: 'tournamentId' });
     } catch (error) {
       expect(error.statusCode).toEqual(500);
       expect(error.message).toEqual('Unable to query matches');

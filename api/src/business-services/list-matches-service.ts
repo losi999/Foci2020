@@ -5,7 +5,7 @@ import { MatchDocument } from '@/types/documents';
 import { Converter } from '@/types/types';
 
 export interface IListMatchesService {
-  (ctx: { tournamentId?: string }): Promise<MatchResponse[]>;
+  (ctx: { tournamentId: string }): Promise<MatchResponse[]>;
 }
 
 export const listMatchesServiceFactory = (

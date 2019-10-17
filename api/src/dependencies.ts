@@ -12,7 +12,7 @@ const ajvValidator = new ajv({
 const dynamoDbClient = new DynamoDB.DocumentClient();
 captureAWSClient((dynamoDbClient as any).service);
 
-const validatorService = ajvValidatorService(ajvValidator);
+export const validatorService = ajvValidatorService(ajvValidator);
 export const databaseService = dynamoDatabaseService(dynamoDbClient);
 
 export const apiRequestValidator = apiRequestValidatorHandler(validatorService);

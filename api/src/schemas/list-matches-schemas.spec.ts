@@ -1,4 +1,4 @@
-import { default as schema } from '@/schemas/list-matches-query-schema';
+import { default as schema } from '@/schemas/list-matches-schemas';
 import { validatorService } from '@/dependencies';
 
 describe('List matches query schema', () => {

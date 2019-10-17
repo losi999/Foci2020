@@ -1,6 +1,6 @@
 import { Handler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { ICreateMatchService } from '@/business-services/create-match-service';
-import { MatchRequest } from '@/types';
+import { MatchRequest } from '@/types/requests';
 
 export default (createMatch: ICreateMatchService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
   return async (event) => {

@@ -1,7 +1,8 @@
-import { MatchRequest, MatchSaveDocument } from '@/types';
 import { IDatabaseService } from '@/services/database-service';
 import { v4String } from 'uuid/interfaces';
 import { httpError, addMinutes } from '@/common';
+import { MatchRequest } from '@/types/requests';
+import { MatchSaveDocument } from '@/types/documents';
 
 export interface ICreateMatchService {
   (ctx: {
@@ -48,22 +49,23 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
 
     const matchId = uuid();
     const partitionKey = `match-${matchId}`;
+    const orderingValue = `${body.tournamentId}-${body.startTime}`;
     const matchDocument: MatchSaveDocument = [
       {
         matchId,
-        partitionKey,
-        sortKey: 'details',
+        orderingValue,
+        'documentType-id': partitionKey,
+        segment: 'details',
         documentType: 'match',
-        tournamentId: tournament.tournamentId,
         group: body.group,
         startTime: body.startTime,
       },
       {
         matchId,
-        partitionKey,
-        sortKey: 'homeTeam',
+        orderingValue,
+        'documentType-id': partitionKey,
+        segment: 'homeTeam',
         documentType: 'match',
-        tournamentId: tournament.tournamentId,
         teamId: homeTeam.teamId,
         image: homeTeam.image,
         shortName: homeTeam.shortName,
@@ -71,18 +73,19 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
       },
       {
         matchId,
-        partitionKey,
-        sortKey: 'awayTeam',
+        orderingValue,
+        'documentType-id': partitionKey,
+        segment: 'awayTeam',
         documentType: 'match',
-        tournamentId: tournament.tournamentId,
         teamId: awayTeam.teamId,
         image: awayTeam.image,
         shortName: awayTeam.shortName,
         teamName: awayTeam.teamName
       }, {
         matchId,
-        partitionKey,
-        sortKey: 'tournament',
+        orderingValue,
+        'documentType-id': partitionKey,
+        segment: 'tournament',
         documentType: 'match',
         tournamentId: tournament.tournamentId,
         tournamentName: tournament.tournamentName

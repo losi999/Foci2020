@@ -3,14 +3,16 @@ AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   FociTable:
     Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
     Properties:
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE 
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
-        - AttributeName: partitionKey
+        - AttributeName: documentType-id
           AttributeType: S
-        - AttributeName: sortKey
+        - AttributeName: segment
           AttributeType: S
         - AttributeName: documentType
           AttributeType: S
@@ -22,10 +24,12 @@ Resources:
           AttributeType: S
         - AttributeName: userId
           AttributeType: S
+        - AttributeName: orderingValue
+          AttributeType: S
       KeySchema:
-        - AttributeName: partitionKey
+        - AttributeName: documentType-id
           KeyType: HASH
-        - AttributeName: sortKey
+        - AttributeName: segment
           KeyType: RANGE
       GlobalSecondaryIndexes:
         - IndexName: indexByTournamentId
@@ -35,7 +39,7 @@ Resources:
             - AttributeName: documentType
               KeyType: RANGE
           Projection:
-            ProjectionType: ALL
+            ProjectionType: KEYS_ONLY
         - IndexName: indexByTeamId
           KeySchema:
             - AttributeName: teamId
@@ -43,7 +47,7 @@ Resources:
             - AttributeName: documentType
               KeyType: RANGE
           Projection:
-            ProjectionType: ALL
+            ProjectionType: KEYS_ONLY
         - IndexName: indexByMatchId
           KeySchema:
             - AttributeName: matchId
@@ -51,7 +55,7 @@ Resources:
             - AttributeName: documentType
               KeyType: RANGE
           Projection:
-            ProjectionType: ALL
+            ProjectionType: KEYS_ONLY
         - IndexName: indexByUserId
           KeySchema:
             - AttributeName: userId
@@ -59,11 +63,13 @@ Resources:
             - AttributeName: documentType
               KeyType: RANGE
           Projection:
-            ProjectionType: ALL
+            ProjectionType: KEYS_ONLY
         - IndexName: indexByDocumentType
           KeySchema:
             - AttributeName: documentType
               KeyType: HASH
+            - AttributeName: orderingValue
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL                  
 
@@ -96,6 +102,10 @@ Resources:
               - dynamodb:PutItem
               - dynamodb:Query
               - dynamodb:UpdateItem
+              - dynamodb:GetRecords
+              - dynamodb:GetShardIterator
+              - dynamodb:DescribeStream
+              - dynamodb:ListStreams
               - logs:DeleteSubscriptionFilter
               - logs:DeleteLogStream
               - logs:CreateExportTask
@@ -128,3 +138,5 @@ Outputs:
     Value: !Ref FociTable
   FociLambdaRoleArn:
     Value: !GetAtt FociLambdaRole.Arn
+  FociTableStreamArn:
+    Value: !GetAtt FociTable.StreamArn

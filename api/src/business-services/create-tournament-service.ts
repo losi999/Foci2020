@@ -1,4 +1,4 @@
-import { TournamentRequest } from '@/types';
+import { TournamentRequest } from '@/types/requests';
 import { IDatabaseService } from '@/services/database-service';
 import { v4String } from 'uuid/interfaces';
 import { httpError } from '@/common';
@@ -17,8 +17,9 @@ export const createTournamentServiceFactory = (databaseService: IDatabaseService
         ...body,
         tournamentId,
         documentType: 'tournament',
-        partitionKey: `tournament-${tournamentId}`,
-        sortKey: 'details',
+        'documentType-id': `tournament-${tournamentId}`,
+        segment: 'details',
+        orderingValue: body.tournamentName
       });
     } catch (error) {
       console.log('ERROR databaseService.saveTournament', error);

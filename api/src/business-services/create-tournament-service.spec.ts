@@ -1,6 +1,6 @@
 import { createTournamentServiceFactory, ICreateTournamentService } from '@/business-services/create-tournament-service';
 import { IDatabaseService } from '@/services/database-service';
-import { TournamentRequest } from '@/types';
+import { TournamentRequest } from '@/types/requests';
 describe('Create tournament service', () => {
   let mockDatabaseService: IDatabaseService;
   let mockSaveTournament: jest.Mock;
@@ -31,16 +31,21 @@ describe('Create tournament service', () => {
   });
 
   it('should return undefined if tournament is saved', async () => {
-    const body = {} as TournamentRequest;
+    const tournamentName = 'tournamentName';
+    const body = {
+      tournamentName
+    } as TournamentRequest;
     mockUuid.mockReturnValue('uuid');
     mockSaveTournament.mockResolvedValue(undefined);
     const result = await service({ body });
     expect(result).toBeUndefined();
     expect(mockSaveTournament).toHaveBeenCalledWith({
+      tournamentName,
       tournamentId: 'uuid',
       documentType: 'tournament',
-      partitionKey: 'tournament-uuid',
-      sortKey: 'details',
+      'documentType-id': 'tournament-uuid',
+      orderingValue: tournamentName,
+      segment: 'details',
     });
   });
 });

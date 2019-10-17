@@ -1,6 +1,6 @@
 import { createTeamServiceFactory, ICreateTeamService } from '@/business-services/create-team-service';
 import { IDatabaseService } from '@/services/database-service';
-import { TeamRequest } from '@/types';
+import { TeamRequest } from '@/types/requests';
 describe('Create team service', () => {
   let mockDatabaseService: IDatabaseService;
   let mockSaveTeam: jest.Mock;
@@ -31,16 +31,19 @@ describe('Create team service', () => {
   });
 
   it('should return undefined if team is saved', async () => {
-    const body = {} as TeamRequest;
+    const teamName = 'teamName';
+    const body = { teamName } as TeamRequest;
     mockUuid.mockReturnValue('uuid');
     mockSaveTeam.mockResolvedValue(undefined);
     const result = await service({ body });
     expect(result).toBeUndefined();
     expect(mockSaveTeam).toHaveBeenCalledWith({
+      teamName,
       teamId: 'uuid',
       documentType: 'team',
-      partitionKey: 'team-uuid',
-      sortKey: 'details',
+      'documentType-id': 'team-uuid',
+      segment: 'details',
+      orderingValue: teamName,
     });
   });
 });

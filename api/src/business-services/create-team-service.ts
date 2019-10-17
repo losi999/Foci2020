@@ -1,7 +1,7 @@
-import { TeamRequest } from '@/types';
 import { IDatabaseService } from '@/services/database-service';
 import { v4String } from 'uuid/interfaces';
 import { httpError } from '@/common';
+import { TeamRequest } from '@/types/requests';
 
 export interface ICreateTeamService {
   (ctx: {
@@ -17,8 +17,9 @@ export const createTeamServiceFactory = (databaseService: IDatabaseService, uuid
         ...body,
         teamId,
         documentType: 'team',
-        partitionKey: `team-${teamId}`,
-        sortKey: 'details',
+        'documentType-id': `team-${teamId}`,
+        segment: 'details',
+        orderingValue: body.teamName
       });
     } catch (error) {
       console.log('ERROR databaseService.saveTeam', error);

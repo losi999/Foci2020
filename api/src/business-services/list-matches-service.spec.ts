@@ -1,20 +1,18 @@
 import { IDatabaseService } from '@/services/database-service';
 import { IListMatchesService, listMatchesServiceFactory } from '@/business-services/list-matches-service';
-import { MatchDocument, MatchResponse } from '@/types';
+import { MatchDocument } from '@/types/documents';
+import { MatchResponse } from '@/types/responses';
 
 describe('List matches service', () => {
   let service: IListMatchesService;
   let mockDatabaseService: IDatabaseService;
   let mockConverter: jest.Mock;
-  let mockQueryMatchesByTournamentId: jest.Mock;
-  let mockQueryMatchesByDocumentType: jest.Mock;
+  let mockQueryMatches: jest.Mock;
 
   beforeEach(() => {
-    mockQueryMatchesByTournamentId = jest.fn();
-    mockQueryMatchesByDocumentType = jest.fn();
+    mockQueryMatches = jest.fn();
     mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
-      queryMatchesByTournamentId: mockQueryMatchesByTournamentId,
-      queryMatchesByDocumentType: mockQueryMatchesByDocumentType
+      queryMatches: mockQueryMatches,
     }))) as IDatabaseService;
 
     mockConverter = jest.fn();
@@ -27,19 +25,19 @@ describe('List matches service', () => {
     const matchId2 = 'match2';
     const matchId3 = 'match3';
     const matchDocument1 = {
-      sortKey: 'details',
+      segment: 'details',
       matchId: matchId1,
     } as MatchDocument;
     const matchDocument2 = {
-      sortKey: 'details',
+      segment: 'details',
       matchId: matchId2,
     } as MatchDocument;
     const matchDocument3 = {
-      sortKey: 'homeTeam',
+      segment: 'homeTeam',
       matchId: matchId2,
     } as MatchDocument;
     const matchDocument4 = {
-      sortKey: 'details',
+      segment: 'details',
       matchId: matchId3,
     };
 
@@ -48,7 +46,7 @@ describe('List matches service', () => {
       matchDocument2,
       matchDocument3,
       matchDocument4] as MatchDocument[];
-    mockQueryMatchesByDocumentType.mockResolvedValue(queriedDocuments);
+    mockQueryMatches.mockResolvedValue(queriedDocuments);
 
     const matchResponse1 = {
       matchId: matchId1,
@@ -66,43 +64,21 @@ describe('List matches service', () => {
     mockConverter.mockReturnValueOnce(matchResponse2);
     mockConverter.mockReturnValueOnce(matchResponse3);
 
-    const result = await service({});
-    expect(result).toEqual([matchResponse2, matchResponse3, matchResponse1]);
-    expect(mockQueryMatchesByTournamentId).not.toHaveBeenCalled();
+    const result = await service({ tournamentId: 'tournamentId' });
+    expect(result).toEqual([matchResponse1, matchResponse2, matchResponse3]);
     expect(mockConverter).toHaveBeenNthCalledWith(1, [matchDocument1]);
     expect(mockConverter).toHaveBeenNthCalledWith(2, [matchDocument2, matchDocument3]);
     expect(mockConverter).toHaveBeenNthCalledWith(3, [matchDocument4]);
   });
 
-  it('should call different query if tournamentId is passed', async () => {
-    mockQueryMatchesByTournamentId.mockResolvedValue([]);
-
-    const result = await service({ tournamentId: 'asdf' });
-    expect(result).toEqual([]);
-    expect(mockQueryMatchesByDocumentType).not.toHaveBeenCalled();
-  });
-
-  it('should throw error if unable to query matches by document type', async () => {
-    mockQueryMatchesByDocumentType.mockRejectedValue('This is a dynamo error');
+  it('should throw error if unable to query matches', async () => {
+    mockQueryMatches.mockRejectedValue('This is a dynamo error');
 
     try {
-      await service({});
+      await service({ tournamentId: 'tournamentId' });
     } catch (error) {
       expect(error.statusCode).toEqual(500);
       expect(error.message).toEqual('Unable to query matches');
-      expect(mockQueryMatchesByTournamentId).not.toHaveBeenCalled();
-    }
-  });
-
-  it('should throw error if unable to query matches by tournament Id ', async () => {
-    mockQueryMatchesByTournamentId.mockRejectedValue('This is a dynamo error');
-
-    try {
-      await service({ tournamentId: 'asdf' });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query matches');
-      expect(mockQueryMatchesByDocumentType).not.toHaveBeenCalled();
     }
   });
 });

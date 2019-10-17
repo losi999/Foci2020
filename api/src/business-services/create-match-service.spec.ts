@@ -1,8 +1,9 @@
 import { createMatchServiceFactory, ICreateMatchService } from '@/business-services/create-match-service';
 import { IDatabaseService } from '@/services/database-service';
-import { MatchRequest, TeamDocument, TournamentDocument } from '@/types';
 import { advanceTo, clear } from 'jest-date-mock';
 import { addMinutes } from '@/common';
+import { MatchRequest } from '@/types/requests';
+import { TeamDocument, TournamentDocument } from '@/types/documents';
 
 describe('Create match service', () => {
   let mockDatabaseService: IDatabaseService;
@@ -79,33 +80,34 @@ describe('Create match service', () => {
     expect(mockSaveMatch).toHaveBeenCalledWith([
       {
         matchId,
-        partitionKey,
-        tournamentId,
-        sortKey: 'details',
+        'documentType-id': partitionKey,
+        segment: 'details',
         documentType: 'match',
         group: body.group,
         startTime: body.startTime,
+        orderingValue: `${tournamentId}-${body.startTime}`
       },
       {
         matchId,
-        partitionKey,
-        tournamentId,
-        sortKey: 'homeTeam',
+        'documentType-id': partitionKey,
+        segment: 'homeTeam',
         documentType: 'match',
+        orderingValue: `${tournamentId}-${body.startTime}`,
         ...homeTeam
       },
       {
         matchId,
-        partitionKey,
-        tournamentId,
-        sortKey: 'awayTeam',
+        'documentType-id': partitionKey,
+        segment: 'awayTeam',
         documentType: 'match',
+        orderingValue: `${tournamentId}-${body.startTime}`,
         ...awayTeam
       }, {
         matchId,
-        partitionKey,
-        sortKey: 'tournament',
+        'documentType-id': partitionKey,
+        segment: 'tournament',
         documentType: 'match',
+        orderingValue: `${tournamentId}-${body.startTime}`,
         ...tournament
       }
     ]);

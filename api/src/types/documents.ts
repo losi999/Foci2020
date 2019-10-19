@@ -29,6 +29,8 @@ export type TeamDocument = DocumentKey & TeamUpdateDocument & DocumentBase & {
   teamId: string;
 };
 
+export type IndexByTeamIdDocument = Pick<MatchTeamDocument, keyof DocumentKey | 'teamId' | 'documentType'>;
+
 type MatchDetailsDocument = DocumentKey & DocumentBase & {
   documentType: 'match';
   matchId: string;
@@ -36,7 +38,7 @@ type MatchDetailsDocument = DocumentKey & DocumentBase & {
   group: string;
 };
 
-type MatchTeamDocument = DocumentKey<'homeTeam' | 'awayTeam'> & DocumentBase & {
+export type MatchTeamDocument = DocumentKey<'homeTeam' | 'awayTeam'> & DocumentBase & {
   documentType: 'match';
   teamId: string;
   matchId: string;
@@ -60,4 +62,4 @@ export type MatchFinalScoreDocument = DocumentKey<'finalScore'> & DocumentBase &
 };
 
 export type MatchSaveDocument = [MatchDetailsDocument, MatchTeamDocument, MatchTeamDocument, MatchTournamentDocument];
-export type MatchDocument = MatchDetailsDocument | MatchTeamDocument | MatchTeamDocument | MatchTournamentDocument | MatchFinalScoreDocument;
+export type MatchDocument = MatchDetailsDocument | MatchTeamDocument | MatchTournamentDocument | MatchFinalScoreDocument;

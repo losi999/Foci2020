@@ -80,6 +80,24 @@ Resources:
             Path: /v1/tournaments/{tournamentId}
             Method: PATCH    
 
+  UpdateTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/update-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociApi
+            Path: /v1/teams/{teamId}
+            Method: PATCH    
+
   CreateMatch:
     Type: AWS::Serverless::Function
     Properties:
@@ -114,6 +132,23 @@ Resources:
           Properties:
             Stream: !Ref FociTableStreamArn
             StartingPosition: TRIM_HORIZON
+
+  UpdateMatchWithTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/update-match-with-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        DB:
+          Type: DynamoDB
+          Properties:
+            Stream: !Ref FociTableStreamArn
+            StartingPosition: TRIM_HORIZON            
 
   ListMatches:
     Type: AWS::Serverless::Function

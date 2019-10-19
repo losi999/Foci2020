@@ -62,4 +62,4 @@ export type MatchFinalScoreDocument = DocumentKey<'finalScore'> & DocumentBase &
 };
 
 export type MatchSaveDocument = [MatchDetailsDocument, MatchTeamDocument, MatchTeamDocument, MatchTournamentDocument];
-export type MatchDocument = MatchDetailsDocument | MatchTeamDocument | MatchTeamDocument | MatchTournamentDocument | MatchFinalScoreDocument;
+export type MatchDocument = MatchDetailsDocument | MatchTeamDocument | MatchTournamentDocument | MatchFinalScoreDocument;

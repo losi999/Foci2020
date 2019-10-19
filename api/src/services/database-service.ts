@@ -28,19 +28,31 @@ export interface IDatabaseService {
 }
 
 export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): IDatabaseService => {
+  const putDocument = (document: any) => {
+    return dynamoClient.put({
+      TableName: process.env.DYNAMO_TABLE,
+      Item: document
+    }).promise();
+  };
+
+  const queryByKey = async (partitionKey: string) => {
+    return (await dynamoClient.query({
+      TableName: process.env.DYNAMO_TABLE,
+      KeyConditionExpression: '#documentTypeId = :pk and #segment = :sk',
+      ExpressionAttributeNames: {
+        '#documentTypeId': 'documentType-id',
+        '#segment': 'segment'
+      },
+      ExpressionAttributeValues: {
+        ':pk': partitionKey,
+        ':sk': 'details'
+      }
+    }).promise()).Items[0];
+  };
+
   return {
-    saveTeam: (team) => {
-      return dynamoClient.put({
-        TableName: process.env.DYNAMO_TABLE,
-        Item: team
-      }).promise();
-    },
-    saveTournament: (tournament) => {
-      return dynamoClient.put({
-        TableName: process.env.DYNAMO_TABLE,
-        Item: tournament,
-      }).promise();
-    },
+    saveTeam: team => putDocument(team),
+    saveTournament: tournament => putDocument(tournament),
     updateTournament: (key, { tournamentName }) => {
       return dynamoClient.update({
         Key: {
@@ -51,6 +63,21 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         UpdateExpression: 'set tournamentName = :tournamentName, orderingValue = :tournamentName',
         ExpressionAttributeValues: {
           ':tournamentName': tournamentName
+        }
+      }).promise();
+    },
+    updateTeam: (key, { image, shortName, teamName }) => {
+      return dynamoClient.update({
+        Key: {
+          'documentType-id': key['documentType-id'],
+          segment: key.segment
+        },
+        TableName: process.env.DYNAMO_TABLE,
+        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName ',
+        ExpressionAttributeValues: {
+          ':teamName': teamName,
+          ':image': image,
+          ':shortName': shortName
         }
       }).promise();
     },
@@ -69,21 +96,6 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
             }
           }
         }))
-      }).promise();
-    },
-    updateTeam: (key, { image, shortName, teamName }) => {
-      return dynamoClient.update({
-        Key: {
-          'documentType-id': key['documentType-id'],
-          segment: key.segment
-        },
-        TableName: process.env.DYNAMO_TABLE,
-        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName ',
-        ExpressionAttributeValues: {
-          ':teamName': teamName,
-          ':image': image,
-          ':shortName': shortName
-        }
       }).promise();
     },
     updateMatchesWithTeam: (matchKeys, { image, shortName, teamName }) => {
@@ -115,34 +127,8 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         }))
       }).promise();
     },
-    queryTeamById: async (teamId) => {
-      return (await dynamoClient.query({
-        TableName: process.env.DYNAMO_TABLE,
-        KeyConditionExpression: '#documentTypeId = :pk and #segment = :sk',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-          '#segment': 'segment'
-        },
-        ExpressionAttributeValues: {
-          ':pk': `team-${teamId}`,
-          ':sk': 'details'
-        }
-      }).promise()).Items[0] as TeamDocument;
-    },
-    queryTournamentById: async (tournamentId) => {
-      return (await dynamoClient.query({
-        TableName: process.env.DYNAMO_TABLE,
-        KeyConditionExpression: '#documentTypeId = :pk and #segment = :sk',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-          '#segment': 'segment'
-        },
-        ExpressionAttributeValues: {
-          ':pk': `tournament-${tournamentId}`,
-          ':sk': 'details'
-        }
-      }).promise()).Items[0] as TournamentDocument;
-    },
+    queryTeamById: teamId => queryByKey(`team-${teamId}`) as Promise<TeamDocument>,
+    queryTournamentById: tournamentId => queryByKey(`tournament-${tournamentId}`) as Promise<TournamentDocument>,
     queryMatches: async (tournamentId: string) => {
       return (await dynamoClient.query({
         TableName: process.env.DYNAMO_TABLE,

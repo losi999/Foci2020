@@ -176,7 +176,7 @@ describe('Create match service', () => {
       await service({ body });
     } catch (error) {
       expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query home team');
+      expect(error.message).toEqual('Unable to query related document');
     }
   });
 
@@ -207,7 +207,7 @@ describe('Create match service', () => {
       await service({ body });
     } catch (error) {
       expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query away team');
+      expect(error.message).toEqual('Unable to query related document');
     }
   });
 
@@ -246,7 +246,7 @@ describe('Create match service', () => {
       await service({ body });
     } catch (error) {
       expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query tournament');
+      expect(error.message).toEqual('Unable to query related document');
     }
   });
 
@@ -293,7 +293,7 @@ describe('Create match service', () => {
       await service({ body });
     } catch (error) {
       expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Error while saving team');
+      expect(error.message).toEqual('Error while saving match');
     }
   });
 
@@ -317,7 +317,7 @@ describe('Create match service', () => {
       await service({ body });
     } catch (error) {
       expect(error.statusCode).toEqual(400);
-      expect(error.message).toEqual('No team found');
+      expect(error.message).toEqual('Home team not found');
     }
   });
 
@@ -348,7 +348,7 @@ describe('Create match service', () => {
       await service({ body });
     } catch (error) {
       expect(error.statusCode).toEqual(400);
-      expect(error.message).toEqual('No team found');
+      expect(error.message).toEqual('Away team not found');
     }
   });
 
@@ -387,7 +387,7 @@ describe('Create match service', () => {
       await service({ body });
     } catch (error) {
       expect(error.statusCode).toEqual(400);
-      expect(error.message).toEqual('No tournament found');
+      expect(error.message).toEqual('Tournament not found');
     }
   });
 });

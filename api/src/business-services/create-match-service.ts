@@ -20,31 +20,25 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
       throw httpError(400, 'Home and away teams cannot be the same');
     }
 
-    const homeTeam = await databaseService.queryTeamById(body.homeTeamId).catch((error) => {
-      console.log('ERROR queryTeamById', error);
-      throw httpError(500, 'Unable to query home team');
+    const [homeTeam, awayTeam, tournament] = await Promise.all([
+      databaseService.queryTeamById(body.homeTeamId),
+      databaseService.queryTeamById(body.awayTeamId),
+      databaseService.queryTournamentById(body.tournamentId)
+    ]).catch((error) => {
+      console.log('ERROR query', error);
+      throw httpError(500, 'Unable to query related document');
     });
 
     if (!homeTeam) {
-      throw httpError(400, 'No team found');
+      throw httpError(400, 'Home team not found');
     }
-
-    const awayTeam = await databaseService.queryTeamById(body.awayTeamId).catch((error) => {
-      console.log('ERROR queryTeamById', error);
-      throw httpError(500, 'Unable to query away team');
-    });
 
     if (!awayTeam) {
-      throw httpError(400, 'No team found');
+      throw httpError(400, 'Away team not found');
     }
 
-    const tournament = await databaseService.queryTournamentById(body.tournamentId).catch((error) => {
-      console.log('ERROR queryTournamentById', error);
-      throw httpError(500, 'Unable to query tournament');
-    });
-
     if (!tournament) {
-      throw httpError(400, 'No tournament found');
+      throw httpError(400, 'Tournament not found');
     }
 
     const matchId = uuid();
@@ -95,7 +89,7 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
       await databaseService.saveMatch(matchDocument);
     } catch (error) {
       console.log('ERROR databaseService.saveMatch', error);
-      throw httpError(500, 'Error while saving team');
+      throw httpError(500, 'Error while saving match');
     }
   };
 };

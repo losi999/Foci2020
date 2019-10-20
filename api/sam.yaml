@@ -184,6 +184,24 @@ Resources:
           Properties:
             RestApiId: !Ref FociApi
             Path: /v1/matches
+            Method: GET     
+
+  ListTeams:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/list-teams
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociApi
+            Path: /v1/teams
             Method: GET                                    
 
 Outputs:

@@ -23,3 +23,10 @@ export type MatchResponse = {
     awayScore: number
   }
 };
+
+export type TeamResponse = {
+  teamId: string,
+  teamName: string,
+  shortName: string,
+  image: string
+};

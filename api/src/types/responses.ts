@@ -30,3 +30,8 @@ export type TeamResponse = {
   shortName: string,
   image: string
 };
+
+export type TournamentResponse = {
+  tournamentId: string,
+  tournamentName: string
+};

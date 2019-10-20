@@ -260,7 +260,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         ExpressionAttributeValues: {
           ':documentType': 'team',
         }
-      }).on('success', capacity('queryMatches')).promise()).Items as TeamDocument[];
+      }).on('success', capacity('queryTeams')).promise()).Items as TeamDocument[];
     },
     queryMatchKeysByTournamentId: async (tournamentId) => {
       return (await dynamoClient.query({

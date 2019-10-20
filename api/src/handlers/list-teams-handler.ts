@@ -4,12 +4,9 @@ import { TeamResponse } from '@/types/responses';
 
 export default (listTeams: IListTeamsService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
   return async (event) => {
-    const { tournamentId } = event.queryStringParameters || {};
     let teams: TeamResponse[];
     try {
-      teams = await listTeams({
-        tournamentId
-      });
+      teams = await listTeams({});
     } catch (error) {
       return {
         statusCode: error.statusCode,

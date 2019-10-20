@@ -26,6 +26,7 @@ export interface IDatabaseService {
   queryTournamentById(tournamentId: string): Promise<TournamentDocument>;
   queryMatches(tournamentId: string): Promise<MatchDocument[]>;
   queryTeams(): Promise<TeamDocument[]>;
+  queryTournaments(): Promise<TournamentDocument[]>;
   queryMatchKeysByTournamentId(tournamentId: string): Promise<IndexByTournamentIdDocument[]>;
   queryMatchKeysByTeamId(teamId: string): Promise<IndexByTeamIdDocument[]>;
 }
@@ -261,6 +262,17 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
           ':documentType': 'team',
         }
       }).on('success', capacity('queryTeams')).promise()).Items as TeamDocument[];
+    },
+    queryTournaments: async () => {
+      return (await dynamoClient.query({
+        ReturnConsumedCapacity: 'TOTAL',
+        TableName: process.env.DYNAMO_TABLE,
+        IndexName: 'indexByDocumentType',
+        KeyConditionExpression: 'documentType = :documentType',
+        ExpressionAttributeValues: {
+          ':documentType': 'tournament',
+        }
+      }).on('success', capacity('queryTournaments')).promise()).Items as TournamentDocument[];
     },
     queryMatchKeysByTournamentId: async (tournamentId) => {
       return (await dynamoClient.query({

@@ -2,7 +2,7 @@ import { dynamoDatabaseService, IDatabaseService } from '@/services/database-ser
 import { DynamoDB } from 'aws-sdk';
 import { TeamDocument, TournamentDocument, MatchSaveDocument } from '@/types/documents';
 
-describe('Database service', () => {
+describe.skip('Database service', () => {
   let service: IDatabaseService;
   let dbPutSpy: jest.SpyInstance;
   let dbQuerySpy: jest.SpyInstance;

@@ -28,7 +28,7 @@ describe('Get team handler', () => {
     expect(response.body).toEqual(message);
   });
 
-  it('should respond with HTTP 200 and get of team if getTeam executes successfully', async () => {
+  it('should respond with HTTP 200 and team if getTeam executes successfully', async () => {
     const teamId = 'teamId';
     const handlerEvent = {
       pathParameters: {},

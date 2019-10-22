@@ -30,6 +30,7 @@ export interface IDatabaseService {
   queryTournaments(): Promise<TournamentDocument[]>;
   queryMatchKeysByTournamentId(tournamentId: string): Promise<IndexByTournamentIdDocument[]>;
   queryMatchKeysByTeamId(teamId: string): Promise<IndexByTeamIdDocument[]>;
+  deleteMatch(matchId: string): Promise<any>;
 }
 
 export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): IDatabaseService => {
@@ -321,6 +322,20 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
           ':documentType': 'match',
         }
       }).on('success', capacity('queryMatchKeysByTeamId')).promise()).Items as IndexByTeamIdDocument[];
+    },
+    deleteMatch: (matchId) => {
+      const matchSegments = ['details', 'homeTeam', 'awayTeam', 'tournament', 'finalScore'];
+      return dynamoClient.transactWrite({
+        TransactItems: matchSegments.map<TransactWriteItem>(segment => ({
+          Delete: {
+            TableName: process.env.DYNAMO_TABLE,
+            Key: {
+              segment,
+              'documentType-id': `match-${matchId}`,
+            } as DynamoDB.Key
+          }
+        }))
+      }).promise();
     }
   };
 };

@@ -275,6 +275,24 @@ Resources:
             RestApiId: !Ref FociApi
             Path: /v1/matches/{matchId}
             Method: GET  
+
+  DeleteMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/delete-match
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociApi
+            Path: /v1/matches/{matchId}
+            Method: DELETE              
 Outputs:
   FociApi:
     Description: "Foci 2020 API"

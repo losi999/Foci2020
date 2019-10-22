@@ -36,7 +36,7 @@ type MatchDetailsUpdateDocument = {
   group: string;
 };
 
-type MatchDetailsDocument = DocumentKey & DocumentBase & MatchDetailsUpdateDocument & {
+export type MatchDetailsDocument = DocumentKey & DocumentBase & MatchDetailsUpdateDocument & {
   documentType: 'match';
   matchId: string;
 };

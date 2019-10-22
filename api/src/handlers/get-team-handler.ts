@@ -1,12 +1,13 @@
-import { IListTeamsService } from '@/business-services/list-teams-service';
+import { IGetTeamService } from '@/business-services/get-team-service';
 import { APIGatewayProxyEvent, Handler, APIGatewayProxyResult } from 'aws-lambda';
 import { TeamResponse } from '@/types/responses';
 
-export default (listTeams: IListTeamsService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (getTeam: IGetTeamService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
   return async (event) => {
-    let teams: TeamResponse[];
+    const { teamId } = event.pathParameters;
+    let team: TeamResponse;
     try {
-      teams = await listTeams();
+      team = await getTeam({ teamId });
     } catch (error) {
       return {
         statusCode: error.statusCode,
@@ -15,7 +16,7 @@ export default (listTeams: IListTeamsService): Handler<APIGatewayProxyEvent, API
     }
     return {
       statusCode: 200,
-      body: JSON.stringify(teams)
+      body: JSON.stringify(team)
     };
   };
 };

@@ -6,7 +6,7 @@ export default (listTournaments: IListTournamentsService): Handler<APIGatewayPro
   return async (event) => {
     let tournaments: TournamentResponse[];
     try {
-      tournaments = await listTournaments({});
+      tournaments = await listTournaments();
     } catch (error) {
       return {
         statusCode: error.statusCode,

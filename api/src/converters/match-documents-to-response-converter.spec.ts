@@ -18,13 +18,13 @@ describe('Match documents to response converter', () => {
   const tournamentId = 'tournamentId';
   const homeScore = 1;
   const awayScore = 2;
-  const startTime = new Date(2019, 5, 5, 19, 0, 0);
+  const startTime = 'start';
   beforeEach(() => {
     input = [{
       matchId,
       group,
+      startTime,
       segment: 'details',
-      startTime: startTime.toISOString()
     }, {
       segment: 'homeTeam',
       teamName: homeTeamName,

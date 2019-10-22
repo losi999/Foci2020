@@ -33,12 +33,12 @@ export interface IDatabaseService {
 
 export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): IDatabaseService => {
   const capacity = (name: string) => (resp: any) => {
-    console.log(`${name} CAPACITY`, resp.data.ConsumedCapacity);
+    console.log(`${name} CAPACITY`, JSON.stringify(resp.data.ConsumedCapacity));
   };
 
   const putDocument = (document: any) => {
     return dynamoClient.put({
-      ReturnConsumedCapacity: 'TOTAL',
+      ReturnConsumedCapacity: 'INDEXES',
       TableName: process.env.DYNAMO_TABLE,
       Item: document
     }).on('success', capacity('putDocument')).promise();
@@ -46,7 +46,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
 
   const queryByKey = async (partitionKey: string) => {
     return (await dynamoClient.query({
-      ReturnConsumedCapacity: 'TOTAL',
+      ReturnConsumedCapacity: 'INDEXES',
       TableName: process.env.DYNAMO_TABLE,
       KeyConditionExpression: '#documentTypeId = :pk and #segment = :sk',
       ExpressionAttributeNames: {
@@ -65,13 +65,18 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     saveTournament: tournament => putDocument(tournament),
     updateTournament: (key, { tournamentName }) => {
       return dynamoClient.update({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: process.env.DYNAMO_TABLE,
         Key: {
           'documentType-id': key['documentType-id'],
           segment: key.segment
         },
-        TableName: process.env.DYNAMO_TABLE,
+        ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
         UpdateExpression: 'set tournamentName = :tournamentName, orderingValue = :tournamentName',
+        ExpressionAttributeNames: {
+          '#documentTypeId': 'documentType-id',
+          '#segment': 'segment'
+        },
         ExpressionAttributeValues: {
           ':tournamentName': tournamentName
         }
@@ -79,13 +84,18 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     },
     updateTeam: (key, { image, shortName, teamName }) => {
       return dynamoClient.update({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: process.env.DYNAMO_TABLE,
         Key: {
           'documentType-id': key['documentType-id'],
           segment: key.segment
         },
-        TableName: process.env.DYNAMO_TABLE,
-        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName ',
+        ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
+        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName',
+        ExpressionAttributeNames: {
+          '#documentTypeId': 'documentType-id',
+          '#segment': 'segment'
+        },
         ExpressionAttributeValues: {
           ':teamName': teamName,
           ':image': image,
@@ -95,15 +105,20 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     },
     updateMatchesWithTournament: (matchKeys, { tournamentName }) => {
       return dynamoClient.transactWrite({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
         TransactItems: matchKeys.map(key => ({
           Update: {
+            TableName: process.env.DYNAMO_TABLE,
             Key: {
               'documentType-id': key['documentType-id'],
               segment: key.segment
             },
-            TableName: process.env.DYNAMO_TABLE,
+            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
             UpdateExpression: 'set tournamentName = :tournamentName',
+            ExpressionAttributeNames: {
+              '#documentTypeId': 'documentType-id',
+              '#segment': 'segment'
+            },
             ExpressionAttributeValues: {
               ':tournamentName': tournamentName
             }
@@ -113,15 +128,20 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     },
     updateMatchesWithTeam: (matchKeys, { image, shortName, teamName }) => {
       return dynamoClient.transactWrite({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
         TransactItems: matchKeys.map(key => ({
           Update: {
+            TableName: process.env.DYNAMO_TABLE,
             Key: {
               'documentType-id': key['documentType-id'],
               segment: key.segment
             },
-            TableName: process.env.DYNAMO_TABLE,
+            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
             UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName',
+            ExpressionAttributeNames: {
+              '#documentTypeId': 'documentType-id',
+              '#segment': 'segment'
+            },
             ExpressionAttributeValues: {
               ':teamName': teamName,
               ':image': image,
@@ -133,103 +153,107 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     },
     updateMatch: (matchId, [details, homeTeam, awayTeam, tournament]) => {
       return dynamoClient.transactWrite({
-        ReturnConsumedCapacity: 'TOTAL',
-        TransactItems: [{
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            Key: {
-              'documentType-id': `match-${matchId}`,
-              segment: 'details'
-            },
-            UpdateExpression: 'set startTime = :startTime, #group = :group, orderingValue = :orderingValue',
-            ExpressionAttributeNames: {
-              '#group': 'group',
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':startTime': details.startTime,
-              ':group': details.group,
-              ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-              ':documentTypeId': `match-${matchId}`,
-              ':segment': 'details'
+        ReturnConsumedCapacity: 'INDEXES',
+        TransactItems: [
+          {
+            Update: {
+              TableName: process.env.DYNAMO_TABLE,
+              Key: {
+                'documentType-id': `match-${matchId}`,
+                segment: 'details'
+              },
+              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
+              UpdateExpression: 'set startTime = :startTime, #group = :group, orderingValue = :orderingValue',
+              ExpressionAttributeNames: {
+                '#group': 'group',
+                '#documentTypeId': 'documentType-id',
+                '#segment': 'segment'
+              },
+              ExpressionAttributeValues: {
+                ':startTime': details.startTime,
+                ':group': details.group,
+                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
+                ':documentTypeId': `match-${matchId}`,
+                ':segment': 'details'
+              }
+            }
+          },
+          {
+            Update: {
+              TableName: process.env.DYNAMO_TABLE,
+              Key: {
+                'documentType-id': `match-${matchId}`,
+                segment: 'homeTeam'
+              },
+              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
+              UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
+              ExpressionAttributeNames: {
+                '#documentTypeId': 'documentType-id',
+                '#segment': 'segment'
+              },
+              ExpressionAttributeValues: {
+                ':teamId': homeTeam.teamId,
+                ':teamName': homeTeam.teamName,
+                ':shortName': homeTeam.shortName,
+                ':image': homeTeam.image,
+                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
+                ':documentTypeId': `match-${matchId}`,
+                ':segment': 'homeTeam'
+              }
+            }
+          },
+          {
+            Update: {
+              TableName: process.env.DYNAMO_TABLE,
+              Key: {
+                'documentType-id': `match-${matchId}`,
+                segment: 'awayTeam'
+              },
+              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
+              UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
+              ExpressionAttributeNames: {
+                '#documentTypeId': 'documentType-id',
+                '#segment': 'segment'
+              },
+              ExpressionAttributeValues: {
+                ':teamId': awayTeam.teamId,
+                ':teamName': awayTeam.teamName,
+                ':shortName': awayTeam.shortName,
+                ':image': awayTeam.image,
+                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
+                ':documentTypeId': `match-${matchId}`,
+                ':segment': 'awayTeam'
+              }
+            }
+          },
+          {
+            Update: {
+              TableName: process.env.DYNAMO_TABLE,
+              Key: {
+                'documentType-id': `match-${matchId}`,
+                segment: 'tournament'
+              },
+              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
+              UpdateExpression: 'set tournamentName = :tournamentName, tournamentId = :tournamentId, orderingValue = :orderingValue',
+              ExpressionAttributeNames: {
+                '#documentTypeId': 'documentType-id',
+                '#segment': 'segment'
+              },
+              ExpressionAttributeValues: {
+                ':tournamentId': tournament.tournamentId,
+                ':tournamentName': tournament.tournamentName,
+                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
+                ':documentTypeId': `match-${matchId}`,
+                ':segment': 'tournament'
+              }
             }
           }
-        }, {
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            Key: {
-              'documentType-id': `match-${matchId}`,
-              segment: 'homeTeam'
-            },
-            UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':teamId': homeTeam.teamId,
-              ':teamName': homeTeam.teamName,
-              ':shortName': homeTeam.shortName,
-              ':image': homeTeam.image,
-              ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-              ':documentTypeId': `match-${matchId}`,
-              ':segment': 'homeTeam'
-            }
-          }
-        }, {
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            Key: {
-              'documentType-id': `match-${matchId}`,
-              segment: 'awayTeam'
-            },
-            UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':teamId': awayTeam.teamId,
-              ':teamName': awayTeam.teamName,
-              ':shortName': awayTeam.shortName,
-              ':image': awayTeam.image,
-              ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-              ':documentTypeId': `match-${matchId}`,
-              ':segment': 'awayTeam'
-            }
-          }
-        }, {
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            Key: {
-              'documentType-id': `match-${matchId}`,
-              segment: 'tournament'
-            },
-            UpdateExpression: 'set tournamentName = :tournamentName, tournamentId = :tournamentId, orderingValue = :orderingValue',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':tournamentId': tournament.tournamentId,
-              ':tournamentName': tournament.tournamentName,
-              ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-              ':documentTypeId': `match-${matchId}`,
-              ':segment': 'tournament'
-            }
-          }
-        }
         ]
       }).on('success', capacity('updateMatch')).promise();
     },
     saveMatch: (match) => {
       return dynamoClient.transactWrite({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
         TransactItems: match.map<TransactWriteItem>(m => ({
           Put: {
             TableName: process.env.DYNAMO_TABLE,
@@ -242,7 +266,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     queryTournamentById: tournamentId => queryByKey(`tournament-${tournamentId}`) as Promise<TournamentDocument>,
     queryMatches: async (tournamentId: string) => {
       return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType and begins_with(orderingValue, :tournamentId)',
@@ -254,7 +278,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     },
     queryTeams: async () => {
       return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType',
@@ -265,7 +289,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     },
     queryTournaments: async () => {
       return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType',
@@ -276,7 +300,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     },
     queryMatchKeysByTournamentId: async (tournamentId) => {
       return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByTournamentId',
         KeyConditionExpression: 'tournamentId = :tournamentId and documentType = :documentType',
@@ -288,7 +312,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     },
     queryMatchKeysByTeamId: async (teamId) => {
       return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'TOTAL',
+        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByTeamId',
         KeyConditionExpression: 'teamId = :teamId and documentType = :documentType',

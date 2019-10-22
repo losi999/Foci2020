@@ -50,15 +50,15 @@ describe('List matches service', () => {
 
     const matchResponse1 = {
       matchId: matchId1,
-      startTime: new Date(2019, 1, 1, 1, 1, 1)
+      startTime: 'date1'
     } as MatchResponse;
     const matchResponse2 = {
       matchId: matchId2,
-      startTime: new Date(2017, 1, 1, 1, 1, 1)
+      startTime: 'date2'
     } as MatchResponse;
     const matchResponse3 = {
       matchId: matchId3,
-      startTime: new Date(2018, 1, 1, 1, 1, 1)
+      startTime: 'date3'
     };
     mockConverter.mockReturnValueOnce(matchResponse1);
     mockConverter.mockReturnValueOnce(matchResponse2);

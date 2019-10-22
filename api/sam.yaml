@@ -62,6 +62,24 @@ Resources:
             Path: /v1/tournaments
             Method: POST    
 
+  CreateMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/create-match
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociApi
+            Path: /v1/matches
+            Method: POST   
+
   UpdateTournament:
     Type: AWS::Serverless::Function
     Properties:
@@ -115,24 +133,6 @@ Resources:
             RestApiId: !Ref FociApi
             Path: /v1/matches/{matchId}
             Method: PUT    
-
-  CreateMatch:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: ./dist/create-match
-      Handler: index.default
-      Runtime: nodejs10.x
-      Role: !Ref FociLambdaRoleArn
-      Timeout: 10
-      MemorySize: 512
-      Tracing: Active
-      Events:
-        API:
-          Type: Api
-          Properties:
-            RestApiId: !Ref FociApi
-            Path: /v1/matches
-            Method: POST   
 
   UpdateMatchWithTournament:
     Type: AWS::Serverless::Function
@@ -221,6 +221,24 @@ Resources:
             RestApiId: !Ref FociApi
             Path: /v1/tournaments
             Method: GET    
+
+  GetTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/get-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociApi
+            Path: /v1/teams/{teamId}
+            Method: GET  
 
 Outputs:
   FociApi:

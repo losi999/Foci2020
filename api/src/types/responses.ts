@@ -1,6 +1,6 @@
 export type MatchResponse = {
   matchId: string,
-  startTime: Date,
+  startTime: string,
   group: string,
   homeTeam: {
     teamId: string,
@@ -18,7 +18,7 @@ export type MatchResponse = {
     tournamentId: string,
     tournamentName: string
   },
-  finalScore?: {
+  finalScore: {
     homeScore: number,
     awayScore: number
   }

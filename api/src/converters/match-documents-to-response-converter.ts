@@ -1,66 +1,77 @@
 import { Converter } from '@/types/types';
-import { MatchDocument } from '@/types/documents';
+import { MatchDocument, MatchDetailsDocument, MatchTeamDocument, MatchTeamUpdateDocument, MatchTournamentDocument, MatchFinalScoreDocument } from '@/types/documents';
 import { MatchResponse } from '@/types/responses';
-const converter: Converter<MatchDocument[], MatchResponse> = (documents) => {
-  return documents.reduce((accumulator, currentValue) => {
-    let temp: MatchResponse;
 
+type MatchCombined = {
+  details: MatchDetailsDocument;
+  homeTeam: MatchTeamDocument;
+  awayTeam: MatchTeamUpdateDocument;
+  tournament: MatchTournamentDocument;
+  finalScore: MatchFinalScoreDocument;
+};
+
+const converter: Converter<MatchDocument[], MatchResponse> = (documents) => {
+  const initial = {
+    awayTeam: {},
+    details: {},
+    finalScore: {},
+    homeTeam: {},
+    tournament: {}
+  } as MatchCombined;
+  const { details, awayTeam, finalScore, homeTeam, tournament } = documents.reduce<MatchCombined>((accumulator, currentValue) => {
     switch (currentValue.segment) {
-      case 'details': {
-        const { matchId, group, startTime } = currentValue;
-        temp = {
+      case 'details':
+        return {
           ...accumulator,
-          matchId,
-          group,
-          startTime: new Date(startTime)
+          details: currentValue
         };
-      } break;
-      case 'homeTeam': {
-        const { teamId, teamName, shortName, image } = currentValue;
-        temp = {
+      case 'homeTeam':
+        return {
           ...accumulator,
-          homeTeam: {
-            teamId,
-            teamName,
-            shortName,
-            image
-          }
+          homeTeam: currentValue
         };
-      } break;
-      case 'awayTeam': {
-        const { teamId, teamName, shortName, image } = currentValue;
-        temp = {
+      case 'awayTeam':
+        return {
           ...accumulator,
-          awayTeam: {
-            teamId,
-            teamName,
-            shortName,
-            image
-          }
+          awayTeam: currentValue
         };
-      } break;
-      case 'tournament': {
-        const { tournamentId, tournamentName } = currentValue;
-        temp = {
+      case 'tournament':
+        return {
           ...accumulator,
-          tournament: {
-            tournamentId,
-            tournamentName
-          }
+          tournament: currentValue
         };
-      } break;
-      case 'finalScore': {
-        const { homeScore, awayScore } = currentValue;
-        temp = {
+      case 'finalScore':
+        return {
           ...accumulator,
-          finalScore: {
-            homeScore,
-            awayScore
-          }
+          finalScore: currentValue
         };
-      } break;
     }
-    return temp;
-  }, {} as MatchResponse);
+  }, initial);
+
+  return {
+    matchId: details.matchId,
+    group: details.group,
+    startTime: details.startTime,
+    homeTeam: {
+      teamId: homeTeam.teamId,
+      teamName: homeTeam.teamName,
+      shortName: homeTeam.shortName,
+      image: homeTeam.image,
+    },
+    awayTeam: {
+      teamId: awayTeam.teamId,
+      teamName: awayTeam.teamName,
+      shortName: awayTeam.shortName,
+      image: awayTeam.image,
+    },
+    tournament: {
+      tournamentId: tournament.tournamentId,
+      tournamentName: tournament.tournamentName,
+    },
+    finalScore: {
+      homeScore: finalScore.homeScore,
+      awayScore: finalScore.awayScore
+    }
+  };
 };
 export default converter;

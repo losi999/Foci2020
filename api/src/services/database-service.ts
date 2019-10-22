@@ -24,6 +24,7 @@ export interface IDatabaseService {
   saveMatch(match: MatchSaveDocument): Promise<any>;
   queryTeamById(teamId: string): Promise<TeamDocument>;
   queryTournamentById(tournamentId: string): Promise<TournamentDocument>;
+  queryMatchById(matchId: string): Promise<MatchDocument[]>;
   queryMatches(tournamentId: string): Promise<MatchDocument[]>;
   queryTeams(): Promise<TeamDocument[]>;
   queryTournaments(): Promise<TournamentDocument[]>;
@@ -44,20 +45,18 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     }).on('success', capacity('putDocument')).promise();
   };
 
-  const queryByKey = async (partitionKey: string) => {
-    return (await dynamoClient.query({
+  const queryByKey = (partitionKey: string) => {
+    return dynamoClient.query({
       ReturnConsumedCapacity: 'INDEXES',
       TableName: process.env.DYNAMO_TABLE,
-      KeyConditionExpression: '#documentTypeId = :pk and #segment = :sk',
+      KeyConditionExpression: '#documentTypeId = :pk',
       ExpressionAttributeNames: {
-        '#documentTypeId': 'documentType-id',
-        '#segment': 'segment'
+        '#documentTypeId': 'documentType-id'
       },
       ExpressionAttributeValues: {
-        ':pk': partitionKey,
-        ':sk': 'details'
+        ':pk': partitionKey
       }
-    }).on('success', capacity('queryByKey')).promise()).Items[0];
+    }).on('success', capacity('queryByKey')).promise();
   };
 
   return {
@@ -262,8 +261,9 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         }))
       }).on('success', capacity('saveMatch')).promise();
     },
-    queryTeamById: teamId => queryByKey(`team-${teamId}`) as Promise<TeamDocument>,
-    queryTournamentById: tournamentId => queryByKey(`tournament-${tournamentId}`) as Promise<TournamentDocument>,
+    queryTeamById: async teamId => (await queryByKey(`team-${teamId}`)).Items[0] as TeamDocument,
+    queryTournamentById: async tournamentId => (await queryByKey(`tournament-${tournamentId}`)).Items[0] as TournamentDocument,
+    queryMatchById: async matchId => (await queryByKey(`match-${matchId}`)).Items as MatchDocument[],
     queryMatches: async (tournamentId: string) => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',

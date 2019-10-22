@@ -1,25 +1,25 @@
-import { IUpdateMatchWithTournamentService, updateMatchWithTournamentServiceFactory } from '@/business-services/update-match-with-tournament-service';
+import { IDeleteMatchWithTournamentService, deleteMatchWithTournamentServiceFactory } from '@/business-services/delete-match-with-tournament-service';
 import { IDatabaseService } from '@/services/database-service';
-import { TournamentDocument, MatchTournamentDocument } from '@/types/documents';
+import { TournamentDocument, IndexByTournamentIdDocument } from '@/types/documents';
 
-describe('Update match with tournament service', () => {
-  let service: IUpdateMatchWithTournamentService;
+describe('Delete match with tournament service', () => {
+  let service: IDeleteMatchWithTournamentService;
   let mockDatabaseService: IDatabaseService;
   let mockQueryMatchKeysByTournamentId: jest.Mock;
-  let mockUpdateMatchesWithTournament: jest.Mock;
+  let mockDeleteMatch: jest.Mock;
 
   beforeEach(() => {
-    mockUpdateMatchesWithTournament = jest.fn();
+    mockDeleteMatch = jest.fn();
     mockQueryMatchKeysByTournamentId = jest.fn();
     mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
-      updateMatchesWithTournament: mockUpdateMatchesWithTournament,
+      deleteMatch: mockDeleteMatch,
       queryMatchKeysByTournamentId: mockQueryMatchKeysByTournamentId
     })))() as IDatabaseService;
 
-    service = updateMatchWithTournamentServiceFactory(mockDatabaseService);
+    service = deleteMatchWithTournamentServiceFactory(mockDatabaseService);
   });
 
-  it('should return undefined if matches are updated sucessfully', async () => {
+  it('should return undefined if matches are deleted sucessfully', async () => {
     const tournamentId = 'tournamentId';
     const matchId1 = 'matchId1';
     const matchId2 = 'matchId2';
@@ -33,14 +33,15 @@ describe('Update match with tournament service', () => {
     }, {
       tournamentId,
       matchId: matchId2
-    }] as MatchTournamentDocument[];
+    }] as IndexByTournamentIdDocument[];
 
     mockQueryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
-    mockUpdateMatchesWithTournament.mockResolvedValue(undefined);
+    mockDeleteMatch.mockResolvedValue(undefined);
     const result = await service({ tournament });
     expect(result).toBeUndefined();
     expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
-    expect(mockUpdateMatchesWithTournament).toHaveBeenCalledWith(queriedMatches, tournament);
+    expect(mockDeleteMatch).toHaveBeenNthCalledWith(1, matchId1);
+    expect(mockDeleteMatch).toHaveBeenNthCalledWith(2, matchId2);
   });
 
   it('should handle error if unable to query matches', async () => {
@@ -54,10 +55,10 @@ describe('Update match with tournament service', () => {
     const result = await service({ tournament });
     expect(result).toBeUndefined();
     expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
-    expect(mockUpdateMatchesWithTournament).not.toHaveBeenCalled();
+    expect(mockDeleteMatch).not.toHaveBeenCalled();
   });
 
-  it('should handle error if unable to update matches', async () => {
+  it('should handle error if unable to delete matches', async () => {
     const tournamentId = 'tournamentId';
     const matchId1 = 'matchId1';
     const matchId2 = 'matchId2';
@@ -71,13 +72,12 @@ describe('Update match with tournament service', () => {
     }, {
       tournamentId,
       matchId: matchId2
-    }] as MatchTournamentDocument[];
+    }] as IndexByTournamentIdDocument[];
 
     mockQueryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
-    mockUpdateMatchesWithTournament.mockRejectedValue(undefined);
+    mockDeleteMatch.mockRejectedValue(undefined);
     const result = await service({ tournament });
     expect(result).toBeUndefined();
     expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
-    expect(mockUpdateMatchesWithTournament).toHaveBeenCalledWith(queriedMatches, tournament);
   });
 });

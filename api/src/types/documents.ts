@@ -16,7 +16,7 @@ export type TournamentDocument = DocumentKey & TournamentUpdateDocument & Docume
   documentType: 'tournament';
   tournamentId: string;
 };
-export type IndexByTournamentIdDocument = Pick<MatchTournamentDocument, keyof DocumentKey | 'tournamentId' | 'documentType'>;
+export type IndexByTournamentIdDocument = Pick<MatchTournamentDocument, keyof DocumentKey | 'tournamentId' | 'documentType' | 'matchId'>;
 
 export type TeamUpdateDocument = {
   teamName: string
@@ -29,7 +29,7 @@ export type TeamDocument = DocumentKey & TeamUpdateDocument & DocumentBase & {
   teamId: string;
 };
 
-export type IndexByTeamIdDocument = Pick<MatchTeamDocument, keyof DocumentKey | 'teamId' | 'documentType'>;
+export type IndexByTeamIdDocument = Pick<MatchTeamDocument, keyof DocumentKey | 'teamId' | 'documentType' | 'matchId'>;
 
 type MatchDetailsUpdateDocument = {
   startTime: string;

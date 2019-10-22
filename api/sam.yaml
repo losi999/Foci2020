@@ -328,7 +328,41 @@ Resources:
           Properties:
             RestApiId: !Ref FociApi
             Path: /v1/tournaments/{tournamentId}
-            Method: DELETE          
+            Method: DELETE      
+
+  DeleteMatchWithTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/delete-match-with-tournament
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        DB:
+          Type: DynamoDB
+          Properties:
+            Stream: !Ref FociTableStreamArn
+            StartingPosition: TRIM_HORIZON    
+
+  DeleteMatchWithTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/delete-match-with-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        DB:
+          Type: DynamoDB
+          Properties:
+            Stream: !Ref FociTableStreamArn
+            StartingPosition: TRIM_HORIZON                
 Outputs:
   FociApi:
     Description: "Foci 2020 API"

@@ -328,6 +328,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     deleteMatch: (matchId) => {
       const matchSegments = ['details', 'homeTeam', 'awayTeam', 'tournament', 'finalScore'];
       return dynamoClient.transactWrite({
+        ReturnConsumedCapacity: 'INDEXES',
         TransactItems: matchSegments.map<TransactWriteItem>(segment => ({
           Delete: {
             TableName: process.env.DYNAMO_TABLE,
@@ -337,7 +338,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
             } as DynamoDB.Key
           }
         }))
-      }).promise();
+      }).on('success', capacity('deleteMatch')).promise();
     },
     deleteTeam: (teamId) => {
       return dynamoClient.delete({
@@ -347,7 +348,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
           segment: 'details',
           'documentType-id': `team-${teamId}`,
         }
-      }).promise();
+      }).on('success', capacity('deleteTeam')).promise();
     },
     deleteTournament: (tournamentId) => {
       return dynamoClient.delete({
@@ -357,7 +358,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
           segment: 'details',
           'documentType-id': `tournament-${tournamentId}`,
         }
-      }).promise();
+      }).on('success', capacity('deleteTournament')).promise();
     }
   };
 };

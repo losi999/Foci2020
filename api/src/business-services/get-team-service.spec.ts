@@ -43,7 +43,7 @@ describe('Get team service', () => {
     expect(mockConverter).toHaveBeenCalledWith(teamDocument);
   });
 
-  it('should throw error if unable to query teams', async () => {
+  it('should throw error if unable to query team', async () => {
     const teamId = 'teamId';
     mockQueryTeamById.mockRejectedValue('This is a dynamo error');
 

@@ -30,6 +30,9 @@ export interface IDatabaseService {
   queryTournaments(): Promise<TournamentDocument[]>;
   queryMatchKeysByTournamentId(tournamentId: string): Promise<IndexByTournamentIdDocument[]>;
   queryMatchKeysByTeamId(teamId: string): Promise<IndexByTeamIdDocument[]>;
+  deleteMatch(matchId: string): Promise<any>;
+  deleteTeam(teamId: string): Promise<any>;
+  deleteTournament(tournamentId: string): Promise<any>;
 }
 
 export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): IDatabaseService => {
@@ -321,6 +324,41 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
           ':documentType': 'match',
         }
       }).on('success', capacity('queryMatchKeysByTeamId')).promise()).Items as IndexByTeamIdDocument[];
+    },
+    deleteMatch: (matchId) => {
+      const matchSegments = ['details', 'homeTeam', 'awayTeam', 'tournament', 'finalScore'];
+      return dynamoClient.transactWrite({
+        ReturnConsumedCapacity: 'INDEXES',
+        TransactItems: matchSegments.map<TransactWriteItem>(segment => ({
+          Delete: {
+            TableName: process.env.DYNAMO_TABLE,
+            Key: {
+              segment,
+              'documentType-id': `match-${matchId}`,
+            } as DynamoDB.Key
+          }
+        }))
+      }).on('success', capacity('deleteMatch')).promise();
+    },
+    deleteTeam: (teamId) => {
+      return dynamoClient.delete({
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: process.env.DYNAMO_TABLE,
+        Key: {
+          segment: 'details',
+          'documentType-id': `team-${teamId}`,
+        }
+      }).on('success', capacity('deleteTeam')).promise();
+    },
+    deleteTournament: (tournamentId) => {
+      return dynamoClient.delete({
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: process.env.DYNAMO_TABLE,
+        Key: {
+          segment: 'details',
+          'documentType-id': `tournament-${tournamentId}`,
+        }
+      }).on('success', capacity('deleteTournament')).promise();
     }
   };
 };

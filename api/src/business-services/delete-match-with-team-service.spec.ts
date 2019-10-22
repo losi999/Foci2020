@@ -1,25 +1,25 @@
-import { IUpdateMatchWithTeamService, updateMatchWithTeamServiceFactory } from '@/business-services/update-match-with-team-service';
+import { IDeleteMatchWithTeamService, deleteMatchWithTeamServiceFactory } from '@/business-services/delete-match-with-team-service';
 import { IDatabaseService } from '@/services/database-service';
-import { TeamDocument, MatchTeamDocument } from '@/types/documents';
+import { TeamDocument, IndexByTeamIdDocument } from '@/types/documents';
 
-describe('Update match with team service', () => {
-  let service: IUpdateMatchWithTeamService;
+describe('Delete match with team service', () => {
+  let service: IDeleteMatchWithTeamService;
   let mockDatabaseService: IDatabaseService;
   let mockQueryMatchKeysByTeamId: jest.Mock;
-  let mockUpdateMatchesWithTeam: jest.Mock;
+  let mockDeleteMatch: jest.Mock;
 
   beforeEach(() => {
-    mockUpdateMatchesWithTeam = jest.fn();
+    mockDeleteMatch = jest.fn();
     mockQueryMatchKeysByTeamId = jest.fn();
     mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
-      updateMatchesWithTeam: mockUpdateMatchesWithTeam,
+      deleteMatch: mockDeleteMatch,
       queryMatchKeysByTeamId: mockQueryMatchKeysByTeamId
     })))() as IDatabaseService;
 
-    service = updateMatchWithTeamServiceFactory(mockDatabaseService);
+    service = deleteMatchWithTeamServiceFactory(mockDatabaseService);
   });
 
-  it('should return undefined if matches are updated sucessfully', async () => {
+  it('should return undefined if matches are deleted sucessfully', async () => {
     const teamId = 'teamId';
     const matchId1 = 'matchId1';
     const matchId2 = 'matchId2';
@@ -33,14 +33,16 @@ describe('Update match with team service', () => {
     }, {
       teamId,
       matchId: matchId2
-    }] as MatchTeamDocument[];
+    }] as IndexByTeamIdDocument[];
 
     mockQueryMatchKeysByTeamId.mockResolvedValue(queriedMatches);
-    mockUpdateMatchesWithTeam.mockResolvedValue(undefined);
+    mockDeleteMatch.mockResolvedValue(undefined);
+
     const result = await service({ team });
     expect(result).toBeUndefined();
     expect(mockQueryMatchKeysByTeamId).toHaveBeenCalledWith(teamId);
-    expect(mockUpdateMatchesWithTeam).toHaveBeenCalledWith(queriedMatches, team);
+    expect(mockDeleteMatch).toHaveBeenNthCalledWith(1, matchId1);
+    expect(mockDeleteMatch).toHaveBeenNthCalledWith(2, matchId2);
   });
 
   it('should handle error if unable to query matches', async () => {
@@ -54,10 +56,10 @@ describe('Update match with team service', () => {
     const result = await service({ team });
     expect(result).toBeUndefined();
     expect(mockQueryMatchKeysByTeamId).toHaveBeenCalledWith(teamId);
-    expect(mockUpdateMatchesWithTeam).not.toHaveBeenCalled();
+    expect(mockDeleteMatch).not.toHaveBeenCalled();
   });
 
-  it('should handle error if unable to update matches', async () => {
+  it('should handle error if unable to delete matches', async () => {
     const teamId = 'teamId';
     const matchId1 = 'matchId1';
     const matchId2 = 'matchId2';
@@ -71,13 +73,13 @@ describe('Update match with team service', () => {
     }, {
       teamId,
       matchId: matchId2
-    }] as MatchTeamDocument[];
+    }] as IndexByTeamIdDocument[];
 
     mockQueryMatchKeysByTeamId.mockResolvedValue(queriedMatches);
-    mockUpdateMatchesWithTeam.mockRejectedValue(undefined);
+    mockDeleteMatch.mockRejectedValue(undefined);
+
     const result = await service({ team });
     expect(result).toBeUndefined();
     expect(mockQueryMatchKeysByTeamId).toHaveBeenCalledWith(teamId);
-    expect(mockUpdateMatchesWithTeam).toHaveBeenCalledWith(queriedMatches, team);
   });
 });

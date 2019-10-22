@@ -275,6 +275,94 @@ Resources:
             RestApiId: !Ref FociApi
             Path: /v1/matches/{matchId}
             Method: GET  
+
+  DeleteMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/delete-match
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociApi
+            Path: /v1/matches/{matchId}
+            Method: DELETE  
+
+  DeleteTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/delete-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociApi
+            Path: /v1/teams/{teamId}
+            Method: DELETE                          
+
+  DeleteTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/delete-tournament
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociApi
+            Path: /v1/tournaments/{tournamentId}
+            Method: DELETE      
+
+  DeleteMatchWithTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/delete-match-with-tournament
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        DB:
+          Type: DynamoDB
+          Properties:
+            Stream: !Ref FociTableStreamArn
+            StartingPosition: TRIM_HORIZON    
+
+  DeleteMatchWithTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/delete-match-with-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 512
+      Tracing: Active
+      Events:
+        DB:
+          Type: DynamoDB
+          Properties:
+            Stream: !Ref FociTableStreamArn
+            StartingPosition: TRIM_HORIZON                
 Outputs:
   FociApi:
     Description: "Foci 2020 API"

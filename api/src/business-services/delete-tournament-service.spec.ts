@@ -15,7 +15,7 @@ describe('Delete tournament service', () => {
     service = deleteTournamentServiceFactory(mockDatabaseService);
   });
 
-  it('should return with a tournament', async () => {
+  it('should return with undefined', async () => {
     const tournamentId = 'tournamentId';
 
     mockDeleteTournament.mockResolvedValue(undefined);

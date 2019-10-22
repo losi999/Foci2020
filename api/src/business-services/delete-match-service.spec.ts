@@ -15,7 +15,7 @@ describe('Delete match service', () => {
     service = deleteMatchServiceFactory(mockDatabaseService);
   });
 
-  it('should return with a match', async () => {
+  it('should return with undefined', async () => {
     const matchId = 'matchId';
 
     mockDeleteMatch.mockResolvedValue(undefined);

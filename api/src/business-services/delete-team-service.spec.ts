@@ -15,7 +15,7 @@ describe('Delete team service', () => {
     service = deleteTeamServiceFactory(mockDatabaseService);
   });
 
-  it('should return with a team', async () => {
+  it('should return with undefined', async () => {
     const teamId = 'teamId';
 
     mockDeleteTeam.mockResolvedValue(undefined);

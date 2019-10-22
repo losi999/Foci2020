@@ -33,7 +33,7 @@ describe('Delete match service', () => {
       await service({ matchId });
     } catch (error) {
       expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query match');
+      expect(error.message).toEqual('Unable to delete match');
     }
   });
 });

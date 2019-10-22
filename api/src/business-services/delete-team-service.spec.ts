@@ -33,7 +33,7 @@ describe('Delete team service', () => {
       await service({ teamId });
     } catch (error) {
       expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query team');
+      expect(error.message).toEqual('Unable to delete team');
     }
   });
 });

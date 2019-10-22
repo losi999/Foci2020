@@ -17,7 +17,7 @@ describe('Team documents to response converter', () => {
     } as TeamDocument;
   });
 
-  it('should convert documents to response', () => {
+  it('should convert document to response', () => {
     const expectedResponse: TeamResponse = {
       teamId,
       teamName,

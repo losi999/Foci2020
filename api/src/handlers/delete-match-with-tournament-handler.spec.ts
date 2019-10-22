@@ -1,22 +1,22 @@
 import { DynamoDB } from 'aws-sdk';
 import { DynamoDBStreamEvent } from 'aws-lambda';
-import { default as handler } from '@/handlers/delete-match-with-team-handler';
-import { TeamDocument } from '@/types/documents';
+import { default as handler } from '@/handlers/delete-match-with-tournament-handler';
+import { TournamentDocument } from '@/types/documents';
 
-describe('Delete match with team handler', () => {
+describe('Delete match with tournament handler', () => {
   let unmarshallSpy: jest.SpyInstance;
-  let mockDeleteMatchWithTeamService: jest.Mock;
+  let mockDeleteMatchWithTournamentService: jest.Mock;
 
   beforeEach(() => {
     unmarshallSpy = jest.spyOn(DynamoDB.Converter, 'unmarshall');
-    mockDeleteMatchWithTeamService = jest.fn();
+    mockDeleteMatchWithTournamentService = jest.fn();
   });
 
   afterEach(() => {
     unmarshallSpy.mockReset();
   });
 
-  it('should call deleteMatchWithTeam with received team document', async () => {
+  it('should call deleteMatchWithTournament with received tournament document', async () => {
     const handlerEvent = {
       Records: [{
         eventName: 'REMOVE',
@@ -26,18 +26,18 @@ describe('Delete match with team handler', () => {
       }]
     } as DynamoDBStreamEvent;
 
-    const team = {
-      documentType: 'team',
-      teamId: 'team1'
-    } as TeamDocument;
+    const tournament = {
+      documentType: 'tournament',
+      tournamentId: 'tournament1'
+    } as TournamentDocument;
 
-    unmarshallSpy.mockReturnValue(team);
-    mockDeleteMatchWithTeamService.mockResolvedValue(undefined);
-    await handler(mockDeleteMatchWithTeamService)(handlerEvent, undefined, undefined);
-    expect(mockDeleteMatchWithTeamService).toHaveBeenCalledWith({ team });
+    unmarshallSpy.mockReturnValue(tournament);
+    mockDeleteMatchWithTournamentService.mockResolvedValue(undefined);
+    await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
+    expect(mockDeleteMatchWithTournamentService).toHaveBeenCalledWith({ tournament });
   });
 
-  it('should not call deleteMatchWithTeam if it is not a REMOVE event', async () => {
+  it('should not call deleteMatchWithTournament if it is not a REMOVE event', async () => {
     const handlerEvent = {
       Records: [{
         eventName: 'INSERT',
@@ -47,12 +47,12 @@ describe('Delete match with team handler', () => {
       }]
     } as DynamoDBStreamEvent;
 
-    await handler(mockDeleteMatchWithTeamService)(handlerEvent, undefined, undefined);
+    await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
     expect(unmarshallSpy).not.toHaveBeenCalled();
-    expect(mockDeleteMatchWithTeamService).not.toHaveBeenCalled();
+    expect(mockDeleteMatchWithTournamentService).not.toHaveBeenCalled();
   });
 
-  it('should not call deleteMatchWithTeam if documentType is not team', async () => {
+  it('should not call deleteMatchWithTournament if documentType is not tournament', async () => {
     const handlerEvent = {
       Records: [{
         eventName: 'REMOVE',
@@ -62,18 +62,18 @@ describe('Delete match with team handler', () => {
       }]
     } as DynamoDBStreamEvent;
 
-    const team = {
+    const tournament = {
       documentType: 'match',
-      teamId: 'team1'
+      tournamentId: 'tournament1'
     };
 
-    unmarshallSpy.mockReturnValue(team);
+    unmarshallSpy.mockReturnValue(tournament);
 
-    await handler(mockDeleteMatchWithTeamService)(handlerEvent, undefined, undefined);
-    expect(mockDeleteMatchWithTeamService).not.toHaveBeenCalled();
+    await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
+    expect(mockDeleteMatchWithTournamentService).not.toHaveBeenCalled();
   });
 
-  it('should handle error if deleteMatchWithTeam throws error', async () => {
+  it('should handle error if deleteMatchWithTournament throws error', async () => {
     const handlerEvent = {
       Records: [{
         eventName: 'REMOVE',
@@ -83,14 +83,14 @@ describe('Delete match with team handler', () => {
       }]
     } as DynamoDBStreamEvent;
 
-    const team = {
-      documentType: 'team',
-      teamId: 'team1'
-    } as TeamDocument;
+    const tournament = {
+      documentType: 'tournament',
+      tournamentId: 'tournament1'
+    } as TournamentDocument;
 
-    unmarshallSpy.mockReturnValue(team);
-    mockDeleteMatchWithTeamService.mockRejectedValueOnce(undefined);
-    await handler(mockDeleteMatchWithTeamService)(handlerEvent, undefined, undefined);
-    expect(mockDeleteMatchWithTeamService).toHaveBeenCalledWith({ team });
+    unmarshallSpy.mockReturnValue(tournament);
+    mockDeleteMatchWithTournamentService.mockRejectedValueOnce(undefined);
+    await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
+    expect(mockDeleteMatchWithTournamentService).toHaveBeenCalledWith({ tournament });
   });
 });

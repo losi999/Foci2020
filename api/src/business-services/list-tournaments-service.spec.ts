@@ -7,6 +7,7 @@ describe('List tournaments service', () => {
   let service: IListTournamentsService;
   let mockDatabaseService: IDatabaseService;
   let mockQueryTournaments: jest.Mock;
+  let mockConverter: jest.Mock;
 
   beforeEach(() => {
     mockQueryTournaments = jest.fn();
@@ -14,7 +15,9 @@ describe('List tournaments service', () => {
       queryTournaments: mockQueryTournaments,
     }))) as IDatabaseService;
 
-    service = listTournamentsServiceFactory(mockDatabaseService);
+    mockConverter = jest.fn();
+
+    service = listTournamentsServiceFactory(mockDatabaseService, mockConverter);
   });
 
   it('should return with list of tournaments', async () => {
@@ -47,15 +50,20 @@ describe('List tournaments service', () => {
       tournamentName: tournamentName2
     } as TournamentResponse;
 
-    const result = await service({});
+    mockConverter.mockReturnValueOnce(tournamentResponse1);
+    mockConverter.mockReturnValueOnce(tournamentResponse2);
+
+    const result = await service();
     expect(result).toEqual([tournamentResponse1, tournamentResponse2]);
+    expect(mockConverter).toHaveBeenNthCalledWith(1, tournamentDocument1);
+    expect(mockConverter).toHaveBeenNthCalledWith(2, tournamentDocument2);
   });
 
   it('should throw error if unable to query tournaments', async () => {
     mockQueryTournaments.mockRejectedValue('This is a dynamo error');
 
     try {
-      await service({});
+      await service();
     } catch (error) {
       expect(error.statusCode).toEqual(500);
       expect(error.message).toEqual('Unable to query tournaments');

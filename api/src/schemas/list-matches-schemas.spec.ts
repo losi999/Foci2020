@@ -23,7 +23,7 @@ describe('List matches query schema', () => {
   });
 
   it('should deny if tournamentId is missing from query', () => {
-    query.tournamentId = undefined;;
+    query.tournamentId = undefined;
     const result = validatorService.validate(query, schemas.queryStringParameters, instanceType);
     expect(result).toContain('tournamentId');
     expect(result).toContain('required');

@@ -5,15 +5,132 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: infrastructure/cloudformation.yaml
-  Api:
+
+  Team:
     DependsOn: Infrastructure
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: api/sam.yaml
+      TemplateURL: api/sam.team.yaml
       Parameters:
         FociLambdaRoleArn: !GetAtt Infrastructure.Outputs.FociLambdaRoleArn
         FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
         FociDeleteTeamTopic: !GetAtt Infrastructure.Outputs.FociDeleteTeamTopic
-        FociDeleteTournamentTopic: !GetAtt Infrastructure.Outputs.FociDeleteTournamentTopic
         FociUpdateTeamTopic: !GetAtt Infrastructure.Outputs.FociUpdateTeamTopic
+
+  Tournament:
+    DependsOn: Infrastructure
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: api/sam.tournament.yaml
+      Parameters:
+        FociLambdaRoleArn: !GetAtt Infrastructure.Outputs.FociLambdaRoleArn
+        FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
+        FociDeleteTournamentTopic: !GetAtt Infrastructure.Outputs.FociDeleteTournamentTopic
         FociUpdateTournamentTopic: !GetAtt Infrastructure.Outputs.FociUpdateTournamentTopic
+
+  Match:
+    DependsOn: Infrastructure
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: api/sam.match.yaml
+      Parameters:
+        FociLambdaRoleArn: !GetAtt Infrastructure.Outputs.FociLambdaRoleArn
+        FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
+
+  Api:
+    Type: AWS::CloudFront::Distribution
+    DeletionPolicy: Retain
+    DependsOn: 
+      - Match
+      - Team
+      - Tournament
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        PriceClass: PriceClass_100
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - PATCH
+            - POST
+            - DELETE
+          MinTTL: 0
+          MaxTTL: 0
+          DefaultTTL: 0
+          ForwardedValues:
+            QueryString: true
+          TargetOriginId: Team
+        CacheBehaviors:
+          - ForwardedValues:
+              QueryString: true
+            PathPattern: /team/*
+            TargetOriginId: Team
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+            PathPattern: /match/*
+            TargetOriginId: Match
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+            PathPattern: /tournament/*
+            TargetOriginId: Tournament
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+        Origins:
+          - DomainName: !GetAtt Team.Outputs.FociTeamApi
+            OriginPath: /Prod
+            Id: Team
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt Match.Outputs.FociMatchApi
+            OriginPath: /Prod
+            Id: Match
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only            
+          - DomainName: !GetAtt Tournament.Outputs.FociTournamentApi
+            OriginPath: /Prod
+            Id: Tournament                   
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only            
+
+Outputs:
+  FociApi:
+    Description: "Foci 2020 API"
+    Value: !Sub https://${Api.DomainName}

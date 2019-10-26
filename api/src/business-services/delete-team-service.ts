@@ -15,7 +15,5 @@ export const deleteTeamServiceFactory = (
       console.log('ERROR databaseService.deleteTeam', error);
       throw httpError(500, 'Unable to delete team');
     });
-
-    return;
   };
 };

@@ -1,4 +1,4 @@
-import { default as schema } from '@/schemas/list-matches-schemas';
+import * as schemas from '@/schemas/list-matches-schemas';
 import { validatorService } from '@/dependencies';
 
 describe('List matches query schema', () => {
@@ -11,32 +11,34 @@ describe('List matches query schema', () => {
     };
   });
 
-  it('should accept empty object query', () => {
-    const result = validatorService.validate({}, schema, instanceType);
-    expect(result).toBeUndefined();
-  });
-
   it('should accept valid query', () => {
-    const result = validatorService.validate(query, schema, instanceType);
+    const result = validatorService.validate(query, schemas.queryStringParameters, instanceType);
     expect(result).toBeUndefined();
   });
 
   it('should deny if query has additional property', () => {
     (query as any).extra = 'asd';
-    const result = validatorService.validate(query, schema, instanceType);
+    const result = validatorService.validate(query, schemas.queryStringParameters, instanceType);
     expect(result).toContain('additional');
+  });
+
+  it('should deny if tournamentId is missing from query', () => {
+    query.tournamentId = undefined;;
+    const result = validatorService.validate(query, schemas.queryStringParameters, instanceType);
+    expect(result).toContain('tournamentId');
+    expect(result).toContain('required');
   });
 
   it('should deny if tournamentId is not string', () => {
     (query.tournamentId as any) = 1;
-    const result = validatorService.validate(query, schema, instanceType);
+    const result = validatorService.validate(query, schemas.queryStringParameters, instanceType);
     expect(result).toContain('tournamentId');
     expect(result).toContain('string');
   });
 
   it('should deny if tournamentId is wrong format', () => {
     query.tournamentId = 'not-uuid';
-    const result = validatorService.validate(query, schema, instanceType);
+    const result = validatorService.validate(query, schemas.queryStringParameters, instanceType);
     expect(result).toContain('tournamentId');
     expect(result).toContain('format');
   });

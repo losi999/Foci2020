@@ -1,6 +1,6 @@
 import { JSONSchema7 } from 'json-schema';
 
-const body: JSONSchema7 = {
+export const body: JSONSchema7 = {
   type: 'object',
   additionalProperties: false,
   required: ['teamName', 'image', 'shortName'],
@@ -20,5 +20,3 @@ const body: JSONSchema7 = {
     }
   }
 };
-
-export default body;

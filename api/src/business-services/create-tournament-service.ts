@@ -6,20 +6,20 @@ import { httpError } from '@/common';
 export interface ICreateTournamentService {
   (ctx: {
     body: TournamentRequest
-  }): Promise<any>;
+  }): Promise<void>;
 }
 
 export const createTournamentServiceFactory = (databaseService: IDatabaseService, uuid: v4String): ICreateTournamentService => {
-  return async ({ body }) => {
+  return async ({ body: { tournamentName } }) => {
+    const tournamentId = uuid();
     try {
-      const tournamentId = uuid();
       await databaseService.saveTournament({
-        ...body,
         tournamentId,
+        tournamentName,
         documentType: 'tournament',
         'documentType-id': `tournament-${tournamentId}`,
         segment: 'details',
-        orderingValue: body.tournamentName
+        orderingValue: tournamentName
       });
     } catch (error) {
       console.log('ERROR databaseService.saveTournament', error);

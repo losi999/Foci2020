@@ -1,6 +1,6 @@
 import { JSONSchema7 } from 'json-schema';
 
-export const queryStringParameters: JSONSchema7 = {
+export const pathParameters: JSONSchema7 = {
   type: 'object',
   additionalProperties: false,
   required: ['tournamentId'],

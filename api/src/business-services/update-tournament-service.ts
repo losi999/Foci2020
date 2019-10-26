@@ -6,7 +6,7 @@ export interface IUpdateTournamentService {
   (ctx: {
     tournamentId: string,
     body: TournamentRequest
-  }): Promise<any>;
+  }): Promise<void>;
 }
 
 export const updateTournamentServiceFactory = (databaseService: IDatabaseService): IUpdateTournamentService => {

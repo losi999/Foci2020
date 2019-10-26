@@ -15,7 +15,5 @@ export const deleteMatchServiceFactory = (
       console.log('ERROR databaseService.deleteMatch', error);
       throw httpError(500, 'Unable to delete match');
     });
-
-    return;
   };
 };

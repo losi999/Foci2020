@@ -1,14 +1,12 @@
 import { JSONSchema7 } from 'json-schema';
+import { match, matchId } from '@/schemas/partials';
 
 export const pathParameters: JSONSchema7 = {
   type: 'object',
   additionalProperties: false,
   required: ['matchId'],
   properties: {
-    matchId: {
-      type: 'string',
-      format: 'uuid'
-    }
+    ...matchId
   }
 };
 
@@ -23,25 +21,6 @@ export const body: JSONSchema7 = {
     'tournamentId'
   ],
   properties: {
-    startTime: {
-      type: 'string',
-      format: 'date-time'
-    },
-    group: {
-      type: 'string',
-      minLength: 1
-    },
-    homeTeamId: {
-      type: 'string',
-      format: 'uuid'
-    },
-    awayTeamId: {
-      type: 'string',
-      format: 'uuid'
-    },
-    tournamentId: {
-      type: 'string',
-      format: 'uuid'
-    },
+    ...match
   }
 };

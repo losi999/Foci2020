@@ -13,4 +13,7 @@ Resources:
       Parameters:
         FociLambdaRoleArn: !GetAtt Infrastructure.Outputs.FociLambdaRoleArn
         FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
-        FociTableStreamArn: !GetAtt Infrastructure.Outputs.FociTableStreamArn
+        FociDeleteTeamTopic: !GetAtt Infrastructure.Outputs.FociDeleteTeamTopic
+        FociDeleteTournamentTopic: !GetAtt Infrastructure.Outputs.FociDeleteTournamentTopic
+        FociUpdateTeamTopic: !GetAtt Infrastructure.Outputs.FociUpdateTeamTopic
+        FociUpdateTournamentTopic: !GetAtt Infrastructure.Outputs.FociUpdateTournamentTopic

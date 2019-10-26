@@ -1,22 +1,15 @@
-import { DynamoDBStreamEvent, Handler } from 'aws-lambda';
-import { DynamoDB } from 'aws-sdk';
-import { TournamentDocument } from '@/types/documents';
+import { Handler, SNSEvent } from 'aws-lambda';
 import { IUpdateMatchWithTournamentService } from '@/business-services/update-match-with-tournament-service';
+import { UpdateTournamentNotification } from '@/types/types';
 
-export default (updateMatchWithTournament: IUpdateMatchWithTournamentService): Handler<DynamoDBStreamEvent> => {
+export default (updateMatchWithTournament: IUpdateMatchWithTournamentService): Handler<SNSEvent> => {
   return async (event) => {
     await Promise.all(
       event.Records.map(async (record) => {
-        if (record.eventName === 'MODIFY') {
-          const tournament = DynamoDB.Converter.unmarshall(record.dynamodb.NewImage) as TournamentDocument;
-          if (tournament.documentType === 'tournament') {
-            try {
-              await updateMatchWithTournament({ tournament });
-            } catch (error) {
-              console.log('ERROR updateMatchWithTournament', error);
-            }
-          }
-        }
+        const message = JSON.parse(record.Sns.Message) as UpdateTournamentNotification;
+        await updateMatchWithTournament({
+          ...message
+        });
       })
     );
   };

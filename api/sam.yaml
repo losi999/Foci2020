@@ -6,7 +6,13 @@ Parameters:
     Type: String
   FociTableName:
     Type: String
-  FociTableStreamArn:
+  FociDeleteTeamTopic:
+    Type: String
+  FociDeleteTournamentTopic:
+    Type: String
+  FociUpdateTeamTopic:
+    Type: String
+  FociUpdateTournamentTopic:
     Type: String
 
 Globals:
@@ -96,7 +102,10 @@ Resources:
           Properties:
             RestApiId: !Ref FociApi
             Path: /v1/tournaments/{tournamentId}
-            Method: PUT    
+            Method: PUT 
+      Environment:
+        Variables:
+          UPDATE_TOURNAMENT_TOPIC: !Ref FociUpdateTournamentTopic
 
   UpdateTeam:
     Type: AWS::Serverless::Function
@@ -115,6 +124,9 @@ Resources:
             RestApiId: !Ref FociApi
             Path: /v1/teams/{teamId}
             Method: PUT    
+      Environment:
+        Variables:
+          UPDATE_TEAM_TOPIC: !Ref FociUpdateTeamTopic
 
   UpdateMatch:
     Type: AWS::Serverless::Function
@@ -145,11 +157,10 @@ Resources:
       MemorySize: 512
       Tracing: Active
       Events:
-        DB:
-          Type: DynamoDB
+        SNS:
+          Type: SNS
           Properties:
-            Stream: !Ref FociTableStreamArn
-            StartingPosition: TRIM_HORIZON
+            Topic: !Ref FociUpdateTournamentTopic
 
   UpdateMatchWithTeam:
     Type: AWS::Serverless::Function
@@ -162,11 +173,10 @@ Resources:
       MemorySize: 512
       Tracing: Active
       Events:
-        DB:
-          Type: DynamoDB
+        SNS:
+          Type: SNS
           Properties:
-            Stream: !Ref FociTableStreamArn
-            StartingPosition: TRIM_HORIZON            
+            Topic: !Ref FociUpdateTeamTopic
 
   ListMatches:
     Type: AWS::Serverless::Function
@@ -310,7 +320,10 @@ Resources:
           Properties:
             RestApiId: !Ref FociApi
             Path: /v1/teams/{teamId}
-            Method: DELETE                          
+            Method: DELETE     
+      Environment:
+        Variables:
+          DELETE_TEAM_TOPIC: !Ref FociDeleteTeamTopic                
 
   DeleteTournament:
     Type: AWS::Serverless::Function
@@ -328,7 +341,10 @@ Resources:
           Properties:
             RestApiId: !Ref FociApi
             Path: /v1/tournaments/{tournamentId}
-            Method: DELETE      
+            Method: DELETE  
+      Environment:
+        Variables:
+          DELETE_TOURNAMENT_TOPIC: !Ref FociDeleteTournamentTopic
 
   DeleteMatchWithTournament:
     Type: AWS::Serverless::Function
@@ -341,11 +357,10 @@ Resources:
       MemorySize: 512
       Tracing: Active
       Events:
-        DB:
-          Type: DynamoDB
+        SNS:
+          Type: SNS
           Properties:
-            Stream: !Ref FociTableStreamArn
-            StartingPosition: TRIM_HORIZON    
+            Topic: !Ref FociDeleteTournamentTopic    
 
   DeleteMatchWithTeam:
     Type: AWS::Serverless::Function
@@ -358,11 +373,10 @@ Resources:
       MemorySize: 512
       Tracing: Active
       Events:
-        DB:
-          Type: DynamoDB
+        SNS:
+          Type: SNS
           Properties:
-            Stream: !Ref FociTableStreamArn
-            StartingPosition: TRIM_HORIZON                
+            Topic: !Ref FociDeleteTeamTopic    
 Outputs:
   FociApi:
     Description: "Foci 2020 API"

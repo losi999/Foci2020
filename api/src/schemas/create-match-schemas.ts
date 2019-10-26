@@ -1,6 +1,7 @@
 import { JSONSchema7 } from 'json-schema';
+import { match } from '@/schemas/partials';
 
-const body: JSONSchema7 = {
+export const body: JSONSchema7 = {
   type: 'object',
   additionalProperties: false,
   required: [
@@ -11,27 +12,6 @@ const body: JSONSchema7 = {
     'tournamentId'
   ],
   properties: {
-    startTime: {
-      type: 'string',
-      format: 'date-time'
-    },
-    group: {
-      type: 'string',
-      minLength: 1
-    },
-    homeTeamId: {
-      type: 'string',
-      format: 'uuid'
-    },
-    awayTeamId: {
-      type: 'string',
-      format: 'uuid'
-    },
-    tournamentId: {
-      type: 'string',
-      format: 'uuid'
-    },
+    ...match
   }
 };
-
-export default body;

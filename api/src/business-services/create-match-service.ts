@@ -7,7 +7,7 @@ import { MatchSaveDocument } from '@/types/documents';
 export interface ICreateMatchService {
   (ctx: {
     body: MatchRequest
-  }): Promise<any>;
+  }): Promise<void>;
 }
 
 export const createMatchServiceFactory = (databaseService: IDatabaseService, uuid: v4String): ICreateMatchService => {

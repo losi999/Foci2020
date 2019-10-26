@@ -15,7 +15,5 @@ export const deleteTournamentServiceFactory = (
       console.log('ERROR databaseService.deleteTournament', error);
       throw httpError(500, 'Unable to delete tournament');
     });
-
-    return;
   };
 };

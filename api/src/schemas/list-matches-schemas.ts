@@ -1,14 +1,11 @@
 import { JSONSchema7 } from 'json-schema';
+import { tournamentId } from '@/schemas/partials';
 
-const queryStringParameters: JSONSchema7 = {
+export const queryStringParameters: JSONSchema7 = {
   type: 'object',
   additionalProperties: false,
+  required: ['tournamentId'],
   properties: {
-    tournamentId: {
-      type: 'string',
-      format: 'uuid'
-    }
+    ...tournamentId
   }
 };
-
-export default queryStringParameters;

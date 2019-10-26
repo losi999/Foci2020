@@ -16,12 +16,12 @@ import { TransactWriteItem, PutItemInputAttributeMap } from 'aws-sdk/clients/dyn
 export interface IDatabaseService {
   saveTeam(team: TeamDocument): Promise<any>;
   saveTournament(tournament: TournamentDocument): Promise<any>;
-  updateTournament(key: DocumentKey, tournament: TournamentUpdateDocument): Promise<any>;
-  updateMatchesWithTournament(matchKeys: DocumentKey<'tournament'>[], tournament: TournamentUpdateDocument): Promise<any>;
-  updateTeam(key: DocumentKey, team: TeamUpdateDocument): Promise<any>;
-  updateMatchesWithTeam(matchKeys: DocumentKey<'homeTeam' | 'awayTeam'>[], team: TeamUpdateDocument): Promise<any>;
-  updateMatch(matchId: string, documents: MatchUpdateDocument): Promise<any>;
   saveMatch(match: MatchSaveDocument): Promise<any>;
+  updateTournament(key: DocumentKey, tournament: TournamentUpdateDocument): Promise<any>;
+  updateTeam(key: DocumentKey, team: TeamUpdateDocument): Promise<any>;
+  updateMatch(matchId: string, documents: MatchUpdateDocument): Promise<any>;
+  updateMatchesWithTournament(matchKeys: DocumentKey<'tournament'>[], tournament: TournamentUpdateDocument): Promise<any>;
+  updateMatchesWithTeam(matchKeys: DocumentKey<'homeTeam' | 'awayTeam'>[], team: TeamUpdateDocument): Promise<any>;
   queryTeamById(teamId: string): Promise<TeamDocument>;
   queryTournamentById(tournamentId: string): Promise<TournamentDocument>;
   queryMatchById(matchId: string): Promise<MatchDocument[]>;
@@ -36,21 +36,15 @@ export interface IDatabaseService {
 }
 
 export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): IDatabaseService => {
-  const capacity = (name: string) => (resp: any) => {
-    console.log(`${name} CAPACITY`, JSON.stringify(resp.data.ConsumedCapacity));
-  };
-
   const putDocument = (document: any) => {
     return dynamoClient.put({
-      ReturnConsumedCapacity: 'INDEXES',
       TableName: process.env.DYNAMO_TABLE,
       Item: document
-    }).on('success', capacity('putDocument')).promise();
+    }).promise();
   };
 
   const queryByKey = (partitionKey: string) => {
     return dynamoClient.query({
-      ReturnConsumedCapacity: 'INDEXES',
       TableName: process.env.DYNAMO_TABLE,
       KeyConditionExpression: '#documentTypeId = :pk',
       ExpressionAttributeNames: {
@@ -59,7 +53,28 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
       ExpressionAttributeValues: {
         ':pk': partitionKey
       }
-    }).on('success', capacity('queryByKey')).promise();
+    }).promise();
+  };
+
+  const deleteDocument = (partitionKey: string) => {
+    return dynamoClient.delete({
+      TableName: process.env.DYNAMO_TABLE,
+      Key: {
+        segment: 'details',
+        'documentType-id': partitionKey,
+      }
+    }).promise();
+  };
+
+  const queryByDocumentType = (documentType: 'match' | 'team' | 'tournament') => {
+    return dynamoClient.query({
+      TableName: process.env.DYNAMO_TABLE,
+      IndexName: 'indexByDocumentType',
+      KeyConditionExpression: 'documentType = :documentType',
+      ExpressionAttributeValues: {
+        ':documentType': documentType,
+      }
+    }).promise();
   };
 
   return {
@@ -67,7 +82,6 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     saveTournament: tournament => putDocument(tournament),
     updateTournament: (key, { tournamentName }) => {
       return dynamoClient.update({
-        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         Key: {
           'documentType-id': key['documentType-id'],
@@ -82,11 +96,10 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         ExpressionAttributeValues: {
           ':tournamentName': tournamentName
         }
-      }).on('success', capacity('updateTournament')).promise();
+      }).promise();
     },
     updateTeam: (key, { image, shortName, teamName }) => {
       return dynamoClient.update({
-        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         Key: {
           'documentType-id': key['documentType-id'],
@@ -103,11 +116,10 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
           ':image': image,
           ':shortName': shortName
         }
-      }).on('success', capacity('updateTeam')).promise();
+      }).promise();
     },
     updateMatchesWithTournament: (matchKeys, { tournamentName }) => {
       return dynamoClient.transactWrite({
-        ReturnConsumedCapacity: 'INDEXES',
         TransactItems: matchKeys.map(key => ({
           Update: {
             TableName: process.env.DYNAMO_TABLE,
@@ -126,11 +138,10 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
             }
           }
         }))
-      }).on('success', capacity('updateMatchesWithTournament')).promise();
+      }).promise();
     },
     updateMatchesWithTeam: (matchKeys, { image, shortName, teamName }) => {
       return dynamoClient.transactWrite({
-        ReturnConsumedCapacity: 'INDEXES',
         TransactItems: matchKeys.map(key => ({
           Update: {
             TableName: process.env.DYNAMO_TABLE,
@@ -151,11 +162,10 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
             }
           }
         }))
-      }).on('success', capacity('updateMatchesWithTeam')).promise();
+      }).promise();
     },
     updateMatch: (matchId, [details, homeTeam, awayTeam, tournament]) => {
       return dynamoClient.transactWrite({
-        ReturnConsumedCapacity: 'INDEXES',
         TransactItems: [
           {
             Update: {
@@ -251,25 +261,23 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
             }
           }
         ]
-      }).on('success', capacity('updateMatch')).promise();
+      }).promise();
     },
     saveMatch: (match) => {
       return dynamoClient.transactWrite({
-        ReturnConsumedCapacity: 'INDEXES',
         TransactItems: match.map<TransactWriteItem>(m => ({
           Put: {
             TableName: process.env.DYNAMO_TABLE,
             Item: m as PutItemInputAttributeMap
           }
         }))
-      }).on('success', capacity('saveMatch')).promise();
+      }).promise();
     },
     queryTeamById: async teamId => (await queryByKey(`team-${teamId}`)).Items[0] as TeamDocument,
     queryTournamentById: async tournamentId => (await queryByKey(`tournament-${tournamentId}`)).Items[0] as TournamentDocument,
     queryMatchById: async matchId => (await queryByKey(`match-${matchId}`)).Items as MatchDocument[],
     queryMatches: async (tournamentId: string) => {
       return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType and begins_with(orderingValue, :tournamentId)',
@@ -277,33 +285,16 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
           ':documentType': 'match',
           ':tournamentId': tournamentId
         }
-      }).on('success', capacity('queryMatches')).promise()).Items as MatchDocument[];
+      }).promise()).Items as MatchDocument[];
     },
     queryTeams: async () => {
-      return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
-        IndexName: 'indexByDocumentType',
-        KeyConditionExpression: 'documentType = :documentType',
-        ExpressionAttributeValues: {
-          ':documentType': 'team',
-        }
-      }).on('success', capacity('queryTeams')).promise()).Items as TeamDocument[];
+      return (await queryByDocumentType('team')).Items as TeamDocument[];
     },
     queryTournaments: async () => {
-      return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
-        IndexName: 'indexByDocumentType',
-        KeyConditionExpression: 'documentType = :documentType',
-        ExpressionAttributeValues: {
-          ':documentType': 'tournament',
-        }
-      }).on('success', capacity('queryTournaments')).promise()).Items as TournamentDocument[];
+      return (await queryByDocumentType('tournament')).Items as TournamentDocument[];
     },
     queryMatchKeysByTournamentId: async (tournamentId) => {
       return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByTournamentId',
         KeyConditionExpression: 'tournamentId = :tournamentId and documentType = :documentType',
@@ -311,11 +302,10 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
           ':tournamentId': tournamentId,
           ':documentType': 'match',
         }
-      }).on('success', capacity('queryMatchKeysByTournamentId')).promise()).Items as IndexByTournamentIdDocument[];
+      }).promise()).Items as IndexByTournamentIdDocument[];
     },
     queryMatchKeysByTeamId: async (teamId) => {
       return (await dynamoClient.query({
-        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByTeamId',
         KeyConditionExpression: 'teamId = :teamId and documentType = :documentType',
@@ -323,12 +313,11 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
           ':teamId': teamId,
           ':documentType': 'match',
         }
-      }).on('success', capacity('queryMatchKeysByTeamId')).promise()).Items as IndexByTeamIdDocument[];
+      }).promise()).Items as IndexByTeamIdDocument[];
     },
     deleteMatch: (matchId) => {
       const matchSegments = ['details', 'homeTeam', 'awayTeam', 'tournament', 'finalScore'];
       return dynamoClient.transactWrite({
-        ReturnConsumedCapacity: 'INDEXES',
         TransactItems: matchSegments.map<TransactWriteItem>(segment => ({
           Delete: {
             TableName: process.env.DYNAMO_TABLE,
@@ -338,27 +327,9 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
             } as DynamoDB.Key
           }
         }))
-      }).on('success', capacity('deleteMatch')).promise();
+      }).promise();
     },
-    deleteTeam: (teamId) => {
-      return dynamoClient.delete({
-        ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
-        Key: {
-          segment: 'details',
-          'documentType-id': `team-${teamId}`,
-        }
-      }).on('success', capacity('deleteTeam')).promise();
-    },
-    deleteTournament: (tournamentId) => {
-      return dynamoClient.delete({
-        ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
-        Key: {
-          segment: 'details',
-          'documentType-id': `tournament-${tournamentId}`,
-        }
-      }).on('success', capacity('deleteTournament')).promise();
-    }
+    deleteTeam: teamId => deleteDocument(`team-${teamId}`),
+    deleteTournament: tournamentId => deleteDocument(`tournament-${tournamentId}`),
   };
 };

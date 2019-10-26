@@ -6,7 +6,7 @@ export interface IUpdateTeamService {
   (ctx: {
     teamId: string,
     body: TeamRequest
-  }): Promise<any>;
+  }): Promise<void>;
 }
 
 export const updateTeamServiceFactory = (databaseService: IDatabaseService): IUpdateTeamService => {

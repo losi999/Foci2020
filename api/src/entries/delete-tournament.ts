@@ -1,7 +1,10 @@
 import { default as handler } from '@/handlers/delete-tournament-handler';
-import { databaseService } from '@/dependencies';
+import { databaseService, apiRequestValidator } from '@/dependencies';
 import { deleteTournamentServiceFactory } from '@/business-services/delete-tournament-service';
+import { pathParameters } from '@/schemas/delete-tournament-schemas';
 
 const deleteTournamentService = deleteTournamentServiceFactory(databaseService);
 
-export default handler(deleteTournamentService);
+export default apiRequestValidator({
+  pathParameters
+})(handler(deleteTournamentService));

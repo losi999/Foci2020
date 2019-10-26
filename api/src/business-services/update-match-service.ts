@@ -7,7 +7,7 @@ export interface IUpdateMatchService {
   (ctx: {
     matchId: string,
     body: MatchRequest
-  }): Promise<any>;
+  }): Promise<void>;
 }
 
 export const updateMatchServiceFactory = (databaseService: IDatabaseService): IUpdateMatchService => {

@@ -6,20 +6,22 @@ import { TeamRequest } from '@/types/requests';
 export interface ICreateTeamService {
   (ctx: {
     body: TeamRequest
-  }): Promise<any>;
+  }): Promise<void>;
 }
 
 export const createTeamServiceFactory = (databaseService: IDatabaseService, uuid: v4String): ICreateTeamService => {
-  return async ({ body }) => {
+  return async ({ body: { image, shortName, teamName } }) => {
+    const teamId = uuid();
     try {
-      const teamId = uuid();
       await databaseService.saveTeam({
-        ...body,
         teamId,
+        teamName,
+        shortName,
+        image,
         documentType: 'team',
         'documentType-id': `team-${teamId}`,
         segment: 'details',
-        orderingValue: body.teamName
+        orderingValue: teamName,
       });
     } catch (error) {
       console.log('ERROR databaseService.saveTeam', error);

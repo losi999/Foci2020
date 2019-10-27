@@ -6,6 +6,8 @@ Parameters:
     Type: String
   FociTableName:
     Type: String
+  Env:
+    Type: String
 
 Globals:
   Api:
@@ -22,17 +24,20 @@ Resources:
   FociMatchApi:
     Type: AWS::Serverless::Api
     Properties:
+      Name: !Sub Foci2020-${Env}-Match
       StageName: Prod
+      TracingEnabled: true
      
   CreateMatch:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-CreateMatch
       CodeUri: ./dist/create-match
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -45,12 +50,13 @@ Resources:
   UpdateMatch:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateMatch
       CodeUri: ./dist/update-match
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -63,12 +69,13 @@ Resources:
   ListMatches:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-ListMatches
       CodeUri: ./dist/list-matches
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -81,12 +88,13 @@ Resources:
   GetMatch:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-GetMatch
       CodeUri: ./dist/get-match
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -99,12 +107,13 @@ Resources:
   DeleteMatch:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatch
       CodeUri: ./dist/delete-match
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:

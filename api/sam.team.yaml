@@ -10,6 +10,8 @@ Parameters:
     Type: String
   FociUpdateTeamTopic:
     Type: String
+  Env:
+    Type: String
 
 Globals:
   Function:
@@ -21,17 +23,20 @@ Resources:
   FociTeamApi:
     Type: AWS::Serverless::Api
     Properties:
+      Name: !Sub Foci2020-${Env}-Team
       StageName: Prod
+      TracingEnabled: true
 
   CreateTeam:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-CreateTeam
       CodeUri: ./dist/create-team
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -44,12 +49,13 @@ Resources:
   UpdateTeam:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateTeam
       CodeUri: ./dist/update-team
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -65,12 +71,13 @@ Resources:
   ListTeams:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-ListTeams
       CodeUri: ./dist/list-teams
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -83,12 +90,13 @@ Resources:
   GetTeam:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-GetTeam
       CodeUri: ./dist/get-team
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -101,12 +109,13 @@ Resources:
   DeleteTeam:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteTeam
       CodeUri: ./dist/delete-team
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -122,12 +131,13 @@ Resources:
   UpdateMatchWithTeam:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTeam
       CodeUri: ./dist/update-match-with-team
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         SNS:
@@ -138,12 +148,13 @@ Resources:
   DeleteMatchWithTeam:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatchWithTeam
       CodeUri: ./dist/delete-match-with-team
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         SNS:

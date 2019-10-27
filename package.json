@@ -5,7 +5,7 @@
     "build:api": "cd api && npm run build",
     "deploy:local": "export ENV=LOCAL && npm run build:api && npm run aws-package && npm run aws-deploy",
     "aws-package": "aws cloudformation package --template-file cloudformation.yaml --s3-bucket losonczil-packages-eu-west-1 --output-template-file packaged.cloudformation.yaml --profile losonczil",
-    "aws-deploy": "aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-${ENV} --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --profile losonczil"
+    "aws-deploy": "aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-${ENV} --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=${ENV} --profile losonczil"
   }
 }
 

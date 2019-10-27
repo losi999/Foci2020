@@ -10,6 +10,8 @@ Parameters:
     Type: String
   FociUpdateTournamentTopic:
     Type: String
+  Env:
+    Type: String
 
 Globals:
   Api:
@@ -26,17 +28,20 @@ Resources:
   FociTournamentApi:
     Type: AWS::Serverless::Api
     Properties:
+      Name: !Sub Foci2020-${Env}-Tournament
       StageName: Prod
+      TracingEnabled: true
      
   CreateTournament:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-CreateTournament
       CodeUri: ./dist/create-tournament
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -49,12 +54,13 @@ Resources:
   UpdateTournament:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateTournament
       CodeUri: ./dist/update-tournament
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -70,28 +76,30 @@ Resources:
   UpdateMatchWithTournament:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTournament
       CodeUri: ./dist/update-match-with-tournament
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         SNS:
           Type: SNS
           Properties:
-            Topic: !Ref FociUpdateTournamentTopic
+            Topic: !Ref FociUpdateTournamentTopic           
 
   ListTournaments:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-ListTournaments
       CodeUri: ./dist/list-tournaments
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -104,12 +112,13 @@ Resources:
   GetTournament:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-GetTournament
       CodeUri: ./dist/get-tournament
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -122,12 +131,13 @@ Resources:
   DeleteTournament:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteTournament
       CodeUri: ./dist/delete-tournament
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         API:
@@ -143,12 +153,13 @@ Resources:
   DeleteMatchWithTournament:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatchWithTournament
       CodeUri: ./dist/delete-match-with-tournament
       Handler: index.default
       Runtime: nodejs10.x
       Role: !Ref FociLambdaRoleArn
       Timeout: 10
-      MemorySize: 512
+      MemorySize: 128
       Tracing: Active
       Events:
         SNS:

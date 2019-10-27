@@ -1,10 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  Env:
+    Type: String
 
 Resources:
   Infrastructure:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: infrastructure/cloudformation.yaml
+      Parameters:
+        Env: !Ref Env
 
   Team:
     DependsOn: Infrastructure
@@ -16,6 +21,7 @@ Resources:
         FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
         FociDeleteTeamTopic: !GetAtt Infrastructure.Outputs.FociDeleteTeamTopic
         FociUpdateTeamTopic: !GetAtt Infrastructure.Outputs.FociUpdateTeamTopic
+        Env: !Ref Env
 
   Tournament:
     DependsOn: Infrastructure
@@ -27,6 +33,7 @@ Resources:
         FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
         FociDeleteTournamentTopic: !GetAtt Infrastructure.Outputs.FociDeleteTournamentTopic
         FociUpdateTournamentTopic: !GetAtt Infrastructure.Outputs.FociUpdateTournamentTopic
+        Env: !Ref Env
 
   Match:
     DependsOn: Infrastructure
@@ -36,10 +43,10 @@ Resources:
       Parameters:
         FociLambdaRoleArn: !GetAtt Infrastructure.Outputs.FociLambdaRoleArn
         FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
+        Env: !Ref Env
 
   Api:
     Type: AWS::CloudFront::Distribution
-    DeletionPolicy: Retain
     DependsOn: 
       - Match
       - Team

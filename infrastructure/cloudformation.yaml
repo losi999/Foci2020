@@ -1,4 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  Env:
+    Type: String
 
 Resources:
   FociTable:
@@ -106,15 +109,23 @@ Resources:
 
   FociDeleteTeamTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-DeleteTeamTopic
 
   FociDeleteTournamentTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-DeleteTournamentTopic
   
   FociUpdateTeamTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-UpdateTeamTopic
 
   FociUpdateTournamentTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-UpdateTournamentTopic
 
 Outputs:
   FociTableName:

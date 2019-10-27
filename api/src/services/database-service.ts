@@ -9,7 +9,8 @@ import {
   IndexByTournamentIdDocument,
   TeamUpdateDocument,
   IndexByTeamIdDocument,
-  MatchUpdateDocument
+  MatchUpdateDocument,
+  DocumentType
 } from '@/types/documents';
 import { TransactWriteItem, PutItemInputAttributeMap } from 'aws-sdk/clients/dynamodb';
 
@@ -66,7 +67,7 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     }).promise();
   };
 
-  const queryByDocumentType = (documentType: 'match' | 'team' | 'tournament') => {
+  const queryByDocumentType = (documentType: DocumentType) => {
     return dynamoClient.query({
       TableName: process.env.DYNAMO_TABLE,
       IndexName: 'indexByDocumentType',
@@ -78,8 +79,22 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
   };
 
   return {
-    saveTeam: team => putDocument(team),
-    saveTournament: tournament => putDocument(tournament),
+    saveTeam: (team) => {
+      return putDocument(team);
+    },
+    saveTournament: (tournament) => {
+      return putDocument(tournament);
+    },
+    saveMatch: (match) => {
+      return dynamoClient.transactWrite({
+        TransactItems: match.map<TransactWriteItem>(m => ({
+          Put: {
+            TableName: process.env.DYNAMO_TABLE,
+            Item: m as PutItemInputAttributeMap
+          }
+        }))
+      }).promise();
+    },
     updateTournament: (key, { tournamentName }) => {
       return dynamoClient.update({
         TableName: process.env.DYNAMO_TABLE,
@@ -263,20 +278,16 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         ]
       }).promise();
     },
-    saveMatch: (match) => {
-      return dynamoClient.transactWrite({
-        TransactItems: match.map<TransactWriteItem>(m => ({
-          Put: {
-            TableName: process.env.DYNAMO_TABLE,
-            Item: m as PutItemInputAttributeMap
-          }
-        }))
-      }).promise();
+    queryTeamById: async (teamId) => {
+      return (await queryByKey(`team-${teamId}`)).Items[0] as TeamDocument;
     },
-    queryTeamById: async teamId => (await queryByKey(`team-${teamId}`)).Items[0] as TeamDocument,
-    queryTournamentById: async tournamentId => (await queryByKey(`tournament-${tournamentId}`)).Items[0] as TournamentDocument,
-    queryMatchById: async matchId => (await queryByKey(`match-${matchId}`)).Items as MatchDocument[],
-    queryMatches: async (tournamentId: string) => {
+    queryTournamentById: async (tournamentId) => {
+      return (await queryByKey(`tournament-${tournamentId}`)).Items[0] as TournamentDocument;
+    },
+    queryMatchById: async (matchId) => {
+      return (await queryByKey(`match-${matchId}`)).Items as MatchDocument[];
+    },
+    queryMatches: async (tournamentId) => {
       return (await dynamoClient.query({
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByDocumentType',
@@ -329,7 +340,11 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         }))
       }).promise();
     },
-    deleteTeam: teamId => deleteDocument(`team-${teamId}`),
-    deleteTournament: tournamentId => deleteDocument(`tournament-${tournamentId}`),
+    deleteTeam: (teamId) => {
+      return deleteDocument(`team-${teamId}`);
+    },
+    deleteTournament: (tournamentId) => {
+      return deleteDocument(`tournament-${tournamentId}`);
+    },
   };
 };

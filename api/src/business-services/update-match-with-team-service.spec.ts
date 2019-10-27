@@ -37,27 +37,37 @@ describe('Update match with team service', () => {
 
     mockQueryMatchKeysByTeamId.mockResolvedValue(queriedMatches);
     mockUpdateMatchesWithTeam.mockResolvedValue(undefined);
-    const result = await service({ team });
+    const result = await service({
+      teamId,
+      team
+    });
     expect(result).toBeUndefined();
     expect(mockQueryMatchKeysByTeamId).toHaveBeenCalledWith(teamId);
     expect(mockUpdateMatchesWithTeam).toHaveBeenCalledWith(queriedMatches, team);
   });
 
-  it('should handle error if unable to query matches', async () => {
+  it('should throw error if unable to query matches', async () => {
     const teamId = 'teamId';
     const team = {
       teamId
     } as TeamDocument;
 
-    mockQueryMatchKeysByTeamId.mockRejectedValue(undefined);
+    const errorMessage = 'This is a dynamo error';
+    mockQueryMatchKeysByTeamId.mockRejectedValue(errorMessage);
 
-    const result = await service({ team });
-    expect(result).toBeUndefined();
-    expect(mockQueryMatchKeysByTeamId).toHaveBeenCalledWith(teamId);
-    expect(mockUpdateMatchesWithTeam).not.toHaveBeenCalled();
+    try {
+      await service({
+        teamId,
+        team
+      });
+    } catch (error) {
+      expect(error).toEqual(errorMessage);
+      expect(mockQueryMatchKeysByTeamId).toHaveBeenCalledWith(teamId);
+      expect(mockUpdateMatchesWithTeam).not.toHaveBeenCalled();
+    }
   });
 
-  it('should handle error if unable to update matches', async () => {
+  it('should throw error if unable to update matches', async () => {
     const teamId = 'teamId';
     const matchId1 = 'matchId1';
     const matchId2 = 'matchId2';
@@ -74,10 +84,19 @@ describe('Update match with team service', () => {
     }] as MatchTeamDocument[];
 
     mockQueryMatchKeysByTeamId.mockResolvedValue(queriedMatches);
-    mockUpdateMatchesWithTeam.mockRejectedValue(undefined);
-    const result = await service({ team });
-    expect(result).toBeUndefined();
-    expect(mockQueryMatchKeysByTeamId).toHaveBeenCalledWith(teamId);
-    expect(mockUpdateMatchesWithTeam).toHaveBeenCalledWith(queriedMatches, team);
+
+    const errorMessage = 'This is a dynamo error';
+    mockUpdateMatchesWithTeam.mockRejectedValue(errorMessage);
+
+    try {
+      await service({
+        teamId,
+        team
+      });
+    } catch (error) {
+      expect(error).toEqual(errorMessage);
+      expect(mockQueryMatchKeysByTeamId).toHaveBeenCalledWith(teamId);
+      expect(mockUpdateMatchesWithTeam).toHaveBeenCalledWith(queriedMatches, team);
+    }
   });
 });

@@ -1,0 +1,178 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: 'Foci 2020 Tournament API'
+Parameters: 
+  FociLambdaRoleArn:
+    Type: String
+  FociTableName:
+    Type: String
+  FociDeleteTournamentTopic:
+    Type: String
+  FociUpdateTournamentTopic:
+    Type: String
+  Env:
+    Type: String
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+  Function:
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !Ref FociTableName
+
+Resources:
+  FociTournamentApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub Foci2020-${Env}-Tournament
+      StageName: Prod
+      TracingEnabled: true
+      GatewayResponses:
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404 
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
+     
+  CreateTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-CreateTournament
+      CodeUri: ./dist/create-tournament
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTournamentApi
+            Path: /tournament/v1/tournaments
+            Method: POST    
+
+  UpdateTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateTournament
+      CodeUri: ./dist/update-tournament
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTournamentApi
+            Path: /tournament/v1/tournaments/{tournamentId}
+            Method: PUT 
+      Environment:
+        Variables:
+          UPDATE_TOURNAMENT_TOPIC: !Ref FociUpdateTournamentTopic
+
+  UpdateMatchWithTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTournament
+      CodeUri: ./dist/update-match-with-tournament
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref FociUpdateTournamentTopic           
+
+  ListTournaments:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-ListTournaments
+      CodeUri: ./dist/list-tournaments
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTournamentApi
+            Path: /tournament/v1/tournaments
+            Method: GET    
+
+  GetTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-GetTournament
+      CodeUri: ./dist/get-tournament
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTournamentApi
+            Path: /tournament/v1/tournaments/{tournamentId}
+            Method: GET  
+
+  DeleteTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteTournament
+      CodeUri: ./dist/delete-tournament
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTournamentApi
+            Path: /tournament/v1/tournaments/{tournamentId}
+            Method: DELETE  
+      Environment:
+        Variables:
+          DELETE_TOURNAMENT_TOPIC: !Ref FociDeleteTournamentTopic
+
+  DeleteMatchWithTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatchWithTournament
+      CodeUri: ./dist/delete-match-with-tournament
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref FociDeleteTournamentTopic    
+
+Outputs:
+  FociTournamentApi:
+    Description: "Foci 2020 Tournament API"
+    Value: !Sub "${FociTournamentApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

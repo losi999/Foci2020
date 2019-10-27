@@ -3,8 +3,10 @@ export type DocumentKey<T = 'details'> = {
   segment: T;
 };
 
+export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';
+
 type DocumentBase = {
-  documentType: 'tournament' | 'team' | 'match' | 'bet' | 'standing';
+  documentType: DocumentType;
   orderingValue: string;
 };
 
@@ -31,7 +33,7 @@ export type TeamDocument = DocumentKey & TeamUpdateDocument & DocumentBase & {
 
 export type IndexByTeamIdDocument = Pick<MatchTeamDocument, keyof DocumentKey | 'teamId' | 'documentType' | 'matchId'>;
 
-type MatchDetailsUpdateDocument = {
+export type MatchDetailsUpdateDocument = {
   startTime: string;
   group: string;
 };

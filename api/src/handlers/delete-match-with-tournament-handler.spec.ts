@@ -1,96 +1,46 @@
-import { DynamoDB } from 'aws-sdk';
-import { DynamoDBStreamEvent } from 'aws-lambda';
 import { default as handler } from '@/handlers/delete-match-with-tournament-handler';
-import { TournamentDocument } from '@/types/documents';
+import { SNSEvent } from 'aws-lambda';
 
 describe('Delete match with tournament handler', () => {
-  let unmarshallSpy: jest.SpyInstance;
   let mockDeleteMatchWithTournamentService: jest.Mock;
 
   beforeEach(() => {
-    unmarshallSpy = jest.spyOn(DynamoDB.Converter, 'unmarshall');
     mockDeleteMatchWithTournamentService = jest.fn();
   });
 
-  afterEach(() => {
-    unmarshallSpy.mockReset();
-  });
-
   it('should call deleteMatchWithTournament with received tournament document', async () => {
+    const tournamentId = 'tournamentId';
     const handlerEvent = {
       Records: [{
-        eventName: 'REMOVE',
-        dynamodb: {
-          OldImage: {}
+        Sns: {
+          Message: tournamentId
         }
       }]
-    } as DynamoDBStreamEvent;
+    } as SNSEvent;
 
-    const tournament = {
-      documentType: 'tournament',
-      tournamentId: 'tournament1'
-    } as TournamentDocument;
-
-    unmarshallSpy.mockReturnValue(tournament);
     mockDeleteMatchWithTournamentService.mockResolvedValue(undefined);
     await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
-    expect(mockDeleteMatchWithTournamentService).toHaveBeenCalledWith({ tournament });
+    expect(mockDeleteMatchWithTournamentService).toHaveBeenCalledWith({ tournamentId });
   });
 
-  it('should not call deleteMatchWithTournament if it is not a REMOVE event', async () => {
+  it('should throw error if deleteMatchWithTournament throws error', async () => {
+    const tournamentId = 'tournamentId';
     const handlerEvent = {
       Records: [{
-        eventName: 'INSERT',
-        dynamodb: {
-          OldImage: {}
+        Sns: {
+          Message: tournamentId
         }
       }]
-    } as DynamoDBStreamEvent;
+    } as SNSEvent;
 
-    await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
-    expect(unmarshallSpy).not.toHaveBeenCalled();
-    expect(mockDeleteMatchWithTournamentService).not.toHaveBeenCalled();
-  });
+    const errorMessage = 'This is an error';
+    mockDeleteMatchWithTournamentService.mockRejectedValueOnce(errorMessage);
 
-  it('should not call deleteMatchWithTournament if documentType is not tournament', async () => {
-    const handlerEvent = {
-      Records: [{
-        eventName: 'REMOVE',
-        dynamodb: {
-          OldImage: {}
-        }
-      }]
-    } as DynamoDBStreamEvent;
-
-    const tournament = {
-      documentType: 'match',
-      tournamentId: 'tournament1'
-    };
-
-    unmarshallSpy.mockReturnValue(tournament);
-
-    await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
-    expect(mockDeleteMatchWithTournamentService).not.toHaveBeenCalled();
-  });
-
-  it('should handle error if deleteMatchWithTournament throws error', async () => {
-    const handlerEvent = {
-      Records: [{
-        eventName: 'REMOVE',
-        dynamodb: {
-          OldImage: {}
-        }
-      }]
-    } as DynamoDBStreamEvent;
-
-    const tournament = {
-      documentType: 'tournament',
-      tournamentId: 'tournament1'
-    } as TournamentDocument;
-
-    unmarshallSpy.mockReturnValue(tournament);
-    mockDeleteMatchWithTournamentService.mockRejectedValueOnce(undefined);
-    await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
-    expect(mockDeleteMatchWithTournamentService).toHaveBeenCalledWith({ tournament });
+    try {
+      await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
+    } catch (error) {
+      expect(mockDeleteMatchWithTournamentService).toHaveBeenCalledWith({ tournamentId });
+      expect(error).toEqual(errorMessage);
+    }
   });
 });

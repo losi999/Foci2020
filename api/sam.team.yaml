@@ -1,0 +1,173 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: 'Foci 2020 Team Api'
+Parameters: 
+  FociLambdaRoleArn:
+    Type: String
+  FociTableName:
+    Type: String
+  FociDeleteTeamTopic:
+    Type: String
+  FociUpdateTeamTopic:
+    Type: String
+  Env:
+    Type: String
+
+Globals:
+  Function:
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !Ref FociTableName
+
+Resources:
+  FociTeamApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub Foci2020-${Env}-Team
+      StageName: Prod
+      TracingEnabled: true
+      GatewayResponses:
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404 
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
+
+  CreateTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-CreateTeam
+      CodeUri: ./dist/create-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTeamApi
+            Path: /team/v1/teams
+            Method: POST
+
+  UpdateTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateTeam
+      CodeUri: ./dist/update-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTeamApi
+            Path: /team/v1/teams/{teamId}
+            Method: PUT    
+      Environment:
+        Variables:
+          UPDATE_TEAM_TOPIC: !Ref FociUpdateTeamTopic
+
+  ListTeams:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-ListTeams
+      CodeUri: ./dist/list-teams
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTeamApi
+            Path: /team/v1/teams
+            Method: GET                                    
+
+  GetTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-GetTeam
+      CodeUri: ./dist/get-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTeamApi
+            Path: /team/v1/teams/{teamId}
+            Method: GET  
+
+  DeleteTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteTeam
+      CodeUri: ./dist/delete-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FociTeamApi
+            Path: /team/v1/teams/{teamId}
+            Method: DELETE     
+      Environment:
+        Variables:
+          DELETE_TEAM_TOPIC: !Ref FociDeleteTeamTopic                
+
+  UpdateMatchWithTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTeam
+      CodeUri: ./dist/update-match-with-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref FociUpdateTeamTopic
+
+  DeleteMatchWithTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatchWithTeam
+      CodeUri: ./dist/delete-match-with-team
+      Handler: index.default
+      Runtime: nodejs10.x
+      Role: !Ref FociLambdaRoleArn
+      Timeout: 10
+      MemorySize: 128
+      Tracing: Active
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref FociDeleteTeamTopic    
+
+Outputs:
+  FociTeamApi:
+    Description: "Foci 2020 Team API"
+    Value: !Sub "${FociTeamApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

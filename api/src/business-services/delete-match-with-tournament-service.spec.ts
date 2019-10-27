@@ -1,6 +1,6 @@
 import { IDeleteMatchWithTournamentService, deleteMatchWithTournamentServiceFactory } from '@/business-services/delete-match-with-tournament-service';
 import { IDatabaseService } from '@/services/database-service';
-import { TournamentDocument, IndexByTournamentIdDocument } from '@/types/documents';
+import { IndexByTournamentIdDocument } from '@/types/documents';
 
 describe('Delete match with tournament service', () => {
   let service: IDeleteMatchWithTournamentService;
@@ -23,9 +23,6 @@ describe('Delete match with tournament service', () => {
     const tournamentId = 'tournamentId';
     const matchId1 = 'matchId1';
     const matchId2 = 'matchId2';
-    const tournament = {
-      tournamentId
-    } as TournamentDocument;
 
     const queriedMatches = [{
       tournamentId,
@@ -37,34 +34,32 @@ describe('Delete match with tournament service', () => {
 
     mockQueryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
     mockDeleteMatch.mockResolvedValue(undefined);
-    const result = await service({ tournament });
+    const result = await service({ tournamentId });
     expect(result).toBeUndefined();
     expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
     expect(mockDeleteMatch).toHaveBeenNthCalledWith(1, matchId1);
     expect(mockDeleteMatch).toHaveBeenNthCalledWith(2, matchId2);
   });
 
-  it('should handle error if unable to query matches', async () => {
+  it('should throw error if unable to query matches', async () => {
     const tournamentId = 'tournamentId';
-    const tournament = {
-      tournamentId
-    } as TournamentDocument;
 
-    mockQueryMatchKeysByTournamentId.mockRejectedValue(undefined);
+    const errorMessage = 'This is a dynamo error';
+    mockQueryMatchKeysByTournamentId.mockRejectedValue(errorMessage);
 
-    const result = await service({ tournament });
-    expect(result).toBeUndefined();
-    expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
-    expect(mockDeleteMatch).not.toHaveBeenCalled();
+    try {
+      await service({ tournamentId });
+    } catch (error) {
+      expect(error).toEqual(errorMessage);
+      expect(mockDeleteMatch).not.toHaveBeenCalled();
+      expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+    }
   });
 
-  it('should handle error if unable to delete matches', async () => {
+  it('should throw error if unable to delete matches', async () => {
     const tournamentId = 'tournamentId';
     const matchId1 = 'matchId1';
     const matchId2 = 'matchId2';
-    const tournament = {
-      tournamentId
-    } as TournamentDocument;
 
     const queriedMatches = [{
       tournamentId,
@@ -75,9 +70,15 @@ describe('Delete match with tournament service', () => {
     }] as IndexByTournamentIdDocument[];
 
     mockQueryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
-    mockDeleteMatch.mockRejectedValue(undefined);
-    const result = await service({ tournament });
-    expect(result).toBeUndefined();
-    expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+
+    const errorMessage = 'This is a dynamo error';
+    mockDeleteMatch.mockRejectedValue(errorMessage);
+
+    try {
+      await service({ tournamentId });
+    } catch (error) {
+      expect(error).toEqual(errorMessage);
+      expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+    }
   });
 });

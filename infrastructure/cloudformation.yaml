@@ -1,13 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  Env:
+    Type: String
 
 Resources:
   FociTable:
     Type: AWS::DynamoDB::Table
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Delete
     Properties:
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES 
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: documentType-id
@@ -89,58 +88,53 @@ Resources:
           Principal:
             Service:
               - lambda.amazonaws.com
+      Policies:
+        - PolicyName: FociPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:DeleteItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                  - dynamodb:UpdateItem
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:CreateLogGroup
+                  - sns:Publish
+                  - xray:*
+                Resource: '*'
 
-  FociPolicy:
-    Type: AWS::IAM::Policy
-    DependsOn:
-      - FociLambdaRole
+  FociDeleteTeamTopic:
+    Type: AWS::SNS::Topic
     Properties:
-      PolicyName: FociPolicy
-      Roles:
-        - !Ref FociLambdaRole
-      PolicyDocument:
-        Statement:
-          - Effect: Allow
-            Action:
-              - dynamodb:DeleteItem
-              - dynamodb:PutItem
-              - dynamodb:Query
-              - dynamodb:UpdateItem
-              - dynamodb:GetRecords
-              - dynamodb:GetShardIterator
-              - dynamodb:DescribeStream
-              - dynamodb:ListStreams
-              - logs:DeleteSubscriptionFilter
-              - logs:DeleteLogStream
-              - logs:CreateExportTask
-              - logs:DeleteResourcePolicy
-              - logs:CreateLogStream
-              - logs:DeleteMetricFilter
-              - logs:TagLogGroup
-              - logs:CancelExportTask
-              - logs:DeleteRetentionPolicy
-              - logs:DeleteLogDelivery
-              - logs:AssociateKmsKey
-              - logs:PutDestination
-              - logs:DisassociateKmsKey
-              - logs:UntagLogGroup
-              - logs:DeleteLogGroup
-              - logs:PutDestinationPolicy
-              - logs:DeleteDestination
-              - logs:PutLogEvents
-              - logs:CreateLogGroup
-              - logs:PutMetricFilter
-              - logs:CreateLogDelivery
-              - logs:PutResourcePolicy
-              - logs:UpdateLogDelivery
-              - logs:PutSubscriptionFilter
-              - logs:PutRetentionPolicy
-              - xray:*
-            Resource: '*'
+      TopicName: !Sub Foci2020-${Env}-DeleteTeamTopic
+
+  FociDeleteTournamentTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-DeleteTournamentTopic
+  
+  FociUpdateTeamTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-UpdateTeamTopic
+
+  FociUpdateTournamentTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-UpdateTournamentTopic
+
 Outputs:
   FociTableName:
     Value: !Ref FociTable
   FociLambdaRoleArn:
     Value: !GetAtt FociLambdaRole.Arn
-  FociTableStreamArn:
-    Value: !GetAtt FociTable.StreamArn
+  FociDeleteTeamTopic:
+    Value: !Ref FociDeleteTeamTopic
+  FociDeleteTournamentTopic:
+    Value: !Ref FociDeleteTournamentTopic
+  FociUpdateTeamTopic:
+    Value: !Ref FociUpdateTeamTopic
+  FociUpdateTournamentTopic:
+    Value: !Ref FociUpdateTournamentTopic

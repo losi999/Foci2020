@@ -26,6 +26,11 @@ Resources:
       Name: !Sub Foci2020-${Env}-Team
       StageName: Prod
       TracingEnabled: true
+      GatewayResponses:
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404 
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
 
   CreateTeam:
     Type: AWS::Serverless::Function
@@ -165,4 +170,4 @@ Resources:
 Outputs:
   FociTeamApi:
     Description: "Foci 2020 Team API"
-    Value: !Sub "${FociTeamApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Value: !Sub "${FociTeamApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

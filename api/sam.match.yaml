@@ -27,6 +27,11 @@ Resources:
       Name: !Sub Foci2020-${Env}-Match
       StageName: Prod
       TracingEnabled: true
+      GatewayResponses:
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404 
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
      
   CreateMatch:
     Type: AWS::Serverless::Function
@@ -126,4 +131,4 @@ Resources:
 Outputs:
   FociMatchApi:
     Description: "Foci 2020 Match API"
-    Value: !Sub "${FociMatchApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Value: !Sub "${FociMatchApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

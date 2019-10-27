@@ -31,6 +31,11 @@ Resources:
       Name: !Sub Foci2020-${Env}-Tournament
       StageName: Prod
       TracingEnabled: true
+      GatewayResponses:
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404 
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
      
   CreateTournament:
     Type: AWS::Serverless::Function
@@ -170,4 +175,4 @@ Resources:
 Outputs:
   FociTournamentApi:
     Description: "Foci 2020 Tournament API"
-    Value: !Sub "${FociTournamentApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Value: !Sub "${FociTournamentApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

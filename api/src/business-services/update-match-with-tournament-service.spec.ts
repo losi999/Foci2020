@@ -37,27 +37,37 @@ describe('Update match with tournament service', () => {
 
     mockQueryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
     mockUpdateMatchesWithTournament.mockResolvedValue(undefined);
-    const result = await service({ tournament });
+    const result = await service({
+      tournamentId,
+      tournament
+    });
     expect(result).toBeUndefined();
     expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
     expect(mockUpdateMatchesWithTournament).toHaveBeenCalledWith(queriedMatches, tournament);
   });
 
-  it('should handle error if unable to query matches', async () => {
+  it('should throw error if unable to query matches', async () => {
     const tournamentId = 'tournamentId';
     const tournament = {
       tournamentId
     } as TournamentDocument;
 
-    mockQueryMatchKeysByTournamentId.mockRejectedValue(undefined);
+    const errorMessage = 'This is a dynamo error';
+    mockQueryMatchKeysByTournamentId.mockRejectedValue(errorMessage);
 
-    const result = await service({ tournament });
-    expect(result).toBeUndefined();
-    expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
-    expect(mockUpdateMatchesWithTournament).not.toHaveBeenCalled();
+    try {
+      await service({
+        tournamentId,
+        tournament
+      });
+    } catch (error) {
+      expect(error).toEqual(errorMessage);
+      expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+      expect(mockUpdateMatchesWithTournament).not.toHaveBeenCalled();
+    }
   });
 
-  it('should handle error if unable to update matches', async () => {
+  it('should throw error if unable to update matches', async () => {
     const tournamentId = 'tournamentId';
     const matchId1 = 'matchId1';
     const matchId2 = 'matchId2';
@@ -74,10 +84,19 @@ describe('Update match with tournament service', () => {
     }] as MatchTournamentDocument[];
 
     mockQueryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
-    mockUpdateMatchesWithTournament.mockRejectedValue(undefined);
-    const result = await service({ tournament });
-    expect(result).toBeUndefined();
-    expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
-    expect(mockUpdateMatchesWithTournament).toHaveBeenCalledWith(queriedMatches, tournament);
+
+    const errorMessage = 'This is a dynamo error';
+    mockUpdateMatchesWithTournament.mockRejectedValue(errorMessage);
+
+    try {
+      await service({
+        tournamentId,
+        tournament
+      });
+    } catch (error) {
+      expect(error).toEqual(errorMessage);
+      expect(mockQueryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+      expect(mockUpdateMatchesWithTournament).toHaveBeenCalledWith(queriedMatches, tournament);
+    }
   });
 });

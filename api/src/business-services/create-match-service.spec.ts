@@ -42,7 +42,6 @@ describe('Create match service', () => {
     const group = 'group';
     const startTime = addMinutes(5.1, now);
     const matchId = 'matchId';
-    const partitionKey = 'match-matchId';
     const body: MatchRequest = {
       tournamentId,
       homeTeamId,
@@ -77,40 +76,7 @@ describe('Create match service', () => {
 
     const result = await service({ body });
     expect(result).toBeUndefined();
-    expect(mockSaveMatch).toHaveBeenCalledWith([
-      {
-        matchId,
-        'documentType-id': partitionKey,
-        segment: 'details',
-        documentType: 'match',
-        group: body.group,
-        startTime: body.startTime,
-        orderingValue: `${tournamentId}-${body.startTime}`
-      },
-      {
-        matchId,
-        'documentType-id': partitionKey,
-        segment: 'homeTeam',
-        documentType: 'match',
-        orderingValue: `${tournamentId}-${body.startTime}`,
-        ...homeTeam
-      },
-      {
-        matchId,
-        'documentType-id': partitionKey,
-        segment: 'awayTeam',
-        documentType: 'match',
-        orderingValue: `${tournamentId}-${body.startTime}`,
-        ...awayTeam
-      }, {
-        matchId,
-        'documentType-id': partitionKey,
-        segment: 'tournament',
-        documentType: 'match',
-        orderingValue: `${tournamentId}-${body.startTime}`,
-        ...tournament
-      }
-    ]);
+    expect(mockSaveMatch).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
   });
 
   it('should throw error if startTime is less than 5 minutes from now', async () => {

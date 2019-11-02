@@ -3,12 +3,10 @@ import { DynamoDB } from 'aws-sdk';
 import {
   TeamDocument,
   TournamentDocument,
-  MatchSaveDocument,
-  MatchDetailsUpdateDocument,
-  MatchTeamUpdateDocument,
-  MatchTournamentUpdateDocument,
   DocumentKey
 } from '@/types/documents';
+import { IMatchDocumentConverter } from '@/converters/match-document-converter';
+import { MatchRequest } from '@/types/requests';
 
 describe('Database service', () => {
   let service: IDatabaseService;
@@ -17,6 +15,12 @@ describe('Database service', () => {
   let dbUpdateSpy: jest.SpyInstance;
   let dbTransactWriteSpy: jest.SpyInstance;
   let dbDeleteSpy: jest.SpyInstance;
+  let mockMatchDocumentConverter: IMatchDocumentConverter;
+  let mockDelete: jest.Mock;
+  let mockUpdate: jest.Mock;
+  let mockSave: jest.Mock;
+  let mockUpdateMatchesWithTeam: jest.Mock;
+  let mockUpdateMatchedWithTournament: jest.Mock;
   const tableName = 'table-name';
 
   beforeEach(() => {
@@ -27,7 +31,20 @@ describe('Database service', () => {
     dbUpdateSpy = jest.spyOn(dynamoClient, 'update');
     dbDeleteSpy = jest.spyOn(dynamoClient, 'delete');
 
-    service = dynamoDatabaseService(dynamoClient);
+    mockDelete = jest.fn();
+    mockUpdate = jest.fn();
+    mockSave = jest.fn();
+    mockUpdateMatchesWithTeam = jest.fn();
+    mockUpdateMatchedWithTournament = jest.fn();
+    mockMatchDocumentConverter = new (jest.fn<Partial<IMatchDocumentConverter>, undefined[]>(() => ({
+      delete: mockDelete,
+      update: mockUpdate,
+      save: mockSave,
+      updateMatchesWithTeam: mockUpdateMatchesWithTeam,
+      updateMatchesWithTournament: mockUpdateMatchedWithTournament,
+    })))() as IMatchDocumentConverter;
+
+    service = dynamoDatabaseService(dynamoClient, mockMatchDocumentConverter);
 
     process.env.DYNAMO_TABLE = tableName;
   });
@@ -84,26 +101,21 @@ describe('Database service', () => {
   describe('updateMatch', () => {
     it('should call dynamo.transactWrite with correct parameters', async () => {
       const matchId = 'matchId';
-      const details: MatchDetailsUpdateDocument = {
+      const body = {
         group: 'group',
-        startTime: 'startTime'
-      };
-      const homeTeam: MatchTeamUpdateDocument = {
-        image: 'homeImage',
-        shortName: 'HMT',
+      } as MatchRequest;
+      const homeTeam = {
         teamId: 'homeTeamId',
-        teamName: 'HomeTeam'
-      };
-      const awayTeam: MatchTeamUpdateDocument = {
-        image: 'awayImage',
-        shortName: 'AWT',
+      } as TeamDocument;
+      const awayTeam = {
         teamId: 'awayTeamId',
-        teamName: 'AwayTeam'
-      };
-      const tournament: MatchTournamentUpdateDocument = {
+      } as TeamDocument;
+      const tournament = {
         tournamentId: 'tournamentId',
-        tournamentName: 'tournamentName'
-      };
+      } as TournamentDocument;
+      const convertedItems = ['converted1', 'converted2'];
+
+      mockUpdate.mockReturnValue(convertedItems);
 
       dbTransactWriteSpy.mockReturnValue({
         promise() {
@@ -111,104 +123,10 @@ describe('Database service', () => {
         }
       });
 
-      await service.updateMatch(matchId, [details, homeTeam, awayTeam, tournament]);
-
+      await service.updateMatch(matchId, body, homeTeam, awayTeam, tournament);
+      expect(mockUpdate).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
       expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: [
-          {
-            Update: {
-              TableName: tableName,
-              Key: {
-                'documentType-id': `match-${matchId}`,
-                segment: 'details'
-              },
-              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-              UpdateExpression: 'set startTime = :startTime, #group = :group, orderingValue = :orderingValue',
-              ExpressionAttributeNames: {
-                '#group': 'group',
-                '#documentTypeId': 'documentType-id',
-                '#segment': 'segment'
-              },
-              ExpressionAttributeValues: {
-                ':startTime': details.startTime,
-                ':group': details.group,
-                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-                ':documentTypeId': `match-${matchId}`,
-                ':segment': 'details'
-              }
-            }
-          },
-          {
-            Update: {
-              TableName: tableName,
-              Key: {
-                'documentType-id': `match-${matchId}`,
-                segment: 'homeTeam'
-              },
-              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-              UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
-              ExpressionAttributeNames: {
-                '#documentTypeId': 'documentType-id',
-                '#segment': 'segment'
-              },
-              ExpressionAttributeValues: {
-                ':teamId': homeTeam.teamId,
-                ':teamName': homeTeam.teamName,
-                ':shortName': homeTeam.shortName,
-                ':image': homeTeam.image,
-                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-                ':documentTypeId': `match-${matchId}`,
-                ':segment': 'homeTeam'
-              }
-            }
-          },
-          {
-            Update: {
-              TableName: tableName,
-              Key: {
-                'documentType-id': `match-${matchId}`,
-                segment: 'awayTeam'
-              },
-              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-              UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
-              ExpressionAttributeNames: {
-                '#documentTypeId': 'documentType-id',
-                '#segment': 'segment'
-              },
-              ExpressionAttributeValues: {
-                ':teamId': awayTeam.teamId,
-                ':teamName': awayTeam.teamName,
-                ':shortName': awayTeam.shortName,
-                ':image': awayTeam.image,
-                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-                ':documentTypeId': `match-${matchId}`,
-                ':segment': 'awayTeam'
-              }
-            }
-          },
-          {
-            Update: {
-              TableName: tableName,
-              Key: {
-                'documentType-id': `match-${matchId}`,
-                segment: 'tournament'
-              },
-              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-              UpdateExpression: 'set tournamentName = :tournamentName, tournamentId = :tournamentId, orderingValue = :orderingValue',
-              ExpressionAttributeNames: {
-                '#documentTypeId': 'documentType-id',
-                '#segment': 'segment'
-              },
-              ExpressionAttributeValues: {
-                ':tournamentId': tournament.tournamentId,
-                ':tournamentName': tournament.tournamentName,
-                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-                ':documentTypeId': `match-${matchId}`,
-                ':segment': 'tournament'
-              }
-            }
-          }
-        ]
+        TransactItems: convertedItems
       });
     });
   });
@@ -229,6 +147,10 @@ describe('Database service', () => {
         }
       ];
 
+      const convertedItems = ['converted1', 'converted2'];
+
+      mockUpdateMatchesWithTeam.mockReturnValue(convertedItems);
+
       dbTransactWriteSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
@@ -242,25 +164,7 @@ describe('Database service', () => {
       });
 
       expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: matches.map(m => ({
-          Update: {
-            Key: {
-              ...m
-            },
-            TableName: tableName,
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':teamName': teamName,
-              ':image': image,
-              ':shortName': shortName
-            }
-          }
-        }))
+        TransactItems: convertedItems
       });
     });
   });
@@ -279,6 +183,10 @@ describe('Database service', () => {
         }
       ];
 
+      const convertedItems = ['converted1', 'converted2'];
+
+      mockUpdateMatchedWithTournament.mockReturnValue(convertedItems);
+
       dbTransactWriteSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
@@ -288,23 +196,7 @@ describe('Database service', () => {
       await service.updateMatchesWithTournament(matches, { tournamentName });
 
       expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: matches.map(m => ({
-          Update: {
-            Key: {
-              ...m
-            },
-            TableName: tableName,
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            UpdateExpression: 'set tournamentName = :tournamentName',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':tournamentName': tournamentName
-            }
-          }
-        }))
+        TransactItems: convertedItems
       });
     });
   });
@@ -479,7 +371,10 @@ describe('Database service', () => {
   describe('deleteMatch', () => {
     it('should call dynamo.transactWrite with correct parameters', async () => {
       const matchId = 'matchId';
-      const matchSegments = ['details', 'homeTeam', 'awayTeam', 'tournament', 'finalScore'];
+
+      const convertedItems = ['converted1', 'converted2'];
+
+      mockDelete.mockReturnValue(convertedItems);
 
       dbTransactWriteSpy.mockReturnValue({
         promise() {
@@ -490,15 +385,7 @@ describe('Database service', () => {
       await service.deleteMatch(matchId);
 
       expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: matchSegments.map(m => ({
-          Delete: {
-            TableName: tableName,
-            Key: {
-              segment: m,
-              'documentType-id': `match-${matchId}`,
-            }
-          }
-        }))
+        TransactItems: convertedItems
       });
     });
   });
@@ -630,17 +517,23 @@ describe('Database service', () => {
 
   describe('saveMatch', () => {
     it('should call dynamo.put with correct parameters', async () => {
-      const match = [
-        {
-          segment: 'details',
-        }, {
-          segment: 'homeTeam'
-        }, {
-          segment: 'awayTeam'
-        }, {
-          segment: 'tournament'
-        }
-      ] as MatchSaveDocument;
+      const matchId = 'matchId';
+      const body = {
+        group: 'group',
+      } as MatchRequest;
+      const homeTeam = {
+        teamId: 'homeTeamId',
+      } as TeamDocument;
+      const awayTeam = {
+        teamId: 'awayTeamId',
+      } as TeamDocument;
+      const tournament = {
+        tournamentId: 'tournamentId',
+      } as TournamentDocument;
+
+      const convertedItems = ['converted1', 'converted2'];
+
+      mockSave.mockReturnValue(convertedItems);
 
       dbTransactWriteSpy.mockReturnValue({
         promise() {
@@ -648,15 +541,10 @@ describe('Database service', () => {
         }
       });
 
-      await service.saveMatch(match);
-
+      await service.saveMatch(matchId, body, homeTeam, awayTeam, tournament);
+      expect(mockSave).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
       expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: match.map(m => ({
-          Put: {
-            TableName: tableName,
-            Item: m
-          }
-        }))
+        TransactItems: convertedItems
       });
     });
   });

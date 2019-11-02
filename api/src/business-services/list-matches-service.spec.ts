@@ -2,12 +2,14 @@ import { IDatabaseService } from '@/services/database-service';
 import { IListMatchesService, listMatchesServiceFactory } from '@/business-services/list-matches-service';
 import { MatchDocument } from '@/types/documents';
 import { MatchResponse } from '@/types/responses';
+import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 
 describe('List matches service', () => {
   let service: IListMatchesService;
   let mockDatabaseService: IDatabaseService;
-  let mockConverter: jest.Mock;
   let mockQueryMatches: jest.Mock;
+  let mockMatchDocumentConverter: IMatchDocumentConverter;
+  let mockCreateResponseList: jest.Mock;
 
   beforeEach(() => {
     mockQueryMatches = jest.fn();
@@ -15,9 +17,12 @@ describe('List matches service', () => {
       queryMatches: mockQueryMatches,
     }))) as IDatabaseService;
 
-    mockConverter = jest.fn();
+    mockCreateResponseList = jest.fn();
+    mockMatchDocumentConverter = new (jest.fn<Partial<IMatchDocumentConverter>, undefined[]>(() => ({
+      createResponseList: mockCreateResponseList
+    })))() as IMatchDocumentConverter;
 
-    service = listMatchesServiceFactory(mockDatabaseService, mockConverter);
+    service = listMatchesServiceFactory(mockDatabaseService, mockMatchDocumentConverter);
   });
 
   it('should return with list of matches', async () => {
@@ -48,27 +53,26 @@ describe('List matches service', () => {
       matchDocument4] as MatchDocument[];
     mockQueryMatches.mockResolvedValue(queriedDocuments);
 
-    const matchResponse1 = {
-      matchId: matchId1,
-      startTime: 'date1'
-    } as MatchResponse;
-    const matchResponse2 = {
-      matchId: matchId2,
-      startTime: 'date2'
-    } as MatchResponse;
-    const matchResponse3 = {
-      matchId: matchId3,
-      startTime: 'date3'
-    };
-    mockConverter.mockReturnValueOnce(matchResponse1);
-    mockConverter.mockReturnValueOnce(matchResponse2);
-    mockConverter.mockReturnValueOnce(matchResponse3);
+    const matchResponse = [
+      {
+        matchId: matchId1,
+        startTime: 'date1'
+      },
+      {
+        matchId: matchId2,
+        startTime: 'date2'
+      },
+      {
+        matchId: matchId3,
+        startTime: 'date3'
+      }
+    ] as MatchResponse[];
+
+    mockCreateResponseList.mockReturnValueOnce(matchResponse);
 
     const result = await service({ tournamentId: 'tournamentId' });
-    expect(result).toEqual([matchResponse1, matchResponse2, matchResponse3]);
-    expect(mockConverter).toHaveBeenNthCalledWith(1, [matchDocument1]);
-    expect(mockConverter).toHaveBeenNthCalledWith(2, [matchDocument2, matchDocument3]);
-    expect(mockConverter).toHaveBeenNthCalledWith(3, [matchDocument4]);
+    expect(result).toEqual(matchResponse);
+    expect(mockCreateResponseList).toHaveBeenCalledWith(queriedDocuments);
   });
 
   it('should throw error if unable to query matches', async () => {

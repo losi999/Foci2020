@@ -75,20 +75,7 @@ describe('Update match service', () => {
       matchId
     });
     expect(result).toBeUndefined();
-    expect(mockUpdateMatch).toHaveBeenCalledWith(matchId, [
-      {
-        group: body.group,
-        startTime: body.startTime,
-      },
-      {
-        ...homeTeam
-      },
-      {
-        ...awayTeam
-      }, {
-        ...tournament
-      }
-    ]);
+    expect(mockUpdateMatch).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
   });
 
   it('should throw error if startTime is less than 5 minutes from now', async () => {

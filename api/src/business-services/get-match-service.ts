@@ -1,8 +1,7 @@
 import { IDatabaseService } from '@/services/database-service';
 import { httpError } from '@/common';
 import { MatchResponse } from '@/types/responses';
-import { MatchDocument } from '@/types/documents';
-import { Converter } from '@/types/types';
+import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 
 export interface IGetMatchService {
   (ctx: {
@@ -12,7 +11,7 @@ export interface IGetMatchService {
 
 export const getMatchServiceFactory = (
   databaseService: IDatabaseService,
-  converter: Converter<MatchDocument[], MatchResponse>
+  matchDocumentConverter: IMatchDocumentConverter
 ): IGetMatchService => {
   return async ({ matchId }) => {
     const match = await databaseService.queryMatchById(matchId).catch((error) => {
@@ -20,6 +19,6 @@ export const getMatchServiceFactory = (
       throw httpError(500, 'Unable to query match');
     });
 
-    return converter(match);
+    return matchDocumentConverter.createResponse(match);
   };
 };

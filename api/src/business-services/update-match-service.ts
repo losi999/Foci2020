@@ -1,7 +1,6 @@
 import { IDatabaseService } from '@/services/database-service';
 import { httpError, addMinutes } from '@/common';
 import { MatchRequest } from '@/types/requests';
-import { MatchUpdateDocument } from '@/types/documents';
 
 export interface IUpdateMatchService {
   (ctx: {
@@ -41,29 +40,8 @@ export const updateMatchServiceFactory = (databaseService: IDatabaseService): IU
       throw httpError(400, 'Tournament not found');
     }
 
-    const matchUpdateDocument: MatchUpdateDocument = [
-      {
-        group: body.group,
-        startTime: body.startTime,
-      },
-      {
-        teamId: homeTeam.teamId,
-        image: homeTeam.image,
-        shortName: homeTeam.shortName,
-        teamName: homeTeam.teamName
-      },
-      {
-        teamId: awayTeam.teamId,
-        image: awayTeam.image,
-        shortName: awayTeam.shortName,
-        teamName: awayTeam.teamName
-      }, {
-        tournamentId: tournament.tournamentId,
-        tournamentName: tournament.tournamentName
-      }
-    ];
     try {
-      await databaseService.updateMatch(matchId, matchUpdateDocument);
+      await databaseService.updateMatch(matchId, body, homeTeam, awayTeam, tournament);
     } catch (error) {
       console.log('ERROR databaseService.updateMatch', error);
       throw httpError(500, 'Error while updating match');

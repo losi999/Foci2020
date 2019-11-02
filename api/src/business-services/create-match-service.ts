@@ -2,7 +2,6 @@ import { IDatabaseService } from '@/services/database-service';
 import { v4String } from 'uuid/interfaces';
 import { httpError, addMinutes } from '@/common';
 import { MatchRequest } from '@/types/requests';
-import { MatchSaveDocument } from '@/types/documents';
 
 export interface ICreateMatchService {
   (ctx: {
@@ -42,51 +41,8 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
     }
 
     const matchId = uuid();
-    const partitionKey = `match-${matchId}`;
-    const orderingValue = `${body.tournamentId}-${body.startTime}`;
-    const matchDocument: MatchSaveDocument = [
-      {
-        matchId,
-        orderingValue,
-        'documentType-id': partitionKey,
-        segment: 'details',
-        documentType: 'match',
-        group: body.group,
-        startTime: body.startTime,
-      },
-      {
-        matchId,
-        orderingValue,
-        'documentType-id': partitionKey,
-        segment: 'homeTeam',
-        documentType: 'match',
-        teamId: homeTeam.teamId,
-        image: homeTeam.image,
-        shortName: homeTeam.shortName,
-        teamName: homeTeam.teamName
-      },
-      {
-        matchId,
-        orderingValue,
-        'documentType-id': partitionKey,
-        segment: 'awayTeam',
-        documentType: 'match',
-        teamId: awayTeam.teamId,
-        image: awayTeam.image,
-        shortName: awayTeam.shortName,
-        teamName: awayTeam.teamName
-      }, {
-        matchId,
-        orderingValue,
-        'documentType-id': partitionKey,
-        segment: 'tournament',
-        documentType: 'match',
-        tournamentId: tournament.tournamentId,
-        tournamentName: tournament.tournamentName
-      }
-    ];
     try {
-      await databaseService.saveMatch(matchDocument);
+      await databaseService.saveMatch(matchId, body, homeTeam, awayTeam, tournament);
     } catch (error) {
       console.log('ERROR databaseService.saveMatch', error);
       throw httpError(500, 'Error while saving match');

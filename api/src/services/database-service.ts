@@ -2,25 +2,24 @@ import { DynamoDB } from 'aws-sdk';
 import {
   TeamDocument,
   TournamentDocument,
-  MatchSaveDocument,
   MatchDocument,
   DocumentKey,
   TournamentUpdateDocument,
   IndexByTournamentIdDocument,
   TeamUpdateDocument,
   IndexByTeamIdDocument,
-  MatchUpdateDocument,
   DocumentType
 } from '@/types/documents';
-import { TransactWriteItem, PutItemInputAttributeMap } from 'aws-sdk/clients/dynamodb';
+import { IMatchDocumentConverter } from '@/converters/match-document-converter';
+import { MatchRequest } from '@/types/requests';
 
 export interface IDatabaseService {
   saveTeam(team: TeamDocument): Promise<any>;
   saveTournament(tournament: TournamentDocument): Promise<any>;
-  saveMatch(match: MatchSaveDocument): Promise<any>;
+  saveMatch(matchId: string, body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): Promise<any>;
   updateTournament(key: DocumentKey, tournament: TournamentUpdateDocument): Promise<any>;
   updateTeam(key: DocumentKey, team: TeamUpdateDocument): Promise<any>;
-  updateMatch(matchId: string, documents: MatchUpdateDocument): Promise<any>;
+  updateMatch(matchId: string, body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): Promise<any>;
   updateMatchesWithTournament(matchKeys: DocumentKey<'tournament'>[], tournament: TournamentUpdateDocument): Promise<any>;
   updateMatchesWithTeam(matchKeys: DocumentKey<'homeTeam' | 'awayTeam'>[], team: TeamUpdateDocument): Promise<any>;
   queryTeamById(teamId: string): Promise<TeamDocument>;
@@ -36,7 +35,7 @@ export interface IDatabaseService {
   deleteTournament(tournamentId: string): Promise<any>;
 }
 
-export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): IDatabaseService => {
+export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient, matchDocumentConverter: IMatchDocumentConverter): IDatabaseService => {
   const putDocument = (document: any) => {
     return dynamoClient.put({
       TableName: process.env.DYNAMO_TABLE,
@@ -85,14 +84,9 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
     saveTournament: (tournament) => {
       return putDocument(tournament);
     },
-    saveMatch: (match) => {
+    saveMatch: (matchId, body, homeTeam, awayTeam, tournament) => {
       return dynamoClient.transactWrite({
-        TransactItems: match.map<TransactWriteItem>(m => ({
-          Put: {
-            TableName: process.env.DYNAMO_TABLE,
-            Item: m as PutItemInputAttributeMap
-          }
-        }))
+        TransactItems: matchDocumentConverter.save(matchId, body, homeTeam, awayTeam, tournament)
       }).promise();
     },
     updateTournament: (key, { tournamentName }) => {
@@ -133,149 +127,19 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
         }
       }).promise();
     },
-    updateMatchesWithTournament: (matchKeys, { tournamentName }) => {
+    updateMatchesWithTournament: (matchKeys, tournament) => {
       return dynamoClient.transactWrite({
-        TransactItems: matchKeys.map(key => ({
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            Key: {
-              'documentType-id': key['documentType-id'],
-              segment: key.segment
-            },
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            UpdateExpression: 'set tournamentName = :tournamentName',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':tournamentName': tournamentName
-            }
-          }
-        }))
+        TransactItems: matchDocumentConverter.updateMatchesWithTournament(matchKeys, tournament)
       }).promise();
     },
-    updateMatchesWithTeam: (matchKeys, { image, shortName, teamName }) => {
+    updateMatchesWithTeam: (matchKeys, team) => {
       return dynamoClient.transactWrite({
-        TransactItems: matchKeys.map(key => ({
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            Key: {
-              'documentType-id': key['documentType-id'],
-              segment: key.segment
-            },
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':teamName': teamName,
-              ':image': image,
-              ':shortName': shortName
-            }
-          }
-        }))
+        TransactItems: matchDocumentConverter.updateMatchesWithTeam(matchKeys, team)
       }).promise();
     },
-    updateMatch: (matchId, [details, homeTeam, awayTeam, tournament]) => {
+    updateMatch: (matchId, body, homeTeam, awayTeam, tournament) => {
       return dynamoClient.transactWrite({
-        TransactItems: [
-          {
-            Update: {
-              TableName: process.env.DYNAMO_TABLE,
-              Key: {
-                'documentType-id': `match-${matchId}`,
-                segment: 'details'
-              },
-              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-              UpdateExpression: 'set startTime = :startTime, #group = :group, orderingValue = :orderingValue',
-              ExpressionAttributeNames: {
-                '#group': 'group',
-                '#documentTypeId': 'documentType-id',
-                '#segment': 'segment'
-              },
-              ExpressionAttributeValues: {
-                ':startTime': details.startTime,
-                ':group': details.group,
-                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-                ':documentTypeId': `match-${matchId}`,
-                ':segment': 'details'
-              }
-            }
-          },
-          {
-            Update: {
-              TableName: process.env.DYNAMO_TABLE,
-              Key: {
-                'documentType-id': `match-${matchId}`,
-                segment: 'homeTeam'
-              },
-              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-              UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
-              ExpressionAttributeNames: {
-                '#documentTypeId': 'documentType-id',
-                '#segment': 'segment'
-              },
-              ExpressionAttributeValues: {
-                ':teamId': homeTeam.teamId,
-                ':teamName': homeTeam.teamName,
-                ':shortName': homeTeam.shortName,
-                ':image': homeTeam.image,
-                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-                ':documentTypeId': `match-${matchId}`,
-                ':segment': 'homeTeam'
-              }
-            }
-          },
-          {
-            Update: {
-              TableName: process.env.DYNAMO_TABLE,
-              Key: {
-                'documentType-id': `match-${matchId}`,
-                segment: 'awayTeam'
-              },
-              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-              UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
-              ExpressionAttributeNames: {
-                '#documentTypeId': 'documentType-id',
-                '#segment': 'segment'
-              },
-              ExpressionAttributeValues: {
-                ':teamId': awayTeam.teamId,
-                ':teamName': awayTeam.teamName,
-                ':shortName': awayTeam.shortName,
-                ':image': awayTeam.image,
-                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-                ':documentTypeId': `match-${matchId}`,
-                ':segment': 'awayTeam'
-              }
-            }
-          },
-          {
-            Update: {
-              TableName: process.env.DYNAMO_TABLE,
-              Key: {
-                'documentType-id': `match-${matchId}`,
-                segment: 'tournament'
-              },
-              ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-              UpdateExpression: 'set tournamentName = :tournamentName, tournamentId = :tournamentId, orderingValue = :orderingValue',
-              ExpressionAttributeNames: {
-                '#documentTypeId': 'documentType-id',
-                '#segment': 'segment'
-              },
-              ExpressionAttributeValues: {
-                ':tournamentId': tournament.tournamentId,
-                ':tournamentName': tournament.tournamentName,
-                ':orderingValue': `${tournament.tournamentId}-${details.startTime}`,
-                ':documentTypeId': `match-${matchId}`,
-                ':segment': 'tournament'
-              }
-            }
-          }
-        ]
+        TransactItems: matchDocumentConverter.update(matchId, body, homeTeam, awayTeam, tournament)
       }).promise();
     },
     queryTeamById: async (teamId) => {
@@ -327,17 +191,8 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient): ID
       }).promise()).Items as IndexByTeamIdDocument[];
     },
     deleteMatch: (matchId) => {
-      const matchSegments = ['details', 'homeTeam', 'awayTeam', 'tournament', 'finalScore'];
       return dynamoClient.transactWrite({
-        TransactItems: matchSegments.map<TransactWriteItem>(segment => ({
-          Delete: {
-            TableName: process.env.DYNAMO_TABLE,
-            Key: {
-              segment,
-              'documentType-id': `match-${matchId}`,
-            } as DynamoDB.Key
-          }
-        }))
+        TransactItems: matchDocumentConverter.delete(matchId)
       }).promise();
     },
     deleteTeam: (teamId) => {

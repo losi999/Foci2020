@@ -1,8 +1,8 @@
 import { createTournamentServiceFactory, ICreateTournamentService } from '@/business-services/create-tournament-service';
-import { IDatabaseService } from '@/services/database-service';
 import { TournamentRequest } from '@/types/requests';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 describe('Create tournament service', () => {
-  let mockDatabaseService: IDatabaseService;
+  let mockTournamentDocumentService: ITournamentDocumentService;
   let mockSaveTournament: jest.Mock;
   let mockUuid: jest.Mock;
   let service: ICreateTournamentService;
@@ -11,13 +11,13 @@ describe('Create tournament service', () => {
 
   beforeEach(() => {
     mockSaveTournament = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
       saveTournament: mockSaveTournament
-    })))() as IDatabaseService;
+    })))() as ITournamentDocumentService;
 
     mockUuid = jest.fn();
 
-    service = createTournamentServiceFactory(mockDatabaseService, mockUuid);
+    service = createTournamentServiceFactory(mockTournamentDocumentService, mockUuid);
   });
 
   it('should throw error if unable to save tournament', async () => {

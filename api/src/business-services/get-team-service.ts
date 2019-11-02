@@ -1,7 +1,7 @@
-import { IDatabaseService } from '@/services/database-service';
 import { httpError } from '@/common';
 import { TeamResponse } from '@/types/responses';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
+import { ITeamDocumentService } from '@/services/team-document-service';
 
 export interface IGetTeamService {
   (ctx: {
@@ -10,11 +10,11 @@ export interface IGetTeamService {
 }
 
 export const getTeamServiceFactory = (
-  databaseService: IDatabaseService,
+  teamDocumentService: ITeamDocumentService,
   teamDocumentConverter: ITeamDocumentConverter
 ): IGetTeamService => {
   return async ({ teamId }) => {
-    const team = await databaseService.queryTeamById(teamId).catch((error) => {
+    const team = await teamDocumentService.queryTeamById(teamId).catch((error) => {
       console.log('ERROR databaseService.queryTeamById', error);
       throw httpError(500, 'Unable to query team');
     });

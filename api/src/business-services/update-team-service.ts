@@ -1,7 +1,7 @@
 import { TeamRequest } from '@/types/requests';
-import { IDatabaseService } from '@/services/database-service';
 import { httpError } from '@/common';
 import { INotificationService } from '@/services/notification-service';
+import { ITeamDocumentService } from '@/services/team-document-service';
 
 export interface IUpdateTeamService {
   (ctx: {
@@ -10,9 +10,11 @@ export interface IUpdateTeamService {
   }): Promise<void>;
 }
 
-export const updateTeamServiceFactory = (databaseService: IDatabaseService, notificationService: INotificationService): IUpdateTeamService => {
+export const updateTeamServiceFactory = (
+  teamDocumentService: ITeamDocumentService,
+  notificationService: INotificationService): IUpdateTeamService => {
   return async ({ body, teamId }) => {
-    await databaseService.updateTeam(teamId, body).catch((error) => {
+    await teamDocumentService.updateTeam(teamId, body).catch((error) => {
       console.log('ERROR databaseService.updateTeam', error);
       throw httpError(500, 'Error while updating team');
     });

@@ -1,28 +1,28 @@
-import { IDatabaseService } from '@/services/database-service';
 import { IGetTeamService, getTeamServiceFactory } from '@/business-services/get-team-service';
 import { TeamDocument } from '@/types/documents';
 import { TeamResponse } from '@/types/responses';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
+import { ITeamDocumentService } from '@/services/team-document-service';
 
 describe('Get team service', () => {
   let service: IGetTeamService;
-  let mockDatabaseService: IDatabaseService;
+  let mockTeamDocumentService: ITeamDocumentService;
   let mockQueryTeamById: jest.Mock;
   let mockTeamDocumentConverter: ITeamDocumentConverter;
   let mockCreateResponse: jest.Mock;
 
   beforeEach(() => {
     mockQueryTeamById = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockTeamDocumentService = new (jest.fn<Partial<ITeamDocumentService>, undefined[]>(() => ({
       queryTeamById: mockQueryTeamById,
-    }))) as IDatabaseService;
+    }))) as ITeamDocumentService;
 
     mockCreateResponse = jest.fn();
     mockTeamDocumentConverter = new (jest.fn<Partial<ITeamDocumentConverter>, undefined[]>(() => ({
       createResponse: mockCreateResponse
     })))() as ITeamDocumentConverter;
 
-    service = getTeamServiceFactory(mockDatabaseService, mockTeamDocumentConverter);
+    service = getTeamServiceFactory(mockTeamDocumentService, mockTeamDocumentConverter);
   });
 
   it('should return with a team', async () => {

@@ -1,9 +1,9 @@
 import { default as handler } from '@/handlers/delete-team-handler';
-import { databaseService, apiRequestValidator, notificationService } from '@/dependencies';
+import { apiRequestValidator, notificationService, teamDocumentService } from '@/dependencies';
 import { deleteTeamServiceFactory } from '@/business-services/delete-team-service';
 import { pathParameters } from '@/schemas/delete-team-schemas';
 
-const deleteTeamService = deleteTeamServiceFactory(databaseService, notificationService);
+const deleteTeamService = deleteTeamServiceFactory(teamDocumentService, notificationService);
 
 export default apiRequestValidator({
   pathParameters

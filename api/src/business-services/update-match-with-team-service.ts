@@ -1,5 +1,5 @@
 import { TeamDetailsUpdateDocument } from '@/types/documents';
-import { IDatabaseService } from '@/services/database-service';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 export interface IUpdateMatchWithTeamService {
   (ctx: {
@@ -8,10 +8,10 @@ export interface IUpdateMatchWithTeamService {
   }): Promise<void>;
 }
 
-export const updateMatchWithTeamServiceFactory = (databaseService: IDatabaseService): IUpdateMatchWithTeamService => {
+export const updateMatchWithTeamServiceFactory = (matchDocumentService: IMatchDocumentService): IUpdateMatchWithTeamService => {
   return async ({ team, teamId }) => {
-    const matches = await databaseService.queryMatchKeysByTeamId(teamId);
+    const matches = await matchDocumentService.queryMatchKeysByTeamId(teamId);
 
-    await databaseService.updateMatchesWithTeam(matches, team);
+    await matchDocumentService.updateMatchesWithTeam(matches, team);
   };
 };

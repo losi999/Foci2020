@@ -1,6 +1,8 @@
-import { IDatabaseService } from '@/services/database-service';
 import { httpError, addMinutes } from '@/common';
 import { MatchRequest } from '@/types/requests';
+import { IMatchDocumentService } from '@/services/match-document-service';
+import { ITeamDocumentService } from '@/services/team-document-service';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 
 export interface IUpdateMatchService {
   (ctx: {
@@ -9,7 +11,11 @@ export interface IUpdateMatchService {
   }): Promise<void>;
 }
 
-export const updateMatchServiceFactory = (databaseService: IDatabaseService): IUpdateMatchService => {
+export const updateMatchServiceFactory = (
+  matchDocumentService: IMatchDocumentService,
+  teamDocumentService: ITeamDocumentService,
+  tournamentDocumentService: ITournamentDocumentService
+): IUpdateMatchService => {
   return async ({ body, matchId }) => {
     if (addMinutes(5) > new Date(body.startTime)) {
       throw httpError(400, 'Start time has to be at least 5 minutes from now');
@@ -20,9 +26,9 @@ export const updateMatchServiceFactory = (databaseService: IDatabaseService): IU
     }
 
     const [homeTeam, awayTeam, tournament] = await Promise.all([
-      databaseService.queryTeamById(body.homeTeamId),
-      databaseService.queryTeamById(body.awayTeamId),
-      databaseService.queryTournamentById(body.tournamentId)
+      teamDocumentService.queryTeamById(body.homeTeamId),
+      teamDocumentService.queryTeamById(body.awayTeamId),
+      tournamentDocumentService.queryTournamentById(body.tournamentId)
     ]).catch((error) => {
       console.log('ERROR query', error);
       throw httpError(500, 'Unable to query related document');
@@ -41,7 +47,7 @@ export const updateMatchServiceFactory = (databaseService: IDatabaseService): IU
     }
 
     try {
-      await databaseService.updateMatch(matchId, body, homeTeam, awayTeam, tournament);
+      await matchDocumentService.updateMatch(matchId, body, homeTeam, awayTeam, tournament);
     } catch (error) {
       console.log('ERROR databaseService.updateMatch', error);
       throw httpError(500, 'Error while updating match');

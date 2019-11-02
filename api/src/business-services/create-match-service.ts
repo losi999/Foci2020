@@ -1,7 +1,9 @@
-import { IDatabaseService } from '@/services/database-service';
 import { v4String } from 'uuid/interfaces';
 import { httpError, addMinutes } from '@/common';
 import { MatchRequest } from '@/types/requests';
+import { IMatchDocumentService } from '@/services/match-document-service';
+import { ITeamDocumentService } from '@/services/team-document-service';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 
 export interface ICreateMatchService {
   (ctx: {
@@ -9,7 +11,12 @@ export interface ICreateMatchService {
   }): Promise<void>;
 }
 
-export const createMatchServiceFactory = (databaseService: IDatabaseService, uuid: v4String): ICreateMatchService => {
+export const createMatchServiceFactory = (
+  matchDocumentService: IMatchDocumentService,
+  teamDocumentService: ITeamDocumentService,
+  tournamentDocumentService: ITournamentDocumentService,
+  uuid: v4String
+): ICreateMatchService => {
   return async ({ body }) => {
     if (addMinutes(5) > new Date(body.startTime)) {
       throw httpError(400, 'Start time has to be at least 5 minutes from now');
@@ -20,9 +27,9 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
     }
 
     const [homeTeam, awayTeam, tournament] = await Promise.all([
-      databaseService.queryTeamById(body.homeTeamId),
-      databaseService.queryTeamById(body.awayTeamId),
-      databaseService.queryTournamentById(body.tournamentId)
+      teamDocumentService.queryTeamById(body.homeTeamId),
+      teamDocumentService.queryTeamById(body.awayTeamId),
+      tournamentDocumentService.queryTournamentById(body.tournamentId)
     ]).catch((error) => {
       console.log('ERROR query', error);
       throw httpError(500, 'Unable to query related document');
@@ -42,7 +49,7 @@ export const createMatchServiceFactory = (databaseService: IDatabaseService, uui
 
     const matchId = uuid();
     try {
-      await databaseService.saveMatch(matchId, body, homeTeam, awayTeam, tournament);
+      await matchDocumentService.saveMatch(matchId, body, homeTeam, awayTeam, tournament);
     } catch (error) {
       console.log('ERROR databaseService.saveMatch', error);
       throw httpError(500, 'Error while saving match');

@@ -1,22 +1,22 @@
 import { IDeleteMatchWithTournamentService, deleteMatchWithTournamentServiceFactory } from '@/business-services/delete-match-with-tournament-service';
-import { IDatabaseService } from '@/services/database-service';
 import { IndexByTournamentIdDocument } from '@/types/documents';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 describe('Delete match with tournament service', () => {
   let service: IDeleteMatchWithTournamentService;
-  let mockDatabaseService: IDatabaseService;
+  let mockMatchDocumentService: IMatchDocumentService;
   let mockQueryMatchKeysByTournamentId: jest.Mock;
   let mockDeleteMatch: jest.Mock;
 
   beforeEach(() => {
     mockDeleteMatch = jest.fn();
     mockQueryMatchKeysByTournamentId = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
       deleteMatch: mockDeleteMatch,
       queryMatchKeysByTournamentId: mockQueryMatchKeysByTournamentId
-    })))() as IDatabaseService;
+    })))() as IMatchDocumentService;
 
-    service = deleteMatchWithTournamentServiceFactory(mockDatabaseService);
+    service = deleteMatchWithTournamentServiceFactory(mockMatchDocumentService);
   });
 
   it('should return undefined if matches are deleted sucessfully', async () => {

@@ -1,28 +1,28 @@
-import { IDatabaseService } from '@/services/database-service';
 import { IListMatchesService, listMatchesServiceFactory } from '@/business-services/list-matches-service';
 import { MatchDocument } from '@/types/documents';
 import { MatchResponse } from '@/types/responses';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 describe('List matches service', () => {
   let service: IListMatchesService;
-  let mockDatabaseService: IDatabaseService;
+  let mockMatchDocumentService: IMatchDocumentService;
   let mockQueryMatches: jest.Mock;
   let mockMatchDocumentConverter: IMatchDocumentConverter;
   let mockCreateResponseList: jest.Mock;
 
   beforeEach(() => {
     mockQueryMatches = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
       queryMatches: mockQueryMatches,
-    }))) as IDatabaseService;
+    }))) as IMatchDocumentService;
 
     mockCreateResponseList = jest.fn();
     mockMatchDocumentConverter = new (jest.fn<Partial<IMatchDocumentConverter>, undefined[]>(() => ({
       createResponseList: mockCreateResponseList
     })))() as IMatchDocumentConverter;
 
-    service = listMatchesServiceFactory(mockDatabaseService, mockMatchDocumentConverter);
+    service = listMatchesServiceFactory(mockMatchDocumentService, mockMatchDocumentConverter);
   });
 
   it('should return with list of matches', async () => {

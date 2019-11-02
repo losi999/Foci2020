@@ -1,26 +1,26 @@
-import { IDatabaseService } from '@/services/database-service';
 import { IDeleteTournamentService, deleteTournamentServiceFactory } from '@/business-services/delete-tournament-service';
 import { INotificationService } from '@/services/notification-service';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 
 describe('Delete tournament service', () => {
   let service: IDeleteTournamentService;
-  let mockDatabaseService: IDatabaseService;
+  let mockTournamentDocumentService: ITournamentDocumentService;
   let mockDeleteTournament: jest.Mock;
   let mockNotificationService: INotificationService;
   let mockTournamentDeleted: jest.Mock;
 
   beforeEach(() => {
     mockDeleteTournament = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
       deleteTournament: mockDeleteTournament,
-    }))) as IDatabaseService;
+    }))) as ITournamentDocumentService;
 
     mockTournamentDeleted = jest.fn();
     mockNotificationService = new (jest.fn<Partial<INotificationService>, undefined[]>(() => ({
       tournamentDeleted: mockTournamentDeleted
     })))() as INotificationService;
 
-    service = deleteTournamentServiceFactory(mockDatabaseService, mockNotificationService);
+    service = deleteTournamentServiceFactory(mockTournamentDocumentService, mockNotificationService);
   });
 
   it('should return with undefined', async () => {

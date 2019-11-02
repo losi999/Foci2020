@@ -1,28 +1,28 @@
-import { IDatabaseService } from '@/services/database-service';
 import { IListTournamentsService, listTournamentsServiceFactory } from '@/business-services/list-tournaments-service';
 import { TournamentDocument } from '@/types/documents';
 import { TournamentResponse } from '@/types/responses';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 
 describe('List tournaments service', () => {
   let service: IListTournamentsService;
-  let mockDatabaseService: IDatabaseService;
+  let mockTournamentDocumentService: ITournamentDocumentService;
   let mockQueryTournaments: jest.Mock;
   let mockTournamentDocumentConverter: ITournamentDocumentConverter;
   let mockCreateResponseList: jest.Mock;
 
   beforeEach(() => {
     mockQueryTournaments = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
       queryTournaments: mockQueryTournaments,
-    }))) as IDatabaseService;
+    }))) as ITournamentDocumentService;
 
     mockCreateResponseList = jest.fn();
     mockTournamentDocumentConverter = new (jest.fn<Partial<ITournamentDocumentConverter>, undefined[]>(() => ({
       createResponseList: mockCreateResponseList
     })))() as ITournamentDocumentConverter;
 
-    service = listTournamentsServiceFactory(mockDatabaseService, mockTournamentDocumentConverter);
+    service = listTournamentsServiceFactory(mockTournamentDocumentService, mockTournamentDocumentConverter);
   });
 
   it('should return with list of tournaments', async () => {

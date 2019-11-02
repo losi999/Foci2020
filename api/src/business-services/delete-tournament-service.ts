@@ -1,6 +1,6 @@
-import { IDatabaseService } from '@/services/database-service';
 import { httpError } from '@/common';
 import { INotificationService } from '@/services/notification-service';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 
 export interface IDeleteTournamentService {
   (ctx: {
@@ -9,11 +9,11 @@ export interface IDeleteTournamentService {
 }
 
 export const deleteTournamentServiceFactory = (
-  databaseService: IDatabaseService,
+  tournamentDocumentService: ITournamentDocumentService,
   notificationService: INotificationService
 ): IDeleteTournamentService => {
   return async ({ tournamentId }) => {
-    await databaseService.deleteTournament(tournamentId).catch((error) => {
+    await tournamentDocumentService.deleteTournament(tournamentId).catch((error) => {
       console.log('ERROR databaseService.deleteTournament', error);
       throw httpError(500, 'Unable to delete tournament');
     });

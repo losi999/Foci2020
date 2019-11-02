@@ -1,22 +1,22 @@
 import { IUpdateMatchWithTournamentService, updateMatchWithTournamentServiceFactory } from '@/business-services/update-match-with-tournament-service';
-import { IDatabaseService } from '@/services/database-service';
 import { TournamentDocument, MatchTournamentDocument } from '@/types/documents';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 describe('Update match with tournament service', () => {
   let service: IUpdateMatchWithTournamentService;
-  let mockDatabaseService: IDatabaseService;
+  let mockMatchDocumentService: IMatchDocumentService;
   let mockQueryMatchKeysByTournamentId: jest.Mock;
   let mockUpdateMatchesWithTournament: jest.Mock;
 
   beforeEach(() => {
     mockUpdateMatchesWithTournament = jest.fn();
     mockQueryMatchKeysByTournamentId = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
       updateMatchesWithTournament: mockUpdateMatchesWithTournament,
       queryMatchKeysByTournamentId: mockQueryMatchKeysByTournamentId
-    })))() as IDatabaseService;
+    })))() as IMatchDocumentService;
 
-    service = updateMatchWithTournamentServiceFactory(mockDatabaseService);
+    service = updateMatchWithTournamentServiceFactory(mockMatchDocumentService);
   });
 
   it('should return undefined if matches are updated sucessfully', async () => {

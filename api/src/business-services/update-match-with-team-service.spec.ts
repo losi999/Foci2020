@@ -1,22 +1,22 @@
 import { IUpdateMatchWithTeamService, updateMatchWithTeamServiceFactory } from '@/business-services/update-match-with-team-service';
-import { IDatabaseService } from '@/services/database-service';
 import { TeamDocument, MatchTeamDocument } from '@/types/documents';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 describe('Update match with team service', () => {
   let service: IUpdateMatchWithTeamService;
-  let mockDatabaseService: IDatabaseService;
+  let mockMatchDocumentService: IMatchDocumentService;
   let mockQueryMatchKeysByTeamId: jest.Mock;
   let mockUpdateMatchesWithTeam: jest.Mock;
 
   beforeEach(() => {
     mockUpdateMatchesWithTeam = jest.fn();
     mockQueryMatchKeysByTeamId = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
       updateMatchesWithTeam: mockUpdateMatchesWithTeam,
       queryMatchKeysByTeamId: mockQueryMatchKeysByTeamId
-    })))() as IDatabaseService;
+    })))() as IMatchDocumentService;
 
-    service = updateMatchWithTeamServiceFactory(mockDatabaseService);
+    service = updateMatchWithTeamServiceFactory(mockMatchDocumentService);
   });
 
   it('should return undefined if matches are updated sucessfully', async () => {

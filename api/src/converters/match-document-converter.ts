@@ -7,9 +7,9 @@ import {
   MatchFinalScoreDocument,
   TeamDocument,
   TournamentDocument,
-  TeamUpdateDocument,
+  TeamDetailsUpdateDocument,
   DocumentKey,
-  TournamentUpdateDocument
+  TournamentDetailsUpdateDocument
 } from '@/types/documents';
 import { MatchResponse } from '@/types/responses';
 import { MatchRequest } from '@/types/requests';
@@ -33,8 +33,8 @@ export interface IMatchDocumentConverter {
   save(matchId: string, body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): DynamoDB.DocumentClient.TransactWriteItemList;
   update(matchId: string, body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): DynamoDB.DocumentClient.TransactWriteItemList;
   delete(matchId: string): DynamoDB.DocumentClient.TransactWriteItemList;
-  updateMatchesWithTeam(matchKeys: DocumentKey<'homeTeam' | 'awayTeam'>[], team: TeamUpdateDocument): DynamoDB.DocumentClient.TransactWriteItemList;
-  updateMatchesWithTournament(matchKeys: DocumentKey<'tournament'>[], tournament: TournamentUpdateDocument): DynamoDB.DocumentClient.TransactWriteItemList;
+  updateMatchesWithTeam(matchKeys: DocumentKey<'homeTeam' | 'awayTeam'>[], team: TeamDetailsUpdateDocument): DynamoDB.DocumentClient.TransactWriteItemList;
+  updateMatchesWithTournament(matchKeys: DocumentKey<'tournament'>[], tournament: TournamentDetailsUpdateDocument): DynamoDB.DocumentClient.TransactWriteItemList;
 }
 
 export const matchDocumentConverterFactory = (): IMatchDocumentConverter => {

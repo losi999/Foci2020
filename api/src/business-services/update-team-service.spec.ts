@@ -43,10 +43,7 @@ describe('Update team service', () => {
       body
     });
     expect(result).toBeUndefined();
-    expect(mockUpdateTeam).toHaveBeenCalledWith({
-      'documentType-id': `team-${teamId}`,
-      segment: 'details'
-    }, body);
+    expect(mockUpdateTeam).toHaveBeenCalledWith(teamId, body);
   });
 
   it('should throw error if unable to update team', async () => {

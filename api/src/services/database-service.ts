@@ -4,24 +4,26 @@ import {
   TournamentDocument,
   MatchDocument,
   DocumentKey,
-  TournamentUpdateDocument,
+  TournamentDetailsUpdateDocument,
   IndexByTournamentIdDocument,
-  TeamUpdateDocument,
+  TeamDetailsUpdateDocument,
   IndexByTeamIdDocument,
   DocumentType
 } from '@/types/documents';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { MatchRequest } from '@/types/requests';
+import { MatchRequest, TeamRequest, TournamentRequest } from '@/types/requests';
+import { ITeamDocumentConverter } from '@/converters/team-document-converter';
+import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 
 export interface IDatabaseService {
-  saveTeam(team: TeamDocument): Promise<any>;
-  saveTournament(tournament: TournamentDocument): Promise<any>;
+  saveTeam(teamId: string, body: TeamRequest): Promise<any>;
+  saveTournament(tournamentId: string, body: TournamentRequest): Promise<any>;
   saveMatch(matchId: string, body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): Promise<any>;
-  updateTournament(key: DocumentKey, tournament: TournamentUpdateDocument): Promise<any>;
-  updateTeam(key: DocumentKey, team: TeamUpdateDocument): Promise<any>;
+  updateTournament(tournamentId: string, body: TournamentRequest): Promise<any>;
+  updateTeam(teamId: string, body: TeamRequest): Promise<any>;
   updateMatch(matchId: string, body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): Promise<any>;
-  updateMatchesWithTournament(matchKeys: DocumentKey<'tournament'>[], tournament: TournamentUpdateDocument): Promise<any>;
-  updateMatchesWithTeam(matchKeys: DocumentKey<'homeTeam' | 'awayTeam'>[], team: TeamUpdateDocument): Promise<any>;
+  updateMatchesWithTournament(matchKeys: DocumentKey<'tournament'>[], tournament: TournamentDetailsUpdateDocument): Promise<any>;
+  updateMatchesWithTeam(matchKeys: DocumentKey<'homeTeam' | 'awayTeam'>[], team: TeamDetailsUpdateDocument): Promise<any>;
   queryTeamById(teamId: string): Promise<TeamDocument>;
   queryTournamentById(tournamentId: string): Promise<TournamentDocument>;
   queryMatchById(matchId: string): Promise<MatchDocument[]>;
@@ -35,14 +37,12 @@ export interface IDatabaseService {
   deleteTournament(tournamentId: string): Promise<any>;
 }
 
-export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient, matchDocumentConverter: IMatchDocumentConverter): IDatabaseService => {
-  const putDocument = (document: any) => {
-    return dynamoClient.put({
-      TableName: process.env.DYNAMO_TABLE,
-      Item: document
-    }).promise();
-  };
-
+export const dynamoDatabaseService = (
+  dynamoClient: DynamoDB.DocumentClient,
+  matchDocumentConverter: IMatchDocumentConverter,
+  teamDocumentConverter: ITeamDocumentConverter,
+  tournamentDocumentConverter: ITournamentDocumentConverter
+): IDatabaseService => {
   const queryByKey = (partitionKey: string) => {
     return dynamoClient.query({
       TableName: process.env.DYNAMO_TABLE,
@@ -52,16 +52,6 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient, mat
       },
       ExpressionAttributeValues: {
         ':pk': partitionKey
-      }
-    }).promise();
-  };
-
-  const deleteDocument = (partitionKey: string) => {
-    return dynamoClient.delete({
-      TableName: process.env.DYNAMO_TABLE,
-      Key: {
-        segment: 'details',
-        'documentType-id': partitionKey,
       }
     }).promise();
   };
@@ -78,54 +68,22 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient, mat
   };
 
   return {
-    saveTeam: (team) => {
-      return putDocument(team);
+    saveTeam: (teamId, body) => {
+      return dynamoClient.put(teamDocumentConverter.save(teamId, body)).promise();
     },
-    saveTournament: (tournament) => {
-      return putDocument(tournament);
+    saveTournament: (tournamentId, body) => {
+      return dynamoClient.put(tournamentDocumentConverter.save(tournamentId, body)).promise();
     },
     saveMatch: (matchId, body, homeTeam, awayTeam, tournament) => {
       return dynamoClient.transactWrite({
         TransactItems: matchDocumentConverter.save(matchId, body, homeTeam, awayTeam, tournament)
       }).promise();
     },
-    updateTournament: (key, { tournamentName }) => {
-      return dynamoClient.update({
-        TableName: process.env.DYNAMO_TABLE,
-        Key: {
-          'documentType-id': key['documentType-id'],
-          segment: key.segment
-        },
-        ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-        UpdateExpression: 'set tournamentName = :tournamentName, orderingValue = :tournamentName',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-          '#segment': 'segment'
-        },
-        ExpressionAttributeValues: {
-          ':tournamentName': tournamentName
-        }
-      }).promise();
+    updateTournament: (tournamentId, body) => {
+      return dynamoClient.update(tournamentDocumentConverter.update(tournamentId, body)).promise();
     },
-    updateTeam: (key, { image, shortName, teamName }) => {
-      return dynamoClient.update({
-        TableName: process.env.DYNAMO_TABLE,
-        Key: {
-          'documentType-id': key['documentType-id'],
-          segment: key.segment
-        },
-        ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-          '#segment': 'segment'
-        },
-        ExpressionAttributeValues: {
-          ':teamName': teamName,
-          ':image': image,
-          ':shortName': shortName
-        }
-      }).promise();
+    updateTeam: (teamId, body) => {
+      return dynamoClient.update(teamDocumentConverter.update(teamId, body)).promise();
     },
     updateMatchesWithTournament: (matchKeys, tournament) => {
       return dynamoClient.transactWrite({
@@ -196,10 +154,10 @@ export const dynamoDatabaseService = (dynamoClient: DynamoDB.DocumentClient, mat
       }).promise();
     },
     deleteTeam: (teamId) => {
-      return deleteDocument(`team-${teamId}`);
+      return dynamoClient.delete(teamDocumentConverter.delete(teamId)).promise();
     },
     deleteTournament: (tournamentId) => {
-      return deleteDocument(`tournament-${tournamentId}`);
+      return dynamoClient.delete(tournamentDocumentConverter.delete(tournamentId)).promise();
     },
   };
 };

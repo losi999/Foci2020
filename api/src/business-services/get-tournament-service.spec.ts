@@ -2,12 +2,14 @@ import { IDatabaseService } from '@/services/database-service';
 import { IGetTournamentService, getTournamentServiceFactory } from '@/business-services/get-tournament-service';
 import { TournamentDocument } from '@/types/documents';
 import { TournamentResponse } from '@/types/responses';
+import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 
 describe('Get tournament service', () => {
   let service: IGetTournamentService;
   let mockDatabaseService: IDatabaseService;
   let mockQueryTournamentById: jest.Mock;
-  let mockConverter: jest.Mock;
+  let mockTournamentDocumentConverter: ITournamentDocumentConverter;
+  let mockCreateResponse: jest.Mock;
 
   beforeEach(() => {
     mockQueryTournamentById = jest.fn();
@@ -15,9 +17,12 @@ describe('Get tournament service', () => {
       queryTournamentById: mockQueryTournamentById,
     }))) as IDatabaseService;
 
-    mockConverter = jest.fn();
+    mockCreateResponse = jest.fn();
+    mockTournamentDocumentConverter = new (jest.fn<Partial<ITournamentDocumentConverter>, undefined[]>(() => ({
+      createResponse: mockCreateResponse
+    })))() as ITournamentDocumentConverter;
 
-    service = getTournamentServiceFactory(mockDatabaseService, mockConverter);
+    service = getTournamentServiceFactory(mockDatabaseService, mockTournamentDocumentConverter);
   });
 
   it('should return with a tournament', async () => {
@@ -36,11 +41,11 @@ describe('Get tournament service', () => {
       tournamentName
     } as TournamentResponse;
 
-    mockConverter.mockReturnValueOnce(tournamentResponse);
+    mockCreateResponse.mockReturnValueOnce(tournamentResponse);
 
     const result = await service({ tournamentId });
     expect(result).toEqual(tournamentResponse);
-    expect(mockConverter).toHaveBeenCalledWith(tournamentDocument);
+    expect(mockCreateResponse).toHaveBeenCalledWith(tournamentDocument);
   });
 
   it('should throw error if unable to query tournament', async () => {

@@ -1,8 +1,7 @@
 import { IDatabaseService } from '@/services/database-service';
 import { httpError } from '@/common';
 import { TeamResponse } from '@/types/responses';
-import { TeamDocument } from '@/types/documents';
-import { Converter } from '@/types/types';
+import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 
 export interface IListTeamsService {
   (): Promise<TeamResponse[]>;
@@ -10,7 +9,7 @@ export interface IListTeamsService {
 
 export const listTeamsServiceFactory = (
   databaseService: IDatabaseService,
-  converter: Converter<TeamDocument, TeamResponse>
+  teamDocumentConverter: ITeamDocumentConverter
 ): IListTeamsService => {
   return async () => {
     const teams = await databaseService.queryTeams().catch((error) => {
@@ -18,6 +17,6 @@ export const listTeamsServiceFactory = (
       throw httpError(500, 'Unable to query teams');
     });
 
-    return teams.map<TeamResponse>(team => converter(team));
+    return teamDocumentConverter.createResponseList(teams);
   };
 };

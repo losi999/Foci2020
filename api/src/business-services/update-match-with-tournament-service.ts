@@ -1,10 +1,10 @@
-import { TournamentUpdateDocument } from '@/types/documents';
+import { TournamentDetailsUpdateDocument } from '@/types/documents';
 import { IDatabaseService } from '@/services/database-service';
 
 export interface IUpdateMatchWithTournamentService {
   (ctx: {
     tournamentId: string;
-    tournament: TournamentUpdateDocument
+    tournament: TournamentDetailsUpdateDocument
   }): Promise<void>;
 }
 

@@ -7,6 +7,8 @@ describe('Create tournament service', () => {
   let mockUuid: jest.Mock;
   let service: ICreateTournamentService;
 
+  const tournamentId = 'uuid';
+
   beforeEach(() => {
     mockSaveTournament = jest.fn();
     mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
@@ -20,7 +22,7 @@ describe('Create tournament service', () => {
 
   it('should throw error if unable to save tournament', async () => {
     const body = {} as TournamentRequest;
-    mockUuid.mockReturnValue('uuid');
+    mockUuid.mockReturnValue(tournamentId);
     mockSaveTournament.mockRejectedValue({});
     try {
       await service({ body });
@@ -35,17 +37,10 @@ describe('Create tournament service', () => {
     const body = {
       tournamentName
     } as TournamentRequest;
-    mockUuid.mockReturnValue('uuid');
+    mockUuid.mockReturnValue(tournamentId);
     mockSaveTournament.mockResolvedValue(undefined);
     const result = await service({ body });
     expect(result).toBeUndefined();
-    expect(mockSaveTournament).toHaveBeenCalledWith({
-      tournamentName,
-      tournamentId: 'uuid',
-      documentType: 'tournament',
-      'documentType-id': 'tournament-uuid',
-      orderingValue: tournamentName,
-      segment: 'details',
-    });
+    expect(mockSaveTournament).toHaveBeenCalledWith(tournamentId, body);
   });
 });

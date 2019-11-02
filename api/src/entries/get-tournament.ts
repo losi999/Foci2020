@@ -1,10 +1,9 @@
 import { default as handler } from '@/handlers/get-tournament-handler';
-import { databaseService, apiRequestValidator } from '@/dependencies';
+import { databaseService, apiRequestValidator, tournamentDocumentConverter } from '@/dependencies';
 import { getTournamentServiceFactory } from '@/business-services/get-tournament-service';
-import { default as converter } from '@/converters/tournament-documents-to-response-converter';
 import { pathParameters } from '@/schemas/get-tournament-schemas';
 
-const getTournamentService = getTournamentServiceFactory(databaseService, converter);
+const getTournamentService = getTournamentServiceFactory(databaseService, tournamentDocumentConverter);
 
 export default apiRequestValidator({
   pathParameters

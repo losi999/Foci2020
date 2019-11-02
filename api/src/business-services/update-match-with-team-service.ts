@@ -1,10 +1,10 @@
-import { TeamUpdateDocument } from '@/types/documents';
+import { TeamDetailsUpdateDocument } from '@/types/documents';
 import { IDatabaseService } from '@/services/database-service';
 
 export interface IUpdateMatchWithTeamService {
   (ctx: {
     teamId: string,
-    team: TeamUpdateDocument
+    team: TeamDetailsUpdateDocument
   }): Promise<void>;
 }
 

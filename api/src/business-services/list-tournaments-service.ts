@@ -1,8 +1,7 @@
 import { IDatabaseService } from '@/services/database-service';
 import { httpError } from '@/common';
 import { TournamentResponse } from '@/types/responses';
-import { TournamentDocument } from '@/types/documents';
-import { Converter } from '@/types/types';
+import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 
 export interface IListTournamentsService {
   (): Promise<TournamentResponse[]>;
@@ -10,7 +9,7 @@ export interface IListTournamentsService {
 
 export const listTournamentsServiceFactory = (
   databaseService: IDatabaseService,
-  converter: Converter<TournamentDocument, TournamentResponse>
+  tournamentDocumentConverte: ITournamentDocumentConverter
 ): IListTournamentsService => {
   return async () => {
     const tournaments = await databaseService.queryTournaments().catch((error) => {
@@ -18,6 +17,6 @@ export const listTournamentsServiceFactory = (
       throw httpError(500, 'Unable to query tournaments');
     });
 
-    return tournaments.map<TournamentResponse>(tournament => converter(tournament));
+    return tournamentDocumentConverte.createResponseList(tournaments);
   };
 };

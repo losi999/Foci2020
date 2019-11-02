@@ -12,10 +12,7 @@ export interface IUpdateTournamentService {
 
 export const updateTournamentServiceFactory = (databaseService: IDatabaseService, notificationService: INotificationService): IUpdateTournamentService => {
   return async ({ body, tournamentId }) => {
-    await databaseService.updateTournament({
-      'documentType-id': `tournament-${tournamentId}`,
-      segment: 'details'
-    }, body).catch((error) => {
+    await databaseService.updateTournament(tournamentId, body).catch((error) => {
       console.log('ERROR databaseService.updateTournament', error);
       throw httpError(500, 'Error while updating tournament');
     });

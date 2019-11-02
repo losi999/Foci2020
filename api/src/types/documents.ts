@@ -10,26 +10,31 @@ type DocumentBase = {
   orderingValue: string;
 };
 
-export type TournamentUpdateDocument = {
+export type TournamentDetailsUpdateDocument = {
   tournamentName: string
 };
 
-export type TournamentDocument = DocumentKey & TournamentUpdateDocument & DocumentBase & {
+export type TournamentDetailsDocument = DocumentKey & TournamentDetailsUpdateDocument & DocumentBase & {
   documentType: 'tournament';
   tournamentId: string;
 };
+
+export type TournamentDocument = TournamentDetailsDocument;
+
 export type IndexByTournamentIdDocument = Pick<MatchTournamentDocument, keyof DocumentKey | 'tournamentId' | 'documentType' | 'matchId'>;
 
-export type TeamUpdateDocument = {
+export type TeamDetailsUpdateDocument = {
   teamName: string
   shortName: string;
   image: string;
 };
 
-export type TeamDocument = DocumentKey & TeamUpdateDocument & DocumentBase & {
+export type TeamDetailsDocument = DocumentKey & TeamDetailsUpdateDocument & DocumentBase & {
   documentType: 'team';
   teamId: string;
 };
+
+export type TeamDocument = TeamDetailsDocument;
 
 export type IndexByTeamIdDocument = Pick<MatchTeamDocument, keyof DocumentKey | 'teamId' | 'documentType' | 'matchId'>;
 

@@ -12,10 +12,7 @@ export interface IUpdateTeamService {
 
 export const updateTeamServiceFactory = (databaseService: IDatabaseService, notificationService: INotificationService): IUpdateTeamService => {
   return async ({ body, teamId }) => {
-    await databaseService.updateTeam({
-      'documentType-id': `team-${teamId}`,
-      segment: 'details'
-    }, body).catch((error) => {
+    await databaseService.updateTeam(teamId, body).catch((error) => {
       console.log('ERROR databaseService.updateTeam', error);
       throw httpError(500, 'Error while updating team');
     });

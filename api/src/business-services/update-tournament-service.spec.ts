@@ -39,10 +39,7 @@ describe('Update tournament service', () => {
       body
     });
     expect(result).toBeUndefined();
-    expect(mockUpdateTournament).toHaveBeenCalledWith({
-      'documentType-id': `tournament-${tournamentId}`,
-      segment: 'details'
-    }, body);
+    expect(mockUpdateTournament).toHaveBeenCalledWith(tournamentId, body);
   });
 
   it('should throw error if unable to update tournament', async () => {

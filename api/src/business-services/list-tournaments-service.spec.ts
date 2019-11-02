@@ -2,12 +2,14 @@ import { IDatabaseService } from '@/services/database-service';
 import { IListTournamentsService, listTournamentsServiceFactory } from '@/business-services/list-tournaments-service';
 import { TournamentDocument } from '@/types/documents';
 import { TournamentResponse } from '@/types/responses';
+import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 
 describe('List tournaments service', () => {
   let service: IListTournamentsService;
   let mockDatabaseService: IDatabaseService;
   let mockQueryTournaments: jest.Mock;
-  let mockConverter: jest.Mock;
+  let mockTournamentDocumentConverter: ITournamentDocumentConverter;
+  let mockCreateResponseList: jest.Mock;
 
   beforeEach(() => {
     mockQueryTournaments = jest.fn();
@@ -15,9 +17,12 @@ describe('List tournaments service', () => {
       queryTournaments: mockQueryTournaments,
     }))) as IDatabaseService;
 
-    mockConverter = jest.fn();
+    mockCreateResponseList = jest.fn();
+    mockTournamentDocumentConverter = new (jest.fn<Partial<ITournamentDocumentConverter>, undefined[]>(() => ({
+      createResponseList: mockCreateResponseList
+    })))() as ITournamentDocumentConverter;
 
-    service = listTournamentsServiceFactory(mockDatabaseService, mockConverter);
+    service = listTournamentsServiceFactory(mockDatabaseService, mockTournamentDocumentConverter);
   });
 
   it('should return with list of tournaments', async () => {
@@ -41,22 +46,21 @@ describe('List tournaments service', () => {
       tournamentDocument2] as TournamentDocument[];
     mockQueryTournaments.mockResolvedValue(queriedDocuments);
 
-    const tournamentResponse1 = {
-      tournamentId: tournamentId1,
-      tournamentName: tournamentName1
-    } as TournamentResponse;
-    const tournamentResponse2 = {
-      tournamentId: tournamentId2,
-      tournamentName: tournamentName2
-    } as TournamentResponse;
+    const tournamentResponse = [
+      {
+        tournamentId: tournamentId1,
+        tournamentName: tournamentName1
+      },
+      {
+        tournamentId: tournamentId2,
+        tournamentName: tournamentName2
+      }] as TournamentResponse[];
 
-    mockConverter.mockReturnValueOnce(tournamentResponse1);
-    mockConverter.mockReturnValueOnce(tournamentResponse2);
+    mockCreateResponseList.mockReturnValueOnce(tournamentResponse);
 
     const result = await service();
-    expect(result).toEqual([tournamentResponse1, tournamentResponse2]);
-    expect(mockConverter).toHaveBeenNthCalledWith(1, tournamentDocument1);
-    expect(mockConverter).toHaveBeenNthCalledWith(2, tournamentDocument2);
+    expect(result).toEqual(tournamentResponse);
+    expect(mockCreateResponseList).toHaveBeenCalledWith(queriedDocuments);
   });
 
   it('should throw error if unable to query tournaments', async () => {

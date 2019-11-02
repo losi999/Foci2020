@@ -2,12 +2,14 @@ import { IDatabaseService } from '@/services/database-service';
 import { IGetTeamService, getTeamServiceFactory } from '@/business-services/get-team-service';
 import { TeamDocument } from '@/types/documents';
 import { TeamResponse } from '@/types/responses';
+import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 
 describe('Get team service', () => {
   let service: IGetTeamService;
   let mockDatabaseService: IDatabaseService;
   let mockQueryTeamById: jest.Mock;
-  let mockConverter: jest.Mock;
+  let mockTeamDocumentConverter: ITeamDocumentConverter;
+  let mockCreateResponse: jest.Mock;
 
   beforeEach(() => {
     mockQueryTeamById = jest.fn();
@@ -15,9 +17,12 @@ describe('Get team service', () => {
       queryTeamById: mockQueryTeamById,
     }))) as IDatabaseService;
 
-    mockConverter = jest.fn();
+    mockCreateResponse = jest.fn();
+    mockTeamDocumentConverter = new (jest.fn<Partial<ITeamDocumentConverter>, undefined[]>(() => ({
+      createResponse: mockCreateResponse
+    })))() as ITeamDocumentConverter;
 
-    service = getTeamServiceFactory(mockDatabaseService, mockConverter);
+    service = getTeamServiceFactory(mockDatabaseService, mockTeamDocumentConverter);
   });
 
   it('should return with a team', async () => {
@@ -36,11 +41,11 @@ describe('Get team service', () => {
       teamName
     } as TeamResponse;
 
-    mockConverter.mockReturnValueOnce(teamResponse);
+    mockCreateResponse.mockReturnValue(teamResponse);
 
     const result = await service({ teamId });
     expect(result).toEqual(teamResponse);
-    expect(mockConverter).toHaveBeenCalledWith(teamDocument);
+    expect(mockCreateResponse).toHaveBeenCalledWith(teamDocument);
   });
 
   it('should throw error if unable to query team', async () => {

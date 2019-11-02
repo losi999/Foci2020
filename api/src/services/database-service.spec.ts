@@ -6,7 +6,9 @@ import {
   DocumentKey
 } from '@/types/documents';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { MatchRequest } from '@/types/requests';
+import { MatchRequest, TeamRequest, TournamentRequest } from '@/types/requests';
+import { ITeamDocumentConverter } from '@/converters/team-document-converter';
+import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 
 describe('Database service', () => {
   let service: IDatabaseService;
@@ -16,11 +18,19 @@ describe('Database service', () => {
   let dbTransactWriteSpy: jest.SpyInstance;
   let dbDeleteSpy: jest.SpyInstance;
   let mockMatchDocumentConverter: IMatchDocumentConverter;
-  let mockDelete: jest.Mock;
-  let mockUpdate: jest.Mock;
-  let mockSave: jest.Mock;
+  let mockMatchDelete: jest.Mock;
+  let mockMatchUpdate: jest.Mock;
+  let mockMatchSave: jest.Mock;
   let mockUpdateMatchesWithTeam: jest.Mock;
   let mockUpdateMatchedWithTournament: jest.Mock;
+  let mockTeamDocumentConverter: ITeamDocumentConverter;
+  let mockTeamDelete: jest.Mock;
+  let mockTeamUpdate: jest.Mock;
+  let mockTeamSave: jest.Mock;
+  let mockTournamentDocumentConverter: ITournamentDocumentConverter;
+  let mockTournamentDelete: jest.Mock;
+  let mockTournamentUpdate: jest.Mock;
+  let mockTournamentSave: jest.Mock;
   const tableName = 'table-name';
 
   beforeEach(() => {
@@ -31,20 +41,38 @@ describe('Database service', () => {
     dbUpdateSpy = jest.spyOn(dynamoClient, 'update');
     dbDeleteSpy = jest.spyOn(dynamoClient, 'delete');
 
-    mockDelete = jest.fn();
-    mockUpdate = jest.fn();
-    mockSave = jest.fn();
+    mockMatchDelete = jest.fn();
+    mockMatchUpdate = jest.fn();
+    mockMatchSave = jest.fn();
     mockUpdateMatchesWithTeam = jest.fn();
     mockUpdateMatchedWithTournament = jest.fn();
     mockMatchDocumentConverter = new (jest.fn<Partial<IMatchDocumentConverter>, undefined[]>(() => ({
-      delete: mockDelete,
-      update: mockUpdate,
-      save: mockSave,
+      delete: mockMatchDelete,
+      update: mockMatchUpdate,
+      save: mockMatchSave,
       updateMatchesWithTeam: mockUpdateMatchesWithTeam,
       updateMatchesWithTournament: mockUpdateMatchedWithTournament,
     })))() as IMatchDocumentConverter;
 
-    service = dynamoDatabaseService(dynamoClient, mockMatchDocumentConverter);
+    mockTeamDelete = jest.fn();
+    mockTeamUpdate = jest.fn();
+    mockTeamSave = jest.fn();
+    mockTeamDocumentConverter = new (jest.fn<Partial<ITeamDocumentConverter>, undefined[]>(() => ({
+      delete: mockTeamDelete,
+      update: mockTeamUpdate,
+      save: mockTeamSave,
+    })))() as ITeamDocumentConverter;
+
+    mockTournamentDelete = jest.fn();
+    mockTournamentUpdate = jest.fn();
+    mockTournamentSave = jest.fn();
+    mockTournamentDocumentConverter = new (jest.fn<Partial<ITournamentDocumentConverter>, undefined[]>(() => ({
+      delete: mockTournamentDelete,
+      update: mockTournamentUpdate,
+      save: mockTournamentSave,
+    })))() as ITournamentDocumentConverter;
+
+    service = dynamoDatabaseService(dynamoClient, mockMatchDocumentConverter, mockTeamDocumentConverter, mockTournamentDocumentConverter);
 
     process.env.DYNAMO_TABLE = tableName;
   });
@@ -56,15 +84,14 @@ describe('Database service', () => {
   describe('updateTeam', () => {
     it('should call dynamo.update with correct parameters', async () => {
       const teamName = 'teamName';
-      const image = 'image';
-      const shortName = 'shortName';
-      const partitionKey = 'partitionKey';
-      const team = {
+      const teamId = 'teamId';
+      const body = {
         teamName,
-        image,
-        shortName,
-        teamId: 'teamId',
-      } as TeamDocument;
+      } as TeamRequest;
+
+      const convertedItem = 'converted';
+
+      mockTeamUpdate.mockReturnValue(convertedItem);
 
       dbUpdateSpy.mockReturnValue({
         promise() {
@@ -72,29 +99,9 @@ describe('Database service', () => {
         }
       });
 
-      await service.updateTeam({
-        'documentType-id': partitionKey,
-        segment: 'details'
-      }, team);
-
-      expect(dbUpdateSpy).toHaveBeenCalledWith({
-        Key: {
-          'documentType-id': partitionKey,
-          segment: 'details'
-        },
-        TableName: tableName,
-        ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-          '#segment': 'segment'
-        },
-        ExpressionAttributeValues: {
-          ':teamName': teamName,
-          ':image': image,
-          ':shortName': shortName
-        }
-      });
+      await service.updateTeam(teamId, body);
+      expect(mockTeamUpdate).toHaveBeenCalledWith(teamId, body);
+      expect(dbUpdateSpy).toHaveBeenCalledWith(convertedItem);
     });
   });
 
@@ -115,7 +122,7 @@ describe('Database service', () => {
       } as TournamentDocument;
       const convertedItems = ['converted1', 'converted2'];
 
-      mockUpdate.mockReturnValue(convertedItems);
+      mockMatchUpdate.mockReturnValue(convertedItems);
 
       dbTransactWriteSpy.mockReturnValue({
         promise() {
@@ -124,7 +131,7 @@ describe('Database service', () => {
       });
 
       await service.updateMatch(matchId, body, homeTeam, awayTeam, tournament);
-      expect(mockUpdate).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
+      expect(mockMatchUpdate).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
       expect(dbTransactWriteSpy).toHaveBeenCalledWith({
         TransactItems: convertedItems
       });
@@ -374,7 +381,7 @@ describe('Database service', () => {
 
       const convertedItems = ['converted1', 'converted2'];
 
-      mockDelete.mockReturnValue(convertedItems);
+      mockMatchDelete.mockReturnValue(convertedItems);
 
       dbTransactWriteSpy.mockReturnValue({
         promise() {
@@ -394,6 +401,10 @@ describe('Database service', () => {
     it('should call dynamo.delete with correct parameters', async () => {
       const teamId = 'teamId';
 
+      const convertedItem = 'converted';
+
+      mockTeamDelete.mockReturnValue(convertedItem);
+
       dbDeleteSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
@@ -401,20 +412,18 @@ describe('Database service', () => {
       });
 
       await service.deleteTeam(teamId);
-
-      expect(dbDeleteSpy).toHaveBeenCalledWith({
-        TableName: tableName,
-        Key: {
-          segment: 'details',
-          'documentType-id': `team-${teamId}`,
-        }
-      });
+      expect(mockTeamDelete).toHaveBeenCalledWith(teamId);
+      expect(dbDeleteSpy).toHaveBeenCalledWith(convertedItem);
     });
   });
 
   describe('deleteTournament', () => {
     it('should call dynamo.delete with correct parameters', async () => {
       const tournamentId = 'tournamentId';
+
+      const convertedItem = 'converted';
+
+      mockTournamentDelete.mockReturnValue(convertedItem);
 
       dbDeleteSpy.mockReturnValue({
         promise() {
@@ -423,22 +432,21 @@ describe('Database service', () => {
       });
 
       await service.deleteTournament(tournamentId);
-
-      expect(dbDeleteSpy).toHaveBeenCalledWith({
-        TableName: tableName,
-        Key: {
-          segment: 'details',
-          'documentType-id': `tournament-${tournamentId}`,
-        }
-      });
+      expect(mockTournamentDelete).toHaveBeenCalledWith(tournamentId);
+      expect(dbDeleteSpy).toHaveBeenCalledWith(convertedItem);
     });
   });
 
   describe('saveTeam', () => {
     it('should call dynamo.put with correct parameters', async () => {
-      const team = {
-        teamId: 'teamId'
-      } as TeamDocument;
+      const teamId = 'teamId';
+      const body = {
+        teamName: 'teamName'
+      } as TeamRequest;
+
+      const convertedItem = 'converted';
+
+      mockTeamSave.mockReturnValue(convertedItem);
 
       dbPutSpy.mockReturnValue({
         promise() {
@@ -446,20 +454,22 @@ describe('Database service', () => {
         }
       });
 
-      await service.saveTeam(team);
-
-      expect(dbPutSpy).toHaveBeenCalledWith({
-        TableName: tableName,
-        Item: team
-      });
+      await service.saveTeam(teamId, body);
+      expect(mockTeamSave).toHaveBeenCalledWith(teamId, body);
+      expect(dbPutSpy).toHaveBeenCalledWith(convertedItem);
     });
   });
 
   describe('saveTournament', () => {
     it('should call dynamo.put with correct parameters', async () => {
-      const tournament = {
-        tournamentId: 'tournamentId'
-      } as TournamentDocument;
+      const tournamentId = 'tournamentId';
+      const body = {
+        tournamentName: 'tournamentName'
+      } as TournamentRequest;
+
+      const convertedItem = 'converted';
+
+      mockTournamentSave.mockReturnValue(convertedItem);
 
       dbPutSpy.mockReturnValue({
         promise() {
@@ -467,23 +477,22 @@ describe('Database service', () => {
         }
       });
 
-      await service.saveTournament(tournament);
-
-      expect(dbPutSpy).toHaveBeenCalledWith({
-        TableName: tableName,
-        Item: tournament
-      });
+      await service.saveTournament(tournamentId, body);
+      expect(mockTournamentSave).toHaveBeenCalledWith(tournamentId, body)
+      expect(dbPutSpy).toHaveBeenCalledWith(convertedItem);
     });
   });
 
   describe('updateTournament', () => {
     it('should call dynamo.update with correct parameters', async () => {
-      const tournamentName = 'tournamentName';
-      const partitionKey = 'partitionKey';
-      const tournament = {
-        tournamentName,
-        tournamentId: 'tournamentId',
-      } as TournamentDocument;
+      const tournamentId = 'tournamentId';
+      const body = {
+        tournamentName: 'tournamentName'
+      } as TournamentRequest;
+
+      const convertedItem = 'converted';
+
+      mockTournamentUpdate.mockReturnValue(convertedItem);
 
       dbUpdateSpy.mockReturnValue({
         promise() {
@@ -491,27 +500,9 @@ describe('Database service', () => {
         }
       });
 
-      await service.updateTournament({
-        'documentType-id': partitionKey,
-        segment: 'details'
-      }, tournament);
-
-      expect(dbUpdateSpy).toHaveBeenCalledWith({
-        Key: {
-          'documentType-id': partitionKey,
-          segment: 'details'
-        },
-        TableName: tableName,
-        ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-        UpdateExpression: 'set tournamentName = :tournamentName, orderingValue = :tournamentName',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-          '#segment': 'segment'
-        },
-        ExpressionAttributeValues: {
-          ':tournamentName': tournamentName
-        }
-      });
+      await service.updateTournament(tournamentId, body);
+      expect(mockTournamentUpdate).toHaveBeenCalledWith(tournamentId, body);
+      expect(dbUpdateSpy).toHaveBeenCalledWith(convertedItem);
     });
   });
 
@@ -533,7 +524,7 @@ describe('Database service', () => {
 
       const convertedItems = ['converted1', 'converted2'];
 
-      mockSave.mockReturnValue(convertedItems);
+      mockMatchSave.mockReturnValue(convertedItems);
 
       dbTransactWriteSpy.mockReturnValue({
         promise() {
@@ -542,7 +533,7 @@ describe('Database service', () => {
       });
 
       await service.saveMatch(matchId, body, homeTeam, awayTeam, tournament);
-      expect(mockSave).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
+      expect(mockMatchSave).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
       expect(dbTransactWriteSpy).toHaveBeenCalledWith({
         TransactItems: convertedItems
       });

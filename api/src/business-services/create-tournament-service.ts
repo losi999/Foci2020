@@ -10,17 +10,10 @@ export interface ICreateTournamentService {
 }
 
 export const createTournamentServiceFactory = (databaseService: IDatabaseService, uuid: v4String): ICreateTournamentService => {
-  return async ({ body: { tournamentName } }) => {
+  return async ({ body }) => {
     const tournamentId = uuid();
     try {
-      await databaseService.saveTournament({
-        tournamentId,
-        tournamentName,
-        documentType: 'tournament',
-        'documentType-id': `tournament-${tournamentId}`,
-        segment: 'details',
-        orderingValue: tournamentName
-      });
+      await databaseService.saveTournament(tournamentId, body);
     } catch (error) {
       console.log('ERROR databaseService.saveTournament', error);
       throw httpError(500, 'Error while saving tournament');

@@ -28,18 +28,6 @@ export const matchDocumentServiceFactory = (
   dynamoClient: DynamoDB.DocumentClient,
   matchDocumentConverter: IMatchDocumentConverter
 ): IMatchDocumentService => {
-  const queryByKey = (partitionKey: string) => {
-    return dynamoClient.query({
-      TableName: process.env.DYNAMO_TABLE,
-      KeyConditionExpression: '#documentTypeId = :pk',
-      ExpressionAttributeNames: {
-        '#documentTypeId': 'documentType-id'
-      },
-      ExpressionAttributeValues: {
-        ':pk': partitionKey
-      }
-    }).promise();
-  };
 
   return {
     saveMatch: (matchId, body, homeTeam, awayTeam, tournament) => {
@@ -63,7 +51,16 @@ export const matchDocumentServiceFactory = (
       }).promise();
     },
     queryMatchById: async (matchId) => {
-      return (await queryByKey(`match-${matchId}`)).Items as MatchDocument[];
+      return (await dynamoClient.query({
+        TableName: process.env.DYNAMO_TABLE,
+        KeyConditionExpression: '#documentTypeId = :pk',
+        ExpressionAttributeNames: {
+          '#documentTypeId': 'documentType-id'
+        },
+        ExpressionAttributeValues: {
+          ':pk': `match-${matchId}`
+        }
+      }).promise()).Items as MatchDocument[];
     },
     queryMatches: async (tournamentId) => {
       return (await dynamoClient.query({

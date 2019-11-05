@@ -1,27 +1,27 @@
-import { IDatabaseService } from '@/services/database-service';
 import { IUpdateTeamService, updateTeamServiceFactory } from '@/business-services/update-team-service';
 import { TeamRequest } from '@/types/requests';
 import { INotificationService } from '@/services/notification-service';
+import { ITeamDocumentService } from '@/services/team-document-service';
 
 describe('Update team service', () => {
   let service: IUpdateTeamService;
-  let mockDatabaseService: IDatabaseService;
+  let mockTeamDocumentService: ITeamDocumentService;
   let mockUpdateTeam: jest.Mock;
   let mockNotificationService: INotificationService;
   let mockTeamUpdated: jest.Mock;
 
   beforeEach(() => {
     mockUpdateTeam = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockTeamDocumentService = new (jest.fn<Partial<ITeamDocumentService>, undefined[]>(() => ({
       updateTeam: mockUpdateTeam
-    }))) as IDatabaseService;
+    }))) as ITeamDocumentService;
 
     mockTeamUpdated = jest.fn();
     mockNotificationService = new (jest.fn<Partial<INotificationService>, undefined[]>(() => ({
       teamUpdated: mockTeamUpdated
     })))() as INotificationService;
 
-    service = updateTeamServiceFactory(mockDatabaseService, mockNotificationService);
+    service = updateTeamServiceFactory(mockTeamDocumentService, mockNotificationService);
   });
 
   it('should return with with undefined if team is updated successfully', async () => {
@@ -43,10 +43,7 @@ describe('Update team service', () => {
       body
     });
     expect(result).toBeUndefined();
-    expect(mockUpdateTeam).toHaveBeenCalledWith({
-      'documentType-id': `team-${teamId}`,
-      segment: 'details'
-    }, body);
+    expect(mockUpdateTeam).toHaveBeenCalledWith(teamId, body);
   });
 
   it('should throw error if unable to update team', async () => {

@@ -1,10 +1,9 @@
 import { default as handler } from '@/handlers/get-team-handler';
-import { databaseService, apiRequestValidator } from '@/dependencies';
+import { apiRequestValidator, teamDocumentConverter, teamDocumentService } from '@/dependencies';
 import { getTeamServiceFactory } from '@/business-services/get-team-service';
-import { default as converter } from '@/converters/team-documents-to-response-converter';
 import { pathParameters } from '@/schemas/get-team-schemas';
 
-const getTeamService = getTeamServiceFactory(databaseService, converter);
+const getTeamService = getTeamServiceFactory(teamDocumentService, teamDocumentConverter);
 
 export default apiRequestValidator({
   pathParameters

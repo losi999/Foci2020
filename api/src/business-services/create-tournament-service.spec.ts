@@ -1,26 +1,28 @@
 import { createTournamentServiceFactory, ICreateTournamentService } from '@/business-services/create-tournament-service';
-import { IDatabaseService } from '@/services/database-service';
 import { TournamentRequest } from '@/types/requests';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 describe('Create tournament service', () => {
-  let mockDatabaseService: IDatabaseService;
+  let mockTournamentDocumentService: ITournamentDocumentService;
   let mockSaveTournament: jest.Mock;
   let mockUuid: jest.Mock;
   let service: ICreateTournamentService;
 
+  const tournamentId = 'uuid';
+
   beforeEach(() => {
     mockSaveTournament = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
       saveTournament: mockSaveTournament
-    })))() as IDatabaseService;
+    })))() as ITournamentDocumentService;
 
     mockUuid = jest.fn();
 
-    service = createTournamentServiceFactory(mockDatabaseService, mockUuid);
+    service = createTournamentServiceFactory(mockTournamentDocumentService, mockUuid);
   });
 
   it('should throw error if unable to save tournament', async () => {
     const body = {} as TournamentRequest;
-    mockUuid.mockReturnValue('uuid');
+    mockUuid.mockReturnValue(tournamentId);
     mockSaveTournament.mockRejectedValue({});
     try {
       await service({ body });
@@ -35,17 +37,10 @@ describe('Create tournament service', () => {
     const body = {
       tournamentName
     } as TournamentRequest;
-    mockUuid.mockReturnValue('uuid');
+    mockUuid.mockReturnValue(tournamentId);
     mockSaveTournament.mockResolvedValue(undefined);
     const result = await service({ body });
     expect(result).toBeUndefined();
-    expect(mockSaveTournament).toHaveBeenCalledWith({
-      tournamentName,
-      tournamentId: 'uuid',
-      documentType: 'tournament',
-      'documentType-id': 'tournament-uuid',
-      orderingValue: tournamentName,
-      segment: 'details',
-    });
+    expect(mockSaveTournament).toHaveBeenCalledWith(tournamentId, body);
   });
 });

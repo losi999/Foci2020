@@ -1,7 +1,7 @@
 import { TournamentRequest } from '@/types/requests';
-import { IDatabaseService } from '@/services/database-service';
 import { v4String } from 'uuid/interfaces';
 import { httpError } from '@/common';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 
 export interface ICreateTournamentService {
   (ctx: {
@@ -9,18 +9,13 @@ export interface ICreateTournamentService {
   }): Promise<void>;
 }
 
-export const createTournamentServiceFactory = (databaseService: IDatabaseService, uuid: v4String): ICreateTournamentService => {
-  return async ({ body: { tournamentName } }) => {
+export const createTournamentServiceFactory = (
+  tournamentDocumentService: ITournamentDocumentService,
+  uuid: v4String): ICreateTournamentService => {
+  return async ({ body }) => {
     const tournamentId = uuid();
     try {
-      await databaseService.saveTournament({
-        tournamentId,
-        tournamentName,
-        documentType: 'tournament',
-        'documentType-id': `tournament-${tournamentId}`,
-        segment: 'details',
-        orderingValue: tournamentName
-      });
+      await tournamentDocumentService.saveTournament(tournamentId, body);
     } catch (error) {
       console.log('ERROR databaseService.saveTournament', error);
       throw httpError(500, 'Error while saving tournament');

@@ -21,6 +21,7 @@
     "aws-xray-sdk": "^2.3.6",
     "jest": "^24.9.0",
     "jest-date-mock": "^1.0.7",
+    "jest-dot-reporter": "^1.0.12",
     "rimraf": "^3.0.0",
     "ts-jest": "^24.1.0",
     "ts-loader": "^6.2.0",
@@ -34,6 +35,10 @@
     "webpack-glob-entry": "^2.1.1"
   },
   "jest": {
+    "verbose": false,
+    "reporters": [
+      "jest-dot-reporter"
+    ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },

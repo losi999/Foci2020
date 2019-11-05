@@ -1,22 +1,22 @@
 import { IDeleteMatchWithTeamService, deleteMatchWithTeamServiceFactory } from '@/business-services/delete-match-with-team-service';
-import { IDatabaseService } from '@/services/database-service';
 import { IndexByTeamIdDocument } from '@/types/documents';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 describe('Delete match with team service', () => {
   let service: IDeleteMatchWithTeamService;
-  let mockDatabaseService: IDatabaseService;
+  let mockMatchDocumentService: IMatchDocumentService;
   let mockQueryMatchKeysByTeamId: jest.Mock;
   let mockDeleteMatch: jest.Mock;
 
   beforeEach(() => {
     mockDeleteMatch = jest.fn();
     mockQueryMatchKeysByTeamId = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
       deleteMatch: mockDeleteMatch,
       queryMatchKeysByTeamId: mockQueryMatchKeysByTeamId
-    })))() as IDatabaseService;
+    })))() as IMatchDocumentService;
 
-    service = deleteMatchWithTeamServiceFactory(mockDatabaseService);
+    service = deleteMatchWithTeamServiceFactory(mockMatchDocumentService);
   });
 
   it('should return undefined if matches are deleted sucessfully', async () => {

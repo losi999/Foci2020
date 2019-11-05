@@ -1,26 +1,26 @@
-import { IDatabaseService } from '@/services/database-service';
 import { IDeleteTeamService, deleteTeamServiceFactory } from '@/business-services/delete-team-service';
 import { INotificationService } from '@/services/notification-service';
+import { ITeamDocumentService } from '@/services/team-document-service';
 
 describe('Delete team service', () => {
   let service: IDeleteTeamService;
-  let mockDatabaseService: IDatabaseService;
+  let mockTeamDocumentService: ITeamDocumentService;
   let mockDeleteTeam: jest.Mock;
   let mockNotificationService: INotificationService;
   let mockTeamDeleted: jest.Mock;
 
   beforeEach(() => {
     mockDeleteTeam = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockTeamDocumentService = new (jest.fn<Partial<ITeamDocumentService>, undefined[]>(() => ({
       deleteTeam: mockDeleteTeam,
-    }))) as IDatabaseService;
+    }))) as ITeamDocumentService;
 
     mockTeamDeleted = jest.fn();
     mockNotificationService = new (jest.fn<Partial<INotificationService>, undefined[]>(() => ({
       teamDeleted: mockTeamDeleted
     })))() as INotificationService;
 
-    service = deleteTeamServiceFactory(mockDatabaseService, mockNotificationService);
+    service = deleteTeamServiceFactory(mockTeamDocumentService, mockNotificationService);
   });
 
   it('should return with undefined', async () => {

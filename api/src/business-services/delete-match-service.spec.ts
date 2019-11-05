@@ -1,18 +1,18 @@
-import { IDatabaseService } from '@/services/database-service';
 import { IDeleteMatchService, deleteMatchServiceFactory } from '@/business-services/delete-match-service';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 describe('Delete match service', () => {
   let service: IDeleteMatchService;
-  let mockDatabaseService: IDatabaseService;
+  let mockMatchDocumentService: IMatchDocumentService;
   let mockDeleteMatch: jest.Mock;
 
   beforeEach(() => {
     mockDeleteMatch = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
       deleteMatch: mockDeleteMatch,
-    }))) as IDatabaseService;
+    }))) as IMatchDocumentService;
 
-    service = deleteMatchServiceFactory(mockDatabaseService);
+    service = deleteMatchServiceFactory(mockMatchDocumentService);
   });
 
   it('should return with undefined', async () => {

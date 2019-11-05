@@ -1,4 +1,4 @@
-import { IDatabaseService } from '@/services/database-service';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 export interface IDeleteMatchWithTournamentService {
   (ctx: {
@@ -6,10 +6,10 @@ export interface IDeleteMatchWithTournamentService {
   }): Promise<void>;
 }
 
-export const deleteMatchWithTournamentServiceFactory = (databaseService: IDatabaseService): IDeleteMatchWithTournamentService => {
+export const deleteMatchWithTournamentServiceFactory = (matchDocumentService: IMatchDocumentService): IDeleteMatchWithTournamentService => {
   return async ({ tournamentId }) => {
-    const matches = await databaseService.queryMatchKeysByTournamentId(tournamentId);
+    const matches = await matchDocumentService.queryMatchKeysByTournamentId(tournamentId);
 
-    await Promise.all(matches.map(m => databaseService.deleteMatch(m.matchId)));
+    await Promise.all(matches.map(m => matchDocumentService.deleteMatch(m.matchId)));
   };
 };

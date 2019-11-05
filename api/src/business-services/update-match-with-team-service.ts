@@ -1,17 +1,17 @@
-import { TeamUpdateDocument } from '@/types/documents';
-import { IDatabaseService } from '@/services/database-service';
+import { TeamDetailsUpdateDocument } from '@/types/documents';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 export interface IUpdateMatchWithTeamService {
   (ctx: {
     teamId: string,
-    team: TeamUpdateDocument
+    team: TeamDetailsUpdateDocument
   }): Promise<void>;
 }
 
-export const updateMatchWithTeamServiceFactory = (databaseService: IDatabaseService): IUpdateMatchWithTeamService => {
+export const updateMatchWithTeamServiceFactory = (matchDocumentService: IMatchDocumentService): IUpdateMatchWithTeamService => {
   return async ({ team, teamId }) => {
-    const matches = await databaseService.queryMatchKeysByTeamId(teamId);
+    const matches = await matchDocumentService.queryMatchKeysByTeamId(teamId);
 
-    await databaseService.updateMatchesWithTeam(matches, team);
+    await matchDocumentService.updateMatchesWithTeam(matches, team);
   };
 };

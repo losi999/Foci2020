@@ -1,17 +1,17 @@
-import { TournamentUpdateDocument } from '@/types/documents';
-import { IDatabaseService } from '@/services/database-service';
+import { TournamentDetailsUpdateDocument } from '@/types/documents';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 export interface IUpdateMatchWithTournamentService {
   (ctx: {
     tournamentId: string;
-    tournament: TournamentUpdateDocument
+    tournament: TournamentDetailsUpdateDocument
   }): Promise<void>;
 }
 
-export const updateMatchWithTournamentServiceFactory = (databaseService: IDatabaseService): IUpdateMatchWithTournamentService => {
+export const updateMatchWithTournamentServiceFactory = (matchDocumentService: IMatchDocumentService): IUpdateMatchWithTournamentService => {
   return async ({ tournament, tournamentId }) => {
-    const matches = await databaseService.queryMatchKeysByTournamentId(tournamentId);
+    const matches = await matchDocumentService.queryMatchKeysByTournamentId(tournamentId);
 
-    await databaseService.updateMatchesWithTournament(matches, tournament);
+    await matchDocumentService.updateMatchesWithTournament(matches, tournament);
   };
 };

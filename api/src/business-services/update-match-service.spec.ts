@@ -1,12 +1,16 @@
 import { updateMatchServiceFactory, IUpdateMatchService } from '@/business-services/update-match-service';
-import { IDatabaseService } from '@/services/database-service';
 import { advanceTo, clear } from 'jest-date-mock';
 import { addMinutes } from '@/common';
 import { MatchRequest } from '@/types/requests';
 import { TeamDocument, TournamentDocument } from '@/types/documents';
+import { IMatchDocumentService } from '@/services/match-document-service';
+import { ITeamDocumentService } from '@/services/team-document-service';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 
 describe('Update match service', () => {
-  let mockDatabaseService: IDatabaseService;
+  let mockMatchDocumentService: IMatchDocumentService;
+  let mockTeamDocumentService: ITeamDocumentService;
+  let mockTournamentDocumentService: ITournamentDocumentService;
   let mockUpdateMatch: jest.Mock;
   let mockQueryTeamById: jest.Mock;
   let mockQueryTournamentById: jest.Mock;
@@ -17,15 +21,21 @@ describe('Update match service', () => {
 
   beforeEach(() => {
     mockUpdateMatch = jest.fn();
-    mockQueryTeamById = jest.fn();
-    mockQueryTournamentById = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
       updateMatch: mockUpdateMatch,
-      queryTeamById: mockQueryTeamById,
-      queryTournamentById: mockQueryTournamentById,
-    })))() as IDatabaseService;
+    })))() as IMatchDocumentService;
 
-    service = updateMatchServiceFactory(mockDatabaseService);
+    mockQueryTeamById = jest.fn();
+    mockTeamDocumentService = new (jest.fn<Partial<ITeamDocumentService>, undefined[]>(() => ({
+      queryTeamById: mockQueryTeamById,
+    })))() as ITeamDocumentService;
+
+    mockQueryTournamentById = jest.fn();
+    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
+      queryTournamentById: mockQueryTournamentById,
+    })))() as ITournamentDocumentService;
+
+    service = updateMatchServiceFactory(mockMatchDocumentService, mockTeamDocumentService, mockTournamentDocumentService);
     advanceTo(now);
   });
 
@@ -75,20 +85,7 @@ describe('Update match service', () => {
       matchId
     });
     expect(result).toBeUndefined();
-    expect(mockUpdateMatch).toHaveBeenCalledWith(matchId, [
-      {
-        group: body.group,
-        startTime: body.startTime,
-      },
-      {
-        ...homeTeam
-      },
-      {
-        ...awayTeam
-      }, {
-        ...tournament
-      }
-    ]);
+    expect(mockUpdateMatch).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
   });
 
   it('should throw error if startTime is less than 5 minutes from now', async () => {

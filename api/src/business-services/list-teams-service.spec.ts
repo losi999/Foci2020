@@ -1,23 +1,28 @@
-import { IDatabaseService } from '@/services/database-service';
 import { IListTeamsService, listTeamsServiceFactory } from '@/business-services/list-teams-service';
 import { TeamDocument } from '@/types/documents';
 import { TeamResponse } from '@/types/responses';
+import { ITeamDocumentConverter } from '@/converters/team-document-converter';
+import { ITeamDocumentService } from '@/services/team-document-service';
 
 describe('List teams service', () => {
   let service: IListTeamsService;
-  let mockDatabaseService: IDatabaseService;
+  let mockTeamDocumentService: ITeamDocumentService;
   let mockQueryTeams: jest.Mock;
-  let mockConverter: jest.Mock;
+  let mockTeamDocumentConverter: ITeamDocumentConverter;
+  let mockCreateResponseList: jest.Mock;
 
   beforeEach(() => {
     mockQueryTeams = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockTeamDocumentService = new (jest.fn<Partial<ITeamDocumentService>, undefined[]>(() => ({
       queryTeams: mockQueryTeams,
-    }))) as IDatabaseService;
+    }))) as ITeamDocumentService;
 
-    mockConverter = jest.fn();
+    mockCreateResponseList = jest.fn();
+    mockTeamDocumentConverter = new (jest.fn<Partial<ITeamDocumentConverter>, undefined[]>(() => ({
+      createResponseList: mockCreateResponseList
+    })))() as ITeamDocumentConverter;
 
-    service = listTeamsServiceFactory(mockDatabaseService, mockConverter);
+    service = listTeamsServiceFactory(mockTeamDocumentService, mockTeamDocumentConverter);
   });
 
   it('should return with list of teams', async () => {
@@ -41,22 +46,22 @@ describe('List teams service', () => {
       teamDocument2] as TeamDocument[];
     mockQueryTeams.mockResolvedValue(queriedDocuments);
 
-    const teamResponse1 = {
-      teamId: teamId1,
-      teamName: teamName1
-    } as TeamResponse;
-    const teamResponse2 = {
-      teamId: teamId2,
-      teamName: teamName2
-    } as TeamResponse;
+    const teamResponse = [
+      {
+        teamId: teamId1,
+        teamName: teamName1
+      },
+      {
+        teamId: teamId2,
+        teamName: teamName2
+      }
+    ] as TeamResponse[];
 
-    mockConverter.mockReturnValueOnce(teamResponse1);
-    mockConverter.mockReturnValueOnce(teamResponse2);
+    mockCreateResponseList.mockReturnValue(teamResponse);
 
     const result = await service();
-    expect(result).toEqual([teamResponse1, teamResponse2]);
-    expect(mockConverter).toHaveBeenNthCalledWith(1, teamDocument1);
-    expect(mockConverter).toHaveBeenNthCalledWith(2, teamDocument2);
+    expect(result).toEqual(teamResponse);
+    expect(mockCreateResponseList).toHaveBeenCalledWith(queriedDocuments);
   });
 
   it('should throw error if unable to query teams', async () => {

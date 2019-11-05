@@ -1,5 +1,5 @@
-import { IDatabaseService } from '@/services/database-service';
 import { httpError } from '@/common';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 export interface IDeleteMatchService {
   (ctx: {
@@ -8,10 +8,10 @@ export interface IDeleteMatchService {
 }
 
 export const deleteMatchServiceFactory = (
-  databaseService: IDatabaseService,
+  matchDocumentService: IMatchDocumentService
 ): IDeleteMatchService => {
   return async ({ matchId }) => {
-    await databaseService.deleteMatch(matchId).catch((error) => {
+    await matchDocumentService.deleteMatch(matchId).catch((error) => {
       console.log('ERROR databaseService.deleteMatch', error);
       throw httpError(500, 'Unable to delete match');
     });

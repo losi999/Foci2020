@@ -1,7 +1,7 @@
 import { TournamentRequest } from '@/types/requests';
-import { IDatabaseService } from '@/services/database-service';
 import { httpError } from '@/common';
 import { INotificationService } from '@/services/notification-service';
+import { ITournamentDocumentService } from '@/services/tournament-document-service';
 
 export interface IUpdateTournamentService {
   (ctx: {
@@ -10,12 +10,12 @@ export interface IUpdateTournamentService {
   }): Promise<void>;
 }
 
-export const updateTournamentServiceFactory = (databaseService: IDatabaseService, notificationService: INotificationService): IUpdateTournamentService => {
+export const updateTournamentServiceFactory = (
+  tournamentDocumentService: ITournamentDocumentService,
+  notificationService: INotificationService
+): IUpdateTournamentService => {
   return async ({ body, tournamentId }) => {
-    await databaseService.updateTournament({
-      'documentType-id': `tournament-${tournamentId}`,
-      segment: 'details'
-    }, body).catch((error) => {
+    await tournamentDocumentService.updateTournament(tournamentId, body).catch((error) => {
       console.log('ERROR databaseService.updateTournament', error);
       throw httpError(500, 'Error while updating tournament');
     });

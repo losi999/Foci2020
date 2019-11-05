@@ -1,23 +1,28 @@
-import { IDatabaseService } from '@/services/database-service';
 import { IGetMatchService, getMatchServiceFactory } from '@/business-services/get-match-service';
 import { MatchDetailsDocument } from '@/types/documents';
 import { MatchResponse } from '@/types/responses';
+import { IMatchDocumentConverter } from '@/converters/match-document-converter';
+import { IMatchDocumentService } from '@/services/match-document-service';
 
 describe('Get match service', () => {
   let service: IGetMatchService;
-  let mockDatabaseService: IDatabaseService;
+  let mockMatchDocumentService: IMatchDocumentService;
   let mockQueryMatchById: jest.Mock;
-  let mockConverter: jest.Mock;
+  let mockMatchDocumentConverter: IMatchDocumentConverter;
+  let mockCreateResponse: jest.Mock;
 
   beforeEach(() => {
     mockQueryMatchById = jest.fn();
-    mockDatabaseService = new (jest.fn<Partial<IDatabaseService>, undefined[]>(() => ({
+    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
       queryMatchById: mockQueryMatchById,
-    }))) as IDatabaseService;
+    }))) as IMatchDocumentService;
 
-    mockConverter = jest.fn();
+    mockCreateResponse = jest.fn();
+    mockMatchDocumentConverter = new (jest.fn<Partial<IMatchDocumentConverter>, undefined[]>(() => ({
+      createResponse: mockCreateResponse
+    })))() as IMatchDocumentConverter;
 
-    service = getMatchServiceFactory(mockDatabaseService, mockConverter);
+    service = getMatchServiceFactory(mockMatchDocumentService, mockMatchDocumentConverter);
   });
 
   it('should return with a match', async () => {
@@ -33,11 +38,11 @@ describe('Get match service', () => {
       matchId,
     } as MatchResponse;
 
-    mockConverter.mockReturnValueOnce(matchResponse);
+    mockCreateResponse.mockReturnValue(matchResponse);
 
     const result = await service({ matchId });
     expect(result).toEqual(matchResponse);
-    expect(mockConverter).toHaveBeenCalledWith([matchDocument]);
+    expect(mockCreateResponse).toHaveBeenCalledWith([matchDocument]);
   });
 
   it('should throw error if unable to query match', async () => {

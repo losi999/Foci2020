@@ -4,7 +4,7 @@ Parameters:
     Type: String
 
 Resources:
-  FociTable:
+  Database:
     Type: AWS::DynamoDB::Table
     Properties:
       BillingMode: PAY_PER_REQUEST
@@ -76,7 +76,7 @@ Resources:
           Projection:
             ProjectionType: ALL                  
 
-  FociLambdaRole:
+  LambdaRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -89,7 +89,7 @@ Resources:
             Service:
               - lambda.amazonaws.com
       Policies:
-        - PolicyName: FociPolicy
+        - PolicyName: LambdaPolicy
           PolicyDocument:
             Statement:
               - Effect: Allow
@@ -105,36 +105,117 @@ Resources:
                   - xray:*
                 Resource: '*'
 
-  FociDeleteTeamTopic:
+  DeleteTeamTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: !Sub Foci2020-${Env}-DeleteTeamTopic
 
-  FociDeleteTournamentTopic:
+  DeleteTournamentTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: !Sub Foci2020-${Env}-DeleteTournamentTopic
   
-  FociUpdateTeamTopic:
+  UpdateTeamTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: !Sub Foci2020-${Env}-UpdateTeamTopic
 
-  FociUpdateTournamentTopic:
+  UpdateTournamentTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: !Sub Foci2020-${Env}-UpdateTournamentTopic
 
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties: 
+      AliasAttributes:
+        - preferred_username
+      AutoVerifiedAttributes: 
+        - email
+      Policies: 
+        PasswordPolicy: 
+          MinimumLength: 6
+          TemporaryPasswordValidityDays: 45
+      Schema: 
+        - Name: nickname
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: true
+          StringAttributeConstraints: 
+            MinLength: "0"
+            MaxLength: "2048"
+        - Name: email
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: true
+          StringAttributeConstraints: 
+            MinLength: "0"
+            MaxLength: "2048"                        
+      UserPoolName: !Sub Foci2020-${Env}
+      VerificationMessageTemplate: 
+        EmailMessage: '{####}'
+        DefaultEmailOption: CONFIRM_WITH_CODE
+  ApplicationClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties: 
+      ClientName: !Sub Foci2020-${Env}-Application
+      ExplicitAuthFlows: 
+        - USER_PASSWORD_AUTH
+      GenerateSecret: false
+      ReadAttributes: 
+        - nickname
+        - email
+      UserPoolId: !Ref UserPool
+      WriteAttributes: 
+        - nickname
+        - email
+  AdminUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref UserPool
+      GroupName: admin
+  PlayerUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref UserPool
+      GroupName: player
+  AdminUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      UserPoolId: !Ref UserPool
+      Username: losi999
+      UserAttributes:
+        - Name: email
+          Value: losonczil@gmail.com
+        - Name: nickname
+          Value: Losi
+  AdminUserToAdminGroup:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    DependsOn: AdminUser
+    Properties:
+      GroupName: admin
+      UserPoolId: !Ref UserPool
+      Username: losi999
+  AdminUserToPlayerGroup:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    DependsOn: AdminUser
+    Properties:
+      GroupName: player
+      UserPoolId: !Ref UserPool
+      Username: losi999
+
 Outputs:
-  FociTableName:
-    Value: !Ref FociTable
-  FociLambdaRoleArn:
-    Value: !GetAtt FociLambdaRole.Arn
-  FociDeleteTeamTopic:
-    Value: !Ref FociDeleteTeamTopic
-  FociDeleteTournamentTopic:
-    Value: !Ref FociDeleteTournamentTopic
-  FociUpdateTeamTopic:
-    Value: !Ref FociUpdateTeamTopic
-  FociUpdateTournamentTopic:
-    Value: !Ref FociUpdateTournamentTopic
+  Database:
+    Value: !Ref Database
+  LambdaRoleArn:
+    Value: !GetAtt LambdaRole.Arn
+  DeleteTeamTopic:
+    Value: !Ref DeleteTeamTopic
+  DeleteTournamentTopic:
+    Value: !Ref DeleteTournamentTopic
+  UpdateTeamTopic:
+    Value: !Ref UpdateTeamTopic
+  UpdateTournamentTopic:
+    Value: !Ref UpdateTournamentTopic

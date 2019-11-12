@@ -1,7 +1,7 @@
 import { IDeleteMatchService } from '@/business-services/delete-match-service';
-import { APIGatewayProxyEvent, Handler, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 
-export default (deleteMatch: IDeleteMatchService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (deleteMatch: IDeleteMatchService): APIGatewayProxyHandler => {
   return async (event) => {
     const { matchId } = event.pathParameters;
     try {

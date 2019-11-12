@@ -1,8 +1,8 @@
-import { Handler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 import { ICreateTeamService } from '@/business-services/create-team-service';
 import { TeamRequest } from '@/types/requests';
 
-export default (createTeam: ICreateTeamService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (createTeam: ICreateTeamService): APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body) as TeamRequest;
 

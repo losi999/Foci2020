@@ -1,6 +1,6 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult, Handler } from 'aws-lambda';
 import { IValidatorService } from '@/services/validator-service';
 import { JSONSchema7 } from 'json-schema';
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 
 type RequestSchemaTypes = {
   body?: JSONSchema7;
@@ -13,7 +13,7 @@ const keys = <O extends object>(obj: O): (keyof O)[] => {
 };
 
 export default (validatorService: IValidatorService) => {
-  return (schemas: RequestSchemaTypes): ((handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult>) => Handler<APIGatewayProxyEvent, APIGatewayProxyResult>) => {
+  return (schemas: RequestSchemaTypes): ((handler: APIGatewayProxyHandler) => APIGatewayProxyHandler) => {
     return (handler) => {
       return async (event, context, callback) => {
         const validationErrors = keys(schemas).reduce((accumulator, currentValue) => {

@@ -2,9 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: 'Foci 2020 Match API'
 Parameters: 
-  FociLambdaRoleArn:
+  LambdaRoleArn:
     Type: String
-  FociTableName:
+  Database:
     Type: String
   Env:
     Type: String
@@ -18,10 +18,10 @@ Globals:
   Function:
     Environment:
       Variables:
-        DYNAMO_TABLE: !Ref FociTableName
+        DYNAMO_TABLE: !Ref Database
 
 Resources:
-  FociMatchApi:
+  MatchApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: !Sub Foci2020-${Env}-Match
@@ -40,7 +40,7 @@ Resources:
       CodeUri: ./dist/create-match
       Handler: index.default
       Runtime: nodejs10.x
-      Role: !Ref FociLambdaRoleArn
+      Role: !Ref LambdaRoleArn
       Timeout: 10
       MemorySize: 128
       Tracing: Active
@@ -48,7 +48,7 @@ Resources:
         API:
           Type: Api
           Properties:
-            RestApiId: !Ref FociMatchApi
+            RestApiId: !Ref MatchApi
             Path: /match/v1/matches
             Method: POST   
 
@@ -59,7 +59,7 @@ Resources:
       CodeUri: ./dist/update-match
       Handler: index.default
       Runtime: nodejs10.x
-      Role: !Ref FociLambdaRoleArn
+      Role: !Ref LambdaRoleArn
       Timeout: 10
       MemorySize: 128
       Tracing: Active
@@ -67,7 +67,7 @@ Resources:
         API:
           Type: Api
           Properties:
-            RestApiId: !Ref FociMatchApi
+            RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
             Method: PUT    
 
@@ -78,7 +78,7 @@ Resources:
       CodeUri: ./dist/list-matches
       Handler: index.default
       Runtime: nodejs10.x
-      Role: !Ref FociLambdaRoleArn
+      Role: !Ref LambdaRoleArn
       Timeout: 10
       MemorySize: 128
       Tracing: Active
@@ -86,7 +86,7 @@ Resources:
         API:
           Type: Api
           Properties:
-            RestApiId: !Ref FociMatchApi
+            RestApiId: !Ref MatchApi
             Path: /match/v1/matches
             Method: GET     
 
@@ -97,7 +97,7 @@ Resources:
       CodeUri: ./dist/get-match
       Handler: index.default
       Runtime: nodejs10.x
-      Role: !Ref FociLambdaRoleArn
+      Role: !Ref LambdaRoleArn
       Timeout: 10
       MemorySize: 128
       Tracing: Active
@@ -105,7 +105,7 @@ Resources:
         API:
           Type: Api
           Properties:
-            RestApiId: !Ref FociMatchApi
+            RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
             Method: GET  
 
@@ -116,7 +116,7 @@ Resources:
       CodeUri: ./dist/delete-match
       Handler: index.default
       Runtime: nodejs10.x
-      Role: !Ref FociLambdaRoleArn
+      Role: !Ref LambdaRoleArn
       Timeout: 10
       MemorySize: 128
       Tracing: Active
@@ -124,11 +124,11 @@ Resources:
         API:
           Type: Api
           Properties:
-            RestApiId: !Ref FociMatchApi
+            RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
             Method: DELETE  
 
 Outputs:
-  FociMatchApi:
+  MatchApi:
     Description: "Foci 2020 Match API"
-    Value: !Sub "${FociMatchApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"
+    Value: !Sub "${MatchApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

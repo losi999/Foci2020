@@ -1,8 +1,8 @@
-import { Handler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 import { ICreateTournamentService } from '@/business-services/create-tournament-service';
 import { TournamentRequest } from '@/types/requests';
 
-export default (createTournament: ICreateTournamentService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (createTournament: ICreateTournamentService): APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body) as TournamentRequest;
 

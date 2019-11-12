@@ -17,10 +17,10 @@ Resources:
     Properties:
       TemplateURL: api/sam.team.yaml
       Parameters:
-        FociLambdaRoleArn: !GetAtt Infrastructure.Outputs.FociLambdaRoleArn
-        FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
-        FociDeleteTeamTopic: !GetAtt Infrastructure.Outputs.FociDeleteTeamTopic
-        FociUpdateTeamTopic: !GetAtt Infrastructure.Outputs.FociUpdateTeamTopic
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Infrastructure.Outputs.Database
+        DeleteTeamTopic: !GetAtt Infrastructure.Outputs.DeleteTeamTopic
+        UpdateTeamTopic: !GetAtt Infrastructure.Outputs.UpdateTeamTopic
         Env: !Ref Env
 
   Tournament:
@@ -29,10 +29,10 @@ Resources:
     Properties:
       TemplateURL: api/sam.tournament.yaml
       Parameters:
-        FociLambdaRoleArn: !GetAtt Infrastructure.Outputs.FociLambdaRoleArn
-        FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
-        FociDeleteTournamentTopic: !GetAtt Infrastructure.Outputs.FociDeleteTournamentTopic
-        FociUpdateTournamentTopic: !GetAtt Infrastructure.Outputs.FociUpdateTournamentTopic
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Infrastructure.Outputs.Database
+        DeleteTournamentTopic: !GetAtt Infrastructure.Outputs.DeleteTournamentTopic
+        UpdateTournamentTopic: !GetAtt Infrastructure.Outputs.UpdateTournamentTopic
         Env: !Ref Env
 
   Match:
@@ -41,8 +41,8 @@ Resources:
     Properties:
       TemplateURL: api/sam.match.yaml
       Parameters:
-        FociLambdaRoleArn: !GetAtt Infrastructure.Outputs.FociLambdaRoleArn
-        FociTableName: !GetAtt Infrastructure.Outputs.FociTableName
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Infrastructure.Outputs.Database
         Env: !Ref Env
 
   Api:
@@ -121,17 +121,17 @@ Resources:
               - POST
               - DELETE
         Origins:
-          - DomainName: !GetAtt Team.Outputs.FociTeamApi
+          - DomainName: !GetAtt Team.Outputs.TeamApi
             OriginPath: /Prod
             Id: Team
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
-          - DomainName: !GetAtt Match.Outputs.FociMatchApi
+          - DomainName: !GetAtt Match.Outputs.MatchApi
             OriginPath: /Prod
             Id: Match
             CustomOriginConfig:
               OriginProtocolPolicy: https-only            
-          - DomainName: !GetAtt Tournament.Outputs.FociTournamentApi
+          - DomainName: !GetAtt Tournament.Outputs.TournamentApi
             OriginPath: /Prod
             Id: Tournament                   
             CustomOriginConfig:

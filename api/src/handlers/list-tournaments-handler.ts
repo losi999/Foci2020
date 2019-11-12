@@ -1,9 +1,9 @@
 import { IListTournamentsService } from '@/business-services/list-tournaments-service';
-import { APIGatewayProxyEvent, Handler, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 import { TournamentResponse } from '@/types/responses';
 
-export default (listTournaments: IListTournamentsService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
-  return async (event) => {
+export default (listTournaments: IListTournamentsService): APIGatewayProxyHandler => {
+  return async () => {
     let tournaments: TournamentResponse[];
     try {
       tournaments = await listTournaments();

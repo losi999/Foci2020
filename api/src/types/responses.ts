@@ -35,3 +35,8 @@ export type TournamentResponse = {
   tournamentId: string,
   tournamentName: string
 };
+
+export type LoginResponse = {
+  idToken: string;
+  refreshToken: string;
+};

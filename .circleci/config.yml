@@ -56,8 +56,8 @@ jobs:
           command: aws cloudformation package --template-file cloudformation.yaml --s3-bucket ${AWS_PACKAGES_S3} --output-template-file packaged.cloudformation.yaml
       - deploy:
           name: AWS Deploy
-          command: aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-<<parameters.env>> --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND
-
+          command: aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-<<parameters.env>> --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=<<parameters.env>>
+ 
 workflows:
   version: 2.1
   api: 

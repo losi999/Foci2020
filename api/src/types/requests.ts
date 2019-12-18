@@ -15,3 +15,14 @@ export type MatchRequest = {
   awayTeamId: string;
   tournamentId: string;
 };
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+};
+
+export type RegistrationRequest = {
+  email: string;
+  displayName: string;
+  password: string;
+};

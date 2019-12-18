@@ -1,4 +1,4 @@
-import { INotificationService, snsNotificationService } from './notification-service';
+import { INotificationService, snsNotificationService } from '@/services/notification-service';
 import { SNS } from 'aws-sdk';
 import { UpdateTeamNotification, UpdateTournamentNotification } from '@/types/types';
 

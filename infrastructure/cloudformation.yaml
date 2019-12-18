@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
 Parameters:
   Env:
     Type: String
@@ -103,33 +104,32 @@ Resources:
                   - logs:CreateLogGroup
                   - sns:Publish
                   - xray:*
+                  - cognito-idp:AdminCreateUser
+                  - cognito-idp:AdminInitiateAuth
+                  - cognito-idp:adminAddUserToGroup
+                  - cognito-idp:adminSetUserPassword
                 Resource: '*'
 
   DeleteTeamTopic:
     Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub Foci2020-${Env}-DeleteTeamTopic
 
   DeleteTournamentTopic:
     Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub Foci2020-${Env}-DeleteTournamentTopic
   
   UpdateTeamTopic:
     Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub Foci2020-${Env}-UpdateTeamTopic
 
   UpdateTournamentTopic:
     Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub Foci2020-${Env}-UpdateTournamentTopic
 
-  UserPool:
+  UserPool2:
     Type: AWS::Cognito::UserPool
+    # DeletionPolicy: Retain
     Properties: 
-      AliasAttributes:
-        - preferred_username
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      UsernameAttributes:
+        - email
       AutoVerifiedAttributes: 
         - email
       Policies: 
@@ -154,38 +154,36 @@ Resources:
             MinLength: "0"
             MaxLength: "2048"                        
       UserPoolName: !Sub Foci2020-${Env}
-      VerificationMessageTemplate: 
-        EmailMessage: '{####}'
-        DefaultEmailOption: CONFIRM_WITH_CODE
   ApplicationClient:
     Type: AWS::Cognito::UserPoolClient
     Properties: 
       ClientName: !Sub Foci2020-${Env}-Application
       ExplicitAuthFlows: 
-        - USER_PASSWORD_AUTH
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
       GenerateSecret: false
       ReadAttributes: 
         - nickname
         - email
-      UserPoolId: !Ref UserPool
+      UserPoolId: !Ref UserPool2
       WriteAttributes: 
         - nickname
         - email
   AdminUserGroup:
     Type: AWS::Cognito::UserPoolGroup
     Properties:
-      UserPoolId: !Ref UserPool
+      UserPoolId: !Ref UserPool2
       GroupName: admin
   PlayerUserGroup:
     Type: AWS::Cognito::UserPoolGroup
     Properties:
-      UserPoolId: !Ref UserPool
+      UserPoolId: !Ref UserPool2
       GroupName: player
   AdminUser:
     Type: AWS::Cognito::UserPoolUser
     Properties:
-      UserPoolId: !Ref UserPool
-      Username: losi999
+      UserPoolId: !Ref UserPool2
+      Username: losonczil@gmail.com
       UserAttributes:
         - Name: email
           Value: losonczil@gmail.com
@@ -196,15 +194,15 @@ Resources:
     DependsOn: AdminUser
     Properties:
       GroupName: admin
-      UserPoolId: !Ref UserPool
-      Username: losi999
+      UserPoolId: !Ref UserPool2
+      Username: losonczil@gmail.com
   AdminUserToPlayerGroup:
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     DependsOn: AdminUser
     Properties:
       GroupName: player
-      UserPoolId: !Ref UserPool
-      Username: losi999
+      UserPoolId: !Ref UserPool2
+      Username: losonczil@gmail.com
 
 Outputs:
   Database:
@@ -219,3 +217,7 @@ Outputs:
     Value: !Ref UpdateTeamTopic
   UpdateTournamentTopic:
     Value: !Ref UpdateTournamentTopic
+  UserPoolId:
+    Value: !Ref UserPool2
+  ClientId:
+    Value: !Ref ApplicationClient

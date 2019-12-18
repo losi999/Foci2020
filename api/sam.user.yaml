@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: 'Foci 2020 User API'
+Parameters: 
+  LambdaRoleArn:
+    Type: String
+  Env:
+    Type: String
+  UserPoolId:
+    Type: String
+  ClientId:
+    Type: String
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+  Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 128
+    Tracing: Active
+    Environment:
+      Variables:
+        USER_POOL_ID: !Ref UserPoolId
+        CLIENT_ID: !Ref ClientId
+
+Resources:
+  UserApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub Foci2020-${Env}-User
+      StageName: Prod
+      TracingEnabled: true
+      GatewayResponses:
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404 
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
+     
+  Registration:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Registration
+      CodeUri: ./dist/registration
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /user/v1/registration
+            Method: POST   
+
+  Login:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Login
+      CodeUri: ./dist/login
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /user/v1/login
+            Method: POST
+
+Outputs:
+  UserApi:
+    Description: "Foci 2020 User API"
+    Value: !Sub "${UserApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

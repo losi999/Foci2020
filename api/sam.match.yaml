@@ -16,6 +16,11 @@ Globals:
       AllowHeaders: "'*'"
       AllowOrigin: "'*'"
   Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 128
+    Tracing: Active  
     Environment:
       Variables:
         DYNAMO_TABLE: !Ref Database
@@ -38,12 +43,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-CreateMatch
       CodeUri: ./dist/create-match
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -57,12 +57,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-UpdateMatch
       CodeUri: ./dist/update-match
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -76,12 +71,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-ListMatches
       CodeUri: ./dist/list-matches
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -95,12 +85,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-GetMatch
       CodeUri: ./dist/get-match
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -114,12 +99,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-DeleteMatch
       CodeUri: ./dist/delete-match
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api

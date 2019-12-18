@@ -45,12 +45,24 @@ Resources:
         Database: !GetAtt Infrastructure.Outputs.Database
         Env: !Ref Env
 
+  User:
+    DependsOn: Infrastructure
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: api/sam.user.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        UserPoolId: !GetAtt Infrastructure.Outputs.UserPoolId
+        ClientId: !GetAtt Infrastructure.Outputs.ClientId
+        Env: !Ref Env
+
   Api:
     Type: AWS::CloudFront::Distribution
     DependsOn: 
       - Match
       - Team
       - Tournament
+      - User
     Properties:
       DistributionConfig:
         Enabled: true
@@ -120,6 +132,22 @@ Resources:
               - PATCH
               - POST
               - DELETE
+          - ForwardedValues:
+              QueryString: true
+            PathPattern: /user/*
+            TargetOriginId: User
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE              
         Origins:
           - DomainName: !GetAtt Team.Outputs.TeamApi
             OriginPath: /Prod
@@ -136,6 +164,11 @@ Resources:
             Id: Tournament                   
             CustomOriginConfig:
               OriginProtocolPolicy: https-only            
+          - DomainName: !GetAtt User.Outputs.UserApi
+            OriginPath: /Prod
+            Id: User                   
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only                
 
 Outputs:
   FociApi:

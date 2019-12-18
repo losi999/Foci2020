@@ -20,6 +20,11 @@ Globals:
       AllowHeaders: "'*'"
       AllowOrigin: "'*'"
   Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 128
+    Tracing: Active  
     Environment:
       Variables:
         DYNAMO_TABLE: !Ref Database
@@ -42,12 +47,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-CreateTournament
       CodeUri: ./dist/create-tournament
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -61,12 +61,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-UpdateTournament
       CodeUri: ./dist/update-tournament
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -83,12 +78,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTournament
       CodeUri: ./dist/update-match-with-tournament
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         SNS:
           Type: SNS
@@ -100,12 +90,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-ListTournaments
       CodeUri: ./dist/list-tournaments
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -119,12 +104,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-GetTournament
       CodeUri: ./dist/get-tournament
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -138,12 +118,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-DeleteTournament
       CodeUri: ./dist/delete-tournament
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -160,12 +135,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-DeleteMatchWithTournament
       CodeUri: ./dist/delete-match-with-tournament
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         SNS:
           Type: SNS

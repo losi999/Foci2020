@@ -14,7 +14,17 @@ Parameters:
     Type: String
 
 Globals:
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
   Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 128
+    Tracing: Active  
     Environment:
       Variables:
         DYNAMO_TABLE: !Ref Database
@@ -37,12 +47,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-CreateTeam
       CodeUri: ./dist/create-team
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -56,12 +61,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-UpdateTeam
       CodeUri: ./dist/update-team
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -78,12 +78,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-ListTeams
       CodeUri: ./dist/list-teams
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -97,12 +92,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-GetTeam
       CodeUri: ./dist/get-team
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -116,12 +106,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-DeleteTeam
       CodeUri: ./dist/delete-team
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         API:
           Type: Api
@@ -138,12 +123,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTeam
       CodeUri: ./dist/update-match-with-team
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         SNS:
           Type: SNS
@@ -155,12 +135,7 @@ Resources:
     Properties:
       FunctionName: !Sub Foci2020-${Env}-DeleteMatchWithTeam
       CodeUri: ./dist/delete-match-with-team
-      Handler: index.default
-      Runtime: nodejs10.x
       Role: !Ref LambdaRoleArn
-      Timeout: 10
-      MemorySize: 128
-      Tracing: Active
       Events:
         SNS:
           Type: SNS

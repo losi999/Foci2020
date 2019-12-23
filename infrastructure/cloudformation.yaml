@@ -122,9 +122,9 @@ Resources:
   UpdateTournamentTopic:
     Type: AWS::SNS::Topic
 
-  UserPool2:
+  UserPool:
     Type: AWS::Cognito::UserPool
-    # DeletionPolicy: Retain
+    DeletionPolicy: Retain
     Properties: 
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true
@@ -165,24 +165,24 @@ Resources:
       ReadAttributes: 
         - nickname
         - email
-      UserPoolId: !Ref UserPool2
+      UserPoolId: !Ref UserPool
       WriteAttributes: 
         - nickname
         - email
   AdminUserGroup:
     Type: AWS::Cognito::UserPoolGroup
     Properties:
-      UserPoolId: !Ref UserPool2
+      UserPoolId: !Ref UserPool
       GroupName: admin
   PlayerUserGroup:
     Type: AWS::Cognito::UserPoolGroup
     Properties:
-      UserPoolId: !Ref UserPool2
+      UserPoolId: !Ref UserPool
       GroupName: player
   AdminUser:
     Type: AWS::Cognito::UserPoolUser
     Properties:
-      UserPoolId: !Ref UserPool2
+      UserPoolId: !Ref UserPool
       Username: losonczil@gmail.com
       UserAttributes:
         - Name: email
@@ -194,14 +194,14 @@ Resources:
     DependsOn: AdminUser
     Properties:
       GroupName: admin
-      UserPoolId: !Ref UserPool2
+      UserPoolId: !Ref UserPool
       Username: losonczil@gmail.com
   AdminUserToPlayerGroup:
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     DependsOn: AdminUser
     Properties:
       GroupName: player
-      UserPoolId: !Ref UserPool2
+      UserPoolId: !Ref UserPool
       Username: losonczil@gmail.com
 
 Outputs:
@@ -218,6 +218,6 @@ Outputs:
   UpdateTournamentTopic:
     Value: !Ref UpdateTournamentTopic
   UserPoolId:
-    Value: !Ref UserPool2
+    Value: !Ref UserPool
   ClientId:
     Value: !Ref ApplicationClient

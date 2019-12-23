@@ -1,8 +1,8 @@
 import { IGetTeamService } from '@/business-services/get-team-service';
-import { APIGatewayProxyEvent, Handler, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 import { TeamResponse } from '@/types/responses';
 
-export default (getTeam: IGetTeamService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (getTeam: IGetTeamService): APIGatewayProxyHandler => {
   return async (event) => {
     const { teamId } = event.pathParameters;
     let team: TeamResponse;

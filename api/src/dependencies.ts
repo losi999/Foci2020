@@ -1,6 +1,6 @@
 import ajv from 'ajv';
 import { captureAWSClient } from 'aws-xray-sdk';
-import { DynamoDB, SNS } from 'aws-sdk';
+import { DynamoDB, SNS, CognitoIdentityServiceProvider } from 'aws-sdk';
 import { ajvValidatorService } from '@/services/validator-service';
 import { default as apiRequestValidatorHandler } from '@/handlers/api-request-validator-handler';
 import { snsNotificationService } from '@/services/notification-service';
@@ -10,6 +10,7 @@ import { tournamentDocumentConverterFactory } from '@/converters/tournament-docu
 import { teamDocumentServiceFactory } from './services/team-document-service';
 import { tournamentDocumentServiceFactory } from './services/tournament-document-service';
 import { matchDocumentServiceFactory } from './services/match-document-service';
+import { cognitoIdentityService } from './services/identity-service';
 
 const ajvValidator = new ajv({
   allErrors: true,
@@ -17,6 +18,7 @@ const ajvValidator = new ajv({
 });
 const dynamoDbClient = new DynamoDB.DocumentClient();
 const sns = captureAWSClient(new SNS());
+const cognito = captureAWSClient(new CognitoIdentityServiceProvider());
 captureAWSClient((dynamoDbClient as any).service);
 
 export const matchDocumentConverter = matchDocumentConverterFactory();
@@ -29,5 +31,6 @@ export const matchDocumentService = matchDocumentServiceFactory(dynamoDbClient, 
 
 export const validatorService = ajvValidatorService(ajvValidator);
 export const notificationService = snsNotificationService(sns);
+export const identityService = cognitoIdentityService(cognito);
 
 export const apiRequestValidator = apiRequestValidatorHandler(validatorService);

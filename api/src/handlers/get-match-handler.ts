@@ -1,8 +1,8 @@
 import { IGetMatchService } from '@/business-services/get-match-service';
-import { APIGatewayProxyEvent, Handler, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 import { MatchResponse } from '@/types/responses';
 
-export default (getMatch: IGetMatchService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (getMatch: IGetMatchService): APIGatewayProxyHandler => {
   return async (event) => {
     const { matchId } = event.pathParameters;
     let match: MatchResponse;

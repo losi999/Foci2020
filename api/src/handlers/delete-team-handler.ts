@@ -1,7 +1,7 @@
 import { IDeleteTeamService } from '@/business-services/delete-team-service';
-import { APIGatewayProxyEvent, Handler, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 
-export default (deleteTeam: IDeleteTeamService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (deleteTeam: IDeleteTeamService): APIGatewayProxyHandler => {
   return async (event) => {
     const { teamId } = event.pathParameters;
     try {

@@ -5,8 +5,8 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "build": "npm run clean && webpack",
-    "test": "jest --coverage --runInBand --silent",
-    "test:dev": "jest --watch --runInBand --silent",
+    "test": "jest --coverage --maxWorkers=4",
+    "test:dev": "jest --maxWorkers=4 --watch --silent",
     "lint": "tslint --project tsconfig.json",
     "lintfix": "tslint --project tsconfig.json --fix"
   },

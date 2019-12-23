@@ -1,8 +1,8 @@
 import { IListMatchesService } from '@/business-services/list-matches-service';
-import { APIGatewayProxyEvent, Handler, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 import { MatchResponse } from '@/types/responses';
 
-export default (listMatches: IListMatchesService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (listMatches: IListMatchesService): APIGatewayProxyHandler => {
   return async (event) => {
     const { tournamentId } = event.queryStringParameters || {};
     let matches: MatchResponse[];

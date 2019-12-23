@@ -1,7 +1,7 @@
 import { IDeleteTournamentService } from '@/business-services/delete-tournament-service';
-import { APIGatewayProxyEvent, Handler, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandler } from 'aws-lambda';
 
-export default (deleteTournament: IDeleteTournamentService): Handler<APIGatewayProxyEvent, APIGatewayProxyResult> => {
+export default (deleteTournament: IDeleteTournamentService): APIGatewayProxyHandler => {
   return async (event) => {
     const { tournamentId } = event.pathParameters;
     try {

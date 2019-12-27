@@ -1,25 +1,28 @@
 {
-    "compileOnSave": false,
-    "compilerOptions": {
-      "module": "commonjs",
-      "esModuleInterop": true,
-      "target": "es2017",
-      "lib": [ "es2017"],
-      "noImplicitAny": true,
-      "sourceMap": false,
-      "moduleResolution": "node",
-      "resolveJsonModule": true,
-      "noUnusedLocals": true,
-      "outDir": "output",
-      "rootDir": "../",
-      "baseUrl": ".",
-      "paths": {
-          "@/*": [
-            "src/*"
-          ]
-      }
-    },
-    "include": [
-      "src"
-    ]
-  }
+  "compileOnSave": false,
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es2017",
+    "lib": [
+      "es2017",
+      "es2019"
+    ],
+    "noImplicitAny": true,
+    "sourceMap": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "outDir": "output",
+    "rootDir": "../",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}

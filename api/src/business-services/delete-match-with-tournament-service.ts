@@ -10,6 +10,9 @@ export const deleteMatchWithTournamentServiceFactory = (matchDocumentService: IM
   return async ({ tournamentId }) => {
     const matches = await matchDocumentService.queryMatchKeysByTournamentId(tournamentId);
 
-    await Promise.all(matches.map(m => matchDocumentService.deleteMatch(m.matchId)));
+    await Promise.all(matches.map(m => matchDocumentService.deleteMatch(m.id).catch((error) => {
+      console.log('DELETE MATCH ERROR', error, m.id);
+      // TODO write to SQS?
+    })));
   };
 };

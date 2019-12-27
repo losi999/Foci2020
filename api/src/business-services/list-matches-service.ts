@@ -18,6 +18,6 @@ export const listMatchesServiceFactory = (
       throw httpError(500, 'Unable to query matches');
     });
 
-    return matchDocumentConverter.createResponseList(matches);
+    return matchDocumentConverter.toResponseList(matches);
   };
 };

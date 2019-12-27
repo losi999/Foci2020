@@ -1,75 +1,47 @@
-import { TeamDocument, TeamDetailsDocument } from '@/types/documents';
+import { TeamDocument, TeamDocumentUpdatable } from '@/types/documents';
 import { TeamResponse } from '@/types/responses';
 import { TeamRequest } from '@/types/requests';
-import { DynamoDB } from 'aws-sdk';
+import { v4String } from 'uuid/interfaces';
 
 export interface ITeamDocumentConverter {
-  createResponse(document: TeamDocument): TeamResponse;
-  createResponseList(documents: TeamDocument[]): TeamResponse[];
-  save(teamId: string, body: TeamRequest): DynamoDB.DocumentClient.Put;
-  update(teamId: string, body: TeamRequest): DynamoDB.DocumentClient.Update;
-  delete(teamId: string): DynamoDB.DocumentClient.Delete;
+  create(body: TeamRequest): TeamDocument;
+  update(body: TeamRequest): TeamDocumentUpdatable;
+  toResponse(document: TeamDocument): TeamResponse;
+  toResponseList(documents: TeamDocument[]): TeamResponse[];
 }
 
-export const teamDocumentConverterFactory = (): ITeamDocumentConverter => {
-  const createResponse = ({ shortName, teamId, teamName, image }: TeamDocument): TeamResponse => {
+export const teamDocumentConverterFactory = (uuid: v4String): ITeamDocumentConverter => {
+  const toResponse = ({ shortName, id, teamName, image }: TeamDocument): TeamResponse => {
     return {
       image,
       teamName,
-      teamId,
-      shortName
+      shortName,
+      teamId: id
     };
   };
 
   return {
-    createResponse,
-    createResponseList: (documents) => {
-      return documents.map<TeamResponse>(d => createResponse(d));
+    toResponse,
+    toResponseList: (documents): TeamResponse[] => {
+      return documents.map<TeamResponse>(d => toResponse(d));
     },
-    delete: (teamId) => {
+    create: ({ image, teamName, shortName }): TeamDocument => {
+      const id = uuid();
       return {
-        TableName: process.env.DYNAMO_TABLE,
-        Key: {
-          segment: 'details',
-          'documentType-id': `team-${teamId}`,
-        }
-      };
-    },
-    save: (teamId, { image, shortName, teamName }) => {
-      const document: TeamDetailsDocument = {
+        id,
         image,
-        shortName,
         teamName,
-        teamId,
-        segment: 'details',
+        shortName,
         documentType: 'team',
         orderingValue: teamName,
-        'documentType-id': `team-${teamId}`
-      };
-
-      return {
-        TableName: process.env.DYNAMO_TABLE,
-        Item: document
+        'documentType-id': `team-${id}`
       };
     },
-    update: (teamId, { image, shortName, teamName }) => {
+    update: ({ image, teamName, shortName }): TeamDocumentUpdatable => {
       return {
-        TableName: process.env.DYNAMO_TABLE,
-        Key: {
-          'documentType-id': teamId,
-          segment: 'details'
-        },
-        ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-          '#segment': 'segment'
-        },
-        ExpressionAttributeValues: {
-          ':teamName': teamName,
-          ':image': image,
-          ':shortName': shortName
-        }
+        image,
+        teamName,
+        shortName,
       };
     }
   };

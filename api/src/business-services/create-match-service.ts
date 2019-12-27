@@ -1,21 +1,21 @@
-import { v4String } from 'uuid/interfaces';
 import { httpError, addMinutes } from '@/common';
 import { MatchRequest } from '@/types/requests';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
+import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 
 export interface ICreateMatchService {
   (ctx: {
     body: MatchRequest
-  }): Promise<void>;
+  }): Promise<string>;
 }
 
 export const createMatchServiceFactory = (
   matchDocumentService: IMatchDocumentService,
   teamDocumentService: ITeamDocumentService,
   tournamentDocumentService: ITournamentDocumentService,
-  uuid: v4String
+  matchDocumentConverter: IMatchDocumentConverter
 ): ICreateMatchService => {
   return async ({ body }) => {
     if (addMinutes(5) > new Date(body.startTime)) {
@@ -47,12 +47,13 @@ export const createMatchServiceFactory = (
       throw httpError(400, 'Tournament not found');
     }
 
-    const matchId = uuid();
-    try {
-      await matchDocumentService.saveMatch(matchId, body, homeTeam, awayTeam, tournament);
-    } catch (error) {
+    const document = matchDocumentConverter.create(body, homeTeam, awayTeam, tournament);
+
+    await matchDocumentService.saveMatch(document).catch((error) => {
       console.log('ERROR databaseService.saveMatch', error);
       throw httpError(500, 'Error while saving match');
-    }
+    });
+
+    return document.id;
   };
 };

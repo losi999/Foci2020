@@ -6,8 +6,9 @@ export default (createTeam: ICreateTeamService): APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body) as TeamRequest;
 
+    let teamId: string;
     try {
-      await createTeam({ body });
+      teamId = await createTeam({ body });
     } catch (error) {
       return {
         statusCode: error.statusCode,
@@ -17,7 +18,7 @@ export default (createTeam: ICreateTeamService): APIGatewayProxyHandler => {
 
     return {
       statusCode: 200,
-      body: ''
+      body: JSON.stringify({ teamId })
     };
   };
 };

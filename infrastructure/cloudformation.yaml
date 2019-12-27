@@ -7,19 +7,20 @@ Parameters:
 Resources:
   Database:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
     Properties:
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: documentType-id
           AttributeType: S
-        - AttributeName: segment
-          AttributeType: S
         - AttributeName: documentType
           AttributeType: S
         - AttributeName: tournamentId
           AttributeType: S
-        - AttributeName: teamId
+        - AttributeName: homeTeamId
           AttributeType: S
+        - AttributeName: awayTeamId
+          AttributeType: S          
         - AttributeName: matchId
           AttributeType: S
         - AttributeName: userId
@@ -29,45 +30,43 @@ Resources:
       KeySchema:
         - AttributeName: documentType-id
           KeyType: HASH
-        - AttributeName: segment
-          KeyType: RANGE
       GlobalSecondaryIndexes:
         - IndexName: indexByTournamentId
           KeySchema:
             - AttributeName: tournamentId
               KeyType: HASH
-            - AttributeName: documentType
-              KeyType: RANGE
           Projection:
             ProjectionType: INCLUDE
             NonKeyAttributes:
-              - matchId
-        - IndexName: indexByTeamId
+              - id
+        - IndexName: indexByAwayTeamId
           KeySchema:
-            - AttributeName: teamId
+            - AttributeName: awayTeamId
               KeyType: HASH
-            - AttributeName: documentType
-              KeyType: RANGE
           Projection:
             ProjectionType: INCLUDE
             NonKeyAttributes:
-              - matchId
+              - id
+        - IndexName: indexByHomeTeamId
+          KeySchema:
+            - AttributeName: homeTeamId
+              KeyType: HASH
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - id
         - IndexName: indexByMatchId
           KeySchema:
             - AttributeName: matchId
               KeyType: HASH
-            - AttributeName: documentType
-              KeyType: RANGE
           Projection:
             ProjectionType: KEYS_ONLY
         - IndexName: indexByUserId
           KeySchema:
             - AttributeName: userId
               KeyType: HASH
-            - AttributeName: documentType
-              KeyType: RANGE
           Projection:
-            ProjectionType: KEYS_ONLY
+            ProjectionType: ALL
         - IndexName: indexByDocumentType
           KeySchema:
             - AttributeName: documentType
@@ -99,6 +98,7 @@ Resources:
                   - dynamodb:PutItem
                   - dynamodb:Query
                   - dynamodb:UpdateItem
+                  - dynamodb:GetItem
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - logs:CreateLogGroup

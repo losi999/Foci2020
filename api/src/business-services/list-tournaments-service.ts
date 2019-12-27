@@ -17,6 +17,6 @@ export const listTournamentsServiceFactory = (
       throw httpError(500, 'Unable to query tournaments');
     });
 
-    return tournamentDocumentConverte.createResponseList(tournaments);
+    return tournamentDocumentConverte.toResponseList(tournaments);
   };
 };

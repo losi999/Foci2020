@@ -7,18 +7,6 @@ export interface IIdentityService {
 }
 
 export const cognitoIdentityService = (cognito: CognitoIdentityServiceProvider): IIdentityService => {
-  const adminInitiateAuth = (username: string, password: string) => {
-    return cognito.adminInitiateAuth({
-      UserPoolId: process.env.USER_POOL_ID,
-      ClientId: process.env.CLIENT_ID,
-      AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
-      AuthParameters: {
-        USERNAME: username,
-        PASSWORD: password
-      }
-    }).promise();
-  };
-
   return {
     register: async (body) => {
       await cognito.adminCreateUser({
@@ -50,7 +38,15 @@ export const cognitoIdentityService = (cognito: CognitoIdentityServiceProvider):
       }).promise();
     },
     login: (body) => {
-      return adminInitiateAuth(body.email, body.password);
+      return cognito.adminInitiateAuth({
+        UserPoolId: process.env.USER_POOL_ID,
+        ClientId: process.env.CLIENT_ID,
+        AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
+        AuthParameters: {
+          USERNAME: body.email,
+          PASSWORD: body.password
+        }
+      }).promise();
     }
   };
 };

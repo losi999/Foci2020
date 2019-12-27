@@ -19,6 +19,6 @@ export const getTournamentServiceFactory = (
       throw httpError(500, 'Unable to query tournament');
     });
 
-    return tournamentDocumentConverte.createResponse(tournament);
+    return tournamentDocumentConverte.toResponse(tournament);
   };
 };

@@ -17,6 +17,6 @@ export const listTeamsServiceFactory = (
       throw httpError(500, 'Unable to query teams');
     });
 
-    return teamDocumentConverter.createResponseList(teams);
+    return teamDocumentConverter.toResponseList(teams);
   };
 };

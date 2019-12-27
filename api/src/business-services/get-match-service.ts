@@ -19,6 +19,6 @@ export const getMatchServiceFactory = (
       throw httpError(500, 'Unable to query match');
     });
 
-    return matchDocumentConverter.createResponse(match);
+    return matchDocumentConverter.toResponse(match);
   };
 };

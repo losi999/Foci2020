@@ -19,6 +19,6 @@ export const getTeamServiceFactory = (
       throw httpError(500, 'Unable to query team');
     });
 
-    return teamDocumentConverter.createResponse(team);
+    return teamDocumentConverter.toResponse(team);
   };
 };

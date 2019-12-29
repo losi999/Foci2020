@@ -29,3 +29,10 @@ export const createMockService = <T>(...functionsToMock: (keyof T)[]): Mock<T> =
     service: jest.fn<Partial<T>, undefined[]>(() => functions)() as T
   };
 };
+
+export const validateError = (message: string, statusCode?: number) => (error: any) => {
+  expect(error.message).toEqual(message);
+  if (statusCode) {
+    expect(error.statusCode).toEqual(statusCode);
+  }
+};

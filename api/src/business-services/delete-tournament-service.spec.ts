@@ -1,33 +1,25 @@
 import { IDeleteTournamentService, deleteTournamentServiceFactory } from '@/business-services/delete-tournament-service';
 import { INotificationService } from '@/services/notification-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
+import { Mock, createMockService, validateError } from '@/common';
 
 describe('Delete tournament service', () => {
   let service: IDeleteTournamentService;
-  let mockTournamentDocumentService: ITournamentDocumentService;
-  let mockDeleteTournament: jest.Mock;
-  let mockNotificationService: INotificationService;
-  let mockTournamentDeleted: jest.Mock;
+  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
+  let mockNotificationService: Mock<INotificationService>;
 
   beforeEach(() => {
-    mockDeleteTournament = jest.fn();
-    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
-      deleteTournament: mockDeleteTournament,
-    }))) as ITournamentDocumentService;
+    mockTournamentDocumentService = createMockService('deleteTournament');
+    mockNotificationService = createMockService('tournamentDeleted');
 
-    mockTournamentDeleted = jest.fn();
-    mockNotificationService = new (jest.fn<Partial<INotificationService>, undefined[]>(() => ({
-      tournamentDeleted: mockTournamentDeleted
-    })))() as INotificationService;
-
-    service = deleteTournamentServiceFactory(mockTournamentDocumentService, mockNotificationService);
+    service = deleteTournamentServiceFactory(mockTournamentDocumentService.service, mockNotificationService.service);
   });
 
   it('should return with undefined', async () => {
     const tournamentId = 'tournamentId';
 
-    mockDeleteTournament.mockResolvedValue(undefined);
-    mockTournamentDeleted.mockResolvedValue(undefined);
+    mockTournamentDocumentService.functions.deleteTournament.mockResolvedValue(undefined);
+    mockNotificationService.functions.tournamentDeleted.mockResolvedValue(undefined);
 
     const result = await service({ tournamentId });
     expect(result).toBeUndefined();
@@ -36,27 +28,17 @@ describe('Delete tournament service', () => {
   it('should throw error if unable to query tournament', async () => {
     const tournamentId = 'tournamentId';
 
-    mockDeleteTournament.mockRejectedValue('This is a dynamo error');
+    mockTournamentDocumentService.functions.deleteTournament.mockRejectedValue('This is a dynamo error');
 
-    try {
-      await service({ tournamentId });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to delete tournament');
-    }
+    await service({ tournamentId }).catch(validateError('Unable to delete tournament', 500));
   });
 
   it('should throw error if unable to send notification', async () => {
     const tournamentId = 'tournamentId';
 
-    mockDeleteTournament.mockResolvedValue(undefined);
-    mockTournamentDeleted.mockRejectedValue('This is an SNS error');
+    mockTournamentDocumentService.functions.deleteTournament.mockResolvedValue(undefined);
+    mockNotificationService.functions.tournamentDeleted.mockRejectedValue('This is an SNS error');
 
-    try {
-      await service({ tournamentId });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to send tournament deleted notification');
-    }
+    await service({ tournamentId }).catch(validateError('Unable to send tournament deleted notification', 500));
   });
 });

@@ -13,17 +13,13 @@ export const teamDocumentServiceFactory = (
   dynamoClient: DynamoDB.DocumentClient
 ): ITeamDocumentService => {
 
-  const capacity = (name: string) => (resp: any) => {
-    console.log(`${name} CAPACITY`, JSON.stringify(resp.data.ConsumedCapacity));
-  };
-
   return {
     saveTeam: (document) => {
       return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         Item: document
-      }).on('success', capacity('saveMatch')).promise();
+      }).promise();
     },
     updateTeam: async (teamId, { image, shortName, teamName }) => {
       return (await dynamoClient.update({
@@ -44,7 +40,7 @@ export const teamDocumentServiceFactory = (
           ':image': image,
           ':shortName': shortName
         }
-      }).on('success', capacity('updateTeam')).promise()).Attributes as TeamDocument;
+      }).promise()).Attributes as TeamDocument;
     },
     queryTeamById: async (teamId) => {
       return (await dynamoClient.get({
@@ -53,7 +49,7 @@ export const teamDocumentServiceFactory = (
         Key: {
           'documentType-id': `team-${teamId}`
         },
-      }).on('success', capacity('queryTeamById')).promise()).Item as TeamDocument;
+      }).promise()).Item as TeamDocument;
     },
     queryTeams: async () => {
       return (await dynamoClient.query({
@@ -64,7 +60,7 @@ export const teamDocumentServiceFactory = (
         ExpressionAttributeValues: {
           ':documentType': 'team',
         }
-      }).on('success', capacity('queryTeams')).promise()).Items as TeamDocument[];
+      }).promise()).Items as TeamDocument[];
     },
     deleteTeam: (teamId) => {
       return dynamoClient.delete({
@@ -73,7 +69,7 @@ export const teamDocumentServiceFactory = (
         Key: {
           'documentType-id': `team-${teamId}`,
         }
-      }).on('success', capacity('deleteTeam')).promise();
+      }).promise();
     },
   };
 };

@@ -2,26 +2,22 @@ import { IUpdateTeamService, updateTeamServiceFactory } from '@/business-service
 import { TeamRequest } from '@/types/requests';
 import { INotificationService } from '@/services/notification-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
+import { Mock, createMockService, validateError } from '@/common';
+import { ITeamDocumentConverter } from '@/converters/team-document-converter';
+import { TeamDocumentUpdatable, TeamDocument } from '@/types/documents';
 
 describe('Update team service', () => {
   let service: IUpdateTeamService;
-  let mockTeamDocumentService: ITeamDocumentService;
-  let mockUpdateTeam: jest.Mock;
-  let mockNotificationService: INotificationService;
-  let mockTeamUpdated: jest.Mock;
+  let mockTeamDocumentService: Mock<ITeamDocumentService>;
+  let mockTeamDocumentConverter: Mock<ITeamDocumentConverter>;
+  let mockNotificationService: Mock<INotificationService>;
 
   beforeEach(() => {
-    mockUpdateTeam = jest.fn();
-    mockTeamDocumentService = new (jest.fn<Partial<ITeamDocumentService>, undefined[]>(() => ({
-      updateTeam: mockUpdateTeam
-    }))) as ITeamDocumentService;
+    mockTeamDocumentService = createMockService('updateTeam');
+    mockTeamDocumentConverter = createMockService('update');
+    mockNotificationService = createMockService('teamUpdated');
 
-    mockTeamUpdated = jest.fn();
-    mockNotificationService = new (jest.fn<Partial<INotificationService>, undefined[]>(() => ({
-      teamUpdated: mockTeamUpdated
-    })))() as INotificationService;
-
-    service = updateTeamServiceFactory(mockTeamDocumentService, mockNotificationService);
+    service = updateTeamServiceFactory(mockTeamDocumentService.service, mockTeamDocumentConverter.service, mockNotificationService.service);
   });
 
   it('should return with with undefined if team is updated successfully', async () => {
@@ -35,15 +31,33 @@ describe('Update team service', () => {
       shortName
     };
 
-    mockUpdateTeam.mockResolvedValue(undefined);
-    mockTeamUpdated.mockResolvedValue(undefined);
+    const converted = {
+      image,
+      shortName,
+      teamName
+    } as TeamDocumentUpdatable;
+
+    const updated = {
+      image,
+      shortName,
+      teamName
+    } as TeamDocument;
+
+    mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
+    mockTeamDocumentService.functions.updateTeam.mockResolvedValue(updated);
+    mockNotificationService.functions.teamUpdated.mockResolvedValue(undefined);
 
     const result = await service({
       teamId,
       body
     });
     expect(result).toBeUndefined();
-    expect(mockUpdateTeam).toHaveBeenCalledWith(teamId, body);
+    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
+    expect(mockNotificationService.functions.teamUpdated).toHaveBeenCalledWith({
+      teamId,
+      team: updated
+    });
   });
 
   it('should throw error if unable to update team', async () => {
@@ -57,41 +71,46 @@ describe('Update team service', () => {
       shortName
     };
 
-    mockUpdateTeam.mockRejectedValue('This is a dynamo error');
-
-    try {
-      await service({
-        teamId,
-        body
-      });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Error while updating team');
-    }
-  });
-
-  it('should throw error if unable to send notification', async () => {
-    const teamId = 'teamId';
-    const teamName = 'teamName';
-    const image = 'http://image.com/a.png';
-    const shortName = 'SHN';
-    const body: TeamRequest = {
-      teamName,
+    const converted = {
       image,
-      shortName
-    };
+      shortName,
+      teamName
+    } as TeamDocumentUpdatable;
 
-    mockUpdateTeam.mockResolvedValue(undefined);
-    mockTeamUpdated.mockRejectedValue('This is an SNS error');
+    mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
+    mockTeamDocumentService.functions.updateTeam.mockRejectedValue('This is a dynamo error');
 
-    try {
-      await service({
-        teamId,
-        body
-      });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to send team updated notification');
-    }
+    await service({
+      teamId,
+      body
+    }).catch(validateError('Error while updating team', 500));
+    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
+    expect(mockNotificationService.functions.teamUpdated).not.toHaveBeenCalled();
   });
+
+  // it('should throw error if unable to send notification', async () => {
+  //   const teamId = 'teamId';
+  //   const teamName = 'teamName';
+  //   const image = 'http://image.com/a.png';
+  //   const shortName = 'SHN';
+  //   const body: TeamRequest = {
+  //     teamName,
+  //     image,
+  //     shortName
+  //   };
+
+  //   mockTeamDocumentService.functions.updateTeam.mockResolvedValue(undefined);
+  //   mockNotificationService.functions.teamUpdated.mockRejectedValue('This is an SNS error');
+
+  //   try {
+  //     await service({
+  //       teamId,
+  //       body
+  //     }).catch(validateError('aaa', 500));
+  //   } catch (error) {
+  //     expect(error.statusCode).toEqual(500);
+  //     expect(error.message).toEqual('Unable to send team updated notification');
+  //   }
+  // });
 });

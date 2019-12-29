@@ -1,6 +1,7 @@
 import { SNSEvent } from 'aws-lambda';
 import { default as handler } from '@/handlers/update-match-with-team-handler';
 import { UpdateTeamNotification } from '@/types/types';
+import { TeamDocument } from '@/types/documents';
 
 describe('Update match with team handler', () => {
   let mockUpdateMatchWithTeamService: jest.Mock;
@@ -16,7 +17,7 @@ describe('Update match with team handler', () => {
         image: 'image',
         teamName: 'teamName',
         shortName: 'shortName'
-      }
+      } as TeamDocument
     };
     const handlerEvent = {
       Records: [{
@@ -39,7 +40,7 @@ describe('Update match with team handler', () => {
         image: 'image',
         teamName: 'teamName',
         shortName: 'shortName'
-      }
+      } as TeamDocument
     };
     const handlerEvent = {
       Records: [{

@@ -1,6 +1,7 @@
 import { default as handler } from '@/handlers/update-match-with-tournament-handler';
 import { SNSEvent } from 'aws-lambda';
 import { UpdateTournamentNotification } from '@/types/types';
+import { TournamentDocument } from '@/types/documents';
 
 describe('Update match with tournament handler', () => {
   let mockUpdateMatchWithTournamentService: jest.Mock;
@@ -14,7 +15,7 @@ describe('Update match with tournament handler', () => {
       tournamentId: 'tournamentId',
       tournament: {
         tournamentName: 'tournamentName',
-      }
+      } as TournamentDocument
     };
     const handlerEvent = {
       Records: [{
@@ -34,7 +35,7 @@ describe('Update match with tournament handler', () => {
       tournamentId: 'tournamentId',
       tournament: {
         tournamentName: 'tournamentName',
-      }
+      } as TournamentDocument
     };
     const handlerEvent = {
       Records: [{

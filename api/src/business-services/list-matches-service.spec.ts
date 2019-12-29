@@ -3,26 +3,19 @@ import { MatchDocument } from '@/types/documents';
 import { MatchResponse } from '@/types/responses';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { IMatchDocumentService } from '@/services/match-document-service';
+import { Mock, createMockService, validateError } from '@/common';
 
 describe('List matches service', () => {
   let service: IListMatchesService;
-  let mockMatchDocumentService: IMatchDocumentService;
-  let mockQueryMatches: jest.Mock;
-  let mockMatchDocumentConverter: IMatchDocumentConverter;
-  let mockCreateResponseList: jest.Mock;
+  let mockMatchDocumentService: Mock<IMatchDocumentService>;
+  let mockMatchDocumentConverter: Mock<IMatchDocumentConverter>;
 
   beforeEach(() => {
-    mockQueryMatches = jest.fn();
-    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
-      queryMatches: mockQueryMatches,
-    }))) as IMatchDocumentService;
+    mockMatchDocumentService = createMockService('queryMatches');
 
-    mockCreateResponseList = jest.fn();
-    mockMatchDocumentConverter = new (jest.fn<Partial<IMatchDocumentConverter>, undefined[]>(() => ({
-      createResponseList: mockCreateResponseList
-    })))() as IMatchDocumentConverter;
+    mockMatchDocumentConverter = createMockService('toResponseList');
 
-    service = listMatchesServiceFactory(mockMatchDocumentService, mockMatchDocumentConverter);
+    service = listMatchesServiceFactory(mockMatchDocumentService.service, mockMatchDocumentConverter.service);
   });
 
   it('should return with list of matches', async () => {
@@ -30,20 +23,16 @@ describe('List matches service', () => {
     const matchId2 = 'match2';
     const matchId3 = 'match3';
     const matchDocument1 = {
-      segment: 'details',
-      matchId: matchId1,
+      id: matchId1,
     } as MatchDocument;
     const matchDocument2 = {
-      segment: 'details',
-      matchId: matchId2,
+      id: matchId2,
     } as MatchDocument;
     const matchDocument3 = {
-      segment: 'homeTeam',
-      matchId: matchId2,
+      id: matchId2,
     } as MatchDocument;
     const matchDocument4 = {
-      segment: 'details',
-      matchId: matchId3,
+      id: matchId3,
     };
 
     const queriedDocuments: MatchDocument[] = [
@@ -51,7 +40,7 @@ describe('List matches service', () => {
       matchDocument2,
       matchDocument3,
       matchDocument4] as MatchDocument[];
-    mockQueryMatches.mockResolvedValue(queriedDocuments);
+    mockMatchDocumentService.functions.queryMatches.mockResolvedValue(queriedDocuments);
 
     const matchResponse = [
       {
@@ -68,21 +57,16 @@ describe('List matches service', () => {
       }
     ] as MatchResponse[];
 
-    mockCreateResponseList.mockReturnValueOnce(matchResponse);
+    mockMatchDocumentConverter.functions.toResponseList.mockReturnValueOnce(matchResponse);
 
     const result = await service({ tournamentId: 'tournamentId' });
     expect(result).toEqual(matchResponse);
-    expect(mockCreateResponseList).toHaveBeenCalledWith(queriedDocuments);
+    expect(mockMatchDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
   });
 
   it('should throw error if unable to query matches', async () => {
-    mockQueryMatches.mockRejectedValue('This is a dynamo error');
+    mockMatchDocumentService.functions.queryMatches.mockRejectedValue('This is a dynamo error');
 
-    try {
-      await service({ tournamentId: 'tournamentId' });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query matches');
-    }
+    await service({ tournamentId: 'tournamentId' }).catch(validateError('Unable to query matches', 500));
   });
 });

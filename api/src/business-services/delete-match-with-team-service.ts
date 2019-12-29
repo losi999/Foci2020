@@ -9,10 +9,16 @@ export interface IDeleteMatchWithTeamService {
 
 export const deleteMatchWithTeamServiceFactory = (matchDocumentService: IMatchDocumentService): IDeleteMatchWithTeamService => {
   return async ({ teamId }) => {
-    const matches = await Promise.all([
-      matchDocumentService.queryMatchKeysByHomeTeamId(teamId),
-      matchDocumentService.queryMatchKeysByAwayTeamId(teamId),
-    ]);
+    let matches;
+    try {
+      matches = await Promise.all([
+        matchDocumentService.queryMatchKeysByHomeTeamId(teamId),
+        matchDocumentService.queryMatchKeysByAwayTeamId(teamId),
+      ]);
+    } catch (error) {
+      console.log('QUERY MATCHES TO DELETE ERROR', error, teamId);
+      return;
+    }
 
     await Promise.all(matches.flat<DocumentKey>().map(m => matchDocumentService.deleteMatch(m.id).catch((error) => {
       console.log('DELETE MATCH ERROR', error, m.id);

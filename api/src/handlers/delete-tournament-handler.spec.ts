@@ -38,5 +38,6 @@ describe('Delete tournament handler', () => {
     const response = await handler(mockDeleteTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
+    expect(response.body).toEqual('');
   });
 });

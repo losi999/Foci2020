@@ -5,8 +5,9 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "build": "npm run clean && webpack",
-    "test": "jest --coverage --maxWorkers=4",
+    "test": "jest --coverage --maxWorkers=4 --silent",
     "test:dev": "jest --maxWorkers=4 --watch --silent",
+    "test:debug": "jest --maxWorkers=4 --watch",
     "lint": "tslint --project tsconfig.json",
     "lintfix": "tslint --project tsconfig.json --fix"
   },
@@ -35,10 +36,7 @@
     "webpack-glob-entry": "^2.1.1"
   },
   "jest": {
-    "verbose": false,
-    "reporters": [
-      "jest-dot-reporter"
-    ],
+    "verbose": true,
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },

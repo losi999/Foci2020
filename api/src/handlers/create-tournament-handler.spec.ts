@@ -30,11 +30,13 @@ describe('Create tournament handler', () => {
     const handlerEvent = {
       body: '{}'
     } as APIGatewayProxyEvent;
+    const tournamentId = 'tournamentId';
 
-    mockCreateTournamentService.mockResolvedValue(undefined);
+    mockCreateTournamentService.mockResolvedValue(tournamentId);
 
     const response = await handler(mockCreateTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body).tournamentId).toEqual(tournamentId);
   });
 });

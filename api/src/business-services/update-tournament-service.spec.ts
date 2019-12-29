@@ -2,26 +2,22 @@ import { IUpdateTournamentService, updateTournamentServiceFactory } from '@/busi
 import { TournamentRequest } from '@/types/requests';
 import { INotificationService } from '@/services/notification-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
+import { Mock, createMockService, validateError } from '@/common';
+import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
+import { TournamentDocumentUpdatable, TournamentDocument } from '@/types/documents';
 
 describe('Update tournament service', () => {
   let service: IUpdateTournamentService;
-  let mockTournamentDocumentService: ITournamentDocumentService;
-  let mockUpdateTournament: jest.Mock;
-  let mockNotificationService: INotificationService;
-  let mockTournamentUpdated: jest.Mock;
+  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
+  let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
+  let mockNotificationService: Mock<INotificationService>;
 
   beforeEach(() => {
-    mockUpdateTournament = jest.fn();
-    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
-      updateTournament: mockUpdateTournament
-    }))) as ITournamentDocumentService;
+    mockTournamentDocumentConverter = createMockService('update');
+    mockTournamentDocumentService = createMockService('updateTournament');
+    mockNotificationService = createMockService('tournamentUpdated');
 
-    mockTournamentUpdated = jest.fn();
-    mockNotificationService = new (jest.fn<Partial<INotificationService>, undefined[]>(() => ({
-      tournamentUpdated: mockTournamentUpdated
-    })))() as INotificationService;
-
-    service = updateTournamentServiceFactory(mockTournamentDocumentService, mockNotificationService);
+    service = updateTournamentServiceFactory(mockTournamentDocumentService.service, mockTournamentDocumentConverter.service, mockNotificationService.service);
   });
 
   it('should return with with undefined if tournament is updated successfully', async () => {
@@ -31,15 +27,30 @@ describe('Update tournament service', () => {
       tournamentName
     };
 
-    mockUpdateTournament.mockResolvedValue(undefined);
-    mockTournamentUpdated.mockResolvedValue(undefined);
+    const converted = {
+      tournamentName
+    } as TournamentDocumentUpdatable;
+
+    const updated = {
+      tournamentName
+    } as TournamentDocument;
+
+    mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
+    mockTournamentDocumentService.functions.updateTournament.mockResolvedValue(updated);
+    mockNotificationService.functions.tournamentUpdated.mockResolvedValue(undefined);
 
     const result = await service({
       tournamentId,
       body
     });
     expect(result).toBeUndefined();
-    expect(mockUpdateTournament).toHaveBeenCalledWith(tournamentId, body);
+
+    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(tournamentId, converted);
+    expect(mockNotificationService.functions.tournamentUpdated).toHaveBeenCalledWith({
+      tournamentId,
+      tournament: updated
+    });
   });
 
   it('should throw error if unable to update tournament', async () => {
@@ -49,37 +60,37 @@ describe('Update tournament service', () => {
       tournamentName
     };
 
-    mockUpdateTournament.mockRejectedValue('This is a dynamo error');
-
-    try {
-      await service({
-        tournamentId,
-        body
-      });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Error while updating tournament');
-    }
-  });
-
-  it('should throw error if unable to send notification', async () => {
-    const tournamentId = 'tournamentId';
-    const tournamentName = 'tournamentName';
-    const body: TournamentRequest = {
+    const converted = {
       tournamentName
-    };
+    } as TournamentDocumentUpdatable;
 
-    mockUpdateTournament.mockResolvedValue(undefined);
-    mockTournamentUpdated.mockRejectedValue('This is an SNS error');
+    mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
+    mockTournamentDocumentService.functions.updateTournament.mockRejectedValue('This is a dynamo error');
 
-    try {
-      await service({
-        tournamentId,
-        body
-      });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to send tournament updated notification');
-    }
+    await service({
+      tournamentId,
+      body
+    }).catch(validateError('Error while updating tournament', 500));
   });
+
+  // it('should throw error if unable to send notification', async () => {
+  //   const tournamentId = 'tournamentId';
+  //   const tournamentName = 'tournamentName';
+  //   const body: TournamentRequest = {
+  //     tournamentName
+  //   };
+
+  //   mockTournamentDocumentService.functions.updateTournament.mockResolvedValue(undefined);
+  //   mockNotificationService.functions.tournamentUpdated.mockRejectedValue('This is an SNS error');
+
+  //   try {
+  //     await service({
+  //       tournamentId,
+  //       body
+  //     }).catch(validateError('aaa', 500));
+  //   } catch (error) {
+  //     expect(error.statusCode).toEqual(500);
+  //     expect(error.message).toEqual('Unable to send tournament updated notification');
+  //   }
+  // });
 });

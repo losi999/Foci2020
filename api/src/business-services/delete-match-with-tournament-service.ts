@@ -8,7 +8,13 @@ export interface IDeleteMatchWithTournamentService {
 
 export const deleteMatchWithTournamentServiceFactory = (matchDocumentService: IMatchDocumentService): IDeleteMatchWithTournamentService => {
   return async ({ tournamentId }) => {
-    const matches = await matchDocumentService.queryMatchKeysByTournamentId(tournamentId);
+    let matches;
+    try {
+      matches = await matchDocumentService.queryMatchKeysByTournamentId(tournamentId);
+    } catch (error) {
+      console.log('QUERY MATCHES TO DELETE ERROR', error, tournamentId);
+      return;
+    }
 
     await Promise.all(matches.map(m => matchDocumentService.deleteMatch(m.id).catch((error) => {
       console.log('DELETE MATCH ERROR', error, m.id);

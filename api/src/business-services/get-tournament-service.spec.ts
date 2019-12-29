@@ -3,60 +3,47 @@ import { TournamentDocument } from '@/types/documents';
 import { TournamentResponse } from '@/types/responses';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
+import { Mock, createMockService, validateError } from '@/common';
 
 describe('Get tournament service', () => {
   let service: IGetTournamentService;
-  let mockTournamentDocumentService: ITournamentDocumentService;
-  let mockQueryTournamentById: jest.Mock;
-  let mockTournamentDocumentConverter: ITournamentDocumentConverter;
-  let mockCreateResponse: jest.Mock;
+  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
+  let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
 
   beforeEach(() => {
-    mockQueryTournamentById = jest.fn();
-    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
-      queryTournamentById: mockQueryTournamentById,
-    }))) as ITournamentDocumentService;
+    mockTournamentDocumentService = createMockService('queryTournamentById');
 
-    mockCreateResponse = jest.fn();
-    mockTournamentDocumentConverter = new (jest.fn<Partial<ITournamentDocumentConverter>, undefined[]>(() => ({
-      createResponse: mockCreateResponse
-    })))() as ITournamentDocumentConverter;
+    mockTournamentDocumentConverter = createMockService('toResponse');
 
-    service = getTournamentServiceFactory(mockTournamentDocumentService, mockTournamentDocumentConverter);
+    service = getTournamentServiceFactory(mockTournamentDocumentService.service, mockTournamentDocumentConverter.service);
   });
 
   it('should return with a tournament', async () => {
     const tournamentId = 'tournamentId';
     const tournamentName = 'Tournament';
     const tournamentDocument = {
-      tournamentId,
       tournamentName,
-      segment: 'details',
+      id: tournamentId,
     } as TournamentDocument;
 
-    mockQueryTournamentById.mockResolvedValue(tournamentDocument);
+    mockTournamentDocumentService.functions.queryTournamentById.mockResolvedValue(tournamentDocument);
 
     const tournamentResponse = {
       tournamentId,
       tournamentName
     } as TournamentResponse;
 
-    mockCreateResponse.mockReturnValueOnce(tournamentResponse);
+    mockTournamentDocumentConverter.functions.toResponse.mockReturnValueOnce(tournamentResponse);
 
     const result = await service({ tournamentId });
     expect(result).toEqual(tournamentResponse);
-    expect(mockCreateResponse).toHaveBeenCalledWith(tournamentDocument);
+    expect(mockTournamentDocumentConverter.functions.toResponse).toHaveBeenCalledWith(tournamentDocument);
   });
 
   it('should throw error if unable to query tournament', async () => {
     const tournamentId = 'tournamentId';
-    mockQueryTournamentById.mockRejectedValue('This is a dynamo error');
+    mockTournamentDocumentService.functions.queryTournamentById.mockRejectedValue('This is a dynamo error');
 
-    try {
-      await service({ tournamentId });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query tournament');
-    }
+    await service({ tournamentId }).catch(validateError('Unable to query tournament', 500));
   });
 });

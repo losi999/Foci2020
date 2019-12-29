@@ -25,17 +25,13 @@ export interface IMatchDocumentService {
 export const matchDocumentServiceFactory = (
   dynamoClient: DynamoDB.DocumentClient,
 ): IMatchDocumentService => {
-  const capacity = (name: string) => (resp: any) => {
-    console.log(`${name} CAPACITY`, JSON.stringify(resp.data.ConsumedCapacity));
-  };
-
   return {
     saveMatch: (document) => {
       return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         Item: document
-      }).on('success', capacity('saveMatch')).promise();
+      }).promise();
     },
     updateMatchWithTournament: (matchId, tournament) => {
       return dynamoClient.update({
@@ -53,7 +49,7 @@ export const matchDocumentServiceFactory = (
           ':documentTypeId': `match-${matchId}`,
           ':tournament': tournament
         }
-      }).on('success', capacity('updateMatchWithTournament')).promise();
+      }).promise();
     },
     updateMatchWithTeam: (matchId, team, type) => {
       return dynamoClient.update({
@@ -71,7 +67,7 @@ export const matchDocumentServiceFactory = (
           ':documentTypeId': `match-${matchId}`,
           ':team': team,
         }
-      }).on('success', capacity('updateMatchWithTeam')).promise();
+      }).promise();
     },
     updateMatch: (matchId, { startTime, group, homeTeam, awayTeam, awayTeamId, homeTeamId, tournament, tournamentId }) => {
       return dynamoClient.update({
@@ -98,7 +94,7 @@ export const matchDocumentServiceFactory = (
           ':awayTeam': awayTeam,
           ':tournament': tournament
         }
-      }).on('success', capacity('updateMatch')).promise();
+      }).promise();
     },
     queryMatchById: async (matchId) => {
       return (await dynamoClient.get({
@@ -107,7 +103,7 @@ export const matchDocumentServiceFactory = (
         Key: {
           'documentType-id': `match-${matchId}`
         },
-      }).on('success', capacity('queryMatchById')).promise()).Item as MatchDocument;
+      }).promise()).Item as MatchDocument;
     },
     queryMatches: async (tournamentId) => {
       return (await dynamoClient.query({
@@ -119,7 +115,7 @@ export const matchDocumentServiceFactory = (
           ':documentType': 'match',
           ':tournamentId': tournamentId
         }
-      }).on('success', capacity('queryMatches')).promise()).Items as MatchDocument[];
+      }).promise()).Items as MatchDocument[];
     },
     queryMatchKeysByTournamentId: async (tournamentId) => {
       return (await dynamoClient.query({
@@ -130,7 +126,7 @@ export const matchDocumentServiceFactory = (
         ExpressionAttributeValues: {
           ':tournamentId': tournamentId,
         }
-      }).on('success', capacity('queryMatchKeysByTournamentId')).promise()).Items as IndexByTournamentIdDocument[];
+      }).promise()).Items as IndexByTournamentIdDocument[];
     },
     queryMatchKeysByHomeTeamId: async (teamId) => {
       return (await dynamoClient.query({
@@ -141,7 +137,7 @@ export const matchDocumentServiceFactory = (
         ExpressionAttributeValues: {
           ':teamId': teamId,
         }
-      }).on('success', capacity('queryMatchKeysByHomeTeamId')).promise()).Items as IndexByHomeTeamIdDocument[];
+      }).promise()).Items as IndexByHomeTeamIdDocument[];
     },
     queryMatchKeysByAwayTeamId: async (teamId) => {
       return (await dynamoClient.query({
@@ -152,7 +148,7 @@ export const matchDocumentServiceFactory = (
         ExpressionAttributeValues: {
           ':teamId': teamId,
         }
-      }).on('success', capacity('queryMatchKeysByAwayTeamId')).promise()).Items as IndexByAwayTeamIdDocument[];
+      }).promise()).Items as IndexByAwayTeamIdDocument[];
     },
     deleteMatch: (matchId) => {
       return dynamoClient.delete({
@@ -161,7 +157,7 @@ export const matchDocumentServiceFactory = (
         Key: {
           'documentType-id': `match-${matchId}`,
         }
-      }).on('success', capacity('deleteMatch')).promise();
+      }).promise();
     },
   };
 };

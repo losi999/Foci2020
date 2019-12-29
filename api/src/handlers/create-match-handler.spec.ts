@@ -30,11 +30,13 @@ describe('Create match handler', () => {
     const handlerEvent = {
       body: '{}'
     } as APIGatewayProxyEvent;
+    const matchId = 'matchId';
 
-    mockCreateMatchService.mockResolvedValue(undefined);
+    mockCreateMatchService.mockResolvedValue(matchId);
 
     const response = await handler(mockCreateMatchService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body).matchId).toEqual(matchId);
   });
 });

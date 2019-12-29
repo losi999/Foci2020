@@ -30,11 +30,13 @@ describe('Create team handler', () => {
     const handlerEvent = {
       body: '{}'
     } as APIGatewayProxyEvent;
+    const teamId = 'teamId';
 
-    mockCreateTeamService.mockResolvedValue(undefined);
+    mockCreateTeamService.mockResolvedValue(teamId);
 
     const response = await handler(mockCreateTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
+    expect(JSON.parse(response.body).teamId).toEqual(teamId);
   });
 });

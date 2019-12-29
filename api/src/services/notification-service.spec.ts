@@ -1,6 +1,7 @@
 import { INotificationService, snsNotificationService } from '@/services/notification-service';
 import { SNS } from 'aws-sdk';
 import { UpdateTeamNotification, UpdateTournamentNotification } from '@/types/types';
+import { TeamDocument, TournamentDocument } from '@/types/documents';
 
 describe('Notification service', () => {
   let service: INotificationService;
@@ -69,7 +70,7 @@ describe('Notification service', () => {
           teamName: 'teamName',
           shortName: 'shortName',
           image: 'image'
-        }
+        } as TeamDocument
       };
       snsPublishSpy.mockReturnValue({
         promise() {
@@ -90,7 +91,7 @@ describe('Notification service', () => {
         tournamentId: 'tournamentId',
         tournament: {
           tournamentName: 'tournamentName',
-        }
+        } as TournamentDocument
       };
       snsPublishSpy.mockReturnValue({
         promise() {

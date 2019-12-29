@@ -3,42 +3,30 @@ import { DynamoDB } from 'aws-sdk';
 import {
   TeamDocument,
   TournamentDocument,
-  DocumentKey
+  DocumentKey,
+  MatchDocumentUpdatable,
+  MatchDocument
 } from '@/types/documents';
-import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { MatchRequest } from '@/types/requests';
 
 describe('Match document service', () => {
   let service: IMatchDocumentService;
+  let dbPutSpy: jest.SpyInstance;
   let dbQuerySpy: jest.SpyInstance;
-  let dbTransactWriteSpy: jest.SpyInstance;
-  let mockMatchDocumentConverter: IMatchDocumentConverter;
-  let mockMatchDelete: jest.Mock;
-  let mockMatchUpdate: jest.Mock;
-  let mockMatchSave: jest.Mock;
-  let mockUpdateMatchesWithTeam: jest.Mock;
-  let mockUpdateMatchedWithTournament: jest.Mock;
+  let dbUpdateSpy: jest.SpyInstance;
+  let dbDeleteSpy: jest.SpyInstance;
+  let dbGetSpy: jest.SpyInstance;
   const tableName = 'table-name';
 
   beforeEach(() => {
     const dynamoClient = new DynamoDB.DocumentClient();
+    dbPutSpy = jest.spyOn(dynamoClient, 'put');
     dbQuerySpy = jest.spyOn(dynamoClient, 'query');
-    dbTransactWriteSpy = jest.spyOn(dynamoClient, 'transactWrite');
+    dbUpdateSpy = jest.spyOn(dynamoClient, 'update');
+    dbDeleteSpy = jest.spyOn(dynamoClient, 'delete');
+    dbGetSpy = jest.spyOn(dynamoClient, 'get');
 
-    mockMatchDelete = jest.fn();
-    mockMatchUpdate = jest.fn();
-    mockMatchSave = jest.fn();
-    mockUpdateMatchesWithTeam = jest.fn();
-    mockUpdateMatchedWithTournament = jest.fn();
-    mockMatchDocumentConverter = new (jest.fn<Partial<IMatchDocumentConverter>, undefined[]>(() => ({
-      delete: mockMatchDelete,
-      update: mockMatchUpdate,
-      save: mockMatchSave,
-      updateMatchesWithTeam: mockUpdateMatchesWithTeam,
-      updateMatchesWithTournament: mockUpdateMatchedWithTournament,
-    })))() as IMatchDocumentConverter;
-
-    service = matchDocumentServiceFactory(dynamoClient, mockMatchDocumentConverter);
+    service = matchDocumentServiceFactory(dynamoClient);
 
     process.env.DYNAMO_TABLE = tableName;
   });
@@ -47,209 +35,224 @@ describe('Match document service', () => {
     process.env.DYNAMO_TABLE = undefined;
   });
 
+  const matchId = 'matchId';
+  const startTime = 'startTime';
+  const group = 'group';
+  const homeTeamId = 'homeTeamId';
+  const awayTeamId = 'awayTeamId';
+  const tournamentId = 'tournamentId';
+  const homeTeam = { id: homeTeamId } as TeamDocument;
+  const awayTeam = { id: awayTeamId } as TeamDocument;
+  const tournament = { id: tournamentId } as TournamentDocument;
+
   describe('updateMatch', () => {
-    it('should call dynamo.transactWrite with correct parameters', async () => {
-      const matchId = 'matchId';
-      const body = {
-        group: 'group',
-      } as MatchRequest;
-      const homeTeam = {
-        teamId: 'homeTeamId',
-      } as TeamDocument;
-      const awayTeam = {
-        teamId: 'awayTeamId',
-      } as TeamDocument;
-      const tournament = {
-        tournamentId: 'tournamentId',
-      } as TournamentDocument;
-      const convertedItems = ['converted1', 'converted2'];
-
-      mockMatchUpdate.mockReturnValue(convertedItems);
-
-      dbTransactWriteSpy.mockReturnValue({
+    it('should call dynamo.update with correct parameters', async () => {
+      const document = {
+        startTime,
+        group,
+        homeTeam,
+        awayTeam,
+        awayTeamId,
+        homeTeamId,
+        tournament,
+        tournamentId
+      } as MatchDocumentUpdatable;
+      dbUpdateSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
         }
       });
 
-      await service.updateMatch(matchId, body, homeTeam, awayTeam, tournament);
-      expect(mockMatchUpdate).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
-      expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: convertedItems
-      });
+      await service.updateMatch(matchId, document);
+      expect(dbUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        Key: {
+          'documentType-id': `match-${matchId}`
+        },
+        ConditionExpression: '#documentTypeId = :documentTypeId',
+        UpdateExpression: 'set startTime = :startTime, #group = :group, orderingValue = :orderingValue, homeTeamId = :homeTeamId, awayTeamId = :awayTeamId, tournamentId = :tournamentId, homeTeam = :homeTeam, awayTeam = :awayTeam, tournament = :tournament',
+        ExpressionAttributeNames: {
+          '#group': 'group',
+          '#documentTypeId': 'documentType-id',
+        },
+        ExpressionAttributeValues: {
+          ':startTime': startTime,
+          ':group': group,
+          ':orderingValue': `${tournamentId}-${startTime}`,
+          ':documentTypeId': `match-${matchId}`,
+          ':homeTeamId': homeTeamId,
+          ':awayTeamId': awayTeamId,
+          ':tournamentId': tournamentId,
+          ':homeTeam': homeTeam,
+          ':awayTeam': awayTeam,
+          ':tournament': tournament
+        }
+      }));
     });
   });
 
-  describe('updateMatchesWithTeam', () => {
-    it('should call dynamo.transactWrite with correct parameters', async () => {
-      const teamName = 'teamName';
-      const image = 'image';
-      const shortName = 'shortName';
-      const matches: DocumentKey<'homeTeam' | 'awayTeam'>[] = [
-        {
-          'documentType-id': 'match-matchId1',
-          segment: 'homeTeam'
-        },
-        {
-          'documentType-id': 'match-matchId2',
-          segment: 'awayTeam'
-        }
-      ];
-
-      const convertedItems = ['converted1', 'converted2'];
-
-      mockUpdateMatchesWithTeam.mockReturnValue(convertedItems);
-
-      dbTransactWriteSpy.mockReturnValue({
+  describe('updateMatchWithTeam', () => {
+    it('should call dynamo.update with correct parameters', async () => {
+      dbUpdateSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
         }
       });
 
-      await service.updateMatchesWithTeam(matches, {
-        teamName,
-        image,
-        shortName
-      });
+      await service.updateMatchWithTeam(matchId, homeTeam, 'home');
 
-      expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: convertedItems
-      });
+      expect(dbUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        Key: {
+          'documentType-id': `match-${matchId}`,
+        },
+        ConditionExpression: '#documentTypeId = :documentTypeId',
+        UpdateExpression: 'set homeTeam = :team',
+        ExpressionAttributeNames: {
+          '#documentTypeId': 'documentType-id',
+        },
+        ExpressionAttributeValues: {
+          ':documentTypeId': `match-${matchId}`,
+          ':team': homeTeam,
+        }
+      }));
     });
   });
 
   describe('updateMatchWithTournament', () => {
-    it('should call dynamo.transactWrite with correct parameters', async () => {
-      const tournamentName = 'tournamentName';
-      const matches: DocumentKey<'tournament'>[] = [
-        {
-          'documentType-id': 'match-matchId1',
-          segment: 'tournament'
-        },
-        {
-          'documentType-id': 'match-matchId2',
-          segment: 'tournament'
-        }
-      ];
-
-      const convertedItems = ['converted1', 'converted2'];
-
-      mockUpdateMatchedWithTournament.mockReturnValue(convertedItems);
-
-      dbTransactWriteSpy.mockReturnValue({
+    it('should call dynamo.update with correct parameters', async () => {
+      dbUpdateSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
         }
       });
 
-      await service.updateMatchesWithTournament(matches, { tournamentName });
+      await service.updateMatchWithTournament(matchId, tournament);
 
-      expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: convertedItems
-      });
+      expect(dbUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        Key: {
+          'documentType-id': `match-${matchId}`,
+        },
+        ConditionExpression: '#documentTypeId = :documentTypeId',
+        UpdateExpression: 'set tournament = :tournament',
+        ExpressionAttributeNames: {
+          '#documentTypeId': 'documentType-id'
+        },
+        ExpressionAttributeValues: {
+          ':documentTypeId': `match-${matchId}`,
+          ':tournament': tournament
+        }
+      }));
     });
   });
 
   describe('queryMatchById', () => {
-    it('should call dynamo.query with correct parameters', async () => {
-      const matchId = 'matchId';
-
-      dbQuerySpy.mockReturnValue({
+    it('should call dynamo.get with correct parameters', async () => {
+      dbGetSpy.mockReturnValue({
         promise() {
-          return Promise.resolve({ Items: [] });
+          return Promise.resolve({ Item: {} });
         }
       });
 
       await service.queryMatchById(matchId);
 
-      expect(dbQuerySpy).toHaveBeenCalledWith({
+      expect(dbGetSpy).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
-        KeyConditionExpression: '#documentTypeId = :pk',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
+        Key: {
+          'documentType-id': `match-${matchId}`
         },
-        ExpressionAttributeValues: {
-          ':pk': `match-${matchId}`,
-        }
-      });
+      }));
     });
 
-    it('should return the queried items', async () => {
-      const matchId = 'matchId';
-      const match1 = {
-        matchId,
-        segment: 'homeTeam'
-      };
-      const match2 = {
-        matchId,
-        segment: 'awayTeam'
-      };
+    it('should return the queried match', async () => {
+      const queriedMatch = 'match';
 
-      dbQuerySpy.mockReturnValue({
+      dbGetSpy.mockReturnValue({
         promise() {
-          return Promise.resolve({ Items: [match1, match2] });
+          return Promise.resolve({ Item: queriedMatch });
         }
       });
 
       const result = await service.queryMatchById(matchId);
 
-      expect(result).toEqual([match1, match2]);
+      expect(result).toEqual(queriedMatch);
     });
   });
 
-  describe('queryMatchKeysByTeamId', () => {
+  describe('queryMatchKeysByHomeTeamId', () => {
     it('should call dynamo.query with correct parameters', async () => {
-      const teamId = 'teamId';
-
       dbQuerySpy.mockReturnValue({
         promise() {
           return Promise.resolve({ Items: [] });
         }
       });
 
-      await service.queryMatchKeysByTeamId(teamId);
+      await service.queryMatchKeysByHomeTeamId(homeTeamId);
 
-      expect(dbQuerySpy).toHaveBeenCalledWith({
+      expect(dbQuerySpy).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
-        IndexName: 'indexByTeamId',
-        KeyConditionExpression: 'teamId = :teamId and documentType = :documentType',
+        IndexName: 'indexByHomeTeamId',
+        KeyConditionExpression: 'homeTeamId = :teamId',
         ExpressionAttributeValues: {
-          ':teamId': teamId,
-          ':documentType': 'match',
+          ':teamId': homeTeamId,
         }
-      });
+      }));
     });
 
-    it('should return the queried items', async () => {
-      const teamId = 'teamId';
-      const match1 = {
-        matchId: 'match1'
-      };
-      const match2 = {
-        matchId: 'match2'
-      };
+    it('should return the queried matches', async () => {
+      const queriedMatches = ['match1', 'match2', 'match3'];
 
       dbQuerySpy.mockReturnValue({
         promise() {
-          return Promise.resolve({ Items: [match1, match2] });
+          return Promise.resolve({ Items: queriedMatches });
         }
       });
 
-      const result = await service.queryMatchKeysByTeamId(teamId);
+      const result = await service.queryMatchKeysByHomeTeamId(homeTeamId);
 
-      expect(result).toEqual([match1, match2]);
+      expect(result).toEqual(queriedMatches);
+    });
+  });
+
+  describe('queryMatchKeysByAwayTeamId', () => {
+    it('should call dynamo.query with correct parameters', async () => {
+      dbQuerySpy.mockReturnValue({
+        promise() {
+          return Promise.resolve({ Items: [] });
+        }
+      });
+
+      await service.queryMatchKeysByAwayTeamId(awayTeamId);
+
+      expect(dbQuerySpy).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        IndexName: 'indexByAwayTeamId',
+        KeyConditionExpression: 'awayTeamId = :teamId',
+        ExpressionAttributeValues: {
+          ':teamId': awayTeamId,
+        }
+      }));
+    });
+
+    it('should return the queried matches', async () => {
+      const queriedMatches = ['match1', 'match2', 'match3'];
+
+      dbQuerySpy.mockReturnValue({
+        promise() {
+          return Promise.resolve({ Items: queriedMatches });
+        }
+      });
+
+      const result = await service.queryMatchKeysByHomeTeamId(homeTeamId);
+
+      expect(result).toEqual(queriedMatches);
     });
   });
 
   describe('deleteMatch', () => {
-    it('should call dynamo.transactWrite with correct parameters', async () => {
-      const matchId = 'matchId';
-
-      const convertedItems = ['converted1', 'converted2'];
-
-      mockMatchDelete.mockReturnValue(convertedItems);
-
-      dbTransactWriteSpy.mockReturnValue({
+    it('should call dynamo.delete with correct parameters', async () => {
+      dbDeleteSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
         }
@@ -257,50 +260,43 @@ describe('Match document service', () => {
 
       await service.deleteMatch(matchId);
 
-      expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: convertedItems
-      });
+      expect(dbDeleteSpy).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        Key: {
+          'documentType-id': `match-${matchId}`,
+        }
+      }));
     });
   });
 
   describe('saveMatch', () => {
     it('should call dynamo.put with correct parameters', async () => {
-      const matchId = 'matchId';
-      const body = {
-        group: 'group',
-      } as MatchRequest;
-      const homeTeam = {
-        teamId: 'homeTeamId',
-      } as TeamDocument;
-      const awayTeam = {
-        teamId: 'awayTeamId',
-      } as TeamDocument;
-      const tournament = {
-        tournamentId: 'tournamentId',
-      } as TournamentDocument;
-
-      const convertedItems = ['converted1', 'converted2'];
-
-      mockMatchSave.mockReturnValue(convertedItems);
-
-      dbTransactWriteSpy.mockReturnValue({
+      const document = {
+        startTime,
+        group,
+        homeTeam,
+        awayTeam,
+        awayTeamId,
+        homeTeamId,
+        tournament,
+        tournamentId
+      } as MatchDocument;
+      dbPutSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
         }
       });
 
-      await service.saveMatch(matchId, body, homeTeam, awayTeam, tournament);
-      expect(mockMatchSave).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
-      expect(dbTransactWriteSpy).toHaveBeenCalledWith({
-        TransactItems: convertedItems
-      });
+      await service.saveMatch(document);
+      expect(dbPutSpy).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        Item: document
+      }));
     });
   });
 
   describe('queryMatches', () => {
     it('should call dynamo.query with correct parameters', async () => {
-      const tournamentId = 'tournamentId';
-
       dbQuerySpy.mockReturnValue({
         promise() {
           return Promise.resolve({ Items: [] });
@@ -309,7 +305,7 @@ describe('Match document service', () => {
 
       await service.queryMatches(tournamentId);
 
-      expect(dbQuerySpy).toHaveBeenCalledWith({
+      expect(dbQuerySpy).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType and begins_with(orderingValue, :tournamentId)',
@@ -317,34 +313,26 @@ describe('Match document service', () => {
           ':documentType': 'match',
           ':tournamentId': tournamentId
         }
-      });
+      }));
     });
 
     it('should return the queried items', async () => {
-      const tournamentId = 'tournamentId';
-      const match1 = {
-        tournamentId
-      };
-      const match2 = {
-        tournamentId
-      };
+      const queriedMatches = ['match1', 'match2', 'match3'];
 
       dbQuerySpy.mockReturnValue({
         promise() {
-          return Promise.resolve({ Items: [match1, match2] });
+          return Promise.resolve({ Items: queriedMatches });
         }
       });
 
       const result = await service.queryMatches(tournamentId);
 
-      expect(result).toEqual([match1, match2]);
+      expect(result).toEqual(queriedMatches);
     });
   });
 
   describe('queryMatchKeysByTournamentId', () => {
     it('should call dynamo.query with correct parameters', async () => {
-      const tournamentId = 'tournamentId';
-
       dbQuerySpy.mockReturnValue({
         promise() {
           return Promise.resolve({ Items: [] });
@@ -353,35 +341,28 @@ describe('Match document service', () => {
 
       await service.queryMatchKeysByTournamentId(tournamentId);
 
-      expect(dbQuerySpy).toHaveBeenCalledWith({
+      expect(dbQuerySpy).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         IndexName: 'indexByTournamentId',
-        KeyConditionExpression: 'tournamentId = :tournamentId and documentType = :documentType',
+        KeyConditionExpression: 'tournamentId = :tournamentId',
         ExpressionAttributeValues: {
           ':tournamentId': tournamentId,
-          ':documentType': 'match',
         }
-      });
+      }));
     });
 
     it('should return the queried items', async () => {
-      const tournamentId = 'tournamentId';
-      const match1 = {
-        matchId: 'match1'
-      };
-      const match2 = {
-        matchId: 'match2'
-      };
+      const queriedMatches = ['match1', 'match2', 'match3'];
 
       dbQuerySpy.mockReturnValue({
         promise() {
-          return Promise.resolve({ Items: [match1, match2] });
+          return Promise.resolve({ Items: queriedMatches });
         }
       });
 
       const result = await service.queryMatchKeysByTournamentId(tournamentId);
 
-      expect(result).toEqual([match1, match2]);
+      expect(result).toEqual(queriedMatches);
     });
   });
 });

@@ -10,7 +10,13 @@ export interface IUpdateMatchWithTournamentService {
 
 export const updateMatchWithTournamentServiceFactory = (matchDocumentService: IMatchDocumentService): IUpdateMatchWithTournamentService => {
   return async ({ tournament, tournamentId }) => {
-    const matches = await matchDocumentService.queryMatchKeysByTournamentId(tournamentId);
+    let matches;
+    try {
+      matches = await matchDocumentService.queryMatchKeysByTournamentId(tournamentId);
+    } catch (error) {
+      console.log('QUERY MATCHES TO UPDATE ERROR', error, tournamentId);
+      return;
+    }
 
     await Promise.all(matches.map(m => matchDocumentService.updateMatchWithTournament(m.id, tournament).catch((error) => {
       console.log('UPDATE MATCH ERROR', error, m.id);

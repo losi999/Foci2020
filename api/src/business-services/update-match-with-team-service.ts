@@ -10,10 +10,17 @@ export interface IUpdateMatchWithTeamService {
 
 export const updateMatchWithTeamServiceFactory = (matchDocumentService: IMatchDocumentService): IUpdateMatchWithTeamService => {
   return async ({ team, teamId }) => {
-    const [home, away] = await Promise.all([
-      matchDocumentService.queryMatchKeysByHomeTeamId(teamId),
-      matchDocumentService.queryMatchKeysByAwayTeamId(teamId),
-    ]);
+    let home;
+    let away;
+    try {
+      [home, away] = await Promise.all([
+        matchDocumentService.queryMatchKeysByHomeTeamId(teamId),
+        matchDocumentService.queryMatchKeysByAwayTeamId(teamId),
+      ]);
+    } catch (error) {
+      console.log('QUERY MATCHES TO UPDATE ERROR', error, teamId);
+      return;
+    }
 
     await Promise.all([
       ...home.map(m => matchDocumentService.updateMatchWithTeam(m.id, team, 'home').catch((error) => {

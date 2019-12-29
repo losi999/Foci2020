@@ -1,6 +1,6 @@
 import { IRegistrationService, registrationServiceFactory } from '@/business-services/registration-service';
 import { IIdentityService } from '@/services/identity-service';
-import { Mock, createMockService } from '@/common';
+import { Mock, createMockService, validateError } from '@/common';
 import { RegistrationRequest } from '@/types/requests';
 
 describe('Registration service', () => {
@@ -28,11 +28,6 @@ describe('Registration service', () => {
 
     mockIdentityService.functions.register.mockRejectedValue({ message: 'This is a cognito error' });
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('This is a cognito error');
-    }
+      await service({ body }).catch(validateError('This is a cognito error', 500));
   });
 });

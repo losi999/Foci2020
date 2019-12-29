@@ -12,9 +12,6 @@ export interface ITournamentDocumentService {
 export const tournamentDocumentServiceFactory = (
   dynamoClient: DynamoDB.DocumentClient
 ): ITournamentDocumentService => {
-  const capacity = (name: string) => (resp: any) => {
-    console.log(`${name} CAPACITY`, JSON.stringify(resp.data.ConsumedCapacity));
-  };
 
   return {
     saveTournament: (document) => {
@@ -22,7 +19,7 @@ export const tournamentDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         Item: document
-      }).on('success', capacity('saveTournament')).promise();
+      }).promise();
     },
     updateTournament: async (tournamentId, { tournamentName }) => {
       return (await dynamoClient.update({
@@ -41,7 +38,7 @@ export const tournamentDocumentServiceFactory = (
           ':documentTypeId': `tournament-${tournamentId}`,
           ':tournamentName': tournamentName
         }
-      }).on('success', capacity('updateTournament')).promise()).Attributes as TournamentDocument;
+      }).promise()).Attributes as TournamentDocument;
     },
     queryTournamentById: async (tournamentId) => {
       return (await dynamoClient.get({
@@ -50,7 +47,7 @@ export const tournamentDocumentServiceFactory = (
         Key: {
           'documentType-id': `tournament-${tournamentId}`,
         },
-      }).on('success', capacity('queryTournamentById')).promise()).Item as TournamentDocument;
+      }).promise()).Item as TournamentDocument;
     },
     queryTournaments: async () => {
       return (await dynamoClient.query({
@@ -61,7 +58,7 @@ export const tournamentDocumentServiceFactory = (
         ExpressionAttributeValues: {
           ':documentType': 'tournament',
         }
-      }).on('success', capacity('queryTournaments')).promise()).Items as TournamentDocument[];
+      }).promise()).Items as TournamentDocument[];
     },
     deleteTournament: (tournamentId) => {
       return dynamoClient.delete({
@@ -70,7 +67,7 @@ export const tournamentDocumentServiceFactory = (
         Key: {
           'documentType-id': `tournament-${tournamentId}`,
         }
-      }).on('success', capacity('deleteTournament')).promise();
+      }).promise();
     },
   };
 };

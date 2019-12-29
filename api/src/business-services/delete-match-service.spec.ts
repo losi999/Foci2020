@@ -1,39 +1,29 @@
 import { IDeleteMatchService, deleteMatchServiceFactory } from '@/business-services/delete-match-service';
 import { IMatchDocumentService } from '@/services/match-document-service';
+import { Mock, createMockService, validateError } from '@/common';
 
 describe('Delete match service', () => {
   let service: IDeleteMatchService;
-  let mockMatchDocumentService: IMatchDocumentService;
-  let mockDeleteMatch: jest.Mock;
+  let mockMatchDocumentService: Mock<IMatchDocumentService>;
+
+  const matchId = 'matchId';
 
   beforeEach(() => {
-    mockDeleteMatch = jest.fn();
-    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
-      deleteMatch: mockDeleteMatch,
-    }))) as IMatchDocumentService;
+    mockMatchDocumentService = createMockService('deleteMatch');
 
-    service = deleteMatchServiceFactory(mockMatchDocumentService);
+    service = deleteMatchServiceFactory(mockMatchDocumentService.service);
   });
 
   it('should return with undefined', async () => {
-    const matchId = 'matchId';
-
-    mockDeleteMatch.mockResolvedValue(undefined);
+    mockMatchDocumentService.functions.deleteMatch.mockResolvedValue(undefined);
 
     const result = await service({ matchId });
     expect(result).toBeUndefined();
   });
 
   it('should throw error if unable to query match', async () => {
-    const matchId = 'matchId';
+    mockMatchDocumentService.functions.deleteMatch.mockRejectedValue('This is a dynamo error');
 
-    mockDeleteMatch.mockRejectedValue('This is a dynamo error');
-
-    try {
-      await service({ matchId });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to delete match');
-    }
+    await service({ matchId }).catch(validateError('Unable to delete match', 500));
   });
 });

@@ -1,33 +1,25 @@
 import { IDeleteTeamService, deleteTeamServiceFactory } from '@/business-services/delete-team-service';
 import { INotificationService } from '@/services/notification-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
+import { Mock, createMockService, validateError } from '@/common';
 
 describe('Delete team service', () => {
   let service: IDeleteTeamService;
-  let mockTeamDocumentService: ITeamDocumentService;
-  let mockDeleteTeam: jest.Mock;
-  let mockNotificationService: INotificationService;
-  let mockTeamDeleted: jest.Mock;
+  let mockTeamDocumentService: Mock<ITeamDocumentService>;
+  let mockNotificationService: Mock<INotificationService>;
 
   beforeEach(() => {
-    mockDeleteTeam = jest.fn();
-    mockTeamDocumentService = new (jest.fn<Partial<ITeamDocumentService>, undefined[]>(() => ({
-      deleteTeam: mockDeleteTeam,
-    }))) as ITeamDocumentService;
+    mockTeamDocumentService = createMockService('deleteTeam');
+    mockNotificationService = createMockService('teamDeleted');
 
-    mockTeamDeleted = jest.fn();
-    mockNotificationService = new (jest.fn<Partial<INotificationService>, undefined[]>(() => ({
-      teamDeleted: mockTeamDeleted
-    })))() as INotificationService;
-
-    service = deleteTeamServiceFactory(mockTeamDocumentService, mockNotificationService);
+    service = deleteTeamServiceFactory(mockTeamDocumentService.service, mockNotificationService.service);
   });
 
   it('should return with undefined', async () => {
     const teamId = 'teamId';
 
-    mockDeleteTeam.mockResolvedValue(undefined);
-    mockTeamDeleted.mockResolvedValue(undefined);
+    mockTeamDocumentService.functions.deleteTeam.mockResolvedValue(undefined);
+    mockNotificationService.functions.teamDeleted.mockResolvedValue(undefined);
 
     const result = await service({ teamId });
     expect(result).toBeUndefined();
@@ -36,27 +28,17 @@ describe('Delete team service', () => {
   it('should throw error if unable to query team', async () => {
     const teamId = 'teamId';
 
-    mockDeleteTeam.mockRejectedValue('This is a dynamo error');
+    mockTeamDocumentService.functions.deleteTeam.mockRejectedValue('This is a dynamo error');
 
-    try {
-      await service({ teamId });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to delete team');
-    }
+    await service({ teamId }).catch(validateError('Unable to delete team', 500));
   });
 
   it('should throw error if unable to send notification', async () => {
     const teamId = 'teamId';
 
-    mockDeleteTeam.mockResolvedValue(undefined);
-    mockTeamDeleted.mockRejectedValue('This is an SNS error');
+    mockTeamDocumentService.functions.deleteTeam.mockResolvedValue(undefined);
+    mockNotificationService.functions.teamDeleted.mockRejectedValue('This is an SNS error');
 
-    try {
-      await service({ teamId });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to send team deleted notification');
-    }
+    await service({ teamId }).catch(validateError('Unable to send team deleted notification', 500));
   });
 });

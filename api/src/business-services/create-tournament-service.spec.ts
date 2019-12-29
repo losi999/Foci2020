@@ -1,46 +1,66 @@
 import { createTournamentServiceFactory, ICreateTournamentService } from '@/business-services/create-tournament-service';
 import { TournamentRequest } from '@/types/requests';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
+import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
+import { Mock, createMockService, validateError } from '@/common';
+import { TournamentDocument } from '@/types/documents';
+
 describe('Create tournament service', () => {
-  let mockTournamentDocumentService: ITournamentDocumentService;
-  let mockSaveTournament: jest.Mock;
-  let mockUuid: jest.Mock;
+  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
+  let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
   let service: ICreateTournamentService;
 
-  const tournamentId = 'uuid';
-
   beforeEach(() => {
-    mockSaveTournament = jest.fn();
-    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
-      saveTournament: mockSaveTournament
-    })))() as ITournamentDocumentService;
+    mockTournamentDocumentService = createMockService('saveTournament');
+    mockTournamentDocumentConverter = createMockService('create');
 
-    mockUuid = jest.fn();
-
-    service = createTournamentServiceFactory(mockTournamentDocumentService, mockUuid);
+    service = createTournamentServiceFactory(mockTournamentDocumentService.service, mockTournamentDocumentConverter.service);
   });
+
+  type TestDataInput = {
+    tournamentId: string;
+    convertedTournament: TournamentDocument,
+  };
+
+  type TestData = TestDataInput & {
+    body: TournamentRequest,
+  };
+
+  const setup = (input?: Partial<TestDataInput> & { minutesFromNow?: number }): TestData => {
+    const tournamentId = input?.tournamentId ?? 'tournamentId';
+
+    const convertedTournament = input?.convertedTournament ?? {
+      id: tournamentId
+    } as TournamentDocument;
+
+    return {
+      convertedTournament,
+      tournamentId,
+      body: {
+        tournamentName: 'tournamentName'
+      } as TournamentRequest
+    };
+  };
 
   it('should throw error if unable to save tournament', async () => {
-    const body = {} as TournamentRequest;
-    mockUuid.mockReturnValue(tournamentId);
-    mockSaveTournament.mockRejectedValue({});
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Error while saving tournament');
-    }
+    const { body, convertedTournament } = setup();
+
+    mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
+    mockTournamentDocumentService.functions.saveTournament.mockRejectedValue({});
+
+    await service({ body }).catch(validateError('Error while saving tournament', 500));
   });
 
-  it('should return undefined if tournament is saved', async () => {
-    const tournamentName = 'tournamentName';
-    const body = {
-      tournamentName
-    } as TournamentRequest;
-    mockUuid.mockReturnValue(tournamentId);
-    mockSaveTournament.mockResolvedValue(undefined);
+  it('should return with tournamentId if tournament is saved', async () => {
+    const { body, convertedTournament, tournamentId } = setup();
+
+    mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
+    mockTournamentDocumentService.functions.saveTournament.mockResolvedValue(undefined);
+
     const result = await service({ body });
-    expect(result).toBeUndefined();
-    expect(mockSaveTournament).toHaveBeenCalledWith(tournamentId, body);
+
+    expect(result).toEqual(tournamentId);
+    expect(mockTournamentDocumentConverter.functions.create).toHaveBeenCalledWith(body);
+    expect(mockTournamentDocumentService.functions.saveTournament).toHaveBeenCalledWith(convertedTournament);
   });
 });

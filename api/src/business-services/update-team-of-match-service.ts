@@ -1,7 +1,7 @@
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { TeamDocument } from '@/types/documents';
 
-export interface IUpdateMatchWithTeamService {
+export interface IUpdateTeamOfMatchService {
   (ctx: {
     matchId: string,
     team: TeamDocument,
@@ -9,11 +9,11 @@ export interface IUpdateMatchWithTeamService {
   }): Promise<void>;
 }
 
-export const updateMatchWithTeamServiceFactory = (matchDocumentService: IMatchDocumentService): IUpdateMatchWithTeamService => {
+export const updateTeamOfMatchServiceFactory = (matchDocumentService: IMatchDocumentService): IUpdateTeamOfMatchService => {
   return async ({ team, matchId, type }) => {
     console.log('Updating match with team', matchId);
 
-    await matchDocumentService.updateMatchWithTeam(matchId, team, type)
+    await matchDocumentService.updateTeamOfMatch(matchId, team, type)
       .catch((error) => {
         console.error('UPDATE MATCH WITH TEAM', error, matchId);
       });

@@ -32,7 +32,7 @@ Resources:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Infrastructure.Outputs.Database
         DeleteTournamentTopic: !GetAtt Infrastructure.Outputs.DeleteTournamentTopic
-        UpdateTournamentTopic: !GetAtt Infrastructure.Outputs.UpdateTournamentTopic
+        TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
         Env: !Ref Env
 
   Match:
@@ -44,8 +44,11 @@ Resources:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Infrastructure.Outputs.Database
         TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
-        UpdateMatchWithTeamQueueUrl: !GetAtt Infrastructure.Outputs.UpdateMatchWithTeamQueueUrl
-        UpdateMatchWithTeamQueueArn: !GetAtt Infrastructure.Outputs.UpdateMatchWithTeamQueueArn
+        TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
+        UpdateTeamOfMatchQueueUrl: !GetAtt Infrastructure.Outputs.UpdateTeamOfMatchQueueUrl
+        UpdateTeamOfMatchQueueArn: !GetAtt Infrastructure.Outputs.UpdateTeamOfMatchQueueArn
+        UpdateTournamentOfMatchQueueUrl: !GetAtt Infrastructure.Outputs.UpdateTournamentOfMatchQueueUrl
+        UpdateTournamentOfMatchQueueArn: !GetAtt Infrastructure.Outputs.UpdateTournamentOfMatchQueueArn
         Env: !Ref Env
 
   User:

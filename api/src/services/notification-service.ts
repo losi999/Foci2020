@@ -1,11 +1,11 @@
 import { SNS } from 'aws-sdk';
-import { TeamUpdatedNotification, UpdateTournamentNotification } from '@/types/types';
+import { TeamUpdatedNotification, TournamentUpdatedNotification } from '@/types/types';
 
 export interface INotificationService {
   teamDeleted(teamId: string): Promise<any>;
   teamUpdated(notification: TeamUpdatedNotification): Promise<any>;
   tournamentDeleted(tournamentId: string): Promise<any>;
-  tournamentUpdated(notification: UpdateTournamentNotification): Promise<any>;
+  tournamentUpdated(notification: TournamentUpdatedNotification): Promise<any>;
 }
 
 export const snsNotificationService = (sns: SNS): INotificationService => {
@@ -30,7 +30,7 @@ export const snsNotificationService = (sns: SNS): INotificationService => {
     },
     tournamentUpdated(notification) {
       return sns.publish({
-        TopicArn: process.env.UPDATE_TOURNAMENT_TOPIC,
+        TopicArn: process.env.TOURNAMENT_UPDATED_TOPIC,
         Message: JSON.stringify(notification)
       }).promise();
     }

@@ -8,10 +8,16 @@ Parameters:
     Type: String
   TeamUpdatedTopic:
     Type: String    
-  UpdateMatchWithTeamQueueArn:
+  UpdateTeamOfMatchQueueArn:
     Type: String
-  UpdateMatchWithTeamQueueUrl:
+  UpdateTeamOfMatchQueueUrl:
     Type: String
+  TournamentUpdatedTopic:
+    Type: String    
+  UpdateTournamentOfMatchQueueArn:
+    Type: String
+  UpdateTournamentOfMatchQueueUrl:
+    Type: String    
   Env:
     Type: String
 
@@ -122,7 +128,7 @@ Resources:
       Role: !Ref LambdaRoleArn
       Environment:
         Variables:
-          UPDATE_MATCH_WITH_TEAM_QUEUE: !Ref UpdateMatchWithTeamQueueUrl
+          UPDATE_TEAM_OF_MATCH_QUEUE: !Ref UpdateTeamOfMatchQueueUrl
       Events:
         SNS:
           Type: SNS
@@ -137,25 +143,53 @@ Resources:
       Role: !Ref LambdaRoleArn
       Environment:
         Variables:
-          UPDATE_MATCH_WITH_TEAM_QUEUE: !Ref UpdateMatchWithTeamQueueUrl      
+          UPDATE_TEAM_OF_MATCH_QUEUE: !Ref UpdateTeamOfMatchQueueUrl      
       Events:
         SNS:
           Type: SNS
           Properties:
             Topic: !Ref TeamUpdatedTopic    
 
-  UpdateMatchWithTeam:
+  UpdateTeamOfMatch:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTeam
-      CodeUri: ./dist/update-match-with-team
+      FunctionName: !Sub Foci2020-${Env}-UpdateTeamOfMatch
+      CodeUri: ./dist/update-team-of-match
       Role: !Ref LambdaRoleArn
       Events:
         SQS:
           Type: SQS
           Properties:
-            Queue: !Ref UpdateMatchWithTeamQueueArn        
+            Queue: !Ref UpdateTeamOfMatchQueueArn        
             BatchSize: 1
+
+  GetMatchesByTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-GetMatchesByTournament
+      CodeUri: ./dist/get-matches-by-tournament
+      Role: !Ref LambdaRoleArn
+      Environment:
+        Variables:
+          UPDATE_TOURNAMENT_OF_MATCH_QUEUE: !Ref UpdateTournamentOfMatchQueueUrl      
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref TournamentUpdatedTopic    
+
+  UpdateTournamentOfMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateTournamentOfMatch
+      CodeUri: ./dist/update-tournament-of-match
+      Role: !Ref LambdaRoleArn
+      Events:
+        SQS:
+          Type: SQS
+          Properties:
+            Queue: !Ref UpdateTournamentOfMatchQueueArn        
+            BatchSize: 1            
 
 Outputs:
   MatchApi:

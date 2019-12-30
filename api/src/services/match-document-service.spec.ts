@@ -99,7 +99,7 @@ describe('Match document service', () => {
         }
       });
 
-      await service.updateMatchWithTeam(matchId, homeTeam, 'home');
+      await service.updateTeamOfMatch(matchId, homeTeam, 'home');
 
       expect(dbUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
@@ -127,7 +127,7 @@ describe('Match document service', () => {
         }
       });
 
-      await service.updateMatchWithTournament(matchId, tournament);
+      await service.updateTournamentOfMatch(matchId, tournament);
 
       expect(dbUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,

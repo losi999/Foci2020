@@ -1,5 +1,5 @@
 import { SNSEvent } from 'aws-lambda';
-import { default as handler } from '@/handlers/update-match-with-team-handler';
+import { default as handler } from '@/handlers/update-team-of-match-handler';
 import { UpdateTeamNotification } from '@/types/types';
 import { TeamDocument } from '@/types/documents';
 

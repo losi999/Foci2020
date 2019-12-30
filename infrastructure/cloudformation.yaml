@@ -114,8 +114,11 @@ Resources:
                   - sqs:GetQueueAttributes
                 Resource: '*'
 
-  UpdateMatchWithTeamQueue:
+  UpdateTeamOfMatchQueue:
     Type: AWS::SQS::Queue      
+
+  UpdateTournamentOfMatchQueue:
+    Type: AWS::SQS::Queue   
 
   DeleteTeamTopic:
     Type: AWS::SNS::Topic
@@ -126,7 +129,7 @@ Resources:
   TeamUpdatedTopic:
     Type: AWS::SNS::Topic
 
-  UpdateTournamentTopic:
+  TournamentUpdatedTopic:
     Type: AWS::SNS::Topic
 
   UserPool:
@@ -222,13 +225,17 @@ Outputs:
     Value: !Ref DeleteTournamentTopic
   TeamUpdatedTopic:
     Value: !Ref TeamUpdatedTopic
-  UpdateTournamentTopic:
-    Value: !Ref UpdateTournamentTopic
+  TournamentUpdatedTopic:
+    Value: !Ref TournamentUpdatedTopic
   UserPoolId:
     Value: !Ref UserPool
   ClientId:
     Value: !Ref ApplicationClient
-  UpdateMatchWithTeamQueueUrl:
-    Value: !Ref UpdateMatchWithTeamQueue
-  UpdateMatchWithTeamQueueArn:
-    Value: !GetAtt UpdateMatchWithTeamQueue.Arn
+  UpdateTeamOfMatchQueueUrl:
+    Value: !Ref UpdateTeamOfMatchQueue
+  UpdateTeamOfMatchQueueArn:
+    Value: !GetAtt UpdateTeamOfMatchQueue.Arn
+  UpdateTournamentOfMatchQueueUrl:
+    Value: !Ref UpdateTournamentOfMatchQueue
+  UpdateTournamentOfMatchQueueArn:
+    Value: !GetAtt UpdateTournamentOfMatchQueue.Arn    

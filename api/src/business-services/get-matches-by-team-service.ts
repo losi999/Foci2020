@@ -12,7 +12,7 @@ export interface IGetMatchesByTeamService {
 export const getMatchesByTeamServiceFactory = (matchDocumentService: IMatchDocumentService, queueService: IQueueService) => {
   const sendMatchIdsToQueue = async (matches: string[], team: TeamDocument, type: 'home' | 'away') => {
     console.log('Sending items into queue');
-    await Promise.all(matches.map(matchId => queueService.updateMatchWithTeam({
+    await Promise.all(matches.map(matchId => queueService.updateTeamOfMatch({
       matchId,
       team,
       type

@@ -1,6 +1,6 @@
-import { default as handler } from '@/handlers/update-match-with-tournament-handler';
+import { default as handler } from '@/handlers/update-tournament-of-match-handler';
 import { SNSEvent } from 'aws-lambda';
-import { UpdateTournamentNotification } from '@/types/types';
+import { TournamentUpdatedNotification } from '@/types/types';
 import { TournamentDocument } from '@/types/documents';
 
 describe('Update match with tournament handler', () => {
@@ -11,7 +11,7 @@ describe('Update match with tournament handler', () => {
   });
 
   it('should call updateMatchWithTournament with received tournament document', async () => {
-    const notification: UpdateTournamentNotification = {
+    const notification: TournamentUpdatedNotification = {
       tournamentId: 'tournamentId',
       tournament: {
         tournamentName: 'tournamentName',
@@ -31,7 +31,7 @@ describe('Update match with tournament handler', () => {
   });
 
   it('should throw error if updateMatchWithTournament throws error', async () => {
-    const notification: UpdateTournamentNotification = {
+    const notification: TournamentUpdatedNotification = {
       tournamentId: 'tournamentId',
       tournament: {
         tournamentName: 'tournamentName',

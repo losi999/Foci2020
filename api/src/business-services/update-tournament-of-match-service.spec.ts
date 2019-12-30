@@ -1,16 +1,16 @@
-import { IUpdateMatchWithTournamentService, updateMatchWithTournamentServiceFactory } from '@/business-services/update-match-with-tournament-service';
+import { IUpdateTournamentOfMatchService, updateTournamentOfMatchServiceFactory } from '@/business-services/update-tournament-of-match-service';
 import { TournamentDocument, IndexByTournamentIdDocument } from '@/types/documents';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { createMockService, Mock } from '@/common';
 
 describe('Update match with tournament service', () => {
-  let service: IUpdateMatchWithTournamentService;
+  let service: IUpdateTournamentOfMatchService;
   let mockMatchDocumentService: Mock<IMatchDocumentService>;
 
   beforeEach(() => {
     mockMatchDocumentService = createMockService('queryMatchKeysByTournamentId', 'updateMatchWithTournament');
 
-    service = updateMatchWithTournamentServiceFactory(mockMatchDocumentService.service);
+    service = updateTournamentOfMatchServiceFactory(mockMatchDocumentService.service);
   });
 
   it('should return undefined if matches are updated sucessfully', async () => {
@@ -32,7 +32,7 @@ describe('Update match with tournament service', () => {
     }];
 
     mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
-    mockMatchDocumentService.functions.updateMatchWithTournament.mockResolvedValue(undefined);
+    mockMatchDocumentService.functions.updateTournamentOfMatch.mockResolvedValue(undefined);
 
     const result = await service({
       tournamentId,
@@ -40,8 +40,8 @@ describe('Update match with tournament service', () => {
     });
     expect(result).toBeUndefined();
     expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
-    expect(mockMatchDocumentService.functions.updateMatchWithTournament).toHaveBeenNthCalledWith(1, matchId1, tournament);
-    expect(mockMatchDocumentService.functions.updateMatchWithTournament).toHaveBeenNthCalledWith(2, matchId2, tournament);
+    expect(mockMatchDocumentService.functions.updateTournamentOfMatch).toHaveBeenNthCalledWith(1, matchId1, tournament);
+    expect(mockMatchDocumentService.functions.updateTournamentOfMatch).toHaveBeenNthCalledWith(2, matchId2, tournament);
   });
 
   // it('should throw error if unable to query matches', async () => {

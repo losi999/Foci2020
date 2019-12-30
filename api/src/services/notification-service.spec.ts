@@ -1,6 +1,6 @@
 import { INotificationService, snsNotificationService } from '@/services/notification-service';
 import { SNS } from 'aws-sdk';
-import { UpdateTeamNotification, UpdateTournamentNotification } from '@/types/types';
+import { UpdateTeamNotification, TournamentUpdatedNotification } from '@/types/types';
 import { TeamDocument, TournamentDocument } from '@/types/documents';
 
 describe('Notification service', () => {
@@ -18,7 +18,7 @@ describe('Notification service', () => {
     process.env.DELETE_TEAM_TOPIC = deleteTeamTopic;
     process.env.TEAM_UPDATED_TOPIC = updateTeamTopic;
     process.env.DELETE_TOURNAMENT_TOPIC = deleteTournamentTopic;
-    process.env.UPDATE_TOURNAMENT_TOPIC = updateTournamentTopic;
+    process.env.TOURNAMENT_UPDATED_TOPIC = updateTournamentTopic;
 
     service = snsNotificationService(sns);
   });
@@ -27,7 +27,7 @@ describe('Notification service', () => {
     process.env.DELETE_TEAM_TOPIC = undefined;
     process.env.TEAM_UPDATED_TOPIC = undefined;
     process.env.DELETE_TOURNAMENT_TOPIC = undefined;
-    process.env.UPDATE_TOURNAMENT_TOPIC = undefined;
+    process.env.TOURNAMENT_UPDATED_TOPIC = undefined;
   });
 
   describe('teamDeleted', () => {
@@ -87,7 +87,7 @@ describe('Notification service', () => {
 
   describe('tournamentUpdated', () => {
     it('should call sns.publish with correct parameters', async () => {
-      const message: UpdateTournamentNotification = {
+      const message: TournamentUpdatedNotification = {
         tournamentId: 'tournamentId',
         tournament: {
           tournamentName: 'tournamentName',

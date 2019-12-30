@@ -12,8 +12,8 @@ import { DynamoDB } from 'aws-sdk';
 export interface IMatchDocumentService {
   saveMatch(document: MatchDocument): Promise<any>;
   updateMatch(matchId: string, document: MatchDocumentUpdatable): Promise<any>;
-  updateMatchWithTournament(matchId: string, tournament: TournamentDocument): Promise<any>;
-  updateMatchWithTeam(matchId: string, team: TeamDocument, type: 'home' | 'away'): Promise<any>;
+  updateTournamentOfMatch(matchId: string, tournament: TournamentDocument): Promise<any>;
+  updateTeamOfMatch(matchId: string, team: TeamDocument, type: 'home' | 'away'): Promise<any>;
   queryMatchById(matchId: string): Promise<MatchDocument>;
   queryMatches(tournamentId: string): Promise<MatchDocument[]>;
   queryMatchKeysByTournamentId(tournamentId: string): Promise<IndexByTournamentIdDocument[]>;
@@ -33,7 +33,7 @@ export const matchDocumentServiceFactory = (
         Item: document
       }).promise();
     },
-    updateMatchWithTournament: (matchId, tournament) => {
+    updateTournamentOfMatch: (matchId, tournament) => {
       return dynamoClient.update({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
@@ -51,7 +51,7 @@ export const matchDocumentServiceFactory = (
         }
       }).promise();
     },
-    updateMatchWithTeam: (matchId, team, type) => {
+    updateTeamOfMatch: (matchId, team, type) => {
       return dynamoClient.update({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,

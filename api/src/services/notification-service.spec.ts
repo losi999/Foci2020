@@ -16,7 +16,7 @@ describe('Notification service', () => {
     snsPublishSpy = jest.spyOn(sns, 'publish');
 
     process.env.DELETE_TEAM_TOPIC = deleteTeamTopic;
-    process.env.UPDATE_TEAM_TOPIC = updateTeamTopic;
+    process.env.TEAM_UPDATED_TOPIC = updateTeamTopic;
     process.env.DELETE_TOURNAMENT_TOPIC = deleteTournamentTopic;
     process.env.UPDATE_TOURNAMENT_TOPIC = updateTournamentTopic;
 
@@ -25,7 +25,7 @@ describe('Notification service', () => {
 
   afterEach(() => {
     process.env.DELETE_TEAM_TOPIC = undefined;
-    process.env.UPDATE_TEAM_TOPIC = undefined;
+    process.env.TEAM_UPDATED_TOPIC = undefined;
     process.env.DELETE_TOURNAMENT_TOPIC = undefined;
     process.env.UPDATE_TOURNAMENT_TOPIC = undefined;
   });

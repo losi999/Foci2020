@@ -6,6 +6,12 @@ Parameters:
     Type: String
   Database:
     Type: String
+  TeamUpdatedTopic:
+    Type: String    
+  UpdateMatchWithTeamQueueArn:
+    Type: String
+  UpdateMatchWithTeamQueueUrl:
+    Type: String
   Env:
     Type: String
 
@@ -19,7 +25,7 @@ Globals:
     Handler: index.default
     Runtime: nodejs12.x
     Timeout: 10
-    MemorySize: 128
+    MemorySize: 512
     Tracing: Active  
     Environment:
       Variables:
@@ -107,6 +113,49 @@ Resources:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
             Method: DELETE  
+
+  GetMatchesByHomeTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-GetMatchesByHomeTeam
+      CodeUri: ./dist/get-matches-by-home-team
+      Role: !Ref LambdaRoleArn
+      Environment:
+        Variables:
+          UPDATE_MATCH_WITH_TEAM_QUEUE: !Ref UpdateMatchWithTeamQueueUrl
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref TeamUpdatedTopic            
+
+  GetMatchesByAwayTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-GetMatchesByAwayTeam
+      CodeUri: ./dist/get-matches-by-away-team
+      Role: !Ref LambdaRoleArn
+      Environment:
+        Variables:
+          UPDATE_MATCH_WITH_TEAM_QUEUE: !Ref UpdateMatchWithTeamQueueUrl      
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref TeamUpdatedTopic    
+
+  UpdateMatchWithTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTeam
+      CodeUri: ./dist/update-match-with-team
+      Role: !Ref LambdaRoleArn
+      Events:
+        SQS:
+          Type: SQS
+          Properties:
+            Queue: !Ref UpdateMatchWithTeamQueueArn        
+            BatchSize: 1
 
 Outputs:
   MatchApi:

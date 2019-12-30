@@ -17,18 +17,19 @@ export const updateTeamServiceFactory = (
   notificationService: INotificationService): IUpdateTeamService => {
   return async ({ body, teamId }) => {
     const document = teamDocumentConverter.update(body);
-
+    console.log('Updating team', teamId);
     const team = await teamDocumentService.updateTeam(teamId, document).catch((error) => {
-      console.log('ERROR databaseService.updateTeam', error);
+      console.error('databaseService.updateTeam', error);
       throw httpError(500, 'Error while updating team');
     });
-
+    console.log('Team updated, sending notification', teamId);
     await notificationService.teamUpdated({
       teamId,
       team
     }).catch((error) => {
-      console.log('ERROR notificationService.teamUpdated', error);
+      console.error('notificationService.teamUpdated', error);
       throw httpError(500, 'Unable to send team updated notification');
     });
+    console.log('Team updated notification sent', teamId);
   };
 };

@@ -1,16 +1,10 @@
-import { SNSHandler } from 'aws-lambda';
 import { IUpdateMatchWithTeamService } from '@/business-services/update-match-with-team-service';
-import { UpdateTeamNotification } from '@/types/types';
+import { SQSHandler } from 'aws-lambda';
+import { UpdateMatchWithTeamMessage } from '@/types/types';
 
-export default (updateMatchWithTeam: IUpdateMatchWithTeamService): SNSHandler => {
+export default (updateMatchWithTeam: IUpdateMatchWithTeamService): SQSHandler => {
   return async (event) => {
-    await Promise.all(
-      event.Records.map(async (record) => {
-        const message = JSON.parse(record.Sns.Message) as UpdateTeamNotification;
-        await updateMatchWithTeam({
-          ...message
-        });
-      })
-    );
+    const message = JSON.parse(event.Records.shift().body) as UpdateMatchWithTeamMessage;
+    await updateMatchWithTeam(message);
   };
 };

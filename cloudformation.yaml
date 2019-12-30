@@ -20,7 +20,7 @@ Resources:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Infrastructure.Outputs.Database
         DeleteTeamTopic: !GetAtt Infrastructure.Outputs.DeleteTeamTopic
-        UpdateTeamTopic: !GetAtt Infrastructure.Outputs.UpdateTeamTopic
+        TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
         Env: !Ref Env
 
   Tournament:
@@ -43,6 +43,9 @@ Resources:
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Infrastructure.Outputs.Database
+        TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
+        UpdateMatchWithTeamQueueUrl: !GetAtt Infrastructure.Outputs.UpdateMatchWithTeamQueueUrl
+        UpdateMatchWithTeamQueueArn: !GetAtt Infrastructure.Outputs.UpdateMatchWithTeamQueueArn
         Env: !Ref Env
 
   User:

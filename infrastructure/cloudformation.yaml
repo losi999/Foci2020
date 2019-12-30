@@ -108,7 +108,14 @@ Resources:
                   - cognito-idp:AdminInitiateAuth
                   - cognito-idp:adminAddUserToGroup
                   - cognito-idp:adminSetUserPassword
+                  - sqs:SendMessage
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
                 Resource: '*'
+
+  UpdateMatchWithTeamQueue:
+    Type: AWS::SQS::Queue      
 
   DeleteTeamTopic:
     Type: AWS::SNS::Topic
@@ -116,7 +123,7 @@ Resources:
   DeleteTournamentTopic:
     Type: AWS::SNS::Topic
   
-  UpdateTeamTopic:
+  TeamUpdatedTopic:
     Type: AWS::SNS::Topic
 
   UpdateTournamentTopic:
@@ -213,11 +220,15 @@ Outputs:
     Value: !Ref DeleteTeamTopic
   DeleteTournamentTopic:
     Value: !Ref DeleteTournamentTopic
-  UpdateTeamTopic:
-    Value: !Ref UpdateTeamTopic
+  TeamUpdatedTopic:
+    Value: !Ref TeamUpdatedTopic
   UpdateTournamentTopic:
     Value: !Ref UpdateTournamentTopic
   UserPoolId:
     Value: !Ref UserPool
   ClientId:
     Value: !Ref ApplicationClient
+  UpdateMatchWithTeamQueueUrl:
+    Value: !Ref UpdateMatchWithTeamQueue
+  UpdateMatchWithTeamQueueArn:
+    Value: !GetAtt UpdateMatchWithTeamQueue.Arn

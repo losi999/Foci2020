@@ -8,7 +8,7 @@ Parameters:
     Type: String
   DeleteTeamTopic:
     Type: String
-  UpdateTeamTopic:
+  TeamUpdatedTopic:
     Type: String
   Env:
     Type: String
@@ -23,7 +23,7 @@ Globals:
     Handler: index.default
     Runtime: nodejs12.x
     Timeout: 10
-    MemorySize: 128
+    MemorySize: 512
     Tracing: Active  
     Environment:
       Variables:
@@ -71,7 +71,7 @@ Resources:
             Method: PUT    
       Environment:
         Variables:
-          UPDATE_TEAM_TOPIC: !Ref UpdateTeamTopic
+          TEAM_UPDATED_TOPIC: !Ref TeamUpdatedTopic
 
   ListTeams:
     Type: AWS::Serverless::Function
@@ -117,18 +117,6 @@ Resources:
       Environment:
         Variables:
           DELETE_TEAM_TOPIC: !Ref DeleteTeamTopic                
-
-  UpdateMatchWithTeam:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTeam
-      CodeUri: ./dist/update-match-with-team
-      Role: !Ref LambdaRoleArn
-      Events:
-        SNS:
-          Type: SNS
-          Properties:
-            Topic: !Ref UpdateTeamTopic
 
   DeleteMatchWithTeam:
     Type: AWS::Serverless::Function

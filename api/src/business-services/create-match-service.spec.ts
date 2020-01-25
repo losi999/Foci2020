@@ -134,6 +134,7 @@ describe('Create match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).not.toHaveBeenCalled();
     expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if home and away teams are the same', async () => {
@@ -151,6 +152,7 @@ describe('Create match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).not.toHaveBeenCalled();
     expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to query home team', async () => {
@@ -170,6 +172,7 @@ describe('Create match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to query away team', async () => {
@@ -191,6 +194,7 @@ describe('Create match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to query tournament', async () => {
@@ -214,6 +218,7 @@ describe('Create match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to save match', async () => {
@@ -241,6 +246,7 @@ describe('Create match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.create).toHaveBeenCalledWith(body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
     expect(mockMatchDocumentService.functions.saveMatch).toHaveBeenCalledWith(convertedMatch);
+    expect.assertions(7);
   });
 
   it('should throw error if no home team found', async () => {
@@ -260,6 +266,7 @@ describe('Create match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if no away team found', async () => {
@@ -281,6 +288,7 @@ describe('Create match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if no tournament found', async () => {
@@ -304,5 +312,6 @@ describe('Create match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 });

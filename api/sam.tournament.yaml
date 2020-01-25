@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Database:
     Type: String
-  DeleteTournamentTopic:
+  TournamentDeletedTopic:
     Type: String
   TournamentUpdatedTopic:
     Type: String
@@ -116,19 +116,7 @@ Resources:
             Method: DELETE  
       Environment:
         Variables:
-          DELETE_TOURNAMENT_TOPIC: !Ref DeleteTournamentTopic
-
-  DeleteMatchWithTournament:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-DeleteMatchWithTournament
-      CodeUri: ./dist/delete-match-with-tournament
-      Role: !Ref LambdaRoleArn
-      Events:
-        SNS:
-          Type: SNS
-          Properties:
-            Topic: !Ref DeleteTournamentTopic    
+          TOURNAMENT_DELETED_TOPIC: !Ref TournamentDeletedTopic 
 
 Outputs:
   TournamentApi:

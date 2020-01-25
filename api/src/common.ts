@@ -10,6 +10,14 @@ export const addMinutes = (minutes: number, dateFrom?: Date): Date => {
   return new Date(Date.now() + minutes * 60 * 1000);
 };
 
+export const chunk = (input: any[], count: number): any[][] => {
+  const chunked: any[][] = [];
+  for (let i = 0; i < input.length; i += count) {
+    chunked.push(input.slice(i, i + count));
+  }
+  return chunked;
+};
+
 export type Mock<T> = {
   service: T;
   functions: {
@@ -18,6 +26,7 @@ export type Mock<T> = {
   };
 };
 
+/* istanbul ignore next */
 export const createMockService = <T>(...functionsToMock: (keyof T)[]): Mock<T> => {
   const functions = functionsToMock.reduce((accumulator, currentValue) => ({
     ...accumulator,
@@ -30,6 +39,7 @@ export const createMockService = <T>(...functionsToMock: (keyof T)[]): Mock<T> =
   };
 };
 
+/* istanbul ignore next */
 export const validateError = (message: string, statusCode?: number) => (error: any) => {
   expect(error.message).toEqual(message);
   if (statusCode) {

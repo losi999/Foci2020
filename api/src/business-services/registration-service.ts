@@ -12,7 +12,7 @@ export const registrationServiceFactory = (identityService: IIdentityService): I
   return async ({ body }) => {
 
     await identityService.register(body).catch((error) => {
-      console.log('ERROR REGISTER', error);
+      console.error('Register', error);
       throw httpError(500, error.message);
     });
   };

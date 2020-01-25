@@ -10,6 +10,7 @@ export default (createTeam: ICreateTeamService): APIGatewayProxyHandler => {
     try {
       teamId = await createTeam({ body });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

@@ -8,18 +8,20 @@ import {
   TeamDocument
 } from '@/types/documents';
 import { DynamoDB } from 'aws-sdk';
+import { chunk } from '@/common';
 
 export interface IMatchDocumentService {
   saveMatch(document: MatchDocument): Promise<any>;
   updateMatch(matchId: string, document: MatchDocumentUpdatable): Promise<any>;
-  updateTournamentOfMatch(matchId: string, tournament: TournamentDocument): Promise<any>;
-  updateTeamOfMatch(matchId: string, team: TeamDocument, type: 'home' | 'away'): Promise<any>;
+  updateTournamentOfMatches(matchIds: string[], tournament: TournamentDocument): Promise<any>;
+  updateTeamOfMatches(matchId: string[], team: TeamDocument, type: 'home' | 'away'): Promise<any>;
   queryMatchById(matchId: string): Promise<MatchDocument>;
   queryMatches(tournamentId: string): Promise<MatchDocument[]>;
   queryMatchKeysByTournamentId(tournamentId: string): Promise<IndexByTournamentIdDocument[]>;
   queryMatchKeysByHomeTeamId(teamId: string): Promise<IndexByHomeTeamIdDocument[]>;
   queryMatchKeysByAwayTeamId(teamId: string): Promise<IndexByAwayTeamIdDocument[]>;
   deleteMatch(matchId: string): Promise<any>;
+  deleteMatches(matchIds: string[]): Promise<any>;
 }
 
 export const matchDocumentServiceFactory = (
@@ -33,41 +35,58 @@ export const matchDocumentServiceFactory = (
         Item: document
       }).promise();
     },
-    updateTournamentOfMatch: (matchId, tournament) => {
-      return dynamoClient.update({
-        ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
-        Key: {
-          'documentType-id': `match-${matchId}`,
-        },
-        ConditionExpression: '#documentTypeId = :documentTypeId',
-        UpdateExpression: 'set tournament = :tournament',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id'
-        },
-        ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
-          ':tournament': tournament
-        }
-      }).promise();
+    updateTournamentOfMatches: (matchIds, tournament) => {
+      return Promise.all(chunk(matchIds, 20).map((ids) => {
+        return dynamoClient.transactWrite({
+          ReturnConsumedCapacity: 'INDEXES',
+          TransactItems: ids.map<DynamoDB.DocumentClient.TransactWriteItem>((matchId) => {
+            return {
+              Update: {
+                TableName: process.env.DYNAMO_TABLE,
+                Key: {
+                  'documentType-id': `match-${matchId}`,
+                },
+                ConditionExpression: '#documentTypeId = :documentTypeId',
+                UpdateExpression: 'set tournament = :tournament',
+                ExpressionAttributeNames: {
+                  '#documentTypeId': 'documentType-id'
+                },
+                ExpressionAttributeValues: {
+                  ':documentTypeId': `match-${matchId}`,
+                  ':tournament': tournament
+                }
+              }
+            };
+          })
+        }).promise();
+      }));
     },
-    updateTeamOfMatch: (matchId, team, type) => {
-      return dynamoClient.update({
-        ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
-        Key: {
-          'documentType-id': `match-${matchId}`,
-        },
-        ConditionExpression: '#documentTypeId = :documentTypeId',
-        UpdateExpression: `set ${type}Team = :team`,
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-        },
-        ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
-          ':team': team,
-        }
-      }).promise();
+    updateTeamOfMatches: (matchIds, team, type) => {
+      return Promise.all(chunk(matchIds, 20).map((ids) => {
+        return dynamoClient.transactWrite({
+          ReturnConsumedCapacity: 'INDEXES',
+          TransactItems: ids.map<DynamoDB.DocumentClient.TransactWriteItem>((matchId) => {
+            return {
+              Update: {
+                TableName: process.env.DYNAMO_TABLE,
+                Key: {
+                  'documentType-id': `match-${matchId}`,
+                },
+                ConditionExpression: '#documentTypeId = :documentTypeId',
+                UpdateExpression: 'set #team = :team',
+                ExpressionAttributeNames: {
+                  '#documentTypeId': 'documentType-id',
+                  '#team': `${type}Team`
+                },
+                ExpressionAttributeValues: {
+                  ':documentTypeId': `match-${matchId}`,
+                  ':team': team,
+                }
+              }
+            };
+          })
+        }).promise();
+      }));
     },
     updateMatch: (matchId, { startTime, group, homeTeam, awayTeam, awayTeamId, homeTeamId, tournament, tournamentId }) => {
       return dynamoClient.update({
@@ -159,5 +178,29 @@ export const matchDocumentServiceFactory = (
         }
       }).promise();
     },
+    deleteMatches: (matchIds) => {
+      return Promise.all(chunk(matchIds, 20).map((ids) => {
+        return dynamoClient.transactWrite({
+          ReturnConsumedCapacity: 'INDEXES',
+          TransactItems: ids.map<DynamoDB.DocumentClient.TransactWriteItem>((matchId) => {
+            return {
+              Delete: {
+                TableName: process.env.DYNAMO_TABLE,
+                Key: {
+                  'documentType-id': `match-${matchId}`,
+                },
+                ConditionExpression: '#documentTypeId = :documentTypeId',
+                ExpressionAttributeNames: {
+                  '#documentTypeId': 'documentType-id',
+                },
+                ExpressionAttributeValues: {
+                  ':documentTypeId': `match-${matchId}`,
+                }
+              }
+            };
+          })
+        }).promise();
+      }));
+    }
   };
 };

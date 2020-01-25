@@ -12,7 +12,7 @@ export const snsNotificationService = (sns: SNS): INotificationService => {
   return {
     teamDeleted(teamId) {
       return sns.publish({
-        TopicArn: process.env.DELETE_TEAM_TOPIC,
+        TopicArn: process.env.TEAM_DELETED_TOPIC,
         Message: teamId,
       }).promise();
     },
@@ -24,7 +24,7 @@ export const snsNotificationService = (sns: SNS): INotificationService => {
     },
     tournamentDeleted(tournamentId) {
       return sns.publish({
-        TopicArn: process.env.DELETE_TOURNAMENT_TOPIC,
+        TopicArn: process.env.TOURNAMENT_DELETED_TOPIC,
         Message: tournamentId
       }).promise();
     },

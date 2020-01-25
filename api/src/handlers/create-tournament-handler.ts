@@ -10,6 +10,7 @@ export default (createTournament: ICreateTournamentService): APIGatewayProxyHand
     try {
       tournamentId = await createTournament({ body });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

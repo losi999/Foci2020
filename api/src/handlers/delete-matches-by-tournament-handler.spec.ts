@@ -1,4 +1,4 @@
-import { default as handler } from '@/handlers/delete-match-with-tournament-handler';
+import { default as handler } from '@/handlers/delete-matches-by-tournament-handler';
 import { SNSEvent } from 'aws-lambda';
 
 describe('Delete match with tournament handler', () => {
@@ -39,8 +39,9 @@ describe('Delete match with tournament handler', () => {
     try {
       await handler(mockDeleteMatchWithTournamentService)(handlerEvent, undefined, undefined);
     } catch (error) {
-      expect(mockDeleteMatchWithTournamentService).toHaveBeenCalledWith({ tournamentId });
       expect(error).toEqual(errorMessage);
     }
+    expect(mockDeleteMatchWithTournamentService).toHaveBeenCalledWith({ tournamentId });
+    expect.assertions(2);
   });
 });

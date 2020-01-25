@@ -32,7 +32,7 @@ export const updateMatchServiceFactory = (
       teamDocumentService.queryTeamById(body.awayTeamId),
       tournamentDocumentService.queryTournamentById(body.tournamentId)
     ]).catch((error) => {
-      console.log('ERROR query', error);
+      console.error('Query related documents', error);
       throw httpError(500, 'Unable to query related document');
     });
 
@@ -51,7 +51,7 @@ export const updateMatchServiceFactory = (
     const document = matchDocumentConverter.update(body, homeTeam, awayTeam, tournament);
 
     await matchDocumentService.updateMatch(matchId, document).catch((error) => {
-      console.log('ERROR databaseService.updateMatch', error);
+      console.error('Update match', error);
       throw httpError(500, 'Error while updating match');
     });
   };

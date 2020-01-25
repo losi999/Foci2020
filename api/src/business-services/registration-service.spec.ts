@@ -28,6 +28,8 @@ describe('Registration service', () => {
 
     mockIdentityService.functions.register.mockRejectedValue({ message: 'This is a cognito error' });
 
-      await service({ body }).catch(validateError('This is a cognito error', 500));
+    await service({ body }).catch(validateError('This is a cognito error', 500));
+    expect(mockIdentityService.functions.register).toHaveBeenCalledWith(body);
+    expect.assertions(3);
   });
 });

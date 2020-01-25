@@ -87,30 +87,46 @@ describe('Update team service', () => {
     expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(body);
     expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
     expect(mockNotificationService.functions.teamUpdated).not.toHaveBeenCalled();
+    expect.assertions(5);
   });
 
-  // it('should throw error if unable to send notification', async () => {
-  //   const teamId = 'teamId';
-  //   const teamName = 'teamName';
-  //   const image = 'http://image.com/a.png';
-  //   const shortName = 'SHN';
-  //   const body: TeamRequest = {
-  //     teamName,
-  //     image,
-  //     shortName
-  //   };
+  it('should throw error if unable to send notification', async () => {
+    const teamId = 'teamId';
+    const teamName = 'teamName';
+    const image = 'http://image.com/a.png';
+    const shortName = 'SHN';
+    const body: TeamRequest = {
+      teamName,
+      image,
+      shortName
+    };
 
-  //   mockTeamDocumentService.functions.updateTeam.mockResolvedValue(undefined);
-  //   mockNotificationService.functions.teamUpdated.mockRejectedValue('This is an SNS error');
+    const converted = {
+      image,
+      shortName,
+      teamName
+    } as TeamDocumentUpdatable;
 
-  //   try {
-  //     await service({
-  //       teamId,
-  //       body
-  //     }).catch(validateError('aaa', 500));
-  //   } catch (error) {
-  //     expect(error.statusCode).toEqual(500);
-  //     expect(error.message).toEqual('Unable to send team updated notification');
-  //   }
-  // });
+    const updated = {
+      image,
+      shortName,
+      teamName
+    } as TeamDocument;
+
+    mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
+    mockTeamDocumentService.functions.updateTeam.mockResolvedValue(updated);
+    mockNotificationService.functions.teamUpdated.mockRejectedValue('This is an SNS error');
+
+    await service({
+      teamId,
+      body
+    }).catch(validateError('Unable to send team updated notification', 500));
+    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
+    expect(mockNotificationService.functions.teamUpdated).toHaveBeenCalledWith({
+      teamId,
+      team: updated
+    });
+    expect.assertions(5);
+  });
 });

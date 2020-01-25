@@ -33,6 +33,7 @@ describe('Get match service', () => {
 
     const result = await service({ matchId });
     expect(result).toEqual(matchResponse);
+    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
     expect(mockMatchDocumentConverter.functions.toResponse).toHaveBeenCalledWith(matchDocument);
   });
 
@@ -41,5 +42,18 @@ describe('Get match service', () => {
     mockMatchDocumentService.functions.queryMatchById.mockRejectedValue('This is a dynamo error');
 
     await service({ matchId }).catch(validateError('Unable to query match', 500));
+    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    expect.assertions(4);
+  });
+
+  it('should return with error if no match found', async () => {
+    const matchId = 'matchId';
+    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue(undefined);
+
+    await service({ matchId }).catch(validateError('No match found', 404));
+    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    expect.assertions(4);
   });
 });

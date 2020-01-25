@@ -9,6 +9,7 @@ export default (getMatch: IGetMatchService): APIGatewayProxyHandler => {
     try {
       match = await getMatch({ matchId });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

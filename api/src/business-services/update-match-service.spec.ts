@@ -142,6 +142,7 @@ describe('Update match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).not.toHaveBeenCalled();
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect.assertions(6);
   });
 
   it('should throw error if home and away teams are the same', async () => {
@@ -161,6 +162,7 @@ describe('Update match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).not.toHaveBeenCalled();
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect.assertions(6);
   });
 
   it('should throw error if unable to query home team', async () => {
@@ -184,6 +186,7 @@ describe('Update match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to query away team', async () => {
@@ -209,6 +212,7 @@ describe('Update match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to query tournament', async () => {
@@ -236,6 +240,7 @@ describe('Update match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to update match', async () => {
@@ -267,6 +272,7 @@ describe('Update match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).toHaveBeenCalledWith(body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
     expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith(matchId, convertedMatch);
+    expect.assertions(7);
   });
 
   it('should throw error if no home team found', async () => {
@@ -290,6 +296,7 @@ describe('Update match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if no away team found', async () => {
@@ -315,6 +322,7 @@ describe('Update match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if no tournament found', async () => {
@@ -342,5 +350,6 @@ describe('Update match service', () => {
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 });

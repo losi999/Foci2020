@@ -1,5 +1,5 @@
 import { SNSEvent } from 'aws-lambda';
-import { default as handler } from '@/handlers/delete-match-with-team-handler';
+import { default as handler } from '@/handlers/delete-matches-by-team-handler';
 
 describe('Delete match with team handler', () => {
   let mockDeleteMatchWithTeamService: jest.Mock;
@@ -39,8 +39,9 @@ describe('Delete match with team handler', () => {
     try {
       await handler(mockDeleteMatchWithTeamService)(handlerEvent, undefined, undefined);
     } catch (error) {
-      expect(mockDeleteMatchWithTeamService).toHaveBeenCalledWith({ teamId });
       expect(error).toEqual(errorMessage);
     }
+    expect(mockDeleteMatchWithTeamService).toHaveBeenCalledWith({ teamId });
+    expect.assertions(2);
   });
 });

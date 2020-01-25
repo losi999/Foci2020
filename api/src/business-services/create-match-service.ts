@@ -31,7 +31,7 @@ export const createMatchServiceFactory = (
       teamDocumentService.queryTeamById(body.awayTeamId),
       tournamentDocumentService.queryTournamentById(body.tournamentId)
     ]).catch((error) => {
-      console.log('ERROR query', error);
+      console.error('Query related documents', error);
       throw httpError(500, 'Unable to query related document');
     });
 
@@ -50,7 +50,7 @@ export const createMatchServiceFactory = (
     const document = matchDocumentConverter.create(body, homeTeam, awayTeam, tournament);
 
     await matchDocumentService.saveMatch(document).catch((error) => {
-      console.log('ERROR databaseService.saveMatch', error);
+      console.error('Save match', error);
       throw httpError(500, 'Error while saving match');
     });
 

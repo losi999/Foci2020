@@ -51,12 +51,16 @@ describe('List teams service', () => {
 
     const result = await service();
     expect(result).toEqual(teamResponse);
+    expect(mockTeamDocumentService.functions.queryTeams).toHaveBeenCalledWith();
     expect(mockTeamDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
   });
 
   it('should throw error if unable to query teams', async () => {
     mockTeamDocumentService.functions.queryTeams.mockRejectedValue('This is a dynamo error');
 
-      await service().catch(validateError('Unable to query teams', 500));
+    await service().catch(validateError('Unable to query teams', 500));
+    expect(mockTeamDocumentService.functions.queryTeams).toHaveBeenCalledWith();
+    expect(mockTeamDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
+    expect.assertions(4);
   });
 });

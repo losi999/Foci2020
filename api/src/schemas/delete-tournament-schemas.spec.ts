@@ -1,4 +1,4 @@
-import * as schemas from '@/schemas/get-tournament-schemas';
+import * as schemas from '@/schemas/delete-tournament-schemas';
 import { validatorService } from '@/dependencies';
 
 describe('Delete tournament schemas', () => {

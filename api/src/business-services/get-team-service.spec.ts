@@ -37,6 +37,7 @@ describe('Get team service', () => {
 
     const result = await service({ teamId });
     expect(result).toEqual(teamResponse);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenCalledWith(teamId);
     expect(mockTeamDocumentConverter.functions.toResponse).toHaveBeenCalledWith(teamDocument);
   });
 
@@ -45,5 +46,18 @@ describe('Get team service', () => {
     mockTeamDocumentService.functions.queryTeamById.mockRejectedValue('This is a dynamo error');
 
     await service({ teamId }).catch(validateError('Unable to query team', 500));
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenCalledWith(teamId);
+    expect(mockTeamDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    expect.assertions(4);
+  });
+
+  it('should return with error if no team found', async () => {
+    const teamId = 'teamId';
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValue(undefined);
+
+    await service({ teamId }).catch(validateError('No team found', 404));
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenCalledWith(teamId);
+    expect(mockTeamDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    expect.assertions(4);
   });
 });

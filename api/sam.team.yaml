@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Database:
     Type: String
-  DeleteTeamTopic:
+  TeamDeletedTopic:
     Type: String
   TeamUpdatedTopic:
     Type: String
@@ -116,19 +116,7 @@ Resources:
             Method: DELETE     
       Environment:
         Variables:
-          DELETE_TEAM_TOPIC: !Ref DeleteTeamTopic                
-
-  DeleteMatchWithTeam:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-DeleteMatchWithTeam
-      CodeUri: ./dist/delete-match-with-team
-      Role: !Ref LambdaRoleArn
-      Events:
-        SNS:
-          Type: SNS
-          Properties:
-            Topic: !Ref DeleteTeamTopic    
+          TEAM_DELETED_TOPIC: !Ref TeamDeletedTopic                  
 
 Outputs:
   TeamApi:

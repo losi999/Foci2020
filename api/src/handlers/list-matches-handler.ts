@@ -11,6 +11,7 @@ export default (listMatches: IListMatchesService): APIGatewayProxyHandler => {
         tournamentId
       });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

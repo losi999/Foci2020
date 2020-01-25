@@ -52,6 +52,7 @@ describe('Create team service', () => {
 
     expect(mockTeamDocumentConverter.functions.create).toHaveBeenCalledWith(body);
     expect(mockTeamDocumentService.functions.saveTeam).toHaveBeenCalledWith(convertedTeam);
+    expect.assertions(4);
   });
 
   it('should return with teamId if team is saved', async () => {

@@ -42,5 +42,7 @@ describe('Login service', () => {
     mockIdentityService.functions.login.mockRejectedValue({ message: 'This is a cognito error' });
 
     await service({ body }).catch(validateError('This is a cognito error', 500));
+    expect(mockIdentityService.functions.login).toHaveBeenCalledWith(body);
+    expect.assertions(3);
   });
 });

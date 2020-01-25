@@ -49,6 +49,9 @@ describe('Create tournament service', () => {
     mockTournamentDocumentService.functions.saveTournament.mockRejectedValue({});
 
     await service({ body }).catch(validateError('Error while saving tournament', 500));
+    expect(mockTournamentDocumentConverter.functions.create).toHaveBeenCalledWith(body);
+    expect(mockTournamentDocumentService.functions.saveTournament).toHaveBeenCalledWith(convertedTournament);
+    expect.assertions(4);
   });
 
   it('should return with tournamentId if tournament is saved', async () => {

@@ -1,6 +1,6 @@
 import { INotificationService, snsNotificationService } from '@/services/notification-service';
 import { SNS } from 'aws-sdk';
-import { UpdateTeamNotification, TournamentUpdatedNotification } from '@/types/types';
+import { TeamUpdatedNotification, TournamentUpdatedNotification } from '@/types/types';
 import { TeamDocument, TournamentDocument } from '@/types/documents';
 
 describe('Notification service', () => {
@@ -15,18 +15,18 @@ describe('Notification service', () => {
     const sns = new SNS();
     snsPublishSpy = jest.spyOn(sns, 'publish');
 
-    process.env.DELETE_TEAM_TOPIC = deleteTeamTopic;
+    process.env.TEAM_DELETED_TOPIC = deleteTeamTopic;
     process.env.TEAM_UPDATED_TOPIC = updateTeamTopic;
-    process.env.DELETE_TOURNAMENT_TOPIC = deleteTournamentTopic;
+    process.env.TOURNAMENT_DELETED_TOPIC = deleteTournamentTopic;
     process.env.TOURNAMENT_UPDATED_TOPIC = updateTournamentTopic;
 
     service = snsNotificationService(sns);
   });
 
   afterEach(() => {
-    process.env.DELETE_TEAM_TOPIC = undefined;
+    process.env.TEAM_DELETED_TOPIC = undefined;
     process.env.TEAM_UPDATED_TOPIC = undefined;
-    process.env.DELETE_TOURNAMENT_TOPIC = undefined;
+    process.env.TOURNAMENT_DELETED_TOPIC = undefined;
     process.env.TOURNAMENT_UPDATED_TOPIC = undefined;
   });
 
@@ -64,7 +64,7 @@ describe('Notification service', () => {
 
   describe('teamUpdated', () => {
     it('should call sns.publish with correct parameters', async () => {
-      const message: UpdateTeamNotification = {
+      const message: TeamUpdatedNotification = {
         teamId: 'teamId',
         team: {
           teamName: 'teamName',

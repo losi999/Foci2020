@@ -19,7 +19,7 @@ Resources:
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Infrastructure.Outputs.Database
-        DeleteTeamTopic: !GetAtt Infrastructure.Outputs.DeleteTeamTopic
+        TeamDeletedTopic: !GetAtt Infrastructure.Outputs.TeamDeletedTopic
         TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
         Env: !Ref Env
 
@@ -31,7 +31,7 @@ Resources:
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Infrastructure.Outputs.Database
-        DeleteTournamentTopic: !GetAtt Infrastructure.Outputs.DeleteTournamentTopic
+        TournamentDeletedTopic: !GetAtt Infrastructure.Outputs.TournamentDeletedTopic
         TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
         Env: !Ref Env
 
@@ -45,10 +45,8 @@ Resources:
         Database: !GetAtt Infrastructure.Outputs.Database
         TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
         TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
-        UpdateTeamOfMatchQueueUrl: !GetAtt Infrastructure.Outputs.UpdateTeamOfMatchQueueUrl
-        UpdateTeamOfMatchQueueArn: !GetAtt Infrastructure.Outputs.UpdateTeamOfMatchQueueArn
-        UpdateTournamentOfMatchQueueUrl: !GetAtt Infrastructure.Outputs.UpdateTournamentOfMatchQueueUrl
-        UpdateTournamentOfMatchQueueArn: !GetAtt Infrastructure.Outputs.UpdateTournamentOfMatchQueueArn
+        TeamDeletedTopic: !GetAtt Infrastructure.Outputs.TeamDeletedTopic
+        TournamentDeletedTopic: !GetAtt Infrastructure.Outputs.TournamentDeletedTopic
         Env: !Ref Env
 
   User:

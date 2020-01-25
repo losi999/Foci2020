@@ -20,7 +20,7 @@ export const updateTournamentServiceFactory = (
     const document = tournamentDocumentConverter.update(body);
 
     const tournament = await tournamentDocumentService.updateTournament(tournamentId, document).catch((error) => {
-      console.log('ERROR databaseService.updateTournament', error);
+      console.error('Update tournament', error);
       throw httpError(500, 'Error while updating tournament');
     });
 
@@ -28,7 +28,7 @@ export const updateTournamentServiceFactory = (
       tournamentId,
       tournament
     }).catch((error) => {
-      console.log('ERROR notificationService.tournamentUpdated', error);
+      console.error('Tournament updated', error);
       throw httpError(500, 'Unable to send tournament updated notification');
     });
   };

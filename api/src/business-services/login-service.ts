@@ -12,7 +12,7 @@ export interface ILoginService {
 export const loginServiceFactory = (identityService: IIdentityService): ILoginService => {
   return async ({ body }) => {
     const loginResponse = await identityService.login(body).catch((error) => {
-      console.log('ERROR LOGIN', error);
+      console.error('Login', error);
       throw httpError(500, error.message);
     });
 

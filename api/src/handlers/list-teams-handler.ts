@@ -8,6 +8,7 @@ export default (listTeams: IListTeamsService): APIGatewayProxyHandler => {
     try {
       teams = await listTeams();
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

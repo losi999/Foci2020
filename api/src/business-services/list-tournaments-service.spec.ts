@@ -50,6 +50,7 @@ describe('List tournaments service', () => {
 
     const result = await service();
     expect(result).toEqual(tournamentResponse);
+    expect(mockTournamentDocumentService.functions.queryTournaments).toHaveBeenCalledWith();
     expect(mockTournamentDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
   });
 
@@ -57,5 +58,8 @@ describe('List tournaments service', () => {
     mockTournamentDocumentService.functions.queryTournaments.mockRejectedValue('This is a dynamo error');
 
     await service().catch(validateError('Unable to query tournaments', 500));
+    expect(mockTournamentDocumentService.functions.queryTournaments).toHaveBeenCalledWith();
+    expect(mockTournamentDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
+    expect.assertions(4);
   });
 });

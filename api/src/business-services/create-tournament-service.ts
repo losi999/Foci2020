@@ -16,7 +16,7 @@ export const createTournamentServiceFactory = (
     const document = tournamentDocumentConverter.create(body);
 
     await tournamentDocumentService.saveTournament(document).catch((error) => {
-      console.log('ERROR databaseService.saveTournament', error);
+      console.error('Save tournament', error);
       throw httpError(500, 'Error while saving tournament');
     });
 

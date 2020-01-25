@@ -9,6 +9,7 @@ export default (getTournament: IGetTournamentService): APIGatewayProxyHandler =>
     try {
       tournament = await getTournament({ tournamentId });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

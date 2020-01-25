@@ -71,26 +71,42 @@ describe('Update tournament service', () => {
       tournamentId,
       body
     }).catch(validateError('Error while updating tournament', 500));
+
+    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(tournamentId, converted);
+    expect(mockNotificationService.functions.tournamentUpdated).not.toHaveBeenCalled();
+    expect.assertions(5);
   });
 
-  // it('should throw error if unable to send notification', async () => {
-  //   const tournamentId = 'tournamentId';
-  //   const tournamentName = 'tournamentName';
-  //   const body: TournamentRequest = {
-  //     tournamentName
-  //   };
+  it('should throw error if unable to send notification', async () => {
+    const tournamentId = 'tournamentId';
+    const tournamentName = 'tournamentName';
+    const body: TournamentRequest = {
+      tournamentName
+    };
 
-  //   mockTournamentDocumentService.functions.updateTournament.mockResolvedValue(undefined);
-  //   mockNotificationService.functions.tournamentUpdated.mockRejectedValue('This is an SNS error');
+    const converted = {
+      tournamentName
+    } as TournamentDocumentUpdatable;
 
-  //   try {
-  //     await service({
-  //       tournamentId,
-  //       body
-  //     }).catch(validateError('aaa', 500));
-  //   } catch (error) {
-  //     expect(error.statusCode).toEqual(500);
-  //     expect(error.message).toEqual('Unable to send tournament updated notification');
-  //   }
-  // });
+    const updated = {
+      tournamentName
+    } as TournamentDocument;
+
+    mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
+    mockTournamentDocumentService.functions.updateTournament.mockResolvedValue(updated);
+    mockNotificationService.functions.tournamentUpdated.mockRejectedValue('This is an SNS error');
+
+    await service({
+      tournamentId,
+      body
+    }).catch(validateError('Unable to send tournament updated notification', 500));
+    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(tournamentId, converted);
+    expect(mockNotificationService.functions.tournamentUpdated).toHaveBeenCalledWith({
+      tournamentId,
+      tournament: updated
+    });
+    expect.assertions(5);
+  });
 });

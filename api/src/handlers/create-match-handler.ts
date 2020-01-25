@@ -10,6 +10,7 @@ export default (createMatch: ICreateMatchService): APIGatewayProxyHandler => {
     try {
       matchId = await createMatch({ body });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

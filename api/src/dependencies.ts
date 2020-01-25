@@ -1,7 +1,7 @@
 import ajv from 'ajv';
 import uuid from 'uuid';
 import { captureAWSClient } from 'aws-xray-sdk';
-import { DynamoDB, SNS, CognitoIdentityServiceProvider, config, SQS } from 'aws-sdk';
+import { DynamoDB, SNS, CognitoIdentityServiceProvider, config } from 'aws-sdk';
 import { ajvValidatorService } from '@/services/validator-service';
 import { default as apiRequestValidatorHandler } from '@/handlers/api-request-validator-handler';
 import { snsNotificationService } from '@/services/notification-service';
@@ -12,7 +12,6 @@ import { teamDocumentServiceFactory } from './services/team-document-service';
 import { tournamentDocumentServiceFactory } from './services/tournament-document-service';
 import { matchDocumentServiceFactory } from './services/match-document-service';
 import { cognitoIdentityService } from './services/identity-service';
-import { sqsQueueService } from './services/queue-service';
 
 const ajvValidator = new ajv({
   allErrors: true,
@@ -21,7 +20,6 @@ const ajvValidator = new ajv({
 config.logger = console;
 const dynamoDbClient = new DynamoDB.DocumentClient();
 const sns = captureAWSClient(new SNS());
-const sqs = captureAWSClient(new SQS());
 const cognito = captureAWSClient(new CognitoIdentityServiceProvider());
 captureAWSClient((dynamoDbClient as any).service);
 
@@ -36,6 +34,5 @@ export const matchDocumentService = matchDocumentServiceFactory(dynamoDbClient);
 export const validatorService = ajvValidatorService(ajvValidator);
 export const notificationService = snsNotificationService(sns);
 export const identityService = cognitoIdentityService(cognito);
-export const queueService = sqsQueueService(sqs);
 
 export const apiRequestValidator = apiRequestValidatorHandler(validatorService);

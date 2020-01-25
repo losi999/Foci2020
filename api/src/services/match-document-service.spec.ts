@@ -3,11 +3,9 @@ import { DynamoDB } from 'aws-sdk';
 import {
   TeamDocument,
   TournamentDocument,
-  DocumentKey,
   MatchDocumentUpdatable,
   MatchDocument
 } from '@/types/documents';
-import { MatchRequest } from '@/types/requests';
 
 describe('Match document service', () => {
   let service: IMatchDocumentService;
@@ -16,6 +14,7 @@ describe('Match document service', () => {
   let dbUpdateSpy: jest.SpyInstance;
   let dbDeleteSpy: jest.SpyInstance;
   let dbGetSpy: jest.SpyInstance;
+  let dbTransactWriteSpy: jest.SpyInstance;
   const tableName = 'table-name';
 
   beforeEach(() => {
@@ -25,6 +24,7 @@ describe('Match document service', () => {
     dbUpdateSpy = jest.spyOn(dynamoClient, 'update');
     dbDeleteSpy = jest.spyOn(dynamoClient, 'delete');
     dbGetSpy = jest.spyOn(dynamoClient, 'get');
+    dbTransactWriteSpy = jest.spyOn(dynamoClient, 'transactWrite');
 
     service = matchDocumentServiceFactory(dynamoClient);
 
@@ -33,6 +33,7 @@ describe('Match document service', () => {
 
   afterEach(() => {
     process.env.DYNAMO_TABLE = undefined;
+    jest.resetAllMocks();
   });
 
   const matchId = 'matchId';
@@ -91,58 +92,67 @@ describe('Match document service', () => {
     });
   });
 
-  describe('updateMatchWithTeam', () => {
-    it('should call dynamo.update with correct parameters', async () => {
-      dbUpdateSpy.mockReturnValue({
+  describe('updateTeamOfMatches', () => {
+    it('should call dynamo.transactWrite with correct parameters', async () => {
+      dbTransactWriteSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
         }
       });
 
-      await service.updateTeamOfMatch(matchId, homeTeam, 'home');
+      await service.updateTeamOfMatches([matchId], homeTeam, 'home');
 
-      expect(dbUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
-        TableName: tableName,
-        Key: {
-          'documentType-id': `match-${matchId}`,
-        },
-        ConditionExpression: '#documentTypeId = :documentTypeId',
-        UpdateExpression: 'set homeTeam = :team',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-        },
-        ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
-          ':team': homeTeam,
-        }
+      expect(dbTransactWriteSpy).toHaveBeenCalledWith(expect.objectContaining({
+        TransactItems: [{
+          Update: {
+            TableName: tableName,
+            Key: {
+              'documentType-id': `match-${matchId}`,
+            },
+            ConditionExpression: '#documentTypeId = :documentTypeId',
+            UpdateExpression: 'set #team = :team',
+            ExpressionAttributeNames: {
+              '#documentTypeId': 'documentType-id',
+              '#team': 'homeTeam'
+            },
+            ExpressionAttributeValues: {
+              ':documentTypeId': `match-${matchId}`,
+              ':team': homeTeam,
+            }
+          }
+        }]
       }));
     });
   });
 
-  describe('updateMatchWithTournament', () => {
-    it('should call dynamo.update with correct parameters', async () => {
-      dbUpdateSpy.mockReturnValue({
+  describe('updateTournamentOfMatches', () => {
+    it('should call dynamo.transactWrite with correct parameters', async () => {
+      dbTransactWriteSpy.mockReturnValue({
         promise() {
           return Promise.resolve(undefined);
         }
       });
 
-      await service.updateTournamentOfMatch(matchId, tournament);
+      await service.updateTournamentOfMatches([matchId], tournament);
 
-      expect(dbUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
-        TableName: tableName,
-        Key: {
-          'documentType-id': `match-${matchId}`,
-        },
-        ConditionExpression: '#documentTypeId = :documentTypeId',
-        UpdateExpression: 'set tournament = :tournament',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id'
-        },
-        ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
-          ':tournament': tournament
-        }
+      expect(dbTransactWriteSpy).toHaveBeenCalledWith(expect.objectContaining({
+        TransactItems: [{
+          Update: {
+            TableName: tableName,
+            Key: {
+              'documentType-id': `match-${matchId}`,
+            },
+            ConditionExpression: '#documentTypeId = :documentTypeId',
+            UpdateExpression: 'set tournament = :tournament',
+            ExpressionAttributeNames: {
+              '#documentTypeId': 'documentType-id'
+            },
+            ExpressionAttributeValues: {
+              ':documentTypeId': `match-${matchId}`,
+              ':tournament': tournament
+            }
+          }
+        }]
       }));
     });
   });
@@ -363,6 +373,36 @@ describe('Match document service', () => {
       const result = await service.queryMatchKeysByTournamentId(tournamentId);
 
       expect(result).toEqual(queriedMatches);
+    });
+  });
+
+  describe('deleteMatches', () => {
+    it('should call dynamo.transactWrite with correct parameters', async () => {
+      dbTransactWriteSpy.mockReturnValue({
+        promise() {
+          return Promise.resolve(undefined);
+        }
+      });
+
+      await service.deleteMatches([matchId]);
+
+      expect(dbTransactWriteSpy).toHaveBeenCalledWith(expect.objectContaining({
+        TransactItems: [{
+          Delete: {
+            TableName: tableName,
+            Key: {
+              'documentType-id': `match-${matchId}`,
+            },
+            ConditionExpression: '#documentTypeId = :documentTypeId',
+            ExpressionAttributeNames: {
+              '#documentTypeId': 'documentType-id'
+            },
+            ExpressionAttributeValues: {
+              ':documentTypeId': `match-${matchId}`,
+            }
+          }
+        }]
+      }));
     });
   });
 });

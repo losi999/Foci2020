@@ -11,14 +11,3 @@ export type TournamentUpdatedNotification = {
   tournamentId: string;
   tournament: TournamentDocument
 };
-
-export type UpdateTeamOfMatchMessage = {
-  matchId: string;
-  team: TeamDocument;
-  type: 'home' | 'away';
-};
-
-export type UpdateTournamentOfMatchMessage = {
-  matchId: string;
-  tournament: TournamentDocument;
-};

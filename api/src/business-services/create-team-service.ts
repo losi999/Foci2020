@@ -16,7 +16,7 @@ export const createTeamServiceFactory = (
     const document = teamDocumentConverter.create(body);
 
     await teamDocumentService.saveTeam(document).catch((error) => {
-      console.log('ERROR databaseService.saveTeam', error);
+      console.error('Save team', error);
       throw httpError(500, 'Error while saving team');
     });
 

@@ -23,6 +23,8 @@ describe('Delete tournament service', () => {
 
     const result = await service({ tournamentId });
     expect(result).toBeUndefined();
+    expect(mockTournamentDocumentService.functions.deleteTournament).toHaveBeenCalledWith(tournamentId);
+    expect(mockNotificationService.functions.tournamentDeleted).toHaveBeenCalledWith(tournamentId);
   });
 
   it('should throw error if unable to query tournament', async () => {
@@ -31,6 +33,9 @@ describe('Delete tournament service', () => {
     mockTournamentDocumentService.functions.deleteTournament.mockRejectedValue('This is a dynamo error');
 
     await service({ tournamentId }).catch(validateError('Unable to delete tournament', 500));
+    expect(mockTournamentDocumentService.functions.deleteTournament).toHaveBeenCalledWith(tournamentId);
+    expect(mockNotificationService.functions.tournamentDeleted).not.toHaveBeenCalled();
+    expect.assertions(4);
   });
 
   it('should throw error if unable to send notification', async () => {
@@ -40,5 +45,8 @@ describe('Delete tournament service', () => {
     mockNotificationService.functions.tournamentDeleted.mockRejectedValue('This is an SNS error');
 
     await service({ tournamentId }).catch(validateError('Unable to send tournament deleted notification', 500));
+    expect(mockTournamentDocumentService.functions.deleteTournament).toHaveBeenCalledWith(tournamentId);
+    expect(mockNotificationService.functions.tournamentDeleted).toHaveBeenCalledWith(tournamentId);
+    expect.assertions(4);
   });
 });

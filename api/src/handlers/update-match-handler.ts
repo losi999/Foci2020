@@ -13,6 +13,7 @@ export default (updateMatch: IUpdateMatchService): APIGatewayProxyHandler => {
         matchId
       });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

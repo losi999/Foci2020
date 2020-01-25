@@ -13,7 +13,7 @@ export const listTournamentsServiceFactory = (
 ): IListTournamentsService => {
   return async () => {
     const tournaments = await tournamentDocumentService.queryTournaments().catch((error) => {
-      console.log('ERROR databaseService.queryTournaments', error);
+      console.error('Query tournaments', error);
       throw httpError(500, 'Unable to query tournaments');
     });
 

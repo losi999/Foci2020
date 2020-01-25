@@ -23,6 +23,8 @@ describe('Delete team service', () => {
 
     const result = await service({ teamId });
     expect(result).toBeUndefined();
+    expect(mockTeamDocumentService.functions.deleteTeam).toHaveBeenCalledWith(teamId);
+    expect(mockNotificationService.functions.teamDeleted).toHaveBeenCalledWith(teamId);
   });
 
   it('should throw error if unable to query team', async () => {
@@ -31,6 +33,9 @@ describe('Delete team service', () => {
     mockTeamDocumentService.functions.deleteTeam.mockRejectedValue('This is a dynamo error');
 
     await service({ teamId }).catch(validateError('Unable to delete team', 500));
+    expect(mockTeamDocumentService.functions.deleteTeam).toHaveBeenCalledWith(teamId);
+    expect(mockNotificationService.functions.teamDeleted).not.toHaveBeenCalled();
+    expect.assertions(4);
   });
 
   it('should throw error if unable to send notification', async () => {
@@ -40,5 +45,8 @@ describe('Delete team service', () => {
     mockNotificationService.functions.teamDeleted.mockRejectedValue('This is an SNS error');
 
     await service({ teamId }).catch(validateError('Unable to send team deleted notification', 500));
+    expect(mockTeamDocumentService.functions.deleteTeam).toHaveBeenCalledWith(teamId);
+    expect(mockNotificationService.functions.teamDeleted).toHaveBeenCalledWith(teamId);
+    expect.assertions(4);
   });
 });

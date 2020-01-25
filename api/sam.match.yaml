@@ -8,15 +8,11 @@ Parameters:
     Type: String
   TeamUpdatedTopic:
     Type: String    
-  UpdateTeamOfMatchQueueArn:
-    Type: String
-  UpdateTeamOfMatchQueueUrl:
-    Type: String
   TournamentUpdatedTopic:
     Type: String    
-  UpdateTournamentOfMatchQueueArn:
-    Type: String
-  UpdateTournamentOfMatchQueueUrl:
+  TeamDeletedTopic:
+    Type: String    
+  TournamentDeletedTopic:
     Type: String    
   Env:
     Type: String
@@ -120,76 +116,66 @@ Resources:
             Path: /match/v1/matches/{matchId}
             Method: DELETE  
 
-  GetMatchesByHomeTeam:
+  UpdateHomeTeamOfMatches:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-GetMatchesByHomeTeam
-      CodeUri: ./dist/get-matches-by-home-team
+      FunctionName: !Sub Foci2020-${Env}-UpdateHomeTeamOfMatches
+      CodeUri: ./dist/update-home-team-of-matches
       Role: !Ref LambdaRoleArn
-      Environment:
-        Variables:
-          UPDATE_TEAM_OF_MATCH_QUEUE: !Ref UpdateTeamOfMatchQueueUrl
       Events:
         SNS:
           Type: SNS
           Properties:
             Topic: !Ref TeamUpdatedTopic            
 
-  GetMatchesByAwayTeam:
+  UpdateAwayTeamOfMatches:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-GetMatchesByAwayTeam
-      CodeUri: ./dist/get-matches-by-away-team
+      FunctionName: !Sub Foci2020-${Env}-UpdateAwayTeamOfMatches
+      CodeUri: ./dist/update-away-team-of-matches
       Role: !Ref LambdaRoleArn
-      Environment:
-        Variables:
-          UPDATE_TEAM_OF_MATCH_QUEUE: !Ref UpdateTeamOfMatchQueueUrl      
       Events:
         SNS:
           Type: SNS
           Properties:
             Topic: !Ref TeamUpdatedTopic    
 
-  UpdateTeamOfMatch:
+  UpdateTournamentOfMatches:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateTeamOfMatch
-      CodeUri: ./dist/update-team-of-match
+      FunctionName: !Sub Foci2020-${Env}-UpdateTournamentOfMatchse
+      CodeUri: ./dist/update-tournament-of-matches
       Role: !Ref LambdaRoleArn
-      Events:
-        SQS:
-          Type: SQS
-          Properties:
-            Queue: !Ref UpdateTeamOfMatchQueueArn        
-            BatchSize: 1
-
-  GetMatchesByTournament:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-GetMatchesByTournament
-      CodeUri: ./dist/get-matches-by-tournament
-      Role: !Ref LambdaRoleArn
-      Environment:
-        Variables:
-          UPDATE_TOURNAMENT_OF_MATCH_QUEUE: !Ref UpdateTournamentOfMatchQueueUrl      
       Events:
         SNS:
           Type: SNS
           Properties:
             Topic: !Ref TournamentUpdatedTopic    
 
-  UpdateTournamentOfMatch:
+  DeleteMatchesByTeam:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateTournamentOfMatch
-      CodeUri: ./dist/update-tournament-of-match
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatchesByTeam
+      CodeUri: ./dist/delete-matches-by-team
       Role: !Ref LambdaRoleArn
       Events:
-        SQS:
-          Type: SQS
+        SNS:
+          Type: SNS
           Properties:
-            Queue: !Ref UpdateTournamentOfMatchQueueArn        
-            BatchSize: 1            
+            Topic: !Ref TeamDeletedTopic    
+
+  DeleteMatchesByTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatchesByTournament
+      CodeUri: ./dist/delete-matches-by-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref TournamentDeletedTopic    
+
 
 Outputs:
   MatchApi:

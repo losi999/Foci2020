@@ -10,6 +10,7 @@ export default (login: ILoginService): APIGatewayProxyHandler => {
         body
       });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

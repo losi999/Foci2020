@@ -13,7 +13,7 @@ export const listTeamsServiceFactory = (
 ): IListTeamsService => {
   return async () => {
     const teams = await teamDocumentService.queryTeams().catch((error) => {
-      console.log('ERROR databaseService.queryTeams', error);
+      console.error('Query teams', error);
       throw httpError(500, 'Unable to query teams');
     });
 

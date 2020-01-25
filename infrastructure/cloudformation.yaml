@@ -106,31 +106,29 @@ Resources:
                   - xray:*
                   - cognito-idp:AdminCreateUser
                   - cognito-idp:AdminInitiateAuth
-                  - cognito-idp:adminAddUserToGroup
-                  - cognito-idp:adminSetUserPassword
-                  - sqs:SendMessage
-                  - sqs:ReceiveMessage
-                  - sqs:DeleteMessage
-                  - sqs:GetQueueAttributes
-                Resource: '*'
+                  - cognito-idp:AdminAddUserToGroup
+                  - cognito-idp:AdminSetUserPassword
+                Resource: '*'  
 
-  UpdateTeamOfMatchQueue:
-    Type: AWS::SQS::Queue      
-
-  UpdateTournamentOfMatchQueue:
-    Type: AWS::SQS::Queue   
-
-  DeleteTeamTopic:
+  TeamDeletedTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-TeamDeleted
 
-  DeleteTournamentTopic:
+  TournamentDeletedTopic:
     Type: AWS::SNS::Topic
-  
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-TournamentDeleted
+
   TeamUpdatedTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-TeamUpdated
 
   TournamentUpdatedTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-TournamentUpdated
 
   UserPool:
     Type: AWS::Cognito::UserPool
@@ -219,10 +217,10 @@ Outputs:
     Value: !Ref Database
   LambdaRoleArn:
     Value: !GetAtt LambdaRole.Arn
-  DeleteTeamTopic:
-    Value: !Ref DeleteTeamTopic
-  DeleteTournamentTopic:
-    Value: !Ref DeleteTournamentTopic
+  TeamDeletedTopic:
+    Value: !Ref TeamDeletedTopic
+  TournamentDeletedTopic:
+    Value: !Ref TournamentDeletedTopic
   TeamUpdatedTopic:
     Value: !Ref TeamUpdatedTopic
   TournamentUpdatedTopic:
@@ -231,11 +229,3 @@ Outputs:
     Value: !Ref UserPool
   ClientId:
     Value: !Ref ApplicationClient
-  UpdateTeamOfMatchQueueUrl:
-    Value: !Ref UpdateTeamOfMatchQueue
-  UpdateTeamOfMatchQueueArn:
-    Value: !GetAtt UpdateTeamOfMatchQueue.Arn
-  UpdateTournamentOfMatchQueueUrl:
-    Value: !Ref UpdateTournamentOfMatchQueue
-  UpdateTournamentOfMatchQueueArn:
-    Value: !GetAtt UpdateTournamentOfMatchQueue.Arn    

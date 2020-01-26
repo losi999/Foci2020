@@ -114,7 +114,7 @@ describe('Update team of matches service', () => {
       expect(mockMatchDocumentService.functions.updateTeamOfMatches).toHaveBeenCalledWith([matchId1], team, 'away');
     });
 
-    it('should throw error if unable to query matches by homeTeam Id', async () => {
+    it('should throw error if unable to query matches by awayTeam Id', async () => {
       const teamId = 'teamId';
 
       const team = {

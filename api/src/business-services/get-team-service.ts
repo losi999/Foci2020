@@ -15,10 +15,14 @@ export const getTeamServiceFactory = (
 ): IGetTeamService => {
   return async ({ teamId }) => {
     const team = await teamDocumentService.queryTeamById(teamId).catch((error) => {
-      console.log('ERROR databaseService.queryTeamById', error);
+      console.error('Query team by Id', error);
       throw httpError(500, 'Unable to query team');
     });
 
-    return teamDocumentConverter.createResponse(team);
+    if (!team) {
+      throw httpError(404, 'No team found');
+    }
+
+    return teamDocumentConverter.toResponse(team);
   };
 };

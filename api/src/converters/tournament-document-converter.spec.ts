@@ -1,120 +1,89 @@
 import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@/converters/tournament-document-converter';
 import { TournamentResponse } from '@/types/responses';
-import { TournamentDocument, TournamentDetailsDocument } from '@/types/documents';
+import { TournamentDocument, TournamentDocumentUpdatable } from '@/types/documents';
 import { TournamentRequest } from '@/types/requests';
-import { DynamoDB } from 'aws-sdk';
 
 describe('Tournament document converter', () => {
   let converter: ITournamentDocumentConverter;
+  let mockUuid: jest.Mock;
   const tournamentId = 'tournamentId';
   const tournamentName = 'tournament';
 
-  const tableName = 'tableName';
   beforeEach(() => {
-    process.env.DYNAMO_TABLE = tableName;
+    mockUuid = jest.fn();
 
-    converter = tournamentDocumentConverterFactory();
+    converter = tournamentDocumentConverterFactory(mockUuid);
   });
 
-  afterEach(() => {
-    process.env.DYNAMO_TABLE = undefined;
-  });
-
-  describe('createResponse', () => {
-    let input: TournamentDocument[];
-
-    beforeEach(() => {
-      input = [{
+  describe('toResponse', () => {
+    it('should convert document to response', () => {
+      const input: TournamentDocument = {
         tournamentName,
-        tournamentId: 'tournamentId1',
-      }, {
+        id: tournamentId,
+        orderingValue: tournamentName,
+        documentType: 'tournament',
+        'documentType-id': `tournament-${tournamentId}`
+      };
+      const expectedResponse: TournamentResponse = {
         tournamentName,
-        tournamentId: 'tournamentId2',
-      }] as TournamentDocument[];
-    });
-
-    it('should convert documents to response', () => {
-      const expectedResponse: TournamentResponse[] = [
-        {
-          tournamentName,
-          tournamentId: 'tournamentId1',
-        },
-        {
-          tournamentName,
-          tournamentId: 'tournamentId2',
-        }
-      ];
-      const result = converter.createResponseList(input);
+        tournamentId,
+      };
+      const result = converter.toResponse(input);
       expect(result).toEqual(expectedResponse);
     });
   });
 
-  describe('save', () => {
-    it('should return a put item', () => {
-      const body = {
-        tournamentName
-      } as TournamentRequest;
-
-      const document: TournamentDetailsDocument = {
+  describe('toResponseList', () => {
+    it('should convert documents to responses', () => {
+      const input: TournamentDocument = {
+        tournamentName,
+        id: tournamentId,
+        orderingValue: tournamentName,
+        documentType: 'tournament',
+        'documentType-id': `tournament-${tournamentId}`
+      };
+      const expectedResponse: TournamentResponse = {
         tournamentName,
         tournamentId,
-        segment: 'details',
+      };
+      const result = converter.toResponseList([input]);
+      expect(result).toEqual([expectedResponse]);
+    });
+  });
+
+  describe('create', () => {
+    it('should return a tournament document', () => {
+      const body: TournamentRequest = {
+        tournamentName
+      };
+
+      mockUuid.mockReturnValue(tournamentId);
+
+      const expectedDocument: TournamentDocument = {
+        tournamentName,
+        id: tournamentId,
+        orderingValue: tournamentName,
         documentType: 'tournament',
-        'documentType-id': `tournament-${tournamentId}`,
-        orderingValue: tournamentName
+        'documentType-id': `tournament-${tournamentId}`
       };
 
-      const expectedPut: DynamoDB.DocumentClient.Put = {
-        TableName: tableName,
-        Item: document
-      };
-
-      const result = converter.save(tournamentId, body);
-      expect(result).toEqual(expectedPut);
+      const result = converter.create(body);
+      expect(result).toEqual(expectedDocument);
     });
   });
 
   describe('update', () => {
-    it('should return an update item', () => {
-      const body = {
+    it('should return a tournament document for update', () => {
+      const body: TournamentRequest = {
         tournamentName
-      } as TournamentRequest;
-
-      const expectedItem: DynamoDB.DocumentClient.Update = {
-        TableName: tableName,
-        Key: {
-          'documentType-id': tournamentId,
-          segment: 'details'
-        },
-        ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-        UpdateExpression: 'set tournamentName = :tournamentName, orderingValue = :tournamentName',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-          '#segment': 'segment'
-        },
-        ExpressionAttributeValues: {
-          ':tournamentName': tournamentName
-        }
       };
 
-      const result = converter.update(tournamentId, body);
-      expect(result).toEqual(expectedItem);
-    });
-  });
-
-  describe('delete', () => {
-    it('should return a delete item', () => {
-
-      const expectedItem: DynamoDB.DocumentClient.Delete = {
-        TableName: tableName,
-        Key: {
-          segment: 'details',
-          'documentType-id': `tournament-${tournamentId}`,
-        }
+      const expectedDocument: TournamentDocumentUpdatable = {
+        tournamentName,
       };
 
-      const result = converter.delete(tournamentId);
-      expect(result).toEqual(expectedItem);
+      const result = converter.update(body);
+      expect(result).toEqual(expectedDocument);
     });
   });
 });

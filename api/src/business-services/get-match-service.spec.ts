@@ -1,59 +1,59 @@
 import { IGetMatchService, getMatchServiceFactory } from '@/business-services/get-match-service';
-import { MatchDetailsDocument } from '@/types/documents';
+import { MatchDocument } from '@/types/documents';
 import { MatchResponse } from '@/types/responses';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { IMatchDocumentService } from '@/services/match-document-service';
+import { Mock, createMockService, validateError } from '@/common';
 
 describe('Get match service', () => {
   let service: IGetMatchService;
-  let mockMatchDocumentService: IMatchDocumentService;
-  let mockQueryMatchById: jest.Mock;
-  let mockMatchDocumentConverter: IMatchDocumentConverter;
-  let mockCreateResponse: jest.Mock;
+  let mockMatchDocumentService: Mock<IMatchDocumentService>;
+  let mockMatchDocumentConverter: Mock<IMatchDocumentConverter>;
 
   beforeEach(() => {
-    mockQueryMatchById = jest.fn();
-    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
-      queryMatchById: mockQueryMatchById,
-    }))) as IMatchDocumentService;
+    mockMatchDocumentService = createMockService('queryMatchById');
+    mockMatchDocumentConverter = createMockService('toResponse');
 
-    mockCreateResponse = jest.fn();
-    mockMatchDocumentConverter = new (jest.fn<Partial<IMatchDocumentConverter>, undefined[]>(() => ({
-      createResponse: mockCreateResponse
-    })))() as IMatchDocumentConverter;
-
-    service = getMatchServiceFactory(mockMatchDocumentService, mockMatchDocumentConverter);
+    service = getMatchServiceFactory(mockMatchDocumentService.service, mockMatchDocumentConverter.service);
   });
 
   it('should return with a match', async () => {
     const matchId = 'matchId';
     const matchDocument = {
-      matchId,
-      segment: 'details',
-    } as MatchDetailsDocument;
+      id: matchId,
+    } as MatchDocument;
 
-    mockQueryMatchById.mockResolvedValue([matchDocument]);
+    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue(matchDocument);
 
     const matchResponse = {
       matchId,
     } as MatchResponse;
 
-    mockCreateResponse.mockReturnValue(matchResponse);
+    mockMatchDocumentConverter.functions.toResponse.mockReturnValue(matchResponse);
 
     const result = await service({ matchId });
     expect(result).toEqual(matchResponse);
-    expect(mockCreateResponse).toHaveBeenCalledWith([matchDocument]);
+    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentConverter.functions.toResponse).toHaveBeenCalledWith(matchDocument);
   });
 
   it('should throw error if unable to query match', async () => {
     const matchId = 'matchId';
-    mockQueryMatchById.mockRejectedValue('This is a dynamo error');
+    mockMatchDocumentService.functions.queryMatchById.mockRejectedValue('This is a dynamo error');
 
-    try {
-      await service({ matchId });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query match');
-    }
+    await service({ matchId }).catch(validateError('Unable to query match', 500));
+    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    expect.assertions(4);
+  });
+
+  it('should return with error if no match found', async () => {
+    const matchId = 'matchId';
+    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue(undefined);
+
+    await service({ matchId }).catch(validateError('No match found', 404));
+    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    expect.assertions(4);
   });
 });

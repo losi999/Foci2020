@@ -6,9 +6,11 @@ export default (createTournament: ICreateTournamentService): APIGatewayProxyHand
   return async (event) => {
     const body = JSON.parse(event.body) as TournamentRequest;
 
+    let tournamentId: string;
     try {
-      await createTournament({ body });
+      tournamentId = await createTournament({ body });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message
@@ -17,7 +19,7 @@ export default (createTournament: ICreateTournamentService): APIGatewayProxyHand
 
     return {
       statusCode: 200,
-      body: ''
+      body: JSON.stringify({ tournamentId })
     };
   };
 };

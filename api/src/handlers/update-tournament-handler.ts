@@ -13,6 +13,7 @@ export default (updateTournament: IUpdateTournamentService): APIGatewayProxyHand
         tournamentId
       });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

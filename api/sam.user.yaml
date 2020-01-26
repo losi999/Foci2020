@@ -21,7 +21,7 @@ Globals:
     Handler: index.default
     Runtime: nodejs12.x
     Timeout: 10
-    MemorySize: 128
+    MemorySize: 512
     Tracing: Active
     Environment:
       Variables:

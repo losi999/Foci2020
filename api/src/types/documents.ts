@@ -1,80 +1,44 @@
-export type DocumentKey<T = 'details'> = {
+export type DocumentKey = {
   'documentType-id': string;
-  segment: T;
+  id: string;
 };
 
 export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';
 
-type DocumentBase = {
-  documentType: DocumentType;
+type DocumentBase<T extends DocumentType> = {
+  documentType: T;
   orderingValue: string;
 };
 
-export type TournamentDetailsUpdateDocument = {
+export type TournamentDocumentUpdatable = {
   tournamentName: string
 };
 
-export type TournamentDetailsDocument = DocumentKey & TournamentDetailsUpdateDocument & DocumentBase & {
-  documentType: 'tournament';
-  tournamentId: string;
-};
+export type TournamentDocument = DocumentKey & TournamentDocumentUpdatable & DocumentBase<'tournament'>;
 
-export type TournamentDocument = TournamentDetailsDocument;
-
-export type IndexByTournamentIdDocument = Pick<MatchTournamentDocument, keyof DocumentKey | 'tournamentId' | 'documentType' | 'matchId'>;
-
-export type TeamDetailsUpdateDocument = {
+export type TeamDocumentUpdatable = {
   teamName: string
   shortName: string;
   image: string;
 };
 
-export type TeamDetailsDocument = DocumentKey & TeamDetailsUpdateDocument & DocumentBase & {
-  documentType: 'team';
-  teamId: string;
-};
+export type TeamDocument = DocumentKey & TeamDocumentUpdatable & DocumentBase<'team'>;
 
-export type TeamDocument = TeamDetailsDocument;
-
-export type IndexByTeamIdDocument = Pick<MatchTeamDocument, keyof DocumentKey | 'teamId' | 'documentType' | 'matchId'>;
-
-export type MatchDetailsUpdateDocument = {
+export type MatchDocumentUpdatable = {
+  homeTeamId: string;
+  awayTeamId: string;
+  tournamentId: string;
+  homeTeam: TeamDocument;
+  awayTeam: TeamDocument;
+  tournament: TournamentDocument;
   startTime: string;
   group: string;
+  homeScore?: number;
+  awayScore?: number;
 };
 
-export type MatchDetailsDocument = DocumentKey & DocumentBase & MatchDetailsUpdateDocument & {
-  documentType: 'match';
-  matchId: string;
-};
+export type MatchDocument = DocumentKey & MatchDocumentUpdatable & DocumentBase<'match'>;
 
-export type MatchTeamUpdateDocument = {
-  teamId: string;
-  teamName: string
-  shortName: string;
-  image: string;
-};
-
-export type MatchTeamDocument = DocumentKey<'homeTeam' | 'awayTeam'> & DocumentBase & MatchTeamUpdateDocument & {
-  documentType: 'match';
-  matchId: string;
-};
-
-export type MatchTournamentUpdateDocument = {
-  tournamentId: string;
-  tournamentName: string
-};
-
-export type MatchTournamentDocument = DocumentKey<'tournament'> & DocumentBase & MatchTournamentUpdateDocument & {
-  documentType: 'match';
-  matchId: string;
-};
-
-export type MatchFinalScoreDocument = DocumentKey<'finalScore'> & DocumentBase & {
-  documentType: 'match';
-  matchId: string;
-  homeScore: number;
-  awayScore: number;
-};
-
-export type MatchDocument = MatchDetailsDocument | MatchTeamDocument | MatchTournamentDocument | MatchFinalScoreDocument;
+export type IndexByTournamentIdDocument = Pick<MatchDocument, keyof DocumentKey | 'tournamentId'>;
+export type IndexByHomeTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'homeTeamId'>;
+export type IndexByAwayTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'awayTeamId'>;

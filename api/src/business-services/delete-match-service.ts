@@ -12,7 +12,7 @@ export const deleteMatchServiceFactory = (
 ): IDeleteMatchService => {
   return async ({ matchId }) => {
     await matchDocumentService.deleteMatch(matchId).catch((error) => {
-      console.log('ERROR databaseService.deleteMatch', error);
+      console.error('Delete match', error);
       throw httpError(500, 'Unable to delete match');
     });
   };

@@ -14,12 +14,12 @@ export const deleteTournamentServiceFactory = (
 ): IDeleteTournamentService => {
   return async ({ tournamentId }) => {
     await tournamentDocumentService.deleteTournament(tournamentId).catch((error) => {
-      console.log('ERROR databaseService.deleteTournament', error);
+      console.error('Delete tournament', error);
       throw httpError(500, 'Unable to delete tournament');
     });
 
     await notificationService.tournamentDeleted(tournamentId).catch((error) => {
-      console.log('ERROR notificationService.tournamentDeleted', error);
+      console.error('Tournament deleted', error);
       throw httpError(500, 'Unable to send tournament deleted notification');
     });
   };

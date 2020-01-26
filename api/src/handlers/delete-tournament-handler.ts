@@ -7,6 +7,7 @@ export default (deleteTournament: IDeleteTournamentService): APIGatewayProxyHand
     try {
       await deleteTournament({ tournamentId });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

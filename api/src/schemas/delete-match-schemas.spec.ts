@@ -1,4 +1,4 @@
-import * as schemas from '@/schemas/get-match-schemas';
+import * as schemas from '@/schemas/delete-match-schemas';
 import { validatorService } from '@/dependencies';
 
 describe('Delete match schemas', () => {

@@ -1,369 +1,317 @@
 import { createMatchServiceFactory, ICreateMatchService } from '@/business-services/create-match-service';
 import { advanceTo, clear } from 'jest-date-mock';
-import { addMinutes } from '@/common';
-import { MatchRequest } from '@/types/requests';
-import { TeamDocument, TournamentDocument } from '@/types/documents';
+import { addMinutes, Mock, createMockService, validateError } from '@/common';
+import { TeamDocument, TournamentDocument, MatchDocument } from '@/types/documents';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
+import { IMatchDocumentConverter } from '@/converters/match-document-converter';
+import { MatchRequest } from '@/types/requests';
 
 describe('Create match service', () => {
-  let mockMatchDocumentService: IMatchDocumentService;
-  let mockTeamDocumentService: ITeamDocumentService;
-  let mockTournamentDocumentService: ITournamentDocumentService;
-  let mockSaveMatch: jest.Mock;
-  let mockQueryTeamById: jest.Mock;
-  let mockQueryTournamentById: jest.Mock;
-  let mockUuid: jest.Mock;
+  let mockMatchDocumentService: Mock<IMatchDocumentService>;
+  let mockTeamDocumentService: Mock<ITeamDocumentService>;
+  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
+  let mockMatchDocumentConverter: Mock<IMatchDocumentConverter>;
   let service: ICreateMatchService;
 
   const now = new Date(2019, 3, 21, 19, 0, 0);
 
   beforeEach(() => {
-    mockSaveMatch = jest.fn();
-    mockMatchDocumentService = new (jest.fn<Partial<IMatchDocumentService>, undefined[]>(() => ({
-      saveMatch: mockSaveMatch,
-    })))() as IMatchDocumentService;
+    mockMatchDocumentService = createMockService('saveMatch');
+    mockTeamDocumentService = createMockService('queryTeamById');
+    mockTournamentDocumentService = createMockService('queryTournamentById');
+    mockMatchDocumentConverter = createMockService('create');
 
-    mockQueryTeamById = jest.fn();
-    mockTeamDocumentService = new (jest.fn<Partial<ITeamDocumentService>, undefined[]>(() => ({
-      queryTeamById: mockQueryTeamById,
-    })))() as ITeamDocumentService;
-
-    mockQueryTournamentById = jest.fn();
-    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
-      queryTournamentById: mockQueryTournamentById,
-    })))() as ITournamentDocumentService;
-
-    mockUuid = jest.fn();
-
-    service = createMatchServiceFactory(mockMatchDocumentService, mockTeamDocumentService, mockTournamentDocumentService, mockUuid);
+    service = createMatchServiceFactory(mockMatchDocumentService.service, mockTeamDocumentService.service, mockTournamentDocumentService.service, mockMatchDocumentConverter.service);
     advanceTo(now);
   });
+
+  type TestDataInput = {
+    matchId: string,
+    tournamentId: string,
+    homeTeamId: string,
+    awayTeamId: string,
+    queriedHomeTeam: TeamDocument,
+    queriedAwayTeam: TeamDocument,
+    queriedTournament: TournamentDocument,
+    convertedMatch: MatchDocument,
+  };
+
+  type TestData = TestDataInput & {
+    body: MatchRequest,
+  };
+
+  const setup = (input?: Partial<TestDataInput> & { minutesFromNow?: number }): TestData => {
+    const tournamentId = input?.tournamentId ?? 'tournamentId';
+    const awayTeamId = input?.awayTeamId ?? 'awayTeamId';
+    const homeTeamId = input?.homeTeamId ?? 'homeTeamId';
+    const matchId = input?.matchId ?? 'matchId';
+    const queriedHomeTeam = input?.queriedHomeTeam ?? {
+      id: homeTeamId,
+      teamName: 'homeTeam',
+      image: 'http://home.png',
+      shortName: 'HMT'
+    } as TeamDocument;
+
+    const queriedAwayTeam = input?.queriedAwayTeam ?? {
+      id: awayTeamId,
+      teamName: 'awayTeam',
+      image: 'http://away.png',
+      shortName: 'AWT'
+    } as TeamDocument;
+
+    const queriedTournament = input?.queriedTournament ?? {
+      id: tournamentId,
+      tournamentName: 'tournament'
+    } as TournamentDocument;
+
+    const convertedMatch = input?.convertedMatch ?? {
+      id: matchId
+    } as MatchDocument;
+
+    const startTime = addMinutes(input?.minutesFromNow ?? 5.1, now);
+    return {
+      matchId,
+      tournamentId,
+      homeTeamId,
+      awayTeamId,
+      queriedHomeTeam,
+      queriedAwayTeam,
+      queriedTournament,
+      convertedMatch,
+      body: {
+        tournamentId,
+        homeTeamId,
+        awayTeamId,
+        group: 'group',
+        startTime: startTime.toISOString()
+      }
+    };
+  };
 
   afterEach(() => {
     clear();
   });
 
-  it('should return undefined if match is saved', async () => {
-    const tournamentId = 'tournamentId';
-    const awayTeamId = 'awayTeamId';
-    const homeTeamId = 'homeTeamId';
-    const group = 'group';
-    const startTime = addMinutes(5.1, now);
-    const matchId = 'matchId';
-    const body: MatchRequest = {
-      tournamentId,
-      homeTeamId,
+  it('should return with matchId if match is saved', async () => {
+    const {
+      matchId,
       awayTeamId,
-      group,
-      startTime: startTime.toISOString()
-    };
-    const homeTeam = {
-      teamId: homeTeamId,
-      teamName: 'homeTeam',
-      image: 'http://home.png',
-      shortName: 'HMT'
-    } as TeamDocument;
-
-    const awayTeam = {
-      teamId: awayTeamId,
-      teamName: 'awayTeam',
-      image: 'http://away.png',
-      shortName: 'AWT'
-    } as TeamDocument;
-
-    const tournament = {
+      homeTeamId,
       tournamentId,
-      tournamentName: 'tournament'
-    } as TournamentDocument;
+      queriedAwayTeam,
+      queriedHomeTeam,
+      queriedTournament,
+      convertedMatch,
+      body,
+    } = setup();
 
-    mockQueryTeamById.mockResolvedValueOnce(homeTeam);
-    mockQueryTeamById.mockResolvedValueOnce(awayTeam);
-    mockQueryTournamentById.mockResolvedValue(tournament);
-    mockUuid.mockReturnValue(matchId);
-    mockSaveMatch.mockResolvedValue(undefined);
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedAwayTeam);
+    mockTournamentDocumentService.functions.queryTournamentById.mockResolvedValue(queriedTournament);
+    mockMatchDocumentConverter.functions.create.mockReturnValue(convertedMatch);
+    mockMatchDocumentService.functions.saveMatch.mockResolvedValue(undefined);
 
     const result = await service({ body });
-    expect(result).toBeUndefined();
-    expect(mockSaveMatch).toHaveBeenCalledWith(matchId, body, homeTeam, awayTeam, tournament);
+    expect(result).toEqual(matchId);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockMatchDocumentConverter.functions.create).toHaveBeenCalledWith(body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
+    expect(mockMatchDocumentService.functions.saveMatch).toHaveBeenCalledWith(convertedMatch);
   });
 
   it('should throw error if startTime is less than 5 minutes from now', async () => {
-    const tournamentId = 'tournamentId';
-    const awayTeamId = 'awayTeamId';
-    const homeTeamId = 'homeTeamId';
-    const group = 'group';
-    const startTime = addMinutes(4.9, now);
+    const {
+      body,
+    } = setup({ minutesFromNow: 4.9 });
 
-    const body: MatchRequest = {
-      tournamentId,
-      homeTeamId,
-      awayTeamId,
-      group,
-      startTime: startTime.toISOString()
-    };
+    await service({ body }).catch(validateError('Start time has to be at least 5 minutes from now', 400));
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(400);
-      expect(error.message).toEqual('Start time has to be at least 5 minutes from now');
-    }
+    expect(mockTeamDocumentService.functions.queryTeamById).not.toHaveBeenCalled();
+    expect(mockTeamDocumentService.functions.queryTeamById).not.toHaveBeenCalled();
+    expect(mockTournamentDocumentService.functions.queryTournamentById).not.toHaveBeenCalled();
+    expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
+    expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if home and away teams are the same', async () => {
-    const tournamentId = 'tournamentId';
-    const teamId = 'teamId';
-    const group = 'group';
-    const startTime = addMinutes(5.1, now);
-    const body: MatchRequest = {
-      tournamentId,
-      group,
-      homeTeamId: teamId,
-      awayTeamId: teamId,
-      startTime: startTime.toISOString()
-    };
+    const {
+      body,
+    } = setup({
+      homeTeamId: 'sameTeamId',
+      awayTeamId: 'sameTeamId'
+    });
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(400);
-      expect(error.message).toEqual('Home and away teams cannot be the same');
-    }
+    await service({ body }).catch(validateError('Home and away teams cannot be the same', 400));
+
+    expect(mockTeamDocumentService.functions.queryTeamById).not.toHaveBeenCalled();
+    expect(mockTeamDocumentService.functions.queryTeamById).not.toHaveBeenCalled();
+    expect(mockTournamentDocumentService.functions.queryTournamentById).not.toHaveBeenCalled();
+    expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
+    expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to query home team', async () => {
-    const tournamentId = 'tournamentId';
-    const awayTeamId = 'awayTeamId';
-    const homeTeamId = 'homeTeamId';
-    const group = 'group';
-    const startTime = addMinutes(5.1, now);
-    const body: MatchRequest = {
-      tournamentId,
-      homeTeamId,
+    const {
       awayTeamId,
-      group,
-      startTime: startTime.toISOString()
-    };
+      homeTeamId,
+      tournamentId,
+      body,
+    } = setup();
 
-    mockQueryTeamById.mockRejectedValue('This is a dynamo error');
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query related document');
-    }
+    mockTeamDocumentService.functions.queryTeamById.mockRejectedValue('This is a dynamo error');
+
+    await service({ body }).catch(validateError('Unable to query related document', 500));
+
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
+    expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to query away team', async () => {
-    const tournamentId = 'tournamentId';
-    const awayTeamId = 'awayTeamId';
-    const homeTeamId = 'homeTeamId';
-    const group = 'group';
-    const startTime = addMinutes(5.1, now);
-    const body: MatchRequest = {
-      tournamentId,
-      homeTeamId,
+    const {
       awayTeamId,
-      group,
-      startTime: startTime.toISOString()
-    };
-    const homeTeam = {
-      teamId: homeTeamId,
-      teamName: 'homeTeam',
-      image: 'http://home.png',
-      shortName: 'HMT'
-    } as TeamDocument;
+      homeTeamId,
+      tournamentId,
+      queriedHomeTeam,
+      body,
+    } = setup();
 
-    mockQueryTeamById.mockResolvedValueOnce(homeTeam);
-    mockQueryTeamById.mockRejectedValueOnce('This is a dynamo error');
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockTeamDocumentService.functions.queryTeamById.mockRejectedValueOnce('This is a dynamo error');
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query related document');
-    }
+    await service({ body }).catch(validateError('Unable to query related document', 500));
+
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
+    expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to query tournament', async () => {
-    const tournamentId = 'tournamentId';
-    const awayTeamId = 'awayTeamId';
-    const homeTeamId = 'homeTeamId';
-    const group = 'group';
-    const startTime = addMinutes(5.1, now);
-    const body: MatchRequest = {
-      tournamentId,
-      homeTeamId,
+    const {
       awayTeamId,
-      group,
-      startTime: startTime.toISOString()
-    };
-    const homeTeam = {
-      teamId: homeTeamId,
-      teamName: 'homeTeam',
-      image: 'http://home.png',
-      shortName: 'HMT'
-    } as TeamDocument;
+      homeTeamId,
+      tournamentId,
+      queriedAwayTeam,
+      queriedHomeTeam,
+      body,
+    } = setup();
 
-    const awayTeam = {
-      teamId: awayTeamId,
-      teamName: 'awayTeam',
-      image: 'http://away.png',
-      shortName: 'AWT'
-    } as TeamDocument;
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedAwayTeam);
+    mockTournamentDocumentService.functions.queryTournamentById.mockRejectedValueOnce('This is a dynamo error');
 
-    mockQueryTeamById.mockResolvedValueOnce(homeTeam);
-    mockQueryTeamById.mockResolvedValueOnce(awayTeam);
-    mockQueryTournamentById.mockRejectedValueOnce('This is a dynamo error');
+    await service({ body }).catch(validateError('Unable to query related document', 500));
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query related document');
-    }
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
+    expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if unable to save match', async () => {
-    const tournamentId = 'tournamentId';
-    const awayTeamId = 'awayTeamId';
-    const homeTeamId = 'homeTeamId';
-    const group = 'group';
-    const startTime = addMinutes(5.1, now);
-    const matchId = 'matchId';
-    const body: MatchRequest = {
-      tournamentId,
-      homeTeamId,
+    const {
       awayTeamId,
-      group,
-      startTime: startTime.toISOString()
-    };
-    const homeTeam = {
-      teamId: homeTeamId,
-      teamName: 'homeTeam',
-      image: 'http://home.png',
-      shortName: 'HMT'
-    } as TeamDocument;
-
-    const awayTeam = {
-      teamId: awayTeamId,
-      teamName: 'awayTeam',
-      image: 'http://away.png',
-      shortName: 'AWT'
-    } as TeamDocument;
-
-    const tournament = {
+      homeTeamId,
       tournamentId,
-      tournamentName: 'tournament'
-    } as TournamentDocument;
+      queriedAwayTeam,
+      queriedHomeTeam,
+      queriedTournament,
+      convertedMatch,
+      body,
+    } = setup();
 
-    mockQueryTeamById.mockResolvedValueOnce(homeTeam);
-    mockQueryTeamById.mockResolvedValueOnce(awayTeam);
-    mockQueryTournamentById.mockResolvedValue(tournament);
-    mockUuid.mockReturnValue(matchId);
-    mockSaveMatch.mockRejectedValue('This is a dynamo error');
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedAwayTeam);
+    mockTournamentDocumentService.functions.queryTournamentById.mockResolvedValue(queriedTournament);
+    mockMatchDocumentConverter.functions.create.mockReturnValue(convertedMatch);
+    mockMatchDocumentService.functions.saveMatch.mockRejectedValue('This is a dynamo error');
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Error while saving match');
-    }
+    await service({ body }).catch(validateError('Error while saving match', 500));
+
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockMatchDocumentConverter.functions.create).toHaveBeenCalledWith(body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
+    expect(mockMatchDocumentService.functions.saveMatch).toHaveBeenCalledWith(convertedMatch);
+    expect.assertions(7);
   });
 
   it('should throw error if no home team found', async () => {
-    const tournamentId = 'tournamentId';
-    const awayTeamId = 'awayTeamId';
-    const homeTeamId = 'homeTeamId';
-    const group = 'group';
-    const startTime = addMinutes(5.1, now);
-    const body: MatchRequest = {
-      tournamentId,
-      homeTeamId,
+    const {
       awayTeamId,
-      group,
-      startTime: startTime.toISOString()
-    };
+      homeTeamId,
+      tournamentId,
+      body,
+    } = setup();
 
-    mockQueryTeamById.mockResolvedValueOnce(undefined);
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(undefined);
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(400);
-      expect(error.message).toEqual('Home team not found');
-    }
+    await service({ body }).catch(validateError('Home team not found', 400));
+
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
+    expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if no away team found', async () => {
-    const tournamentId = 'tournamentId';
-    const awayTeamId = 'awayTeamId';
-    const homeTeamId = 'homeTeamId';
-    const group = 'group';
-    const startTime = addMinutes(5.1, now);
-    const body: MatchRequest = {
-      tournamentId,
-      homeTeamId,
+    const {
       awayTeamId,
-      group,
-      startTime: startTime.toISOString()
-    };
-    const homeTeam = {
-      teamId: homeTeamId,
-      teamName: 'homeTeam',
-      image: 'http://home.png',
-      shortName: 'HMT'
-    } as TeamDocument;
+      homeTeamId,
+      tournamentId,
+      queriedHomeTeam,
+      body,
+    } = setup();
 
-    mockQueryTeamById.mockResolvedValueOnce(homeTeam);
-    mockQueryTeamById.mockResolvedValueOnce(undefined);
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(undefined);
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(400);
-      expect(error.message).toEqual('Away team not found');
-    }
+    await service({ body }).catch(validateError('Away team not found', 400));
+
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
+    expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should throw error if no tournament found', async () => {
-    const tournamentId = 'tournamentId';
-    const awayTeamId = 'awayTeamId';
-    const homeTeamId = 'homeTeamId';
-    const group = 'group';
-    const startTime = addMinutes(5.1, now);
-    const body: MatchRequest = {
-      tournamentId,
-      homeTeamId,
+    const {
       awayTeamId,
-      group,
-      startTime: startTime.toISOString()
-    };
-    const homeTeam = {
-      teamId: homeTeamId,
-      teamName: 'homeTeam',
-      image: 'http://home.png',
-      shortName: 'HMT'
-    } as TeamDocument;
+      homeTeamId,
+      tournamentId,
+      queriedAwayTeam,
+      queriedHomeTeam,
+      body,
+    } = setup();
 
-    const awayTeam = {
-      teamId: awayTeamId,
-      teamName: 'awayTeam',
-      image: 'http://away.png',
-      shortName: 'AWT'
-    } as TeamDocument;
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockTeamDocumentService.functions.queryTeamById.mockResolvedValueOnce(queriedAwayTeam);
+    mockTournamentDocumentService.functions.queryTournamentById.mockResolvedValue(undefined);
 
-    mockQueryTeamById.mockResolvedValueOnce(homeTeam);
-    mockQueryTeamById.mockResolvedValueOnce(awayTeam);
-    mockQueryTournamentById.mockResolvedValue(undefined);
+    await service({ body }).catch(validateError('Tournament not found', 400));
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(400);
-      expect(error.message).toEqual('Tournament not found');
-    }
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockMatchDocumentConverter.functions.create).not.toHaveBeenCalled();
+    expect(mockMatchDocumentService.functions.saveMatch).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 });

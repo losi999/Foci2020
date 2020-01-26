@@ -2,6 +2,7 @@ import { TeamRequest } from '@/types/requests';
 import { httpError } from '@/common';
 import { INotificationService } from '@/services/notification-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
+import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 
 export interface IUpdateTeamService {
   (ctx: {
@@ -12,18 +13,21 @@ export interface IUpdateTeamService {
 
 export const updateTeamServiceFactory = (
   teamDocumentService: ITeamDocumentService,
+  teamDocumentConverter: ITeamDocumentConverter,
   notificationService: INotificationService): IUpdateTeamService => {
   return async ({ body, teamId }) => {
-    await teamDocumentService.updateTeam(teamId, body).catch((error) => {
-      console.log('ERROR databaseService.updateTeam', error);
+    const document = teamDocumentConverter.update(body);
+
+    const team = await teamDocumentService.updateTeam(teamId, document).catch((error) => {
+      console.error('Update team', error);
       throw httpError(500, 'Error while updating team');
     });
 
     await notificationService.teamUpdated({
       teamId,
-      team: body
+      team
     }).catch((error) => {
-      console.log('ERROR notificationService.teamUpdated', error);
+      console.error('Team updated', error);
       throw httpError(500, 'Unable to send team updated notification');
     });
   };

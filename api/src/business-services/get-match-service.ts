@@ -15,10 +15,14 @@ export const getMatchServiceFactory = (
 ): IGetMatchService => {
   return async ({ matchId }) => {
     const match = await matchDocumentService.queryMatchById(matchId).catch((error) => {
-      console.log('ERROR databaseService.queryMatchById', error);
+      console.error('Query match by Id', error);
       throw httpError(500, 'Unable to query match');
     });
 
-    return matchDocumentConverter.createResponse(match);
+    if (!match) {
+      throw httpError(404, 'No match found');
+    }
+
+    return matchDocumentConverter.toResponse(match);
   };
 };

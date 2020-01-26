@@ -1,4 +1,4 @@
-import { httpError, addMinutes } from '@/common';
+import { httpError, addMinutes, chunk } from '@/common';
 import { advanceTo, clear } from 'jest-date-mock';
 
 describe('httpError common function', () => {
@@ -31,5 +31,13 @@ describe('addMinutes common function', () => {
   it('should add minutes to now', () => {
     const result = addMinutes(5);
     expect(result).toEqual(new Date(2019, 1, 1, 1, 6, 1));
+  });
+});
+
+describe('chunk', () => {
+  it('should split the array', () => {
+    const input = [1, 2, 3, 4, 5];
+    const result = chunk(input, 3);
+    expect(result).toEqual([[1, 2, 3], [4, 5]]);
   });
 });

@@ -38,5 +38,6 @@ describe('Update match handler', () => {
     const response = await handler(mockUpdateMatchService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
+    expect(response.body).toEqual('');
   });
 });

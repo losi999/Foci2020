@@ -38,5 +38,6 @@ describe('Delete match handler', () => {
     const response = await handler(mockDeleteMatchService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
+    expect(response.body).toEqual('');
   });
 });

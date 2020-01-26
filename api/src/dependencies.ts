@@ -1,6 +1,7 @@
 import ajv from 'ajv';
+import uuid from 'uuid';
 import { captureAWSClient } from 'aws-xray-sdk';
-import { DynamoDB, SNS, CognitoIdentityServiceProvider } from 'aws-sdk';
+import { DynamoDB, SNS, CognitoIdentityServiceProvider, config } from 'aws-sdk';
 import { ajvValidatorService } from '@/services/validator-service';
 import { default as apiRequestValidatorHandler } from '@/handlers/api-request-validator-handler';
 import { snsNotificationService } from '@/services/notification-service';
@@ -16,18 +17,19 @@ const ajvValidator = new ajv({
   allErrors: true,
   format: 'full'
 });
+config.logger = console;
 const dynamoDbClient = new DynamoDB.DocumentClient();
 const sns = captureAWSClient(new SNS());
 const cognito = captureAWSClient(new CognitoIdentityServiceProvider());
 captureAWSClient((dynamoDbClient as any).service);
 
-export const matchDocumentConverter = matchDocumentConverterFactory();
-export const teamDocumentConverter = teamDocumentConverterFactory();
-export const tournamentDocumentConverter = tournamentDocumentConverterFactory();
+export const matchDocumentConverter = matchDocumentConverterFactory(uuid);
+export const teamDocumentConverter = teamDocumentConverterFactory(uuid);
+export const tournamentDocumentConverter = tournamentDocumentConverterFactory(uuid);
 
-export const teamDocumentService = teamDocumentServiceFactory(dynamoDbClient, teamDocumentConverter);
-export const tournamentDocumentService = tournamentDocumentServiceFactory(dynamoDbClient, tournamentDocumentConverter);
-export const matchDocumentService = matchDocumentServiceFactory(dynamoDbClient, matchDocumentConverter);
+export const teamDocumentService = teamDocumentServiceFactory(dynamoDbClient);
+export const tournamentDocumentService = tournamentDocumentServiceFactory(dynamoDbClient);
+export const matchDocumentService = matchDocumentServiceFactory(dynamoDbClient);
 
 export const validatorService = ajvValidatorService(ajvValidator);
 export const notificationService = snsNotificationService(sns);

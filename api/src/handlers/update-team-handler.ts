@@ -13,6 +13,7 @@ export default (updateTeam: IUpdateTeamService): APIGatewayProxyHandler => {
         teamId
       });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

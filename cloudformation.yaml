@@ -19,8 +19,8 @@ Resources:
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Infrastructure.Outputs.Database
-        DeleteTeamTopic: !GetAtt Infrastructure.Outputs.DeleteTeamTopic
-        UpdateTeamTopic: !GetAtt Infrastructure.Outputs.UpdateTeamTopic
+        TeamDeletedTopic: !GetAtt Infrastructure.Outputs.TeamDeletedTopic
+        TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
         Env: !Ref Env
 
   Tournament:
@@ -31,8 +31,8 @@ Resources:
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Infrastructure.Outputs.Database
-        DeleteTournamentTopic: !GetAtt Infrastructure.Outputs.DeleteTournamentTopic
-        UpdateTournamentTopic: !GetAtt Infrastructure.Outputs.UpdateTournamentTopic
+        TournamentDeletedTopic: !GetAtt Infrastructure.Outputs.TournamentDeletedTopic
+        TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
         Env: !Ref Env
 
   Match:
@@ -43,6 +43,10 @@ Resources:
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Infrastructure.Outputs.Database
+        TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
+        TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
+        TeamDeletedTopic: !GetAtt Infrastructure.Outputs.TeamDeletedTopic
+        TournamentDeletedTopic: !GetAtt Infrastructure.Outputs.TournamentDeletedTopic
         Env: !Ref Env
 
   User:

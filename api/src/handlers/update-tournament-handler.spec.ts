@@ -38,5 +38,6 @@ describe('Update tournament handler', () => {
     const response = await handler(mockUpdateTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
+    expect(response.body).toEqual('');
   });
 });

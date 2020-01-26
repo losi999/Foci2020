@@ -1,13 +1,13 @@
-import { TeamDetailsUpdateDocument, TournamentDetailsUpdateDocument } from '@/types/documents';
+import { TeamDocument, TournamentDocument } from '@/types/documents';
 
 export type Converter<T, U> = (input: T) => U;
 
-export type UpdateTeamNotification = {
+export type TeamUpdatedNotification = {
   teamId: string;
-  team: TeamDetailsUpdateDocument
+  team: TeamDocument
 };
 
-export type UpdateTournamentNotification = {
+export type TournamentUpdatedNotification = {
   tournamentId: string;
-  tournament: TournamentDetailsUpdateDocument
+  tournament: TournamentDocument
 };

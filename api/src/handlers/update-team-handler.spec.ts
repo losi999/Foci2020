@@ -38,5 +38,6 @@ describe('Update team handler', () => {
     const response = await handler(mockUpdateTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
+    expect(response.body).toEqual('');
   });
 });

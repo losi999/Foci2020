@@ -8,6 +8,7 @@ export default (listTournaments: IListTournamentsService): APIGatewayProxyHandle
     try {
       tournaments = await listTournaments();
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

@@ -1,138 +1,107 @@
 import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@/converters/team-document-converter';
 import { TeamResponse } from '@/types/responses';
-import { TeamDocument, TeamDetailsDocument } from '@/types/documents';
+import { TeamDocument, TeamDocumentUpdatable } from '@/types/documents';
 import { TeamRequest } from '@/types/requests';
-import { DynamoDB } from 'aws-sdk';
 
 describe('Team document converter', () => {
   let converter: ITeamDocumentConverter;
+  let mockUuid: jest.Mock;
   const teamId = 'teamId';
   const teamName = 'homeTeam';
   const shortName = 'HMT';
   const image = 'http://image.com/home.png';
 
-  const tableName = 'tableName';
   beforeEach(() => {
-    process.env.DYNAMO_TABLE = tableName;
+    mockUuid = jest.fn();
 
-    converter = teamDocumentConverterFactory();
+    converter = teamDocumentConverterFactory(mockUuid);
   });
 
-  afterEach(() => {
-    process.env.DYNAMO_TABLE = undefined;
-  });
-
-  describe('createResponse', () => {
-    let input: TeamDocument[];
-
-    beforeEach(() => {
-      input = [{
-        shortName,
+  describe('toResponse', () => {
+    it('should convert document to response', () => {
+      const input: TeamDocument = {
         teamName,
-        image,
-        teamId: 'teamId1',
-      }, {
         shortName,
-        teamName,
         image,
-        teamId: 'teamId2',
-      }] as TeamDocument[];
-    });
-
-    it('should convert documents to response', () => {
-      const expectedResponse: TeamResponse[] = [
-        {
-          image,
-          shortName,
-          teamName,
-          teamId: 'teamId1',
-        },
-        {
-          image,
-          shortName,
-          teamName,
-          teamId: 'teamId2',
-        }
-      ];
-      const result = converter.createResponseList(input);
+        id: teamId,
+        orderingValue: teamName,
+        documentType: 'team',
+        'documentType-id': `team-${teamId}`
+      };
+      const expectedResponse: TeamResponse = {
+        teamName,
+        teamId,
+        shortName,
+        image
+      };
+      const result = converter.toResponse(input);
       expect(result).toEqual(expectedResponse);
     });
   });
 
-  describe('save', () => {
-    it('should return a put item', () => {
-      const body = {
-        image,
-        shortName,
-        teamName
-      } as TeamRequest;
-
-      const document: TeamDetailsDocument = {
+  describe('toResponseList', () => {
+    it('should convert documents to responses', () => {
+      const input: TeamDocument = {
         teamName,
         shortName,
         image,
-        teamId,
-        segment: 'details',
+        id: teamId,
+        orderingValue: teamName,
         documentType: 'team',
-        'documentType-id': `team-${teamId}`,
-        orderingValue: teamName
+        'documentType-id': `team-${teamId}`
+      };
+      const expectedResponse: TeamResponse = {
+        teamName,
+        teamId,
+        shortName,
+        image
+      };
+      const result = converter.toResponseList([input]);
+      expect(result).toEqual([expectedResponse]);
+    });
+  });
+
+  describe('create', () => {
+    it('should return a team document', () => {
+      const body: TeamRequest = {
+        teamName,
+        image,
+        shortName
       };
 
-      const expectedPut: DynamoDB.DocumentClient.Put = {
-        TableName: tableName,
-        Item: document
+      mockUuid.mockReturnValue(teamId);
+
+      const expectedDocument: TeamDocument = {
+        teamName,
+        shortName,
+        image,
+        id: teamId,
+        orderingValue: teamName,
+        documentType: 'team',
+        'documentType-id': `team-${teamId}`
       };
 
-      const result = converter.save(teamId, body);
-      expect(result).toEqual(expectedPut);
+      const result = converter.create(body);
+      expect(result).toEqual(expectedDocument);
     });
   });
 
   describe('update', () => {
-    it('should return an update item', () => {
-      const body = {
-        image,
+    it('should return a team document for update', () => {
+      const body: TeamRequest = {
+        teamName,
         shortName,
-        teamName
-      } as TeamRequest;
-
-      const expectedItem: DynamoDB.DocumentClient.Update = {
-        TableName: tableName,
-        Key: {
-          'documentType-id': teamId,
-          segment: 'details'
-        },
-        ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName',
-        ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
-          '#segment': 'segment'
-        },
-        ExpressionAttributeValues: {
-          ':teamName': teamName,
-          ':image': image,
-          ':shortName': shortName
-        }
+        image,
       };
 
-      const result = converter.update(teamId, body);
-      expect(result).toEqual(expectedItem);
-    });
-  });
-
-  describe('delete', () => {
-    it('should return a delete item', () => {
-
-      const expectedItem: DynamoDB.DocumentClient.Delete = {
-        TableName: tableName,
-        Key: {
-          segment: 'details',
-          'documentType-id': `team-${teamId}`,
-        }
+      const expectedDocument: TeamDocumentUpdatable = {
+        teamName,
+        shortName,
+        image,
       };
 
-      const result = converter.delete(teamId);
-      expect(result).toEqual(expectedItem);
+      const result = converter.update(body);
+      expect(result).toEqual(expectedDocument);
     });
   });
 });

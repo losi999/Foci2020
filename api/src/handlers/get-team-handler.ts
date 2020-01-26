@@ -9,6 +9,7 @@ export default (getTeam: IGetTeamService): APIGatewayProxyHandler => {
     try {
       team = await getTeam({ teamId });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

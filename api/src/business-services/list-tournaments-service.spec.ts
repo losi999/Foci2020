@@ -3,26 +3,18 @@ import { TournamentDocument } from '@/types/documents';
 import { TournamentResponse } from '@/types/responses';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
+import { Mock, createMockService, validateError } from '@/common';
 
 describe('List tournaments service', () => {
   let service: IListTournamentsService;
-  let mockTournamentDocumentService: ITournamentDocumentService;
-  let mockQueryTournaments: jest.Mock;
-  let mockTournamentDocumentConverter: ITournamentDocumentConverter;
-  let mockCreateResponseList: jest.Mock;
+  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
+  let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
 
   beforeEach(() => {
-    mockQueryTournaments = jest.fn();
-    mockTournamentDocumentService = new (jest.fn<Partial<ITournamentDocumentService>, undefined[]>(() => ({
-      queryTournaments: mockQueryTournaments,
-    }))) as ITournamentDocumentService;
+    mockTournamentDocumentService = createMockService('queryTournaments');
+    mockTournamentDocumentConverter = createMockService('toResponseList');
 
-    mockCreateResponseList = jest.fn();
-    mockTournamentDocumentConverter = new (jest.fn<Partial<ITournamentDocumentConverter>, undefined[]>(() => ({
-      createResponseList: mockCreateResponseList
-    })))() as ITournamentDocumentConverter;
-
-    service = listTournamentsServiceFactory(mockTournamentDocumentService, mockTournamentDocumentConverter);
+    service = listTournamentsServiceFactory(mockTournamentDocumentService.service, mockTournamentDocumentConverter.service);
   });
 
   it('should return with list of tournaments', async () => {
@@ -31,20 +23,18 @@ describe('List tournaments service', () => {
     const tournamentName1 = 'tournament1';
     const tournamentName2 = 'tournament2';
     const tournamentDocument1 = {
-      segment: 'details',
-      tournamentId: tournamentId1,
+      id: tournamentId1,
       tournamentName: tournamentName1
     } as TournamentDocument;
     const tournamentDocument2 = {
-      segment: 'details',
-      tournamentId: tournamentId2,
+      id: tournamentId2,
       tournamentName: tournamentName2
     } as TournamentDocument;
 
     const queriedDocuments: TournamentDocument[] = [
       tournamentDocument1,
       tournamentDocument2] as TournamentDocument[];
-    mockQueryTournaments.mockResolvedValue(queriedDocuments);
+    mockTournamentDocumentService.functions.queryTournaments.mockResolvedValue(queriedDocuments);
 
     const tournamentResponse = [
       {
@@ -56,21 +46,20 @@ describe('List tournaments service', () => {
         tournamentName: tournamentName2
       }] as TournamentResponse[];
 
-    mockCreateResponseList.mockReturnValueOnce(tournamentResponse);
+    mockTournamentDocumentConverter.functions.toResponseList.mockReturnValueOnce(tournamentResponse);
 
     const result = await service();
     expect(result).toEqual(tournamentResponse);
-    expect(mockCreateResponseList).toHaveBeenCalledWith(queriedDocuments);
+    expect(mockTournamentDocumentService.functions.queryTournaments).toHaveBeenCalledWith();
+    expect(mockTournamentDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
   });
 
   it('should throw error if unable to query tournaments', async () => {
-    mockQueryTournaments.mockRejectedValue('This is a dynamo error');
+    mockTournamentDocumentService.functions.queryTournaments.mockRejectedValue('This is a dynamo error');
 
-    try {
-      await service();
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('Unable to query tournaments');
-    }
+    await service().catch(validateError('Unable to query tournaments', 500));
+    expect(mockTournamentDocumentService.functions.queryTournaments).toHaveBeenCalledWith();
+    expect(mockTournamentDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
+    expect.assertions(4);
   });
 });

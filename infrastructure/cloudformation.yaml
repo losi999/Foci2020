@@ -7,19 +7,20 @@ Parameters:
 Resources:
   Database:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
     Properties:
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: documentType-id
           AttributeType: S
-        - AttributeName: segment
-          AttributeType: S
         - AttributeName: documentType
           AttributeType: S
         - AttributeName: tournamentId
           AttributeType: S
-        - AttributeName: teamId
+        - AttributeName: homeTeamId
           AttributeType: S
+        - AttributeName: awayTeamId
+          AttributeType: S          
         - AttributeName: matchId
           AttributeType: S
         - AttributeName: userId
@@ -29,45 +30,43 @@ Resources:
       KeySchema:
         - AttributeName: documentType-id
           KeyType: HASH
-        - AttributeName: segment
-          KeyType: RANGE
       GlobalSecondaryIndexes:
         - IndexName: indexByTournamentId
           KeySchema:
             - AttributeName: tournamentId
               KeyType: HASH
-            - AttributeName: documentType
-              KeyType: RANGE
           Projection:
             ProjectionType: INCLUDE
             NonKeyAttributes:
-              - matchId
-        - IndexName: indexByTeamId
+              - id
+        - IndexName: indexByAwayTeamId
           KeySchema:
-            - AttributeName: teamId
+            - AttributeName: awayTeamId
               KeyType: HASH
-            - AttributeName: documentType
-              KeyType: RANGE
           Projection:
             ProjectionType: INCLUDE
             NonKeyAttributes:
-              - matchId
+              - id
+        - IndexName: indexByHomeTeamId
+          KeySchema:
+            - AttributeName: homeTeamId
+              KeyType: HASH
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - id
         - IndexName: indexByMatchId
           KeySchema:
             - AttributeName: matchId
               KeyType: HASH
-            - AttributeName: documentType
-              KeyType: RANGE
           Projection:
             ProjectionType: KEYS_ONLY
         - IndexName: indexByUserId
           KeySchema:
             - AttributeName: userId
               KeyType: HASH
-            - AttributeName: documentType
-              KeyType: RANGE
           Projection:
-            ProjectionType: KEYS_ONLY
+            ProjectionType: ALL
         - IndexName: indexByDocumentType
           KeySchema:
             - AttributeName: documentType
@@ -99,6 +98,7 @@ Resources:
                   - dynamodb:PutItem
                   - dynamodb:Query
                   - dynamodb:UpdateItem
+                  - dynamodb:GetItem
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - logs:CreateLogGroup
@@ -106,21 +106,29 @@ Resources:
                   - xray:*
                   - cognito-idp:AdminCreateUser
                   - cognito-idp:AdminInitiateAuth
-                  - cognito-idp:adminAddUserToGroup
-                  - cognito-idp:adminSetUserPassword
-                Resource: '*'
+                  - cognito-idp:AdminAddUserToGroup
+                  - cognito-idp:AdminSetUserPassword
+                Resource: '*'  
 
-  DeleteTeamTopic:
+  TeamDeletedTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-TeamDeleted
 
-  DeleteTournamentTopic:
+  TournamentDeletedTopic:
     Type: AWS::SNS::Topic
-  
-  UpdateTeamTopic:
-    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-TournamentDeleted
 
-  UpdateTournamentTopic:
+  TeamUpdatedTopic:
     Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-TeamUpdated
+
+  TournamentUpdatedTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub Foci2020-${Env}-TournamentUpdated
 
   UserPool:
     Type: AWS::Cognito::UserPool
@@ -209,14 +217,14 @@ Outputs:
     Value: !Ref Database
   LambdaRoleArn:
     Value: !GetAtt LambdaRole.Arn
-  DeleteTeamTopic:
-    Value: !Ref DeleteTeamTopic
-  DeleteTournamentTopic:
-    Value: !Ref DeleteTournamentTopic
-  UpdateTeamTopic:
-    Value: !Ref UpdateTeamTopic
-  UpdateTournamentTopic:
-    Value: !Ref UpdateTournamentTopic
+  TeamDeletedTopic:
+    Value: !Ref TeamDeletedTopic
+  TournamentDeletedTopic:
+    Value: !Ref TournamentDeletedTopic
+  TeamUpdatedTopic:
+    Value: !Ref TeamUpdatedTopic
+  TournamentUpdatedTopic:
+    Value: !Ref TournamentUpdatedTopic
   UserPoolId:
     Value: !Ref UserPool
   ClientId:

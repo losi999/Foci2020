@@ -3,6 +3,7 @@ import { MatchRequest } from '@/types/requests';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
+import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 
 export interface IUpdateMatchService {
   (ctx: {
@@ -13,6 +14,7 @@ export interface IUpdateMatchService {
 
 export const updateMatchServiceFactory = (
   matchDocumentService: IMatchDocumentService,
+  matchDocumentConverter: IMatchDocumentConverter,
   teamDocumentService: ITeamDocumentService,
   tournamentDocumentService: ITournamentDocumentService
 ): IUpdateMatchService => {
@@ -30,7 +32,7 @@ export const updateMatchServiceFactory = (
       teamDocumentService.queryTeamById(body.awayTeamId),
       tournamentDocumentService.queryTournamentById(body.tournamentId)
     ]).catch((error) => {
-      console.log('ERROR query', error);
+      console.error('Query related documents', error);
       throw httpError(500, 'Unable to query related document');
     });
 
@@ -46,11 +48,11 @@ export const updateMatchServiceFactory = (
       throw httpError(400, 'Tournament not found');
     }
 
-    try {
-      await matchDocumentService.updateMatch(matchId, body, homeTeam, awayTeam, tournament);
-    } catch (error) {
-      console.log('ERROR databaseService.updateMatch', error);
+    const document = matchDocumentConverter.update(body, homeTeam, awayTeam, tournament);
+
+    await matchDocumentService.updateMatch(matchId, document).catch((error) => {
+      console.error('Update match', error);
       throw httpError(500, 'Error while updating match');
-    }
+    });
   };
 };

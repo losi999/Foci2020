@@ -7,6 +7,7 @@ export default (deleteMatch: IDeleteMatchService): APIGatewayProxyHandler => {
     try {
       await deleteMatch({ matchId });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message

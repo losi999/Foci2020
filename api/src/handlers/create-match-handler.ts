@@ -6,9 +6,11 @@ export default (createMatch: ICreateMatchService): APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body) as MatchRequest;
 
+    let matchId: string;
     try {
-      await createMatch({ body });
+      matchId = await createMatch({ body });
     } catch (error) {
+      console.error(error);
       return {
         statusCode: error.statusCode,
         body: error.message
@@ -17,7 +19,7 @@ export default (createMatch: ICreateMatchService): APIGatewayProxyHandler => {
 
     return {
       statusCode: 200,
-      body: ''
+      body: JSON.stringify({ matchId })
     };
   };
 };

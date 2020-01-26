@@ -1,7 +1,7 @@
 import { ILoginService, loginServiceFactory } from '@/business-services/login-service';
 import { LoginResponse } from '@/types/responses';
 import { IIdentityService } from '@/services/identity-service';
-import { Mock, createMockService } from '@/common';
+import { Mock, createMockService, validateError } from '@/common';
 import { LoginRequest } from '@/types/requests';
 
 describe('Login service', () => {
@@ -41,11 +41,8 @@ describe('Login service', () => {
 
     mockIdentityService.functions.login.mockRejectedValue({ message: 'This is a cognito error' });
 
-    try {
-      await service({ body });
-    } catch (error) {
-      expect(error.statusCode).toEqual(500);
-      expect(error.message).toEqual('This is a cognito error');
-    }
+    await service({ body }).catch(validateError('This is a cognito error', 500));
+    expect(mockIdentityService.functions.login).toHaveBeenCalledWith(body);
+    expect.assertions(3);
   });
 });

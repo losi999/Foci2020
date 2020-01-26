@@ -6,6 +6,14 @@ Parameters:
     Type: String
   Database:
     Type: String
+  TeamUpdatedTopic:
+    Type: String    
+  TournamentUpdatedTopic:
+    Type: String    
+  TeamDeletedTopic:
+    Type: String    
+  TournamentDeletedTopic:
+    Type: String    
   Env:
     Type: String
 
@@ -19,7 +27,7 @@ Globals:
     Handler: index.default
     Runtime: nodejs12.x
     Timeout: 10
-    MemorySize: 128
+    MemorySize: 512
     Tracing: Active  
     Environment:
       Variables:
@@ -107,6 +115,67 @@ Resources:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
             Method: DELETE  
+
+  UpdateHomeTeamOfMatches:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateHomeTeamOfMatches
+      CodeUri: ./dist/update-home-team-of-matches
+      Role: !Ref LambdaRoleArn
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref TeamUpdatedTopic            
+
+  UpdateAwayTeamOfMatches:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateAwayTeamOfMatches
+      CodeUri: ./dist/update-away-team-of-matches
+      Role: !Ref LambdaRoleArn
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref TeamUpdatedTopic    
+
+  UpdateTournamentOfMatches:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateTournamentOfMatchse
+      CodeUri: ./dist/update-tournament-of-matches
+      Role: !Ref LambdaRoleArn
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref TournamentUpdatedTopic    
+
+  DeleteMatchesByTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatchesByTeam
+      CodeUri: ./dist/delete-matches-by-team
+      Role: !Ref LambdaRoleArn
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref TeamDeletedTopic    
+
+  DeleteMatchesByTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatchesByTournament
+      CodeUri: ./dist/delete-matches-by-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        SNS:
+          Type: SNS
+          Properties:
+            Topic: !Ref TournamentDeletedTopic    
+
 
 Outputs:
   MatchApi:

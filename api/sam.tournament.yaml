@@ -6,9 +6,9 @@ Parameters:
     Type: String
   Database:
     Type: String
-  DeleteTournamentTopic:
+  TournamentDeletedTopic:
     Type: String
-  UpdateTournamentTopic:
+  TournamentUpdatedTopic:
     Type: String
   Env:
     Type: String
@@ -23,7 +23,7 @@ Globals:
     Handler: index.default
     Runtime: nodejs12.x
     Timeout: 10
-    MemorySize: 128
+    MemorySize: 512
     Tracing: Active  
     Environment:
       Variables:
@@ -71,19 +71,7 @@ Resources:
             Method: PUT 
       Environment:
         Variables:
-          UPDATE_TOURNAMENT_TOPIC: !Ref UpdateTournamentTopic
-
-  UpdateMatchWithTournament:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateMatchWithTournament
-      CodeUri: ./dist/update-match-with-tournament
-      Role: !Ref LambdaRoleArn
-      Events:
-        SNS:
-          Type: SNS
-          Properties:
-            Topic: !Ref UpdateTournamentTopic           
+          TOURNAMENT_UPDATED_TOPIC: !Ref TournamentUpdatedTopic        
 
   ListTournaments:
     Type: AWS::Serverless::Function
@@ -128,19 +116,7 @@ Resources:
             Method: DELETE  
       Environment:
         Variables:
-          DELETE_TOURNAMENT_TOPIC: !Ref DeleteTournamentTopic
-
-  DeleteMatchWithTournament:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-DeleteMatchWithTournament
-      CodeUri: ./dist/delete-match-with-tournament
-      Role: !Ref LambdaRoleArn
-      Events:
-        SNS:
-          Type: SNS
-          Properties:
-            Topic: !Ref DeleteTournamentTopic    
+          TOURNAMENT_DELETED_TOPIC: !Ref TournamentDeletedTopic 
 
 Outputs:
   TournamentApi:

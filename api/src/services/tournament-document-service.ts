@@ -1,41 +1,57 @@
-import { TournamentRequest } from '@/types/requests';
-import { TournamentDocument } from '@/types/documents';
-import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
+import { TournamentDocument, TournamentDocumentUpdatable } from '@/types/documents';
 import { DynamoDB } from 'aws-sdk';
 
 export interface ITournamentDocumentService {
-  saveTournament(tournamentId: string, body: TournamentRequest): Promise<any>;
-  updateTournament(tournamentId: string, body: TournamentRequest): Promise<any>;
+  saveTournament(document: TournamentDocument): Promise<any>;
+  updateTournament(tournamentId: string, document: TournamentDocumentUpdatable): Promise<TournamentDocument>;
   queryTournamentById(tournamentId: string): Promise<TournamentDocument>;
   queryTournaments(): Promise<TournamentDocument[]>;
   deleteTournament(tournamentId: string): Promise<any>;
 }
 
 export const tournamentDocumentServiceFactory = (
-  dynamoClient: DynamoDB.DocumentClient,
-  tournamentDocumentConverter: ITournamentDocumentConverter
+  dynamoClient: DynamoDB.DocumentClient
 ): ITournamentDocumentService => {
+
   return {
-    saveTournament: (tournamentId, body) => {
-      return dynamoClient.put(tournamentDocumentConverter.save(tournamentId, body)).promise();
-    },
-    updateTournament: (tournamentId, body) => {
-      return dynamoClient.update(tournamentDocumentConverter.update(tournamentId, body)).promise();
-    },
-    queryTournamentById: async (tournamentId) => {
-      return (await dynamoClient.query({
+    saveTournament: (document) => {
+      return dynamoClient.put({
+        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
-        KeyConditionExpression: '#documentTypeId = :pk',
+        Item: document
+      }).promise();
+    },
+    updateTournament: async (tournamentId, { tournamentName }) => {
+      return (await dynamoClient.update({
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: process.env.DYNAMO_TABLE,
+        ReturnValues: 'ALL_NEW',
+        Key: {
+          'documentType-id': `tournament-${tournamentId}`,
+        },
+        ConditionExpression: '#documentTypeId = :documentTypeId',
+        UpdateExpression: 'set tournamentName = :tournamentName, orderingValue = :tournamentName',
         ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id'
+          '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':pk': `tournament-${tournamentId}`
+          ':documentTypeId': `tournament-${tournamentId}`,
+          ':tournamentName': tournamentName
         }
-      }).promise()).Items[0] as TournamentDocument;
+      }).promise()).Attributes as TournamentDocument;
+    },
+    queryTournamentById: async (tournamentId) => {
+      return (await dynamoClient.get({
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: process.env.DYNAMO_TABLE,
+        Key: {
+          'documentType-id': `tournament-${tournamentId}`,
+        },
+      }).promise()).Item as TournamentDocument;
     },
     queryTournaments: async () => {
       return (await dynamoClient.query({
+        ReturnConsumedCapacity: 'INDEXES',
         TableName: process.env.DYNAMO_TABLE,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType',
@@ -45,7 +61,13 @@ export const tournamentDocumentServiceFactory = (
       }).promise()).Items as TournamentDocument[];
     },
     deleteTournament: (tournamentId) => {
-      return dynamoClient.delete(tournamentDocumentConverter.delete(tournamentId)).promise();
+      return dynamoClient.delete({
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: process.env.DYNAMO_TABLE,
+        Key: {
+          'documentType-id': `tournament-${tournamentId}`,
+        }
+      }).promise();
     },
   };
 };

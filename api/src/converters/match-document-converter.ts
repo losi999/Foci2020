@@ -1,328 +1,82 @@
 import {
   MatchDocument,
-  MatchDetailsDocument,
-  MatchTeamDocument,
-  MatchTeamUpdateDocument,
-  MatchTournamentDocument,
-  MatchFinalScoreDocument,
   TeamDocument,
   TournamentDocument,
-  TeamDetailsUpdateDocument,
-  DocumentKey,
-  TournamentDetailsUpdateDocument
+  MatchDocumentUpdatable,
 } from '@/types/documents';
 import { MatchResponse } from '@/types/responses';
 import { MatchRequest } from '@/types/requests';
-import { DynamoDB } from 'aws-sdk';
-
-type MatchCombinedById = {
-  [matchId: string]: MatchCombined;
-};
-
-type MatchCombined = {
-  details?: MatchDetailsDocument;
-  homeTeam?: MatchTeamDocument;
-  awayTeam?: MatchTeamUpdateDocument;
-  tournament?: MatchTournamentDocument;
-  finalScore?: MatchFinalScoreDocument;
-};
+import { v4String } from 'uuid/interfaces';
 
 export interface IMatchDocumentConverter {
-  createResponse(documents: MatchDocument[]): MatchResponse;
-  createResponseList(documents: MatchDocument[]): MatchResponse[];
-  save(matchId: string, body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): DynamoDB.DocumentClient.TransactWriteItemList;
-  update(matchId: string, body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): DynamoDB.DocumentClient.TransactWriteItemList;
-  delete(matchId: string): DynamoDB.DocumentClient.TransactWriteItemList;
-  updateMatchesWithTeam(matchKeys: DocumentKey<'homeTeam' | 'awayTeam'>[], team: TeamDetailsUpdateDocument): DynamoDB.DocumentClient.TransactWriteItemList;
-  updateMatchesWithTournament(matchKeys: DocumentKey<'tournament'>[], tournament: TournamentDetailsUpdateDocument): DynamoDB.DocumentClient.TransactWriteItemList;
+  toResponse(documents: MatchDocument): MatchResponse;
+  toResponseList(documents: MatchDocument[]): MatchResponse[];
+  create(body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): MatchDocument;
+  update(body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): MatchDocumentUpdatable;
 }
 
-export const matchDocumentConverterFactory = (): IMatchDocumentConverter => {
-  const toRespose = ({ details, homeTeam, awayTeam, tournament, finalScore }: MatchCombined): MatchResponse => {
+export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentConverter => {
+  const toResponse = ({ startTime, group, id, homeTeam, awayTeam, tournament, homeScore, awayScore }: MatchDocument): MatchResponse => {
     return {
-      matchId: details.matchId,
-      group: details.group,
-      startTime: details.startTime,
+      group,
+      startTime,
+      matchId: id,
       homeTeam: {
-        teamId: homeTeam.teamId,
+        teamId: homeTeam.id,
         teamName: homeTeam.teamName,
         shortName: homeTeam.shortName,
         image: homeTeam.image,
       },
       awayTeam: {
-        teamId: awayTeam.teamId,
+        teamId: awayTeam.id,
         teamName: awayTeam.teamName,
         shortName: awayTeam.shortName,
         image: awayTeam.image,
       },
       tournament: {
-        tournamentId: tournament.tournamentId,
+        tournamentId: tournament.id,
         tournamentName: tournament.tournamentName,
       },
       finalScore: {
-        homeScore: finalScore.homeScore,
-        awayScore: finalScore.awayScore
+        homeScore,
+        awayScore
       }
     };
   };
 
-  const createResponseList = (documents: MatchDocument[]): MatchResponse[] => {
-    const grouped = documents.reduce<MatchCombinedById>((accumulator, currentValue) => {
-      const combined = accumulator[currentValue.matchId] || {};
-
-      switch (currentValue.segment) {
-        case 'details':
-          return {
-            ...accumulator,
-            [currentValue.matchId]: {
-              ...combined,
-              details: currentValue,
-            }
-          };
-        case 'homeTeam':
-          return {
-            ...accumulator,
-            [currentValue.matchId]: {
-              ...combined,
-              homeTeam: currentValue
-            },
-
-          };
-        case 'awayTeam':
-          return {
-            ...accumulator,
-            [currentValue.matchId]: {
-              ...combined,
-              awayTeam: currentValue
-            }
-          };
-        case 'tournament':
-          return {
-            ...accumulator,
-            [currentValue.matchId]: {
-              ...combined,
-              tournament: currentValue
-            }
-          };
-        case 'finalScore':
-          return {
-            ...accumulator,
-            [currentValue.matchId]: {
-              ...combined,
-              finalScore: currentValue
-            }
-          };
-      }
-    }, {});
-
-    return Object.values(grouped).map(combined => toRespose(combined));
-  };
-
   return {
-    createResponseList,
-    createResponse: documents => createResponseList(documents).shift(),
-    save: (matchId, body, homeTeam, awayTeam, tournament) => {
-      const partitionKey = `match-${matchId}`;
-      const orderingValue = `${body.tournamentId}-${body.startTime}`;
-      const match: [MatchDetailsDocument, MatchTeamDocument, MatchTeamDocument, MatchTournamentDocument] = [
-        {
-          matchId,
-          orderingValue,
-          'documentType-id': partitionKey,
-          segment: 'details',
-          documentType: 'match',
-          group: body.group,
-          startTime: body.startTime,
-        },
-        {
-          matchId,
-          orderingValue,
-          'documentType-id': partitionKey,
-          segment: 'homeTeam',
-          documentType: 'match',
-          teamId: homeTeam.teamId,
-          image: homeTeam.image,
-          shortName: homeTeam.shortName,
-          teamName: homeTeam.teamName
-        },
-        {
-          matchId,
-          orderingValue,
-          'documentType-id': partitionKey,
-          segment: 'awayTeam',
-          documentType: 'match',
-          teamId: awayTeam.teamId,
-          image: awayTeam.image,
-          shortName: awayTeam.shortName,
-          teamName: awayTeam.teamName
-        }, {
-          matchId,
-          orderingValue,
-          'documentType-id': partitionKey,
-          segment: 'tournament',
-          documentType: 'match',
-          tournamentId: tournament.tournamentId,
-          tournamentName: tournament.tournamentName
-        }
-      ];
-
-      return match.map<DynamoDB.DocumentClient.TransactWriteItem>(m => ({
-        Put: {
-          TableName: process.env.DYNAMO_TABLE,
-          Item: m
-        }
-      }));
+    toResponse,
+    toResponseList: (documents): MatchResponse[] => {
+      return documents.map<MatchResponse>(d => toResponse(d));
     },
-    update: (matchId, body, homeTeam, awayTeam, tournament) => {
-      return [
-        {
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            Key: {
-              'documentType-id': `match-${matchId}`,
-              segment: 'details'
-            },
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            UpdateExpression: 'set startTime = :startTime, #group = :group, orderingValue = :orderingValue',
-            ExpressionAttributeNames: {
-              '#group': 'group',
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':startTime': body.startTime,
-              ':group': body.group,
-              ':orderingValue': `${tournament.tournamentId}-${body.startTime}`,
-              ':documentTypeId': `match-${matchId}`,
-              ':segment': 'details'
-            }
-          }
-        },
-        {
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            Key: {
-              'documentType-id': `match-${matchId}`,
-              segment: 'homeTeam'
-            },
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':teamId': homeTeam.teamId,
-              ':teamName': homeTeam.teamName,
-              ':shortName': homeTeam.shortName,
-              ':image': homeTeam.image,
-              ':orderingValue': `${tournament.tournamentId}-${body.startTime}`,
-              ':documentTypeId': `match-${matchId}`,
-              ':segment': 'homeTeam'
-            }
-          }
-        },
-        {
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            Key: {
-              'documentType-id': `match-${matchId}`,
-              segment: 'awayTeam'
-            },
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, teamId = :teamId, orderingValue = :orderingValue',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':teamId': awayTeam.teamId,
-              ':teamName': awayTeam.teamName,
-              ':shortName': awayTeam.shortName,
-              ':image': awayTeam.image,
-              ':orderingValue': `${tournament.tournamentId}-${body.startTime}`,
-              ':documentTypeId': `match-${matchId}`,
-              ':segment': 'awayTeam'
-            }
-          }
-        },
-        {
-          Update: {
-            TableName: process.env.DYNAMO_TABLE,
-            Key: {
-              'documentType-id': `match-${matchId}`,
-              segment: 'tournament'
-            },
-            ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-            UpdateExpression: 'set tournamentName = :tournamentName, tournamentId = :tournamentId, orderingValue = :orderingValue',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#segment': 'segment'
-            },
-            ExpressionAttributeValues: {
-              ':tournamentId': tournament.tournamentId,
-              ':tournamentName': tournament.tournamentName,
-              ':orderingValue': `${tournament.tournamentId}-${body.startTime}`,
-              ':documentTypeId': `match-${matchId}`,
-              ':segment': 'tournament'
-            }
-          }
-        }
-      ];
+    create: ({ startTime, group, awayTeamId, homeTeamId, tournamentId }, homeTeam, awayTeam, tournament): MatchDocument => {
+      const id = uuid();
+      return {
+        startTime,
+        group,
+        awayTeamId,
+        homeTeamId,
+        tournamentId,
+        homeTeam,
+        awayTeam,
+        tournament,
+        id,
+        documentType: 'match',
+        orderingValue: `${tournamentId}-${startTime}`,
+        'documentType-id': `match-${id}`
+      };
     },
-    delete: (matchId) => {
-      const matchSegments = ['details', 'homeTeam', 'awayTeam', 'tournament', 'finalScore'];
-      return matchSegments.map<DynamoDB.DocumentClient.TransactWriteItem>(segment => ({
-        Delete: {
-          TableName: process.env.DYNAMO_TABLE,
-          Key: {
-            segment,
-            'documentType-id': `match-${matchId}`,
-          }
-        }
-      }));
-    },
-    updateMatchesWithTeam: (matchKeys, { teamName, image, shortName }) => {
-      return matchKeys.map<DynamoDB.DocumentClient.TransactWriteItem>(key => ({
-        Update: {
-          TableName: process.env.DYNAMO_TABLE,
-          Key: {
-            'documentType-id': key['documentType-id'],
-            segment: key.segment
-          },
-          ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-          UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName',
-          ExpressionAttributeNames: {
-            '#documentTypeId': 'documentType-id',
-            '#segment': 'segment'
-          },
-          ExpressionAttributeValues: {
-            ':teamName': teamName,
-            ':image': image,
-            ':shortName': shortName
-          }
-        }
-      }));
-    },
-    updateMatchesWithTournament: (matchKeys, { tournamentName }) => {
-      return matchKeys.map<DynamoDB.DocumentClient.TransactWriteItem>(key => ({
-        Update: {
-          TableName: process.env.DYNAMO_TABLE,
-          Key: {
-            'documentType-id': key['documentType-id'],
-            segment: key.segment
-          },
-          ConditionExpression: '#documentTypeId = :documentTypeId and #segment = :segment',
-          UpdateExpression: 'set tournamentName = :tournamentName',
-          ExpressionAttributeNames: {
-            '#documentTypeId': 'documentType-id',
-            '#segment': 'segment'
-          },
-          ExpressionAttributeValues: {
-            ':tournamentName': tournamentName
-          }
-        }
-      }));
+    update: ({ startTime, group, awayTeamId, homeTeamId, tournamentId }, homeTeam, awayTeam, tournament): MatchDocumentUpdatable => {
+      return {
+        startTime,
+        group,
+        awayTeamId,
+        homeTeamId,
+        tournamentId,
+        homeTeam,
+        awayTeam,
+        tournament,
+      };
     }
   };
 };

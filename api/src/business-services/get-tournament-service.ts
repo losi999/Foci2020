@@ -15,10 +15,14 @@ export const getTournamentServiceFactory = (
 ): IGetTournamentService => {
   return async ({ tournamentId }) => {
     const tournament = await tournamentDocumentService.queryTournamentById(tournamentId).catch((error) => {
-      console.log('ERROR databaseService.queryTournamentById', error);
+      console.error('Query tournament by Id', error);
       throw httpError(500, 'Unable to query tournament');
     });
 
-    return tournamentDocumentConverte.createResponse(tournament);
+    if (!tournament) {
+      throw httpError(404, 'No tournament found');
+    }
+
+    return tournamentDocumentConverte.toResponse(tournament);
   };
 };

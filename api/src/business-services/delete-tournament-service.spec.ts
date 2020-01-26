@@ -27,7 +27,7 @@ describe('Delete tournament service', () => {
     expect(mockNotificationService.functions.tournamentDeleted).toHaveBeenCalledWith(tournamentId);
   });
 
-  it('should throw error if unable to query tournament', async () => {
+  it('should throw error if unable to delete tournament', async () => {
     const tournamentId = 'tournamentId';
 
     mockTournamentDocumentService.functions.deleteTournament.mockRejectedValue('This is a dynamo error');

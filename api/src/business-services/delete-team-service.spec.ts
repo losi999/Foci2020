@@ -27,7 +27,7 @@ describe('Delete team service', () => {
     expect(mockNotificationService.functions.teamDeleted).toHaveBeenCalledWith(teamId);
   });
 
-  it('should throw error if unable to query team', async () => {
+  it('should throw error if unable to delete team', async () => {
     const teamId = 'teamId';
 
     mockTeamDocumentService.functions.deleteTeam.mockRejectedValue('This is a dynamo error');

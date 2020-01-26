@@ -22,7 +22,7 @@ describe('Delete match service', () => {
     expect(mockMatchDocumentService.functions.deleteMatch).toHaveBeenCalledWith(matchId);
   });
 
-  it('should throw error if unable to query match', async () => {
+  it('should throw error if unable to delete match', async () => {
     mockMatchDocumentService.functions.deleteMatch.mockRejectedValue('This is a dynamo error');
 
     await service({ matchId }).catch(validateError('Unable to delete match', 500));

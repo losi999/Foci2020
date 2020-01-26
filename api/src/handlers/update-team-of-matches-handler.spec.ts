@@ -2,7 +2,7 @@ import { default as handler } from '@/handlers/update-team-of-matches-handler';
 import { SNSEvent } from 'aws-lambda';
 import { validateError } from '@/common';
 
-describe('Update team of matcheshandler', () => {
+describe('Update team of matches handler', () => {
   let mockUpdateTeamOfMatchesService: jest.Mock;
   let snsHandler: ReturnType<typeof handler>;
 

@@ -3,7 +3,7 @@ import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/do
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { Mock, createMockService, validateError } from '@/common';
 
-describe('Delete match with team service', () => {
+describe('Delete match by team service', () => {
   let service: IDeleteMatchesByTeamService;
   let mockMatchDocumentService: Mock<IMatchDocumentService>;
 

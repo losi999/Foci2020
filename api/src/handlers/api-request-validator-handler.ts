@@ -19,12 +19,15 @@ export default (validatorService: IValidatorService) => {
         const validationErrors = keys(schemas).reduce((accumulator, currentValue) => {
           const validation = validatorService.validate(event[currentValue], schemas[currentValue], currentValue);
           if (validation) {
-            accumulator.push(validation);
+            return {
+              ...accumulator,
+              [currentValue]: validation
+            };
           }
           return accumulator;
-        }, []);
+        }, {});
 
-        if (validationErrors.length > 0) {
+        if (Object.values(validationErrors).length > 0) {
           return {
             statusCode: 400,
             body: JSON.stringify(validationErrors)

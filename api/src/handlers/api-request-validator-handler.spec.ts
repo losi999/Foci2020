@@ -1,6 +1,7 @@
 import { default as handler } from '@/handlers/api-request-validator-handler';
 import { IValidatorService } from '@/services/validator-service';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { validateError } from '@/common';
 
 describe('API request validator handler', () => {
   let mockValidatorService: IValidatorService;
@@ -19,11 +20,15 @@ describe('API request validator handler', () => {
     const handlerEvent = {
 
     } as APIGatewayProxyEvent;
-    mockValidate.mockReturnValue({});
+    const validationError = 'This is a validation error';
+    mockValidate.mockReturnValue(validationError);
     const response = await handler(mockValidatorService)({
       body: {}
     })(mockInnerHandler)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
     expect(response.statusCode).toEqual(400);
+    expect(JSON.parse(response.body)).toEqual({
+      body: validationError
+    });
     expect(mockInnerHandler).not.toHaveBeenCalled();
   });
 

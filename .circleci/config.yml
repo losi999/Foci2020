@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   api_unit_test:     
     docker:
-      - image: circleci/node:11.7
+      - image: circleci/node:12.13.1
     working_directory: ~/repo
     steps:
       - checkout
@@ -43,7 +43,6 @@ jobs:
     parameters:
       env:
         type: string
-        default: ''
     docker: 
       - image: cibuilds/aws:1.16.1
     working_directory: ~/repo
@@ -57,13 +56,40 @@ jobs:
       - deploy:
           name: AWS Deploy
           command: aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-<<parameters.env>> --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=<<parameters.env>>
- 
+  test:
+    parameters:
+      env:
+        type: string
+    docker:
+      - image: cypress/base
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restoring test dependencies from cache 
+          key: test-dependencies-{{ checksum "test/package.json" }}
+
+      - run: 
+          name: Installing test dependencies
+          command: cd test && npm install
+
+      - save_cache:
+          paths:
+            - test/node_modules
+            - /root/.cache/Cypress
+          key: test-dependencies-{{ checksum "test/package.json" }}
+
+      - run:
+          name: Running tests
+          command: cd test && npm run test:<<parameters.env>>  
+
 workflows:
   version: 2.1
   api: 
     jobs:
       - api_unit_test   
       - api_deploy:
+          name: api_deploy_dev
           env: 'DEV'
           requires:
             - api_unit_test
@@ -72,10 +98,29 @@ workflows:
               only: 
                 - develop
       - api_deploy:
+          name: api_deploy_uat
           env: 'UAT'
           requires:
             - api_unit_test
           filters:
             branches:
               only: 
-                - release                
+                - release      
+      - test:
+          name: test_dev
+          env: 'DEV'
+          requires:
+            - api_deploy_dev
+          filters:
+            branches:
+              only:
+                - develop          
+      - test:
+          name: test_uat
+          env: 'UAT'
+          requires:
+            - api_deploy_uat
+          filters:
+            branches:
+              only:
+                - release

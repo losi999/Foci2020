@@ -1,5 +1,0 @@
-{
-    "integrationFolder": "src/api",
-    "testFiles": "**/*.spec.ts",
-    "baseUrl": "https://d2tm4opeg4njny.cloudfront.net"
-}

@@ -1,5 +1,4 @@
-import { MatchRequest } from 'api/types/requests';
-import { MatchResponse } from 'api/types/responses';
+import { MatchRequest, MatchResponse } from 'api/shared/types/types';
 
 export const createMatch = (match: MatchRequest) => {
   return cy.request({

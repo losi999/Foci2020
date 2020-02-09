@@ -1,5 +1,4 @@
-import { TeamRequest } from 'api/types/requests';
-import { TeamResponse } from 'api/types/responses';
+import { TeamRequest, TeamResponse } from 'api/shared/types/types';
 
 export const createTeam = (team: TeamRequest) => {
   return cy.request({

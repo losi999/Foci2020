@@ -1,5 +1,4 @@
-import { TournamentRequest } from 'api/types/requests';
-import { TournamentResponse } from 'api/types/responses';
+import { TournamentRequest, TournamentResponse } from 'api/shared/types/types';
 
 export const createTournament = (tournament: TournamentRequest) => {
   return cy.request({

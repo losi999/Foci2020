@@ -1,7 +1,7 @@
-import { TeamRequest, TournamentRequest, MatchRequest } from 'api/types/requests';
+import { TeamRequest, TournamentRequest, MatchRequest } from 'api/shared/types/types';
 import { createTeam, deleteTeam } from '../team/team-common';
 import { createTournament, deleteTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/common';
+import { addMinutes } from 'api/shared/common';
 import { deleteMatch, createMatch, getMatch } from './match-common';
 
 describe('DELETE /match/v1/matches/{matchId}', () => {

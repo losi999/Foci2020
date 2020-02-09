@@ -1,6 +1,9 @@
 const path = require('path');
 var entry = require('webpack-glob-entry')
-const entries = entry('./src/entries/*.ts');
+const entries = entry((filePath) => {
+  const parts = filePath.split(/[\/\.]/)
+  return parts[parts.length - 3];
+}, './src/*/*/*.index.ts');
 
 module.exports = {
   entry: entries,

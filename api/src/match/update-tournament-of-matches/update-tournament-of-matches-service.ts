@@ -1,0 +1,23 @@
+import { IMatchDocumentService } from '@/match/match-document-service';
+import { TournamentDocument } from '@/shared/types/types';
+
+export interface IUpdateTournamentOfMatchesService {
+  (ctx: {
+    tournamentId: string,
+    tournament: TournamentDocument,
+  }): Promise<void>;
+}
+
+export const updateTournamentOfMatchesServiceFactory = (matchDocumentService: IMatchDocumentService): IUpdateTournamentOfMatchesService => {
+  return async ({ tournament, tournamentId }) => {
+    const matchIds = (await matchDocumentService.queryMatchKeysByTournamentId(tournamentId).catch((error) => {
+      console.error('Query matches by tournamentId', tournamentId, error);
+      throw error;
+    })).map(m => m.id);
+
+    await matchDocumentService.updateTournamentOfMatches(matchIds, tournament).catch((error) => {
+      console.error('Update tournament of matches', tournamentId, error);
+      throw error;
+    });
+  };
+};

@@ -1,6 +1,6 @@
 import { IGetMatchService } from '@/business-services/get-match-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { MatchResponse } from '@/types/responses';
+import { MatchResponse } from '@/types/types';
 
 export default (getMatch: IGetMatchService): APIGatewayProxyHandler => {
   return async (event) => {

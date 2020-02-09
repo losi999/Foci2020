@@ -1,8 +1,8 @@
-import { TournamentRequest } from '@/types/requests';
 import { httpError } from '@/common';
 import { INotificationService } from '@/services/notification-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
+import { TournamentRequest } from '@/types/types';
 
 export interface IUpdateTournamentService {
   (ctx: {
@@ -17,16 +17,16 @@ export const updateTournamentServiceFactory = (
   notificationService: INotificationService
 ): IUpdateTournamentService => {
   return async ({ body, tournamentId }) => {
-    const document = tournamentDocumentConverter.update(body);
+    const document = tournamentDocumentConverter.update(tournamentId, body);
 
-    const tournament = await tournamentDocumentService.updateTournament(tournamentId, document).catch((error) => {
+    await tournamentDocumentService.updateTournament(tournamentId, document).catch((error) => {
       console.error('Update tournament', error);
       throw httpError(500, 'Error while updating tournament');
     });
 
     await notificationService.tournamentUpdated({
       tournamentId,
-      tournament
+      tournament: document
     }).catch((error) => {
       console.error('Tournament updated', error);
       throw httpError(500, 'Unable to send tournament updated notification');

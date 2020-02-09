@@ -1,9 +1,8 @@
 import { IGetTournamentService, getTournamentServiceFactory } from '@/business-services/get-tournament-service';
-import { TournamentDocument } from '@/types/documents';
-import { TournamentResponse } from '@/types/responses';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { Mock, createMockService, validateError } from '@/common';
+import { TournamentDocument, TournamentResponse } from '@/types/types';
 
 describe('Get tournament service', () => {
   let service: IGetTournamentService;

@@ -1,6 +1,6 @@
 import { IGetTournamentService } from '@/business-services/get-tournament-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { TournamentResponse } from '@/types/responses';
+import { TournamentResponse } from '@/types/types';
 
 export default (getTournament: IGetTournamentService): APIGatewayProxyHandler => {
   return async (event) => {

@@ -1,7 +1,7 @@
 import { IDeleteMatchesByTournamentService, deleteMatchesByTournamentServiceFactory } from '@/business-services/delete-matches-by-tournament-service';
-import { IndexByTournamentIdDocument } from '@/types/documents';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { Mock, createMockService, validateError } from '@/common';
+import { IndexByTournamentIdDocument } from '@/types/types';
 
 describe('Delete match by tournament service', () => {
   let service: IDeleteMatchesByTournamentService;

@@ -1,9 +1,9 @@
 import { httpError, addMinutes } from '@/common';
-import { MatchRequest } from '@/types/requests';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
+import { MatchRequest } from '@/types/types';
 
 export interface ICreateMatchService {
   (ctx: {

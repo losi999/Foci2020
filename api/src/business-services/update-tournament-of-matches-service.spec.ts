@@ -1,7 +1,7 @@
 import { IUpdateTournamentOfMatchesService, updateTournamentOfMatchesServiceFactory } from '@/business-services/update-tournament-of-matches-service';
-import { IndexByTournamentIdDocument, TournamentDocument } from '@/types/documents';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { Mock, createMockService, validateError } from '@/common';
+import { TournamentDocument, IndexByTournamentIdDocument } from '@/types/types';
 
 describe('Update tournament of matches service', () => {
   let service: IUpdateTournamentOfMatchesService;

@@ -1,16 +1,11 @@
 import { ITeamDocumentService, teamDocumentServiceFactory } from '@/services/team-document-service';
 import { DynamoDB } from 'aws-sdk';
-import {
-  TeamDocument, TeamDocumentUpdatable
-} from '@/types/documents';
+import { TeamDocument } from '@/types/types';
+import { Mock, createMockService, awsResolvedValue } from '@/common';
 
 describe('Team document service', () => {
   let service: ITeamDocumentService;
-  let dbPutSpy: jest.SpyInstance;
-  let dbQuerySpy: jest.SpyInstance;
-  let dbUpdateSpy: jest.SpyInstance;
-  let dbDeleteSpy: jest.SpyInstance;
-  let dbGetSpy: jest.SpyInstance;
+  let mockDynamoClient: Mock<DynamoDB.DocumentClient>;
 
   const tableName = 'table-name';
   const teamId = 'teamId';
@@ -19,20 +14,9 @@ describe('Team document service', () => {
   const shortName = 'shortName';
 
   beforeEach(() => {
-    const dynamoClient = new DynamoDB.DocumentClient();
-    dbPutSpy = jest.spyOn(dynamoClient, 'put');
-    dbQuerySpy = jest.spyOn(dynamoClient, 'query');
-    dbUpdateSpy = jest.spyOn(dynamoClient, 'update');
-    dbDeleteSpy = jest.spyOn(dynamoClient, 'delete');
-    dbGetSpy = jest.spyOn(dynamoClient, 'get');
+    mockDynamoClient = createMockService('put', 'query', 'get', 'delete');
 
-    service = teamDocumentServiceFactory(dynamoClient);
-
-    process.env.DYNAMO_TABLE = tableName;
-  });
-
-  afterEach(() => {
-    process.env.DYNAMO_TABLE = undefined;
+    service = teamDocumentServiceFactory(tableName, mockDynamoClient.service);
   });
 
   describe('updateTeam', () => {
@@ -40,60 +24,32 @@ describe('Team document service', () => {
       teamName,
       image,
       shortName
-    } as TeamDocumentUpdatable;
+    } as TeamDocument;
     it('should call dynamo.update with correct parameters', async () => {
-      dbUpdateSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({});
-        }
-      });
+      mockDynamoClient.functions.put.mockReturnValue(awsResolvedValue());
 
       await service.updateTeam(teamId, document);
-      expect(dbUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.put).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
-        ReturnValues: 'ALL_NEW',
-        Key: {
-          'documentType-id': `team-${teamId}`
-        },
+        Item: document,
         ConditionExpression: '#documentTypeId = :documentTypeId',
-        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName',
         ExpressionAttributeNames: {
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
           ':documentTypeId': `team-${teamId}`,
-          ':teamName': teamName,
-          ':image': image,
-          ':shortName': shortName
         }
       }));
-    });
-
-    it('should return the updated team', async () => {
-      const updatedDocument = 'updatedTournament';
-
-      dbUpdateSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Attributes: updatedDocument });
-        }
-      });
-
-      const result = await service.updateTeam(teamId, document);
-      expect(result).toEqual(updatedDocument);
     });
   });
 
   describe('queryTeams', () => {
     it('should call dynamo.query with correct parameters', async () => {
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: [] });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
 
       await service.queryTeams();
 
-      expect(dbQuerySpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType',
@@ -106,11 +62,7 @@ describe('Team document service', () => {
     it('should return the queried teams', async () => {
       const teams = ['team1', 'team2', 'team3'];
 
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: teams });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: teams }));
 
       const result = await service.queryTeams();
 
@@ -120,14 +72,10 @@ describe('Team document service', () => {
 
   describe('deleteTeam', () => {
     it('should call dynamo.delete with correct parameters', async () => {
-      dbDeleteSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockDynamoClient.functions.delete.mockReturnValue(awsResolvedValue(undefined));
 
       await service.deleteTeam(teamId);
-      expect(dbDeleteSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.delete).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
           'documentType-id': `team-${teamId}`,
@@ -144,14 +92,10 @@ describe('Team document service', () => {
         image
       } as TeamDocument;
 
-      dbPutSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockDynamoClient.functions.put.mockReturnValue(awsResolvedValue(undefined));
 
       await service.saveTeam(document);
-      expect(dbPutSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.put).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Item: document
       }));
@@ -160,15 +104,11 @@ describe('Team document service', () => {
 
   describe('queryTeamById', () => {
     it('should call dynamo.get with correct parameters', async () => {
-      dbGetSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Item: {} });
-        }
-      });
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: {} }));
 
       await service.queryTeamById(teamId);
 
-      expect(dbGetSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.get).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
           'documentType-id': `team-${teamId}`,
@@ -179,11 +119,7 @@ describe('Team document service', () => {
     it('should return the queried team', async () => {
       const team = 'team';
 
-      dbGetSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Item: team });
-        }
-      });
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: team }));
 
       const result = await service.queryTeamById(teamId);
 

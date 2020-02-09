@@ -1,7 +1,7 @@
 import { httpError } from '@/common';
-import { TeamResponse } from '@/types/responses';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { ITeamDocumentService } from '@/services/team-document-service';
+import { TeamResponse } from '@/types/types';
 
 export interface IGetTeamService {
   (ctx: {

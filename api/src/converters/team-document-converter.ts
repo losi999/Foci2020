@@ -1,47 +1,43 @@
-import { TeamDocument, TeamDocumentUpdatable } from '@/types/documents';
-import { TeamResponse } from '@/types/responses';
-import { TeamRequest } from '@/types/requests';
 import { v4String } from 'uuid/interfaces';
+import { TeamRequest, TeamDocument, TeamResponse } from '@/types/types';
+import { internalDocumentPropertiesToRemove } from '@/constants';
 
 export interface ITeamDocumentConverter {
-  create(body: TeamRequest): TeamDocument;
-  update(body: TeamRequest): TeamDocumentUpdatable;
-  toResponse(document: TeamDocument): TeamResponse;
-  toResponseList(documents: TeamDocument[]): TeamResponse[];
+  create(teamRequest: TeamRequest): TeamDocument;
+  update(teamId: string, teamRequest: TeamRequest): TeamDocument;
+  toResponse(teamDocument: TeamDocument): TeamResponse;
+  toResponseList(teamDocuments: TeamDocument[]): TeamResponse[];
 }
 
 export const teamDocumentConverterFactory = (uuid: v4String): ITeamDocumentConverter => {
-  const toResponse = ({ shortName, id, teamName, image }: TeamDocument): TeamResponse => {
+  const toResponse = (teamDocument: TeamDocument): TeamResponse => {
     return {
-      image,
-      teamName,
-      shortName,
-      teamId: id
+      ...teamDocument,
+      ...internalDocumentPropertiesToRemove,
+      teamId: teamDocument.id,
     };
   };
 
   return {
     toResponse,
-    toResponseList: (documents): TeamResponse[] => {
-      return documents.map<TeamResponse>(d => toResponse(d));
-    },
-    create: ({ image, teamName, shortName }): TeamDocument => {
+    toResponseList: teamDocuments => teamDocuments.map<TeamResponse>(d => toResponse(d)),
+    create: (teamRequest) => {
       const id = uuid();
       return {
+        ...teamRequest,
         id,
-        image,
-        teamName,
-        shortName,
         documentType: 'team',
-        orderingValue: teamName,
+        orderingValue: teamRequest.teamName,
         'documentType-id': `team-${id}`
       };
     },
-    update: ({ image, teamName, shortName }): TeamDocumentUpdatable => {
+    update: (teamId, teamRequest) => {
       return {
-        image,
-        teamName,
-        shortName,
+        ...teamRequest,
+        id: teamId,
+        documentType: 'team',
+        orderingValue: teamRequest.teamName,
+        'documentType-id': `team-${teamId}`
       };
     }
   };

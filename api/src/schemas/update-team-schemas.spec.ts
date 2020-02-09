@@ -1,6 +1,6 @@
 import * as schemas from '@/schemas/update-team-schemas';
 import { validatorService } from '@/dependencies';
-import { TeamRequest } from '@/types/requests';
+import { TeamRequest } from '@/types/types';
 
 describe('Update team schemas', () => {
   describe('body', () => {

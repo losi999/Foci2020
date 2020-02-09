@@ -1,7 +1,7 @@
 import { httpError } from '@/common';
-import { MatchResponse } from '@/types/responses';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { IMatchDocumentService } from '@/services/match-document-service';
+import { MatchResponse } from '@/types/types';
 
 export interface IGetMatchService {
   (ctx: {

@@ -1,7 +1,7 @@
 import { IUpdateTeamOfMatchesService, updateTeamOfMatchesServiceFactory } from '@/business-services/update-team-of-matches-service';
-import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, TeamDocument } from '@/types/documents';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { Mock, createMockService, validateError } from '@/common';
+import { TeamDocument, IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/types';
 
 describe('Update team of matches service', () => {
   let service: ReturnType<typeof updateTeamOfMatchesServiceFactory>;

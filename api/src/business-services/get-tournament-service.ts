@@ -1,7 +1,7 @@
 import { httpError } from '@/common';
-import { TournamentResponse } from '@/types/responses';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
+import { TournamentResponse } from '@/types/types';
 
 export interface IGetTournamentService {
   (ctx: {

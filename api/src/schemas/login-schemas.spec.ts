@@ -1,6 +1,6 @@
 import * as schemas from '@/schemas/login-schemas';
 import { validatorService } from '@/dependencies';
-import { LoginRequest } from '@/types/requests';
+import { LoginRequest } from '@/types/types';
 
 describe('Login body schema', () => {
   const instanceType = 'body';

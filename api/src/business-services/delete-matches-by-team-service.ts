@@ -1,5 +1,5 @@
 import { IMatchDocumentService } from '@/services/match-document-service';
-import { DocumentKey } from '@/types/documents';
+import { DocumentKey } from '@/types/types';
 
 export interface IDeleteMatchesByTeamService {
   (ctx: {

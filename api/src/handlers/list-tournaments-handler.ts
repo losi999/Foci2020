@@ -1,6 +1,6 @@
 import { IListTournamentsService } from '@/business-services/list-tournaments-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { TournamentResponse } from '@/types/responses';
+import { TournamentResponse } from '@/types/types';
 
 export default (listTournaments: IListTournamentsService): APIGatewayProxyHandler => {
   return async () => {

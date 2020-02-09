@@ -1,5 +1,5 @@
-import { TeamDocument } from '@/types/documents';
 import { IMatchDocumentService } from '@/services/match-document-service';
+import { TeamDocument } from '@/types/types';
 
 export interface IUpdateTeamOfMatchesService {
   (ctx: {

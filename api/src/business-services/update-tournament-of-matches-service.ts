@@ -1,5 +1,5 @@
-import { TournamentDocument } from '@/types/documents';
 import { IMatchDocumentService } from '@/services/match-document-service';
+import { TournamentDocument } from '@/types/types';
 
 export interface IUpdateTournamentOfMatchesService {
   (ctx: {

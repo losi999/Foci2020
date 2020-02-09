@@ -1,18 +1,10 @@
-import {
-  MatchDocument,
-  IndexByTournamentIdDocument,
-  MatchDocumentUpdatable,
-  IndexByHomeTeamIdDocument,
-  IndexByAwayTeamIdDocument,
-  TournamentDocument,
-  TeamDocument
-} from '@/types/documents';
 import { DynamoDB } from 'aws-sdk';
 import { chunk } from '@/common';
+import { MatchDocument, TournamentDocument, TeamDocument, IndexByTournamentIdDocument, IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/types';
 
 export interface IMatchDocumentService {
   saveMatch(document: MatchDocument): Promise<any>;
-  updateMatch(matchId: string, document: MatchDocumentUpdatable): Promise<any>;
+  updateMatch(matchId: string, document: MatchDocument): Promise<any>;
   updateTournamentOfMatches(matchIds: string[], tournament: TournamentDocument): Promise<any>;
   updateTeamOfMatches(matchId: string[], team: TeamDocument, type: 'home' | 'away'): Promise<any>;
   queryMatchById(matchId: string): Promise<MatchDocument>;
@@ -25,13 +17,14 @@ export interface IMatchDocumentService {
 }
 
 export const matchDocumentServiceFactory = (
+  matchTableName: string,
   dynamoClient: DynamoDB.DocumentClient,
 ): IMatchDocumentService => {
   return {
     saveMatch: (document) => {
       return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: matchTableName,
         Item: document
       }).promise();
     },
@@ -42,7 +35,7 @@ export const matchDocumentServiceFactory = (
           TransactItems: ids.map<DynamoDB.DocumentClient.TransactWriteItem>((matchId) => {
             return {
               Update: {
-                TableName: process.env.DYNAMO_TABLE,
+                TableName: matchTableName,
                 Key: {
                   'documentType-id': `match-${matchId}`,
                 },
@@ -68,7 +61,7 @@ export const matchDocumentServiceFactory = (
           TransactItems: ids.map<DynamoDB.DocumentClient.TransactWriteItem>((matchId) => {
             return {
               Update: {
-                TableName: process.env.DYNAMO_TABLE,
+                TableName: matchTableName,
                 Key: {
                   'documentType-id': `match-${matchId}`,
                 },
@@ -88,37 +81,24 @@ export const matchDocumentServiceFactory = (
         }).promise();
       }));
     },
-    updateMatch: (matchId, { startTime, group, homeTeam, awayTeam, awayTeamId, homeTeamId, tournament, tournamentId }) => {
-      return dynamoClient.update({
+    updateMatch: (matchId, document) => {
+      return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
-        Key: {
-          'documentType-id': `match-${matchId}`
-        },
+        TableName: matchTableName,
+        Item: document,
         ConditionExpression: '#documentTypeId = :documentTypeId',
-        UpdateExpression: 'set startTime = :startTime, #group = :group, orderingValue = :orderingValue, homeTeamId = :homeTeamId, awayTeamId = :awayTeamId, tournamentId = :tournamentId, homeTeam = :homeTeam, awayTeam = :awayTeam, tournament = :tournament',
         ExpressionAttributeNames: {
-          '#group': 'group',
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':startTime': startTime,
-          ':group': group,
-          ':orderingValue': `${tournamentId}-${startTime}`,
           ':documentTypeId': `match-${matchId}`,
-          ':homeTeamId': homeTeamId,
-          ':awayTeamId': awayTeamId,
-          ':tournamentId': tournamentId,
-          ':homeTeam': homeTeam,
-          ':awayTeam': awayTeam,
-          ':tournament': tournament
         }
       }).promise();
     },
     queryMatchById: async (matchId) => {
       return (await dynamoClient.get({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: matchTableName,
         Key: {
           'documentType-id': `match-${matchId}`
         },
@@ -127,7 +107,7 @@ export const matchDocumentServiceFactory = (
     queryMatches: async (tournamentId) => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: matchTableName,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType and begins_with(orderingValue, :tournamentId)',
         ExpressionAttributeValues: {
@@ -139,7 +119,7 @@ export const matchDocumentServiceFactory = (
     queryMatchKeysByTournamentId: async (tournamentId) => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: matchTableName,
         IndexName: 'indexByTournamentId',
         KeyConditionExpression: 'tournamentId = :tournamentId',
         ExpressionAttributeValues: {
@@ -150,7 +130,7 @@ export const matchDocumentServiceFactory = (
     queryMatchKeysByHomeTeamId: async (teamId) => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: matchTableName,
         IndexName: 'indexByHomeTeamId',
         KeyConditionExpression: 'homeTeamId = :teamId',
         ExpressionAttributeValues: {
@@ -161,7 +141,7 @@ export const matchDocumentServiceFactory = (
     queryMatchKeysByAwayTeamId: async (teamId) => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: matchTableName,
         IndexName: 'indexByAwayTeamId',
         KeyConditionExpression: 'awayTeamId = :teamId',
         ExpressionAttributeValues: {
@@ -172,7 +152,7 @@ export const matchDocumentServiceFactory = (
     deleteMatch: (matchId) => {
       return dynamoClient.delete({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: matchTableName,
         Key: {
           'documentType-id': `match-${matchId}`,
         }
@@ -185,7 +165,7 @@ export const matchDocumentServiceFactory = (
           TransactItems: ids.map<DynamoDB.DocumentClient.TransactWriteItem>((matchId) => {
             return {
               Delete: {
-                TableName: process.env.DYNAMO_TABLE,
+                TableName: matchTableName,
                 Key: {
                   'documentType-id': `match-${matchId}`,
                 },

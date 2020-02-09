@@ -1,6 +1,6 @@
 import * as schemas from '@/schemas/create-tournament-schemas';
 import { validatorService } from '@/dependencies';
-import { TournamentRequest } from '@/types/requests';
+import { TournamentRequest } from '@/types/types';
 
 describe('Create tournament body schema', () => {
   const instanceType = 'body';

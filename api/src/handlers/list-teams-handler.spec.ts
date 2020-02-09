@@ -1,6 +1,6 @@
 import { default as handler } from '@/handlers/list-teams-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { TeamResponse } from '@/types/responses';
+import { TeamResponse } from '@/types/types';
 
 describe('List teams handler', () => {
   let mockListTeamsService: jest.Mock;

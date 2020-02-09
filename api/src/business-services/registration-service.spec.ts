@@ -1,7 +1,7 @@
 import { IRegistrationService, registrationServiceFactory } from '@/business-services/registration-service';
 import { IIdentityService } from '@/services/identity-service';
 import { Mock, createMockService, validateError } from '@/common';
-import { RegistrationRequest } from '@/types/requests';
+import { RegistrationRequest } from '@/types/types';
 
 describe('Registration service', () => {
   let service: IRegistrationService;

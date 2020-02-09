@@ -1,81 +1,73 @@
-import {
-  MatchDocument,
-  TeamDocument,
-  TournamentDocument,
-  MatchDocumentUpdatable,
-} from '@/types/documents';
-import { MatchResponse } from '@/types/responses';
-import { MatchRequest } from '@/types/requests';
 import { v4String } from 'uuid/interfaces';
+import { MatchDocument, MatchResponse, MatchRequest, TeamDocument, TournamentDocument } from '@/types/types';
+import { internalDocumentPropertiesToRemove } from '@/constants';
 
 export interface IMatchDocumentConverter {
-  toResponse(documents: MatchDocument): MatchResponse;
-  toResponseList(documents: MatchDocument[]): MatchResponse[];
-  create(body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): MatchDocument;
-  update(body: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): MatchDocumentUpdatable;
+  toResponse(matchDocument: MatchDocument): MatchResponse;
+  toResponseList(matchDocuments: MatchDocument[]): MatchResponse[];
+  create(matchRequest: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): MatchDocument;
+  update(matchId: string, matchRequest: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): MatchDocument;
 }
 
 export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentConverter => {
-  const toResponse = ({ startTime, group, id, homeTeam, awayTeam, tournament, homeScore, awayScore }: MatchDocument): MatchResponse => {
+  const toResponse = (matchDocument: MatchDocument): MatchResponse => {
     return {
-      group,
-      startTime,
-      matchId: id,
+      ...matchDocument,
+      ...internalDocumentPropertiesToRemove,
+      matchId: matchDocument.id,
+      homeScore: undefined,
+      awayScore: undefined,
+      homeTeamId: undefined,
+      awayTeamId: undefined,
+      tournamentId: undefined,
       homeTeam: {
-        teamId: homeTeam.id,
-        teamName: homeTeam.teamName,
-        shortName: homeTeam.shortName,
-        image: homeTeam.image,
+        ...matchDocument.homeTeam,
+        ...internalDocumentPropertiesToRemove,
+        teamId: matchDocument.homeTeam.id
       },
       awayTeam: {
-        teamId: awayTeam.id,
-        teamName: awayTeam.teamName,
-        shortName: awayTeam.shortName,
-        image: awayTeam.image,
+        ...matchDocument.awayTeam,
+        ...internalDocumentPropertiesToRemove,
+        teamId: matchDocument.awayTeam.id
       },
       tournament: {
-        tournamentId: tournament.id,
-        tournamentName: tournament.tournamentName,
+        ...matchDocument.tournament,
+        ...internalDocumentPropertiesToRemove,
+        tournamentId: matchDocument.tournament.id
       },
       finalScore: {
-        homeScore,
-        awayScore
+        homeScore: matchDocument.homeScore,
+        awayScore: matchDocument.awayScore,
       }
     };
   };
 
   return {
     toResponse,
-    toResponseList: (documents): MatchResponse[] => {
-      return documents.map<MatchResponse>(d => toResponse(d));
-    },
-    create: ({ startTime, group, awayTeamId, homeTeamId, tournamentId }, homeTeam, awayTeam, tournament): MatchDocument => {
+    toResponseList: matchDocuments => matchDocuments.map<MatchResponse>(d => toResponse(d)),
+    create: (matchRequest, homeTeam, awayTeam, tournament) => {
       const id = uuid();
       return {
-        startTime,
-        group,
-        awayTeamId,
-        homeTeamId,
-        tournamentId,
+        ...matchRequest,
         homeTeam,
         awayTeam,
         tournament,
         id,
         documentType: 'match',
-        orderingValue: `${tournamentId}-${startTime}`,
+        orderingValue: `${matchRequest.tournamentId}-${matchRequest.startTime}`,
         'documentType-id': `match-${id}`
       };
     },
-    update: ({ startTime, group, awayTeamId, homeTeamId, tournamentId }, homeTeam, awayTeam, tournament): MatchDocumentUpdatable => {
+    update: (matchId, matchRequest, homeTeam, awayTeam, tournament) => {
       return {
-        startTime,
-        group,
-        awayTeamId,
-        homeTeamId,
-        tournamentId,
+        ...matchRequest,
         homeTeam,
         awayTeam,
         tournament,
+        id: matchId,
+        documentType: 'match',
+        orderingValue: `${matchRequest.tournamentId}-${matchRequest.startTime}`,
+        'documentType-id': `match-${matchId}`
       };
     }
   };

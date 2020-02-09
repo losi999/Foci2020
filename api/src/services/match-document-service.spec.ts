@@ -1,39 +1,17 @@
 import { IMatchDocumentService, matchDocumentServiceFactory } from '@/services/match-document-service';
 import { DynamoDB } from 'aws-sdk';
-import {
-  TeamDocument,
-  TournamentDocument,
-  MatchDocumentUpdatable,
-  MatchDocument
-} from '@/types/documents';
+import { Mock, createMockService, awsResolvedValue } from '@/common';
+import { TeamDocument, TournamentDocument, MatchDocument } from '@/types/types';
 
 describe('Match document service', () => {
   let service: IMatchDocumentService;
-  let dbPutSpy: jest.SpyInstance;
-  let dbQuerySpy: jest.SpyInstance;
-  let dbUpdateSpy: jest.SpyInstance;
-  let dbDeleteSpy: jest.SpyInstance;
-  let dbGetSpy: jest.SpyInstance;
-  let dbTransactWriteSpy: jest.SpyInstance;
+  let mockDynamoClient: Mock<DynamoDB.DocumentClient>;
   const tableName = 'table-name';
 
   beforeEach(() => {
-    const dynamoClient = new DynamoDB.DocumentClient();
-    dbPutSpy = jest.spyOn(dynamoClient, 'put');
-    dbQuerySpy = jest.spyOn(dynamoClient, 'query');
-    dbUpdateSpy = jest.spyOn(dynamoClient, 'update');
-    dbDeleteSpy = jest.spyOn(dynamoClient, 'delete');
-    dbGetSpy = jest.spyOn(dynamoClient, 'get');
-    dbTransactWriteSpy = jest.spyOn(dynamoClient, 'transactWrite');
+    mockDynamoClient = createMockService('put', 'query', 'delete', 'get', 'transactWrite');
 
-    service = matchDocumentServiceFactory(dynamoClient);
-
-    process.env.DYNAMO_TABLE = tableName;
-  });
-
-  afterEach(() => {
-    process.env.DYNAMO_TABLE = undefined;
-    jest.resetAllMocks();
+    service = matchDocumentServiceFactory(tableName, mockDynamoClient.service);
   });
 
   const matchId = 'matchId';
@@ -57,36 +35,19 @@ describe('Match document service', () => {
         homeTeamId,
         tournament,
         tournamentId
-      } as MatchDocumentUpdatable;
-      dbUpdateSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      } as MatchDocument;
+      mockDynamoClient.functions.put.mockReturnValue(awsResolvedValue());
 
       await service.updateMatch(matchId, document);
-      expect(dbUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.put).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
-        Key: {
-          'documentType-id': `match-${matchId}`
-        },
+        Item: document,
         ConditionExpression: '#documentTypeId = :documentTypeId',
-        UpdateExpression: 'set startTime = :startTime, #group = :group, orderingValue = :orderingValue, homeTeamId = :homeTeamId, awayTeamId = :awayTeamId, tournamentId = :tournamentId, homeTeam = :homeTeam, awayTeam = :awayTeam, tournament = :tournament',
         ExpressionAttributeNames: {
-          '#group': 'group',
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':startTime': startTime,
-          ':group': group,
-          ':orderingValue': `${tournamentId}-${startTime}`,
           ':documentTypeId': `match-${matchId}`,
-          ':homeTeamId': homeTeamId,
-          ':awayTeamId': awayTeamId,
-          ':tournamentId': tournamentId,
-          ':homeTeam': homeTeam,
-          ':awayTeam': awayTeam,
-          ':tournament': tournament
         }
       }));
     });
@@ -94,15 +55,11 @@ describe('Match document service', () => {
 
   describe('updateTeamOfMatches', () => {
     it('should call dynamo.transactWrite with correct parameters', async () => {
-      dbTransactWriteSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockDynamoClient.functions.transactWrite.mockReturnValue(awsResolvedValue());
 
       await service.updateTeamOfMatches([matchId], homeTeam, 'home');
 
-      expect(dbTransactWriteSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.transactWrite).toHaveBeenCalledWith(expect.objectContaining({
         TransactItems: [{
           Update: {
             TableName: tableName,
@@ -127,15 +84,11 @@ describe('Match document service', () => {
 
   describe('updateTournamentOfMatches', () => {
     it('should call dynamo.transactWrite with correct parameters', async () => {
-      dbTransactWriteSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockDynamoClient.functions.transactWrite.mockReturnValue(awsResolvedValue());
 
       await service.updateTournamentOfMatches([matchId], tournament);
 
-      expect(dbTransactWriteSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.transactWrite).toHaveBeenCalledWith(expect.objectContaining({
         TransactItems: [{
           Update: {
             TableName: tableName,
@@ -159,15 +112,11 @@ describe('Match document service', () => {
 
   describe('queryMatchById', () => {
     it('should call dynamo.get with correct parameters', async () => {
-      dbGetSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Item: {} });
-        }
-      });
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: {} }));
 
       await service.queryMatchById(matchId);
 
-      expect(dbGetSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.get).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
           'documentType-id': `match-${matchId}`
@@ -178,11 +127,7 @@ describe('Match document service', () => {
     it('should return the queried match', async () => {
       const queriedMatch = 'match';
 
-      dbGetSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Item: queriedMatch });
-        }
-      });
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedMatch }));
 
       const result = await service.queryMatchById(matchId);
 
@@ -192,15 +137,11 @@ describe('Match document service', () => {
 
   describe('queryMatchKeysByHomeTeamId', () => {
     it('should call dynamo.query with correct parameters', async () => {
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: [] });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
 
       await service.queryMatchKeysByHomeTeamId(homeTeamId);
 
-      expect(dbQuerySpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         IndexName: 'indexByHomeTeamId',
         KeyConditionExpression: 'homeTeamId = :teamId',
@@ -213,11 +154,7 @@ describe('Match document service', () => {
     it('should return the queried matches', async () => {
       const queriedMatches = ['match1', 'match2', 'match3'];
 
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: queriedMatches });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedMatches }));
 
       const result = await service.queryMatchKeysByHomeTeamId(homeTeamId);
 
@@ -227,15 +164,11 @@ describe('Match document service', () => {
 
   describe('queryMatchKeysByAwayTeamId', () => {
     it('should call dynamo.query with correct parameters', async () => {
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: [] });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
 
       await service.queryMatchKeysByAwayTeamId(awayTeamId);
 
-      expect(dbQuerySpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         IndexName: 'indexByAwayTeamId',
         KeyConditionExpression: 'awayTeamId = :teamId',
@@ -248,11 +181,7 @@ describe('Match document service', () => {
     it('should return the queried matches', async () => {
       const queriedMatches = ['match1', 'match2', 'match3'];
 
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: queriedMatches });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedMatches }));
 
       const result = await service.queryMatchKeysByHomeTeamId(homeTeamId);
 
@@ -262,15 +191,11 @@ describe('Match document service', () => {
 
   describe('deleteMatch', () => {
     it('should call dynamo.delete with correct parameters', async () => {
-      dbDeleteSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockDynamoClient.functions.delete.mockReturnValue(awsResolvedValue());
 
       await service.deleteMatch(matchId);
 
-      expect(dbDeleteSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.delete).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
           'documentType-id': `match-${matchId}`,
@@ -291,14 +216,10 @@ describe('Match document service', () => {
         tournament,
         tournamentId
       } as MatchDocument;
-      dbPutSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockDynamoClient.functions.put.mockReturnValue(awsResolvedValue());
 
       await service.saveMatch(document);
-      expect(dbPutSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.put).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Item: document
       }));
@@ -307,15 +228,11 @@ describe('Match document service', () => {
 
   describe('queryMatches', () => {
     it('should call dynamo.query with correct parameters', async () => {
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: [] });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
 
       await service.queryMatches(tournamentId);
 
-      expect(dbQuerySpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType and begins_with(orderingValue, :tournamentId)',
@@ -329,11 +246,7 @@ describe('Match document service', () => {
     it('should return the queried items', async () => {
       const queriedMatches = ['match1', 'match2', 'match3'];
 
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: queriedMatches });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedMatches }));
 
       const result = await service.queryMatches(tournamentId);
 
@@ -343,15 +256,11 @@ describe('Match document service', () => {
 
   describe('queryMatchKeysByTournamentId', () => {
     it('should call dynamo.query with correct parameters', async () => {
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: [] });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
 
       await service.queryMatchKeysByTournamentId(tournamentId);
 
-      expect(dbQuerySpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         IndexName: 'indexByTournamentId',
         KeyConditionExpression: 'tournamentId = :tournamentId',
@@ -364,11 +273,7 @@ describe('Match document service', () => {
     it('should return the queried items', async () => {
       const queriedMatches = ['match1', 'match2', 'match3'];
 
-      dbQuerySpy.mockReturnValue({
-        promise() {
-          return Promise.resolve({ Items: queriedMatches });
-        }
-      });
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedMatches }));
 
       const result = await service.queryMatchKeysByTournamentId(tournamentId);
 
@@ -378,15 +283,11 @@ describe('Match document service', () => {
 
   describe('deleteMatches', () => {
     it('should call dynamo.transactWrite with correct parameters', async () => {
-      dbTransactWriteSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockDynamoClient.functions.transactWrite.mockReturnValue(awsResolvedValue());
 
       await service.deleteMatches([matchId]);
 
-      expect(dbTransactWriteSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockDynamoClient.functions.transactWrite).toHaveBeenCalledWith(expect.objectContaining({
         TransactItems: [{
           Delete: {
             TableName: tableName,

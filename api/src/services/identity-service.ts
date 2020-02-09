@@ -1,16 +1,19 @@
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
-import { RegistrationRequest, LoginRequest } from '@/types/requests';
+import { RegistrationRequest, LoginRequest } from '@/types/types';
 
 export interface IIdentityService {
   register(body: RegistrationRequest): Promise<any>;
   login(body: LoginRequest): Promise<CognitoIdentityServiceProvider.AdminInitiateAuthResponse>;
 }
 
-export const cognitoIdentityService = (cognito: CognitoIdentityServiceProvider): IIdentityService => {
+export const cognitoIdentityService = (
+  userPoolId: string,
+  clientId: string,
+  cognito: CognitoIdentityServiceProvider): IIdentityService => {
   return {
     register: async (body) => {
       await cognito.adminCreateUser({
-        UserPoolId: process.env.USER_POOL_ID,
+        UserPoolId: userPoolId,
         Username: body.email,
         MessageAction: 'SUPPRESS',
         UserAttributes: [
@@ -25,13 +28,13 @@ export const cognitoIdentityService = (cognito: CognitoIdentityServiceProvider):
       }).promise();
 
       await cognito.adminAddUserToGroup({
-        UserPoolId: process.env.USER_POOL_ID,
+        UserPoolId: userPoolId,
         GroupName: 'player',
         Username: body.email
       }).promise();
 
       return cognito.adminSetUserPassword({
-        UserPoolId: process.env.USER_POOL_ID,
+        UserPoolId: userPoolId,
         Password: body.password,
         Permanent: true,
         Username: body.email
@@ -39,8 +42,8 @@ export const cognitoIdentityService = (cognito: CognitoIdentityServiceProvider):
     },
     login: (body) => {
       return cognito.adminInitiateAuth({
-        UserPoolId: process.env.USER_POOL_ID,
-        ClientId: process.env.CLIENT_ID,
+        UserPoolId: userPoolId,
+        ClientId: clientId,
         AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
         AuthParameters: {
           USERNAME: body.email,

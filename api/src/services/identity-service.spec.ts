@@ -1,32 +1,17 @@
 import { IIdentityService, cognitoIdentityService } from '@/services/identity-service';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
+import { Mock, createMockService, awsResolvedValue } from '@/common';
 
 describe('Notification service', () => {
   let service: IIdentityService;
-  let cognitoAdminInitiateAuthSpy: jest.SpyInstance;
-  let cognitoAdminCreateUserSpy: jest.SpyInstance;
-  let cognitoAdminAddUserToGroupSpy: jest.SpyInstance;
-  let cognitoAdminSetUserPasswordSpy: jest.SpyInstance;
   const userPoolId = 'UserPoolId';
   const clientId = 'ClientId';
+  let mockCognito: Mock<CognitoIdentityServiceProvider>;
 
   beforeEach(() => {
-    const cognito = new CognitoIdentityServiceProvider();
+    mockCognito = createMockService('adminInitiateAuth', 'adminCreateUser', 'adminAddUserToGroup', 'adminSetUserPassword');
 
-    cognitoAdminInitiateAuthSpy = jest.spyOn(cognito, 'adminInitiateAuth');
-    cognitoAdminCreateUserSpy = jest.spyOn(cognito, 'adminCreateUser');
-    cognitoAdminAddUserToGroupSpy = jest.spyOn(cognito, 'adminAddUserToGroup');
-    cognitoAdminSetUserPasswordSpy = jest.spyOn(cognito, 'adminSetUserPassword');
-
-    process.env.USER_POOL_ID = userPoolId;
-    process.env.CLIENT_ID = clientId;
-
-    service = cognitoIdentityService(cognito);
-  });
-
-  afterEach(() => {
-    process.env.USER_POOL_ID = undefined;
-    process.env.CLIENT_ID = undefined;
+    service = cognitoIdentityService(userPoolId, clientId, mockCognito.service);
   });
 
   describe('register', () => {
@@ -35,30 +20,16 @@ describe('Notification service', () => {
       const email = 'email';
       const password = 'password';
 
-      cognitoAdminCreateUserSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
-
-      cognitoAdminAddUserToGroupSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
-
-      cognitoAdminSetUserPasswordSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockCognito.functions.adminCreateUser.mockReturnValue(awsResolvedValue());
+      mockCognito.functions.adminAddUserToGroup.mockReturnValue(awsResolvedValue());
+      mockCognito.functions.adminSetUserPassword.mockReturnValue(awsResolvedValue());
 
       await service.register({
         displayName,
         email,
         password
       });
-      expect(cognitoAdminCreateUserSpy).toHaveBeenCalledWith({
+      expect(mockCognito.functions.adminCreateUser).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
         Username: email,
         MessageAction: 'SUPPRESS',
@@ -72,12 +43,12 @@ describe('Notification service', () => {
             Value: displayName,
           }]
       });
-      expect(cognitoAdminAddUserToGroupSpy).toHaveBeenCalledWith({
+      expect(mockCognito.functions.adminAddUserToGroup).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
         GroupName: 'player',
         Username: email
       });
-      expect(cognitoAdminSetUserPasswordSpy).toHaveBeenCalledWith({
+      expect(mockCognito.functions.adminSetUserPassword).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
         Password: password,
         Permanent: true,
@@ -91,18 +62,14 @@ describe('Notification service', () => {
       const email = 'email';
       const password = 'password';
 
-      cognitoAdminInitiateAuthSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockCognito.functions.adminInitiateAuth.mockReturnValue(awsResolvedValue());
 
       await service.login({
         email,
         password
       });
 
-      expect(cognitoAdminInitiateAuthSpy).toHaveBeenCalledWith({
+      expect(mockCognito.functions.adminInitiateAuth).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
         ClientId: clientId,
         AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',

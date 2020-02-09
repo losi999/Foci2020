@@ -1,6 +1,6 @@
 import { default as handler } from '@/handlers/get-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { MatchResponse } from '@/types/responses';
+import { MatchResponse } from '@/types/types';
 
 describe('Get match handler', () => {
   let mockGetMatchService: jest.Mock;

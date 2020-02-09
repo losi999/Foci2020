@@ -1,6 +1,6 @@
 import * as schemas from '@/schemas/registration-schemas';
 import { validatorService } from '@/dependencies';
-import { RegistrationRequest } from '@/types/requests';
+import { RegistrationRequest } from '@/types/types';
 
 describe('Registration body schema', () => {
   const instanceType = 'body';

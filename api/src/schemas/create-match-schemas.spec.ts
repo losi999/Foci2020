@@ -1,6 +1,6 @@
 import * as schemas from '@/schemas/create-match-schemas';
 import { validatorService } from '@/dependencies';
-import { MatchRequest } from '@/types/requests';
+import { MatchRequest } from '@/types/types';
 
 describe('Create match body schema', () => {
   const instanceType = 'body';

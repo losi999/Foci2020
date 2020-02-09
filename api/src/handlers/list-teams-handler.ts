@@ -1,6 +1,6 @@
 import { IListTeamsService } from '@/business-services/list-teams-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { TeamResponse } from '@/types/responses';
+import { TeamResponse } from '@/types/types';
 
 export default (listTeams: IListTeamsService): APIGatewayProxyHandler => {
   return async () => {

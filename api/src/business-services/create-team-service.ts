@@ -1,7 +1,7 @@
 import { httpError } from '@/common';
-import { TeamRequest } from '@/types/requests';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
+import { TeamRequest } from '@/types/types';
 
 export interface ICreateTeamService {
   (ctx: {

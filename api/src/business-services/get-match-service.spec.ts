@@ -1,9 +1,8 @@
 import { IGetMatchService, getMatchServiceFactory } from '@/business-services/get-match-service';
-import { MatchDocument } from '@/types/documents';
-import { MatchResponse } from '@/types/responses';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { Mock, createMockService, validateError } from '@/common';
+import { MatchDocument, MatchResponse } from '@/types/types';
 
 describe('Get match service', () => {
   let service: IGetMatchService;

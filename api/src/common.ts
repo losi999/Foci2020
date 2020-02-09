@@ -46,3 +46,11 @@ export const validateError = (message: string, statusCode?: number) => (error: a
     expect(error.statusCode).toEqual(statusCode);
   }
 };
+
+export const awsResolvedValue = (data?: any) => ({
+  promise: () => Promise.resolve(data)
+}) as any;
+
+export const awsRejectedValue = (data?: any) => ({
+  promise: () => Promise.reject(data)
+}) as any;

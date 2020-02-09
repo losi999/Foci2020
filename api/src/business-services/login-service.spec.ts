@@ -1,8 +1,7 @@
 import { ILoginService, loginServiceFactory } from '@/business-services/login-service';
-import { LoginResponse } from '@/types/responses';
 import { IIdentityService } from '@/services/identity-service';
 import { Mock, createMockService, validateError } from '@/common';
-import { LoginRequest } from '@/types/requests';
+import { LoginRequest, LoginResponse } from '@/types/types';
 
 describe('Login service', () => {
   let service: ILoginService;

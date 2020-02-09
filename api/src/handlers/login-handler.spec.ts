@@ -1,6 +1,6 @@
 import { default as handler } from '@/handlers/login-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { LoginResponse } from '@/types/responses';
+import { LoginResponse } from '@/types/types';
 
 describe('Login handler', () => {
   let mockLoginService: jest.Mock;

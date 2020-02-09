@@ -1,13 +1,10 @@
 import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@/converters/tournament-document-converter';
-import { TournamentResponse } from '@/types/responses';
-import { TournamentDocument, TournamentDocumentUpdatable } from '@/types/documents';
-import { TournamentRequest } from '@/types/requests';
+import { tournamentResponse, tournamentDocument, tournamentRequest } from '@/converters/test-data-factory';
 
 describe('Tournament document converter', () => {
   let converter: ITournamentDocumentConverter;
   let mockUuid: jest.Mock;
   const tournamentId = 'tournamentId';
-  const tournamentName = 'tournament';
 
   beforeEach(() => {
     mockUuid = jest.fn();
@@ -17,17 +14,9 @@ describe('Tournament document converter', () => {
 
   describe('toResponse', () => {
     it('should convert document to response', () => {
-      const input: TournamentDocument = {
-        tournamentName,
-        id: tournamentId,
-        orderingValue: tournamentName,
-        documentType: 'tournament',
-        'documentType-id': `tournament-${tournamentId}`
-      };
-      const expectedResponse: TournamentResponse = {
-        tournamentName,
-        tournamentId,
-      };
+      const input = tournamentDocument(tournamentId);
+      const expectedResponse = tournamentResponse(tournamentId);
+
       const result = converter.toResponse(input);
       expect(result).toEqual(expectedResponse);
     });
@@ -35,17 +24,9 @@ describe('Tournament document converter', () => {
 
   describe('toResponseList', () => {
     it('should convert documents to responses', () => {
-      const input: TournamentDocument = {
-        tournamentName,
-        id: tournamentId,
-        orderingValue: tournamentName,
-        documentType: 'tournament',
-        'documentType-id': `tournament-${tournamentId}`
-      };
-      const expectedResponse: TournamentResponse = {
-        tournamentName,
-        tournamentId,
-      };
+      const input = tournamentDocument(tournamentId);
+      const expectedResponse = tournamentResponse(tournamentId);
+
       const result = converter.toResponseList([input]);
       expect(result).toEqual([expectedResponse]);
     });
@@ -53,19 +34,11 @@ describe('Tournament document converter', () => {
 
   describe('create', () => {
     it('should return a tournament document', () => {
-      const body: TournamentRequest = {
-        tournamentName
-      };
+      const body = tournamentRequest();
 
       mockUuid.mockReturnValue(tournamentId);
 
-      const expectedDocument: TournamentDocument = {
-        tournamentName,
-        id: tournamentId,
-        orderingValue: tournamentName,
-        documentType: 'tournament',
-        'documentType-id': `tournament-${tournamentId}`
-      };
+      const expectedDocument = tournamentDocument(tournamentId);
 
       const result = converter.create(body);
       expect(result).toEqual(expectedDocument);
@@ -74,15 +47,11 @@ describe('Tournament document converter', () => {
 
   describe('update', () => {
     it('should return a tournament document for update', () => {
-      const body: TournamentRequest = {
-        tournamentName
-      };
+      const body = tournamentRequest();
 
-      const expectedDocument: TournamentDocumentUpdatable = {
-        tournamentName,
-      };
+      const expectedDocument = tournamentDocument(tournamentId);
 
-      const result = converter.update(body);
+      const result = converter.update(tournamentId, body);
       expect(result).toEqual(expectedDocument);
     });
   });

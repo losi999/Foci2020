@@ -1,9 +1,8 @@
 import { createTeamServiceFactory, ICreateTeamService } from '@/business-services/create-team-service';
-import { TeamRequest } from '@/types/requests';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { Mock, createMockService, validateError } from '@/common';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { TeamDocument } from '@/types/documents';
+import { TeamDocument, TeamRequest } from '@/types/types';
 
 describe('Create team service', () => {
   let mockTeamDocumentService: Mock<ITeamDocumentService>;

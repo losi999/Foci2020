@@ -1,15 +1,16 @@
-import { TeamDocument, TeamDocumentUpdatable } from '@/types/documents';
 import { DynamoDB } from 'aws-sdk';
+import { TeamDocument } from '@/types/types';
 
 export interface ITeamDocumentService {
   saveTeam(document: TeamDocument): Promise<any>;
-  updateTeam(teamId: string, document: TeamDocumentUpdatable): Promise<TeamDocument>;
+  updateTeam(teamId: string, document: TeamDocument): Promise<any>;
   queryTeamById(teamId: string): Promise<TeamDocument>;
   queryTeams(): Promise<TeamDocument[]>;
   deleteTeam(teamId: string): Promise<any>;
 }
 
 export const teamDocumentServiceFactory = (
+  teamTableName: string,
   dynamoClient: DynamoDB.DocumentClient
 ): ITeamDocumentService => {
 
@@ -17,35 +18,28 @@ export const teamDocumentServiceFactory = (
     saveTeam: (document) => {
       return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: teamTableName,
         Item: document
       }).promise();
     },
-    updateTeam: async (teamId, { image, shortName, teamName }) => {
-      return (await dynamoClient.update({
+    updateTeam: async (teamId, document) => {
+      return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
-        ReturnValues: 'ALL_NEW',
-        Key: {
-          'documentType-id': `team-${teamId}`
-        },
+        TableName: teamTableName,
+        Item: document,
         ConditionExpression: '#documentTypeId = :documentTypeId',
-        UpdateExpression: 'set teamName = :teamName, image = :image, shortName = :shortName, orderingValue = :teamName',
         ExpressionAttributeNames: {
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
           ':documentTypeId': `team-${teamId}`,
-          ':teamName': teamName,
-          ':image': image,
-          ':shortName': shortName
         }
-      }).promise()).Attributes as TeamDocument;
+      }).promise();
     },
     queryTeamById: async (teamId) => {
       return (await dynamoClient.get({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: teamTableName,
         Key: {
           'documentType-id': `team-${teamId}`
         },
@@ -54,7 +48,7 @@ export const teamDocumentServiceFactory = (
     queryTeams: async () => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: teamTableName,
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType',
         ExpressionAttributeValues: {
@@ -65,7 +59,7 @@ export const teamDocumentServiceFactory = (
     deleteTeam: (teamId) => {
       return dynamoClient.delete({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: process.env.DYNAMO_TABLE,
+        TableName: teamTableName,
         Key: {
           'documentType-id': `team-${teamId}`,
         }

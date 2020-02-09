@@ -1,10 +1,9 @@
 import { IUpdateTournamentService, updateTournamentServiceFactory } from '@/business-services/update-tournament-service';
-import { TournamentRequest } from '@/types/requests';
 import { INotificationService } from '@/services/notification-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { Mock, createMockService, validateError } from '@/common';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { TournamentDocumentUpdatable, TournamentDocument } from '@/types/documents';
+import { TournamentRequest, TournamentDocument } from '@/types/types';
 
 describe('Update tournament service', () => {
   let service: IUpdateTournamentService;
@@ -29,14 +28,10 @@ describe('Update tournament service', () => {
 
     const converted = {
       tournamentName
-    } as TournamentDocumentUpdatable;
-
-    const updated = {
-      tournamentName
     } as TournamentDocument;
 
     mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
-    mockTournamentDocumentService.functions.updateTournament.mockResolvedValue(updated);
+    mockTournamentDocumentService.functions.updateTournament.mockResolvedValue(undefined);
     mockNotificationService.functions.tournamentUpdated.mockResolvedValue(undefined);
 
     const result = await service({
@@ -45,11 +40,11 @@ describe('Update tournament service', () => {
     });
     expect(result).toBeUndefined();
 
-    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(tournamentId, body);
     expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(tournamentId, converted);
     expect(mockNotificationService.functions.tournamentUpdated).toHaveBeenCalledWith({
       tournamentId,
-      tournament: updated
+      tournament: converted
     });
   });
 
@@ -62,7 +57,7 @@ describe('Update tournament service', () => {
 
     const converted = {
       tournamentName
-    } as TournamentDocumentUpdatable;
+    } as TournamentDocument;
 
     mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
     mockTournamentDocumentService.functions.updateTournament.mockRejectedValue('This is a dynamo error');
@@ -72,7 +67,7 @@ describe('Update tournament service', () => {
       body
     }).catch(validateError('Error while updating tournament', 500));
 
-    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(tournamentId, body);
     expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(tournamentId, converted);
     expect(mockNotificationService.functions.tournamentUpdated).not.toHaveBeenCalled();
     expect.assertions(5);
@@ -87,25 +82,21 @@ describe('Update tournament service', () => {
 
     const converted = {
       tournamentName
-    } as TournamentDocumentUpdatable;
-
-    const updated = {
-      tournamentName
     } as TournamentDocument;
 
     mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
-    mockTournamentDocumentService.functions.updateTournament.mockResolvedValue(updated);
+    mockTournamentDocumentService.functions.updateTournament.mockResolvedValue(undefined);
     mockNotificationService.functions.tournamentUpdated.mockRejectedValue('This is an SNS error');
 
     await service({
       tournamentId,
       body
     }).catch(validateError('Unable to send tournament updated notification', 500));
-    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(tournamentId, body);
     expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(tournamentId, converted);
     expect(mockNotificationService.functions.tournamentUpdated).toHaveBeenCalledWith({
       tournamentId,
-      tournament: updated
+      tournament: converted
     });
     expect.assertions(5);
   });

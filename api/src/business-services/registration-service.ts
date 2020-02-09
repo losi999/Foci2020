@@ -1,6 +1,6 @@
-import { RegistrationRequest } from '@/types/requests';
 import { IIdentityService } from '@/services/identity-service';
 import { httpError } from '@/common';
+import { RegistrationRequest } from '@/types/types';
 
 export interface IRegistrationService {
   (ctx: {

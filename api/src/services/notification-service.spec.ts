@@ -1,46 +1,30 @@
 import { INotificationService, snsNotificationService } from '@/services/notification-service';
 import { SNS } from 'aws-sdk';
-import { TeamUpdatedNotification, TournamentUpdatedNotification } from '@/types/types';
-import { TeamDocument, TournamentDocument } from '@/types/documents';
+import { TeamUpdatedNotification, TournamentUpdatedNotification, TeamDocument, TournamentDocument } from '@/types/types';
+import { Mock, createMockService, awsResolvedValue } from '@/common';
 
 describe('Notification service', () => {
   let service: INotificationService;
-  let snsPublishSpy: jest.SpyInstance;
-  const deleteTeamTopic = 'deleteTeamTopic';
-  const updateTeamTopic = 'updateTeamTopic';
-  const deleteTournamentTopic = 'deleteTournamentTopic';
-  const updateTournamentTopic = 'updateTournamentTopic';
+  let mockSns: Mock<SNS>;
+  const teamDeletedTopic = 'teamDeletedTopic';
+  const teamUpdatedTopic = 'teamUpdatedTopic';
+  const tournamentDeletedTopic = 'tournamentDeletedTopic';
+  const tournamentUpdatedTopic = 'tournamentUpdatedTopic';
 
   beforeEach(() => {
-    const sns = new SNS();
-    snsPublishSpy = jest.spyOn(sns, 'publish');
+    mockSns = createMockService('publish');
 
-    process.env.TEAM_DELETED_TOPIC = deleteTeamTopic;
-    process.env.TEAM_UPDATED_TOPIC = updateTeamTopic;
-    process.env.TOURNAMENT_DELETED_TOPIC = deleteTournamentTopic;
-    process.env.TOURNAMENT_UPDATED_TOPIC = updateTournamentTopic;
-
-    service = snsNotificationService(sns);
-  });
-
-  afterEach(() => {
-    process.env.TEAM_DELETED_TOPIC = undefined;
-    process.env.TEAM_UPDATED_TOPIC = undefined;
-    process.env.TOURNAMENT_DELETED_TOPIC = undefined;
-    process.env.TOURNAMENT_UPDATED_TOPIC = undefined;
+    service = snsNotificationService(teamDeletedTopic, teamUpdatedTopic, tournamentDeletedTopic, tournamentUpdatedTopic, mockSns.service);
   });
 
   describe('teamDeleted', () => {
     it('should call sns.publish with correct parameters', async () => {
       const teamId = 'teamId';
-      snsPublishSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockSns.functions.publish.mockReturnValue(awsResolvedValue());
+
       await service.teamDeleted(teamId);
-      expect(snsPublishSpy).toHaveBeenCalledWith({
-        TopicArn: deleteTeamTopic,
+      expect(mockSns.functions.publish).toHaveBeenCalledWith({
+        TopicArn: teamDeletedTopic,
         Message: teamId,
       });
     });
@@ -49,14 +33,11 @@ describe('Notification service', () => {
   describe('tournamentDeleted', () => {
     it('should call sns.publish with correct parameters', async () => {
       const tournamentId = 'tournamentId';
-      snsPublishSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockSns.functions.publish.mockReturnValue(awsResolvedValue());
+
       await service.tournamentDeleted(tournamentId);
-      expect(snsPublishSpy).toHaveBeenCalledWith({
-        TopicArn: deleteTournamentTopic,
+      expect(mockSns.functions.publish).toHaveBeenCalledWith({
+        TopicArn: tournamentDeletedTopic,
         Message: tournamentId,
       });
     });
@@ -72,14 +53,11 @@ describe('Notification service', () => {
           image: 'image'
         } as TeamDocument
       };
-      snsPublishSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockSns.functions.publish.mockReturnValue(awsResolvedValue());
+
       await service.teamUpdated(message);
-      expect(snsPublishSpy).toHaveBeenCalledWith({
-        TopicArn: updateTeamTopic,
+      expect(mockSns.functions.publish).toHaveBeenCalledWith({
+        TopicArn: teamUpdatedTopic,
         Message: JSON.stringify(message),
       });
     });
@@ -93,14 +71,11 @@ describe('Notification service', () => {
           tournamentName: 'tournamentName',
         } as TournamentDocument
       };
-      snsPublishSpy.mockReturnValue({
-        promise() {
-          return Promise.resolve(undefined);
-        }
-      });
+      mockSns.functions.publish.mockReturnValue(awsResolvedValue());
+
       await service.tournamentUpdated(message);
-      expect(snsPublishSpy).toHaveBeenCalledWith({
-        TopicArn: updateTournamentTopic,
+      expect(mockSns.functions.publish).toHaveBeenCalledWith({
+        TopicArn: tournamentUpdatedTopic,
         Message: JSON.stringify(message),
       });
     });

@@ -1,10 +1,9 @@
 import { IUpdateTeamService, updateTeamServiceFactory } from '@/business-services/update-team-service';
-import { TeamRequest } from '@/types/requests';
 import { INotificationService } from '@/services/notification-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { Mock, createMockService, validateError } from '@/common';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { TeamDocumentUpdatable, TeamDocument } from '@/types/documents';
+import { TeamRequest, TeamDocument } from '@/types/types';
 
 describe('Update team service', () => {
   let service: IUpdateTeamService;
@@ -35,16 +34,10 @@ describe('Update team service', () => {
       image,
       shortName,
       teamName
-    } as TeamDocumentUpdatable;
-
-    const updated = {
-      image,
-      shortName,
-      teamName
     } as TeamDocument;
 
     mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
-    mockTeamDocumentService.functions.updateTeam.mockResolvedValue(updated);
+    mockTeamDocumentService.functions.updateTeam.mockResolvedValue(undefined);
     mockNotificationService.functions.teamUpdated.mockResolvedValue(undefined);
 
     const result = await service({
@@ -52,11 +45,11 @@ describe('Update team service', () => {
       body
     });
     expect(result).toBeUndefined();
-    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
     expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
     expect(mockNotificationService.functions.teamUpdated).toHaveBeenCalledWith({
       teamId,
-      team: updated
+      team: converted
     });
   });
 
@@ -75,7 +68,7 @@ describe('Update team service', () => {
       image,
       shortName,
       teamName
-    } as TeamDocumentUpdatable;
+    } as TeamDocument;
 
     mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
     mockTeamDocumentService.functions.updateTeam.mockRejectedValue('This is a dynamo error');
@@ -84,7 +77,7 @@ describe('Update team service', () => {
       teamId,
       body
     }).catch(validateError('Error while updating team', 500));
-    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
     expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
     expect(mockNotificationService.functions.teamUpdated).not.toHaveBeenCalled();
     expect.assertions(5);
@@ -105,27 +98,21 @@ describe('Update team service', () => {
       image,
       shortName,
       teamName
-    } as TeamDocumentUpdatable;
-
-    const updated = {
-      image,
-      shortName,
-      teamName
     } as TeamDocument;
 
     mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
-    mockTeamDocumentService.functions.updateTeam.mockResolvedValue(updated);
+    mockTeamDocumentService.functions.updateTeam.mockResolvedValue(undefined);
     mockNotificationService.functions.teamUpdated.mockRejectedValue('This is an SNS error');
 
     await service({
       teamId,
       body
     }).catch(validateError('Unable to send team updated notification', 500));
-    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(body);
+    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
     expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
     expect(mockNotificationService.functions.teamUpdated).toHaveBeenCalledWith({
       teamId,
-      team: updated
+      team: converted
     });
     expect.assertions(5);
   });

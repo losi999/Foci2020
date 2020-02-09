@@ -1,9 +1,8 @@
 import { createTournamentServiceFactory, ICreateTournamentService } from '@/business-services/create-tournament-service';
-import { TournamentRequest } from '@/types/requests';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { Mock, createMockService, validateError } from '@/common';
-import { TournamentDocument } from '@/types/documents';
+import { TournamentDocument, TournamentRequest } from '@/types/types';
 
 describe('Create tournament service', () => {
   let mockTournamentDocumentService: Mock<ITournamentDocumentService>;

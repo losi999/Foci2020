@@ -1,10 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { IUpdateTeamService } from '@/business-services/update-team-service';
-import { TeamRequest } from '@/types/requests';
 
 export default (updateTeam: IUpdateTeamService): APIGatewayProxyHandler => {
   return async (event) => {
-    const body = JSON.parse(event.body) as TeamRequest;
+    const body = JSON.parse(event.body);
     const { teamId } = event.pathParameters;
 
     try {

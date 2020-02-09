@@ -1,9 +1,8 @@
 import { IGetTeamService, getTeamServiceFactory } from '@/business-services/get-team-service';
-import { TeamDocument } from '@/types/documents';
-import { TeamResponse } from '@/types/responses';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { Mock, createMockService, validateError } from '@/common';
+import { TeamDocument, TeamResponse } from '@/types/types';
 
 describe('Get team service', () => {
   let service: IGetTeamService;

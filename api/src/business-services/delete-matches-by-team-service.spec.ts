@@ -1,7 +1,7 @@
 import { IDeleteMatchesByTeamService, deleteMatchesByTeamServiceFactory } from '@/business-services/delete-matches-by-team-service';
-import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/documents';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { Mock, createMockService, validateError } from '@/common';
+import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/types';
 
 describe('Delete match by team service', () => {
   let service: IDeleteMatchesByTeamService;

@@ -1,7 +1,6 @@
-import { LoginRequest } from '@/types/requests';
 import { IIdentityService } from '@/services/identity-service';
 import { httpError } from '@/common';
-import { LoginResponse } from '@/types/responses';
+import { LoginRequest, LoginResponse } from '@/types/types';
 
 export interface ILoginService {
   (CTX: {

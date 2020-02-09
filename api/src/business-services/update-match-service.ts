@@ -1,9 +1,9 @@
 import { httpError, addMinutes } from '@/common';
-import { MatchRequest } from '@/types/requests';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
+import { MatchRequest } from '@/types/types';
 
 export interface IUpdateMatchService {
   (ctx: {
@@ -48,7 +48,7 @@ export const updateMatchServiceFactory = (
       throw httpError(400, 'Tournament not found');
     }
 
-    const document = matchDocumentConverter.update(body, homeTeam, awayTeam, tournament);
+    const document = matchDocumentConverter.update(matchId, body, homeTeam, awayTeam, tournament);
 
     await matchDocumentService.updateMatch(matchId, document).catch((error) => {
       console.error('Update match', error);

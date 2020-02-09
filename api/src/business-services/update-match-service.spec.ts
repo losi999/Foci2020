@@ -1,12 +1,11 @@
 import { updateMatchServiceFactory, IUpdateMatchService } from '@/business-services/update-match-service';
 import { advanceTo, clear } from 'jest-date-mock';
 import { addMinutes, Mock, createMockService, validateError } from '@/common';
-import { MatchRequest } from '@/types/requests';
-import { TeamDocument, TournamentDocument, MatchDocument } from '@/types/documents';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
+import { TeamDocument, TournamentDocument, MatchDocument, MatchRequest } from '@/types/types';
 
 describe('Update match service', () => {
   let mockMatchDocumentService: Mock<IMatchDocumentService>;
@@ -123,7 +122,7 @@ describe('Update match service', () => {
     expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
     expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
-    expect(mockMatchDocumentConverter.functions.update).toHaveBeenCalledWith(body, queriedAwayTeam, queriedHomeTeam, queriedTournament);
+    expect(mockMatchDocumentConverter.functions.update).toHaveBeenCalledWith(matchId, body, queriedAwayTeam, queriedHomeTeam, queriedTournament);
     expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith(matchId, convertedMatch);
   });
 
@@ -270,7 +269,7 @@ describe('Update match service', () => {
     expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
     expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
-    expect(mockMatchDocumentConverter.functions.update).toHaveBeenCalledWith(body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
+    expect(mockMatchDocumentConverter.functions.update).toHaveBeenCalledWith(matchId, body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
     expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith(matchId, convertedMatch);
     expect.assertions(7);
   });

@@ -1,9 +1,8 @@
-import { TeamRequest } from 'api/types/requests';
+import { TeamRequest, TeamResponse, MatchResponse } from 'api/shared/types/types';
 import { deleteMatch, createMatch, getMatch } from '../match/match-common';
 import { deleteTeam, createTeam, updateTeam, getTeam, validateTeam } from './team-common';
 import { deleteTournament, createTournament } from '../tournament/tournament-common';
-import { TeamResponse, MatchResponse } from 'api/types/responses';
-import { addMinutes } from 'api/common';
+import { addMinutes } from 'api/shared/common';
 
 describe('PUT /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {

@@ -1,6 +1,5 @@
 import { deleteTournament, createTournament, getTournament, validateTournament } from './tournament-common';
-import { TournamentResponse } from 'api/types/responses';
-import { TournamentRequest } from 'api/types/requests';
+import { TournamentRequest, TournamentResponse } from 'api/shared/types/types';
 
 describe('POST /tournament/v1/tournaments', () => {
   const tournament: TournamentRequest = {
@@ -30,7 +29,7 @@ describe('POST /tournament/v1/tournaments', () => {
       })
       .its('body')
       .should((body: TournamentResponse) => {
-        validateTournament(body, tournamentId, tournament)
+        validateTournament(body, tournamentId, tournament);
       });
   });
 

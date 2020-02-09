@@ -1,8 +1,8 @@
 import { createTeam, deleteTeam, getTeam } from './team-common';
 import { createTournament, deleteTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/common';
+import { addMinutes } from 'api/shared/common';
 import { createMatch, getMatch, deleteMatch } from '../match/match-common';
-import { TeamRequest, TournamentRequest } from 'api/types/requests';
+import { TeamRequest, TournamentRequest } from 'api/shared/types/types';
 
 describe('DELETE /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {

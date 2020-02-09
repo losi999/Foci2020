@@ -1,7 +1,5 @@
 import { deleteTeam, createTeam, getTeamList, validateTeam } from './team-common';
-
-import { TeamResponse } from 'api/types/responses';
-import { TeamRequest } from 'api/types/requests';
+import { TeamRequest, TeamResponse } from 'api/shared/types/types';
 
 describe('GET /team/v1/teams', () => {
   const team1: TeamRequest = {

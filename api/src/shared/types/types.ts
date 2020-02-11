@@ -1,3 +1,4 @@
+export type UserType = 'admin' | 'player';
 export type Remove<T> = { [prop in keyof T]: undefined };
 export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';
 
@@ -72,6 +73,16 @@ export type MatchResponse = MatchId & MatchBase & Remove<Score> & Remove<MatchTe
 export type IndexByTournamentIdDocument = Pick<MatchDocument, keyof DocumentKey | 'tournamentId'>;
 export type IndexByHomeTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'homeTeamId'>;
 export type IndexByAwayTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'awayTeamId'>;
+
+type BetBase = {
+  userName: string;
+  userId: string;
+  score?: number;
+};
+
+export type BetRequest = Score;
+export type BetDocument = Score & BetBase & MatchId & InternalDocumentProperties<'bet'>;
+export type BetResponse = Score & BetBase & Remove<MatchId> & Remove<InternalDocumentProperties<never>>;
 
 export type LoginRequest = {
   email: string;

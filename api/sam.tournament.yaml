@@ -10,6 +10,8 @@ Parameters:
     Type: String
   TournamentUpdatedTopic:
     Type: String
+  UserPoolArn:
+    Type: String    
   Env:
     Type: String
 
@@ -36,6 +38,10 @@ Resources:
       Name: !Sub Foci2020-${Env}-Tournament
       StageName: Prod
       TracingEnabled: true
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref UserPoolArn      
       GatewayResponses:
         MISSING_AUTHENTICATION_TOKEN:
           StatusCode: 404 
@@ -54,7 +60,9 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments
-            Method: POST    
+            Method: POST   
+            Auth: 
+              Authorizer: CognitoAuthorizer    
 
   UpdateTournament:
     Type: AWS::Serverless::Function
@@ -68,7 +76,9 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments/{tournamentId}
-            Method: PUT 
+            Method: PUT   
+            Auth: 
+              Authorizer: CognitoAuthorizer 
       Environment:
         Variables:
           TOURNAMENT_UPDATED_TOPIC: !Ref TournamentUpdatedTopic        
@@ -85,7 +95,9 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments
-            Method: GET    
+            Method: GET   
+            Auth: 
+              Authorizer: CognitoAuthorizer    
 
   GetTournament:
     Type: AWS::Serverless::Function
@@ -99,7 +111,9 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments/{tournamentId}
-            Method: GET  
+            Method: GET   
+            Auth: 
+              Authorizer: CognitoAuthorizer  
 
   DeleteTournament:
     Type: AWS::Serverless::Function
@@ -113,7 +127,9 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments/{tournamentId}
-            Method: DELETE  
+            Method: DELETE   
+            Auth: 
+              Authorizer: CognitoAuthorizer  
       Environment:
         Variables:
           TOURNAMENT_DELETED_TOPIC: !Ref TournamentDeletedTopic 

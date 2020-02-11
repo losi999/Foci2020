@@ -1,7 +1,6 @@
 import { default as handler } from '@/shared/handlers/api-request-validator-handler';
 import { IValidatorService } from '@/shared/services/validator-service';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { validateError } from '@/shared/common';
 
 describe('API request validator handler', () => {
   let mockValidatorService: IValidatorService;

@@ -14,6 +14,8 @@ Parameters:
     Type: String    
   TournamentDeletedTopic:
     Type: String    
+  UserPoolArn:
+    Type: String
   Env:
     Type: String
 
@@ -40,6 +42,10 @@ Resources:
       Name: !Sub Foci2020-${Env}-Match
       StageName: Prod
       TracingEnabled: true
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref UserPoolArn
       GatewayResponses:
         MISSING_AUTHENTICATION_TOKEN:
           StatusCode: 404 
@@ -59,6 +65,24 @@ Resources:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches
             Method: POST   
+            Auth: 
+              Authorizer: CognitoAuthorizer
+
+  PlaceBet:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-PlaceBet
+      CodeUri: ./dist/place-bet
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches/{matchId}/bets
+            Method: POST 
+            Auth: 
+              Authorizer: CognitoAuthorizer
 
   UpdateMatch:
     Type: AWS::Serverless::Function
@@ -72,7 +96,9 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
-            Method: PUT    
+            Method: PUT 
+            Auth: 
+              Authorizer: CognitoAuthorizer    
 
   ListMatches:
     Type: AWS::Serverless::Function
@@ -86,7 +112,9 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches
-            Method: GET     
+            Method: GET 
+            Auth: 
+              Authorizer: CognitoAuthorizer     
 
   GetMatch:
     Type: AWS::Serverless::Function
@@ -100,7 +128,9 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
-            Method: GET  
+            Method: GET 
+            Auth: 
+              Authorizer: CognitoAuthorizer  
 
   DeleteMatch:
     Type: AWS::Serverless::Function
@@ -114,7 +144,9 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
-            Method: DELETE  
+            Method: DELETE 
+            Auth: 
+              Authorizer: CognitoAuthorizer  
 
   UpdateHomeTeamOfMatches:
     Type: AWS::Serverless::Function

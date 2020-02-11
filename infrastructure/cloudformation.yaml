@@ -229,3 +229,5 @@ Outputs:
     Value: !Ref UserPool
   ClientId:
     Value: !Ref ApplicationClient
+  UserPoolArn:
+    Value: !GetAtt UserPool.Arn

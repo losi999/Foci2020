@@ -1,0 +1,53 @@
+import { BetRequest } from '@/shared/types/types';
+import { IMatchDocumentService } from '@/match/match-document-service';
+import { IBetDocumentService } from '@/match/bet-document-service';
+import { addMinutes, httpError } from '@/shared/common';
+import { IBetDocumentConverter } from '@/match/bet-document-converter';
+
+export interface IPlaceBetService {
+  (ctx: {
+    matchId: string;
+    userId: string;
+    userName: string;
+    bet: BetRequest;
+  }): Promise<void>;
+}
+
+export const placeBetServiceFactory = (
+  matchDocumentService: IMatchDocumentService,
+  betDocumentConverter: IBetDocumentConverter,
+  betDocumentService: IBetDocumentService
+): IPlaceBetService => {
+  return async ({ bet, userId, matchId, userName }) => {
+    const storedBet = await betDocumentService.queryBetById(userId, matchId).catch((error) => {
+      console.error('Query bet', error);
+      throw httpError(500, 'Unable to query bet');
+    });
+
+    if (storedBet) {
+      throw httpError(400, 'You already placed a bet on this match');
+    }
+
+    const match = await matchDocumentService.queryMatchById(matchId).catch((error) => {
+      console.error('Query match by id', error);
+      throw httpError(500, 'Unable to query match by id');
+    });
+
+    if (!match) {
+      throw httpError(404, 'No match found');
+    }
+
+    const dateOfMatch = new Date(match.startTime);
+
+    if (dateOfMatch < addMinutes(5)) {
+      throw httpError(400, 'Betting time expired');
+    }
+
+    const document = betDocumentConverter.create(bet, userId, userName, matchId);
+
+    await betDocumentService.saveBet(document).catch((error) => {
+      console.error('Save bet', error);
+      throw httpError(500, 'Unable to save bet');
+    });
+  };
+};

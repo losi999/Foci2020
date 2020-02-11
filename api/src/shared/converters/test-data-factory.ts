@@ -1,4 +1,4 @@
-import { TeamRequest, TeamResponse, TeamDocument, TournamentRequest, TournamentDocument, TournamentResponse, MatchRequest, MatchDocument, MatchResponse } from '@/shared/types/types';
+import { TeamRequest, TeamResponse, TeamDocument, TournamentRequest, TournamentDocument, TournamentResponse, MatchRequest, MatchDocument, MatchResponse, BetRequest, BetDocument } from '@/shared/types/types';
 
 export const teamRequest = (): TeamRequest => ({
   image: 'http://image.com',
@@ -93,4 +93,21 @@ export const matchResponse = (matchId: string, homeTeamId: string, awayTeamId: s
     homeScore,
     awayScore
   }
+});
+
+export const betRequest = (): BetRequest => ({
+  homeScore: 1,
+  awayScore: 2
+});
+
+export const betDocument = (userId: string, matchId: string, userName: string): BetDocument => ({
+  userName,
+  userId,
+  matchId,
+  homeScore: 1,
+  awayScore: 2,
+  id: `${userId}-${matchId}`,
+  'documentType-id': `bet-${userId}-${matchId}`,
+  documentType: 'bet',
+  orderingValue: userName,
 });

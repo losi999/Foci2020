@@ -21,6 +21,7 @@ Resources:
         Database: !GetAtt Infrastructure.Outputs.Database
         TeamDeletedTopic: !GetAtt Infrastructure.Outputs.TeamDeletedTopic
         TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
+        UserPoolArn: !GetAtt Infrastructure.Outputs.UserPoolArn
         Env: !Ref Env
 
   Tournament:
@@ -33,6 +34,7 @@ Resources:
         Database: !GetAtt Infrastructure.Outputs.Database
         TournamentDeletedTopic: !GetAtt Infrastructure.Outputs.TournamentDeletedTopic
         TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
+        UserPoolArn: !GetAtt Infrastructure.Outputs.UserPoolArn
         Env: !Ref Env
 
   Match:
@@ -47,6 +49,7 @@ Resources:
         TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
         TeamDeletedTopic: !GetAtt Infrastructure.Outputs.TeamDeletedTopic
         TournamentDeletedTopic: !GetAtt Infrastructure.Outputs.TournamentDeletedTopic
+        UserPoolArn: !GetAtt Infrastructure.Outputs.UserPoolArn
         Env: !Ref Env
 
   User:

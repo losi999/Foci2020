@@ -10,6 +10,8 @@ Parameters:
     Type: String
   TeamUpdatedTopic:
     Type: String
+  UserPoolArn:
+    Type: String    
   Env:
     Type: String
 
@@ -36,6 +38,10 @@ Resources:
       Name: !Sub Foci2020-${Env}-Team
       StageName: Prod
       TracingEnabled: true
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref UserPoolArn      
       GatewayResponses:
         MISSING_AUTHENTICATION_TOKEN:
           StatusCode: 404 
@@ -54,7 +60,9 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams
-            Method: POST
+            Method: POST   
+            Auth: 
+              Authorizer: CognitoAuthorizer
 
   UpdateTeam:
     Type: AWS::Serverless::Function
@@ -68,7 +76,9 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams/{teamId}
-            Method: PUT    
+            Method: PUT   
+            Auth: 
+              Authorizer: CognitoAuthorizer    
       Environment:
         Variables:
           TEAM_UPDATED_TOPIC: !Ref TeamUpdatedTopic
@@ -85,7 +95,9 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams
-            Method: GET                                    
+            Method: GET   
+            Auth: 
+              Authorizer: CognitoAuthorizer                                    
 
   GetTeam:
     Type: AWS::Serverless::Function
@@ -99,7 +111,9 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams/{teamId}
-            Method: GET  
+            Method: GET   
+            Auth: 
+              Authorizer: CognitoAuthorizer  
 
   DeleteTeam:
     Type: AWS::Serverless::Function
@@ -113,7 +127,9 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams/{teamId}
-            Method: DELETE     
+            Method: DELETE   
+            Auth: 
+              Authorizer: CognitoAuthorizer     
       Environment:
         Variables:
           TEAM_DELETED_TOPIC: !Ref TeamDeletedTopic                  

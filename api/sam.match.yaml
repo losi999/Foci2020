@@ -84,6 +84,22 @@ Resources:
             Auth: 
               Authorizer: CognitoAuthorizer
 
+  ListBetsOfMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-ListBetsOfMatch
+      CodeUri: ./dist/list-bets-of-match
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches/{matchId}/bets
+            Method: GET
+            Auth: 
+              Authorizer: CognitoAuthorizer              
+
   UpdateMatch:
     Type: AWS::Serverless::Function
     Properties:

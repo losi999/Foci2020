@@ -37,9 +37,9 @@ export const placeBetServiceFactory = (
       throw httpError(404, 'No match found');
     }
 
-    const dateOfMatch = new Date(match.startTime);
+    const timeOfMatch = new Date(match.startTime);
 
-    if (dateOfMatch < addMinutes(5)) {
+    if (timeOfMatch < addMinutes(5)) {
       throw httpError(400, 'Betting time expired');
     }
 

@@ -1,22 +1,19 @@
-import { default as handler } from '@/match/place-bet/place-bet-handler';
+import { default as handler } from '@/match/list-bets-of-match/list-bets-of-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Place bet handler', () => {
   let apiHandler: ReturnType<typeof handler>;
-  let mockPlaceBetService: jest.Mock;
+  let mockListBetsOfMatchService: jest.Mock;
 
   beforeEach(() => {
-    mockPlaceBetService = jest.fn();
+    mockListBetsOfMatchService = jest.fn();
 
-    apiHandler = handler(mockPlaceBetService);
+    apiHandler = handler(mockListBetsOfMatchService);
   });
 
   const matchId = 'matchId';
   const userId = 'userId';
-  const userName = 'userName';
-  const bet = {};
   const handlerEvent = {
-    body: JSON.stringify(bet),
     pathParameters: {
       matchId
     } as any,
@@ -24,16 +21,15 @@ describe('Place bet handler', () => {
       authorizer: {
         claims: {
           sub: userId,
-          nickname: userName,
         }
       }
     } as any
   } as APIGatewayProxyEvent;
 
-  it('should respond with error if placeBet throws error', async () => {
+  it('should respond with error if list bets of match throws error', async () => {
     const statusCode = 418;
     const message = 'This is an error';
-    mockPlaceBetService.mockRejectedValue({
+    mockListBetsOfMatchService.mockRejectedValue({
       statusCode,
       message
     });
@@ -42,26 +38,22 @@ describe('Place bet handler', () => {
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
-    expect(mockPlaceBetService).toHaveBeenCalledWith({
+    expect(mockListBetsOfMatchService).toHaveBeenCalledWith({
       matchId,
       userId,
-      bet,
-      userName
     });
     expect.assertions(3);
   });
 
-  it('should respond with HTTP 200 if placeBet executes successfully', async () => {
-    mockPlaceBetService.mockResolvedValue(undefined);
+  it('should respond with HTTP 200 if list bets of match executes successfully', async () => {
+    mockListBetsOfMatchService.mockResolvedValue(undefined);
 
     const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
-    expect(mockPlaceBetService).toHaveBeenCalledWith({
+    expect(mockListBetsOfMatchService).toHaveBeenCalledWith({
       matchId,
       userId,
-      bet,
-      userName
     });
     expect.assertions(2);
   });

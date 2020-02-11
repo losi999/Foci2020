@@ -77,12 +77,12 @@ export type IndexByAwayTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 
 type BetBase = {
   userName: string;
   userId: string;
-  score?: number;
+  result?: number;
 };
 
 export type BetRequest = Score;
 export type BetDocument = Score & BetBase & MatchId & InternalDocumentProperties<'bet'>;
-export type BetResponse = Score & BetBase & Remove<MatchId> & Remove<InternalDocumentProperties<never>>;
+export type BetResponse = (Score | Remove<Score>) & BetBase & Remove<MatchId> & Remove<InternalDocumentProperties<never>>;
 
 export type LoginRequest = {
   email: string;

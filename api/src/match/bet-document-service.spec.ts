@@ -9,7 +9,7 @@ describe('Bet document service', () => {
   const tableName = 'table-name';
 
   beforeEach(() => {
-    mockDynamoClient = createMockService('put', 'get');
+    mockDynamoClient = createMockService('put', 'get', 'query');
     service = betDocumentServiceFactory(tableName, mockDynamoClient.service);
   });
 
@@ -54,6 +54,33 @@ describe('Bet document service', () => {
         TableName: tableName,
         Item: document
       }));
+    });
+  });
+
+  describe('queryBetsByMatchId', () => {
+    it('should call dynamo.query with correct parameters', async () => {
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
+
+      await service.queryBetsByMatchId(matchId);
+
+      expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        IndexName: 'indexByMatchId',
+        KeyConditionExpression: 'matchId = :matchId',
+        ExpressionAttributeValues: {
+          ':matchId': matchId,
+        }
+      }));
+    });
+
+    it('should return the queried items', async () => {
+      const queriedBets = ['bet1', 'bet2', 'bet3'];
+
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedBets }));
+
+      const result = await service.queryBetsByMatchId(matchId);
+
+      expect(result).toEqual(queriedBets);
     });
   });
 });

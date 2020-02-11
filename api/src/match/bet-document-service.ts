@@ -3,6 +3,7 @@ import { DynamoDB } from 'aws-sdk';
 
 export interface IBetDocumentService {
   queryBetById(userId: string, matchId: string): Promise<BetDocument>;
+  queryBetsByMatchId(matchId: string): Promise<BetDocument[]>;
   saveBet(document: BetDocument): Promise<any>;
 }
 
@@ -18,6 +19,17 @@ export const betDocumentServiceFactory = (
           'documentType-id': `bet-${userId}-${matchId}`
         },
       }).promise()).Item as BetDocument;
+    },
+    queryBetsByMatchId: async (matchId) => {
+      return (await dynamoClient.query({
+        TableName: betTableName,
+        IndexName: 'indexByMatchId',
+        ReturnConsumedCapacity: 'INDEXES',
+        KeyConditionExpression: 'matchId = :matchId',
+        ExpressionAttributeValues: {
+          ':matchId': matchId
+        }
+      }).promise()).Items as BetDocument[];
     },
     saveBet: (document) => {
       return dynamoClient.put({

@@ -1,4 +1,4 @@
-import { TeamRequest, TeamResponse, TeamDocument, TournamentRequest, TournamentDocument, TournamentResponse, MatchRequest, MatchDocument, MatchResponse, BetRequest, BetDocument } from '@/shared/types/types';
+import { TeamRequest, TeamResponse, TeamDocument, TournamentRequest, TournamentDocument, TournamentResponse, MatchRequest, MatchDocument, MatchResponse, BetRequest, BetDocument, BetResponse } from '@/shared/types/types';
 
 export const teamRequest = (): TeamRequest => ({
   image: 'http://image.com',
@@ -95,19 +95,33 @@ export const matchResponse = (matchId: string, homeTeamId: string, awayTeamId: s
   }
 });
 
-export const betRequest = (): BetRequest => ({
-  homeScore: 1,
-  awayScore: 2
+export const betRequest = (homeScore: number, awayScore: number): BetRequest => ({
+  homeScore,
+  awayScore
 });
 
-export const betDocument = (userId: string, matchId: string, userName: string): BetDocument => ({
+export const betDocument = (userId: string, matchId: string, userName: string, homeScore?: number, awayScore?: number, result?: number): BetDocument => ({
   userName,
   userId,
   matchId,
-  homeScore: 1,
-  awayScore: 2,
+  result,
+  homeScore,
+  awayScore,
   id: `${userId}-${matchId}`,
   'documentType-id': `bet-${userId}-${matchId}`,
   documentType: 'bet',
   orderingValue: userName,
+});
+
+export const betResponse = (userId: string, userName: string, homeScore?: number, awayScore?: number, result?: number): BetResponse => ({
+  userId,
+  userName,
+  result,
+  homeScore,
+  awayScore,
+  matchId: undefined,
+  id: undefined,
+  documentType: undefined,
+  orderingValue: undefined,
+  'documentType-id': undefined,
 });

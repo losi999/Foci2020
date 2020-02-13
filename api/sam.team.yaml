@@ -1,7 +1,7 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
-Description: 'Foci 2020 Team Api'
-Parameters: 
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 Team Api"
+Parameters:
   LambdaRoleArn:
     Type: String
   Database:
@@ -11,7 +11,7 @@ Parameters:
   TeamUpdatedTopic:
     Type: String
   UserPoolArn:
-    Type: String    
+    Type: String
   Env:
     Type: String
 
@@ -26,7 +26,7 @@ Globals:
     Runtime: nodejs12.x
     Timeout: 10
     MemorySize: 512
-    Tracing: Active  
+    Tracing: Active
     Environment:
       Variables:
         DYNAMO_TABLE: !Ref Database
@@ -41,10 +41,10 @@ Resources:
       Auth:
         Authorizers:
           CognitoAuthorizer:
-            UserPoolArn: !Ref UserPoolArn      
+            UserPoolArn: !Ref UserPoolArn
       GatewayResponses:
         MISSING_AUTHENTICATION_TOKEN:
-          StatusCode: 404 
+          StatusCode: 404
           ResponseTemplates:
             application/json: '{ "message": $context.error.messageString }'
 
@@ -60,8 +60,8 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams
-            Method: POST   
-            Auth: 
+            Method: POST
+            Auth:
               Authorizer: CognitoAuthorizer
 
   UpdateTeam:
@@ -76,9 +76,9 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams/{teamId}
-            Method: PUT   
-            Auth: 
-              Authorizer: CognitoAuthorizer    
+            Method: PUT
+            Auth:
+              Authorizer: CognitoAuthorizer
       Environment:
         Variables:
           TEAM_UPDATED_TOPIC: !Ref TeamUpdatedTopic
@@ -95,9 +95,9 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams
-            Method: GET   
-            Auth: 
-              Authorizer: CognitoAuthorizer                                    
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetTeam:
     Type: AWS::Serverless::Function
@@ -111,9 +111,9 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams/{teamId}
-            Method: GET   
-            Auth: 
-              Authorizer: CognitoAuthorizer  
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   DeleteTeam:
     Type: AWS::Serverless::Function
@@ -127,12 +127,12 @@ Resources:
           Properties:
             RestApiId: !Ref TeamApi
             Path: /team/v1/teams/{teamId}
-            Method: DELETE   
-            Auth: 
-              Authorizer: CognitoAuthorizer     
+            Method: DELETE
+            Auth:
+              Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          TEAM_DELETED_TOPIC: !Ref TeamDeletedTopic                  
+          TEAM_DELETED_TOPIC: !Ref TeamDeletedTopic
 
 Outputs:
   TeamApi:

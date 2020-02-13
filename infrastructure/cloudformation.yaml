@@ -1,5 +1,5 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
 Parameters:
   Env:
     Type: String
@@ -8,6 +8,7 @@ Resources:
   Database:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
@@ -20,7 +21,7 @@ Resources:
         - AttributeName: homeTeamId
           AttributeType: S
         - AttributeName: awayTeamId
-          AttributeType: S          
+          AttributeType: S
         - AttributeName: matchId
           AttributeType: S
         - AttributeName: userId
@@ -60,6 +61,12 @@ Resources:
             - AttributeName: matchId
               KeyType: HASH
           Projection:
+            ProjectionType: KEYS_ONLY
+        - IndexName: indexByMatchId2
+          KeySchema:
+            - AttributeName: matchId
+              KeyType: HASH
+          Projection:
             ProjectionType: ALL
         - IndexName: indexByUserId
           KeySchema:
@@ -74,13 +81,13 @@ Resources:
             - AttributeName: orderingValue
               KeyType: RANGE
           Projection:
-            ProjectionType: ALL                  
+            ProjectionType: ALL
 
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           Effect: Allow
           Action:
@@ -108,7 +115,7 @@ Resources:
                   - cognito-idp:AdminInitiateAuth
                   - cognito-idp:AdminAddUserToGroup
                   - cognito-idp:AdminSetUserPassword
-                Resource: '*'  
+                Resource: "*"
 
   TeamDeletedTopic:
     Type: AWS::SNS::Topic
@@ -133,24 +140,25 @@ Resources:
   UserPool:
     Type: AWS::Cognito::UserPool
     DeletionPolicy: Retain
-    Properties: 
+    UpdateReplacePolicy: Retain
+    Properties:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true
       UsernameAttributes:
         - email
-      AutoVerifiedAttributes: 
+      AutoVerifiedAttributes:
         - email
-      Policies: 
-        PasswordPolicy: 
+      Policies:
+        PasswordPolicy:
           MinimumLength: 6
           TemporaryPasswordValidityDays: 45
-      Schema: 
+      Schema:
         - Name: nickname
           AttributeDataType: String
           DeveloperOnlyAttribute: false
           Mutable: true
           Required: true
-          StringAttributeConstraints: 
+          StringAttributeConstraints:
             MinLength: "0"
             MaxLength: "2048"
         - Name: email
@@ -158,23 +166,23 @@ Resources:
           DeveloperOnlyAttribute: false
           Mutable: true
           Required: true
-          StringAttributeConstraints: 
+          StringAttributeConstraints:
             MinLength: "0"
-            MaxLength: "2048"                        
+            MaxLength: "2048"
       UserPoolName: !Sub Foci2020-${Env}
   ApplicationClient:
     Type: AWS::Cognito::UserPoolClient
-    Properties: 
+    Properties:
       ClientName: !Sub Foci2020-${Env}-Application
-      ExplicitAuthFlows: 
+      ExplicitAuthFlows:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
       GenerateSecret: false
-      ReadAttributes: 
+      ReadAttributes:
         - nickname
         - email
       UserPoolId: !Ref UserPool
-      WriteAttributes: 
+      WriteAttributes:
         - nickname
         - email
   AdminUserGroup:

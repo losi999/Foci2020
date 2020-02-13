@@ -1,19 +1,19 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
-Description: 'Foci 2020 Match API'
-Parameters: 
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 Match API"
+Parameters:
   LambdaRoleArn:
     Type: String
   Database:
     Type: String
   TeamUpdatedTopic:
-    Type: String    
+    Type: String
   TournamentUpdatedTopic:
-    Type: String    
+    Type: String
   TeamDeletedTopic:
-    Type: String    
+    Type: String
   TournamentDeletedTopic:
-    Type: String    
+    Type: String
   UserPoolArn:
     Type: String
   Env:
@@ -30,7 +30,7 @@ Globals:
     Runtime: nodejs12.x
     Timeout: 10
     MemorySize: 512
-    Tracing: Active  
+    Tracing: Active
     Environment:
       Variables:
         DYNAMO_TABLE: !Ref Database
@@ -48,10 +48,10 @@ Resources:
             UserPoolArn: !Ref UserPoolArn
       GatewayResponses:
         MISSING_AUTHENTICATION_TOKEN:
-          StatusCode: 404 
+          StatusCode: 404
           ResponseTemplates:
             application/json: '{ "message": $context.error.messageString }'
-     
+
   CreateMatch:
     Type: AWS::Serverless::Function
     Properties:
@@ -64,8 +64,8 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches
-            Method: POST   
-            Auth: 
+            Method: POST
+            Auth:
               Authorizer: CognitoAuthorizer
 
   PlaceBet:
@@ -80,8 +80,8 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}/bets
-            Method: POST 
-            Auth: 
+            Method: POST
+            Auth:
               Authorizer: CognitoAuthorizer
 
   ListBetsOfMatch:
@@ -97,8 +97,8 @@ Resources:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}/bets
             Method: GET
-            Auth: 
-              Authorizer: CognitoAuthorizer              
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   UpdateMatch:
     Type: AWS::Serverless::Function
@@ -112,9 +112,9 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
-            Method: PUT 
-            Auth: 
-              Authorizer: CognitoAuthorizer    
+            Method: PUT
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   ListMatches:
     Type: AWS::Serverless::Function
@@ -128,9 +128,9 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches
-            Method: GET 
-            Auth: 
-              Authorizer: CognitoAuthorizer     
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetMatch:
     Type: AWS::Serverless::Function
@@ -144,9 +144,9 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
-            Method: GET 
-            Auth: 
-              Authorizer: CognitoAuthorizer  
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   DeleteMatch:
     Type: AWS::Serverless::Function
@@ -160,9 +160,9 @@ Resources:
           Properties:
             RestApiId: !Ref MatchApi
             Path: /match/v1/matches/{matchId}
-            Method: DELETE 
-            Auth: 
-              Authorizer: CognitoAuthorizer  
+            Method: DELETE
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   UpdateHomeTeamOfMatches:
     Type: AWS::Serverless::Function
@@ -174,7 +174,7 @@ Resources:
         SNS:
           Type: SNS
           Properties:
-            Topic: !Ref TeamUpdatedTopic            
+            Topic: !Ref TeamUpdatedTopic
 
   UpdateAwayTeamOfMatches:
     Type: AWS::Serverless::Function
@@ -186,7 +186,7 @@ Resources:
         SNS:
           Type: SNS
           Properties:
-            Topic: !Ref TeamUpdatedTopic    
+            Topic: !Ref TeamUpdatedTopic
 
   UpdateTournamentOfMatches:
     Type: AWS::Serverless::Function
@@ -198,7 +198,7 @@ Resources:
         SNS:
           Type: SNS
           Properties:
-            Topic: !Ref TournamentUpdatedTopic    
+            Topic: !Ref TournamentUpdatedTopic
 
   DeleteMatchesByTeam:
     Type: AWS::Serverless::Function
@@ -210,7 +210,7 @@ Resources:
         SNS:
           Type: SNS
           Properties:
-            Topic: !Ref TeamDeletedTopic    
+            Topic: !Ref TeamDeletedTopic
 
   DeleteMatchesByTournament:
     Type: AWS::Serverless::Function
@@ -222,8 +222,7 @@ Resources:
         SNS:
           Type: SNS
           Properties:
-            Topic: !Ref TournamentDeletedTopic    
-
+            Topic: !Ref TournamentDeletedTopic
 
 Outputs:
   MatchApi:

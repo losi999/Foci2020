@@ -1,7 +1,7 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
-Description: 'Foci 2020 User API'
-Parameters: 
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 User API"
+Parameters:
   LambdaRoleArn:
     Type: String
   Env:
@@ -37,10 +37,10 @@ Resources:
       TracingEnabled: true
       GatewayResponses:
         MISSING_AUTHENTICATION_TOKEN:
-          StatusCode: 404 
+          StatusCode: 404
           ResponseTemplates:
             application/json: '{ "message": $context.error.messageString }'
-     
+
   Registration:
     Type: AWS::Serverless::Function
     Properties:
@@ -53,7 +53,7 @@ Resources:
           Properties:
             RestApiId: !Ref UserApi
             Path: /user/v1/registration
-            Method: POST   
+            Method: POST
 
   Login:
     Type: AWS::Serverless::Function

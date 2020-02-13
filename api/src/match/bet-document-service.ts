@@ -23,7 +23,7 @@ export const betDocumentServiceFactory = (
     queryBetsByMatchId: async (matchId) => {
       return (await dynamoClient.query({
         TableName: betTableName,
-        IndexName: 'indexByMatchId',
+        IndexName: 'indexByMatchId2',
         ReturnConsumedCapacity: 'INDEXES',
         KeyConditionExpression: 'matchId = :matchId',
         ExpressionAttributeValues: {

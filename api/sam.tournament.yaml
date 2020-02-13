@@ -1,7 +1,7 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
-Description: 'Foci 2020 Tournament API'
-Parameters: 
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 Tournament API"
+Parameters:
   LambdaRoleArn:
     Type: String
   Database:
@@ -11,7 +11,7 @@ Parameters:
   TournamentUpdatedTopic:
     Type: String
   UserPoolArn:
-    Type: String    
+    Type: String
   Env:
     Type: String
 
@@ -26,7 +26,7 @@ Globals:
     Runtime: nodejs12.x
     Timeout: 10
     MemorySize: 512
-    Tracing: Active  
+    Tracing: Active
     Environment:
       Variables:
         DYNAMO_TABLE: !Ref Database
@@ -41,13 +41,13 @@ Resources:
       Auth:
         Authorizers:
           CognitoAuthorizer:
-            UserPoolArn: !Ref UserPoolArn      
+            UserPoolArn: !Ref UserPoolArn
       GatewayResponses:
         MISSING_AUTHENTICATION_TOKEN:
-          StatusCode: 404 
+          StatusCode: 404
           ResponseTemplates:
             application/json: '{ "message": $context.error.messageString }'
-     
+
   CreateTournament:
     Type: AWS::Serverless::Function
     Properties:
@@ -60,9 +60,9 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments
-            Method: POST   
-            Auth: 
-              Authorizer: CognitoAuthorizer    
+            Method: POST
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   UpdateTournament:
     Type: AWS::Serverless::Function
@@ -76,12 +76,12 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments/{tournamentId}
-            Method: PUT   
-            Auth: 
-              Authorizer: CognitoAuthorizer 
+            Method: PUT
+            Auth:
+              Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          TOURNAMENT_UPDATED_TOPIC: !Ref TournamentUpdatedTopic        
+          TOURNAMENT_UPDATED_TOPIC: !Ref TournamentUpdatedTopic
 
   ListTournaments:
     Type: AWS::Serverless::Function
@@ -95,9 +95,9 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments
-            Method: GET   
-            Auth: 
-              Authorizer: CognitoAuthorizer    
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetTournament:
     Type: AWS::Serverless::Function
@@ -111,9 +111,9 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments/{tournamentId}
-            Method: GET   
-            Auth: 
-              Authorizer: CognitoAuthorizer  
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   DeleteTournament:
     Type: AWS::Serverless::Function
@@ -127,12 +127,12 @@ Resources:
           Properties:
             RestApiId: !Ref TournamentApi
             Path: /tournament/v1/tournaments/{tournamentId}
-            Method: DELETE   
-            Auth: 
-              Authorizer: CognitoAuthorizer  
+            Method: DELETE
+            Auth:
+              Authorizer: CognitoAuthorizer
       Environment:
         Variables:
-          TOURNAMENT_DELETED_TOPIC: !Ref TournamentDeletedTopic 
+          TOURNAMENT_DELETED_TOPIC: !Ref TournamentDeletedTopic
 
 Outputs:
   TournamentApi:

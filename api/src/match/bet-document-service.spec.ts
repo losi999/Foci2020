@@ -65,7 +65,7 @@ describe('Bet document service', () => {
 
       expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
-        IndexName: 'indexByMatchId',
+        IndexName: 'indexByMatchId2',
         KeyConditionExpression: 'matchId = :matchId',
         ExpressionAttributeValues: {
           ':matchId': matchId,

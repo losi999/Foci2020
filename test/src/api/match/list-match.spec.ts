@@ -4,6 +4,7 @@ import { createTournament, deleteTournament, validateTournament } from '../tourn
 import { addMinutes } from 'api/shared/common';
 import { deleteMatch, createMatch, getMatchList, validateMatch } from './match-common';
 import uuid from 'uuid';
+import { authenticate } from '../auth/auth-common';
 
 describe('GET /match/v1/matches', () => {
   const homeTeam: TeamRequest = {
@@ -30,6 +31,9 @@ describe('GET /match/v1/matches', () => {
     createdMatchIds = [];
     createdTeamIds = [];
     createdTournamentIds = [];
+
+    authenticate('admin');
+    authenticate('player1');
   });
 
   let homeTeamId: string;
@@ -39,14 +43,14 @@ describe('GET /match/v1/matches', () => {
   let match2: MatchRequest;
 
   before(() => {
-    createTeam(homeTeam)
+    createTeam(homeTeam, 'admin')
       .its('body')
       .its('teamId')
       .then((id) => {
         homeTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTeam(awayTeam);
+        return createTeam(awayTeam, 'admin');
       })
       .its('body')
       .its('teamId')
@@ -54,7 +58,7 @@ describe('GET /match/v1/matches', () => {
         awayTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTournament(tournament);
+        return createTournament(tournament, 'admin');
       })
       .its('body')
       .its('tournamentId')
@@ -82,62 +86,120 @@ describe('GET /match/v1/matches', () => {
   });
 
   after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId));
-    createdTeamIds.map(teamId => deleteTeam(teamId));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId));
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
   });
 
-  it('should get a list of matches', () => {
-    let matchId1: string;
-    let matchId2: string;
+  describe('called as a player', () => {
+    it('should get a list of matches', () => {
+      let matchId1: string;
+      let matchId2: string;
 
-    createMatch(match1)
-      .its('body')
-      .its('matchId')
-      .then((id) => {
-        matchId1 = id;
-        createdMatchIds.push(id);
-        expect(id).to.be.a('string');
-        return createMatch(match2);
-      }).its('body')
-      .its('matchId')
-      .then((id) => {
-        matchId2 = id;
-        createdMatchIds.push(id);
-        expect(id).to.be.a('string');
-        return getMatchList(tournamentId);
-      })
-      .its('body')
-      .should((matches: MatchResponse[]) => {
-        const matchResponse1 = matches.find(m => m.matchId === matchId1);
-        validateMatch(matchResponse1, matchId1, match1);
-        validateTeam(matchResponse1.homeTeam, homeTeamId, homeTeam);
-        validateTeam(matchResponse1.awayTeam, awayTeamId, awayTeam);
-        validateTournament(matchResponse1.tournament, tournamentId, tournament);
+      createMatch(match1, 'admin')
+        .its('body')
+        .its('matchId')
+        .then((id) => {
+          matchId1 = id;
+          createdMatchIds.push(id);
+          expect(id).to.be.a('string');
+          return createMatch(match2, 'admin');
+        }).its('body')
+        .its('matchId')
+        .then((id) => {
+          matchId2 = id;
+          createdMatchIds.push(id);
+          expect(id).to.be.a('string');
+          return getMatchList(tournamentId, 'admin');
+        })
+        .its('body')
+        .should((matches: MatchResponse[]) => {
+          const matchResponse1 = matches.find(m => m.matchId === matchId1);
+          validateMatch(matchResponse1, matchId1, match1);
+          validateTeam(matchResponse1.homeTeam, homeTeamId, homeTeam);
+          validateTeam(matchResponse1.awayTeam, awayTeamId, awayTeam);
+          validateTournament(matchResponse1.tournament, tournamentId, tournament);
 
-        const matchResponse2 = matches.find(m => m.matchId === matchId2);
-        validateMatch(matchResponse2, matchId2, match2);
-        validateTeam(matchResponse2.homeTeam, awayTeamId, awayTeam);
-        validateTeam(matchResponse2.awayTeam, homeTeamId, homeTeam);
-        validateTournament(matchResponse2.tournament, tournamentId, tournament);
-      });
-  });
-
-  describe('should return error if tournamentId', () => {
-    it('is missing from queryStringParameters', () => {
-      getMatchList(undefined)
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.queryStringParameters).to.contain('object');
+          const matchResponse2 = matches.find(m => m.matchId === matchId2);
+          validateMatch(matchResponse2, matchId2, match2);
+          validateTeam(matchResponse2.homeTeam, awayTeamId, awayTeam);
+          validateTeam(matchResponse2.awayTeam, homeTeamId, homeTeam);
+          validateTournament(matchResponse2.tournament, tournamentId, tournament);
         });
     });
 
-    it('is not uuid', () => {
-      getMatchList(`${uuid()}-not-valid`)
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.queryStringParameters).to.contain('tournamentId').to.contain('format').to.contain('uuid');
+    describe('should return error if tournamentId', () => {
+      it('is missing from queryStringParameters', () => {
+        getMatchList(undefined, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.queryStringParameters).to.contain('object');
+          });
+      });
+
+      it('is not uuid', () => {
+        getMatchList(`${uuid()}-not-valid`, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.queryStringParameters).to.contain('tournamentId').to.contain('format').to.contain('uuid');
+          });
+      });
+    });
+  });
+
+  describe('called as an admin', () => {
+    it('should get a list of matches', () => {
+      let matchId1: string;
+      let matchId2: string;
+
+      createMatch(match1, 'admin')
+        .its('body')
+        .its('matchId')
+        .then((id) => {
+          matchId1 = id;
+          createdMatchIds.push(id);
+          expect(id).to.be.a('string');
+          return createMatch(match2, 'admin');
+        }).its('body')
+        .its('matchId')
+        .then((id) => {
+          matchId2 = id;
+          createdMatchIds.push(id);
+          expect(id).to.be.a('string');
+          return getMatchList(tournamentId, 'admin');
+        })
+        .its('body')
+        .should((matches: MatchResponse[]) => {
+          const matchResponse1 = matches.find(m => m.matchId === matchId1);
+          validateMatch(matchResponse1, matchId1, match1);
+          validateTeam(matchResponse1.homeTeam, homeTeamId, homeTeam);
+          validateTeam(matchResponse1.awayTeam, awayTeamId, awayTeam);
+          validateTournament(matchResponse1.tournament, tournamentId, tournament);
+
+          const matchResponse2 = matches.find(m => m.matchId === matchId2);
+          validateMatch(matchResponse2, matchId2, match2);
+          validateTeam(matchResponse2.homeTeam, awayTeamId, awayTeam);
+          validateTeam(matchResponse2.awayTeam, homeTeamId, homeTeam);
+          validateTournament(matchResponse2.tournament, tournamentId, tournament);
         });
+    });
+
+    describe('should return error if tournamentId', () => {
+      it('is missing from queryStringParameters', () => {
+        getMatchList(undefined, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.queryStringParameters).to.contain('object');
+          });
+      });
+
+      it('is not uuid', () => {
+        getMatchList(`${uuid()}-not-valid`, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.queryStringParameters).to.contain('tournamentId').to.contain('format').to.contain('uuid');
+          });
+      });
     });
   });
 });

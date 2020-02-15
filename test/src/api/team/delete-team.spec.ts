@@ -3,6 +3,8 @@ import { createTournament, deleteTournament } from '../tournament/tournament-com
 import { addMinutes } from 'api/shared/common';
 import { createMatch, getMatch, deleteMatch } from '../match/match-common';
 import { TeamRequest, TournamentRequest } from 'api/shared/types/types';
+import { authenticate } from '../auth/auth-common';
+import uuid from 'uuid';
 
 describe('DELETE /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
@@ -19,101 +21,43 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
     createdMatchIds = [];
     createdTeamIds = [];
     createdTournamentIds = [];
+
+    authenticate('admin');
+    authenticate('player1');
   });
 
   after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId));
-    createdTeamIds.map(teamId => deleteTeam(teamId));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId));
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
   });
 
-  it('should delete team', () => {
-    let teamId: string;
-
-    createTeam(team)
-      .its('body')
-      .its('teamId')
-      .then((id) => {
-        teamId = id;
-        expect(id).to.be.a('string');
-        return deleteTeam(teamId);
-      })
-      .its('status')
-      .then((status) => {
-        expect(status).to.equal(200);
-        return getTeam(teamId);
-      })
-      .its('status')
-      .should((status) => {
-        expect(status).to.equal(404);
-      });
+  describe('called as a player', () => {
+    it('should return unauthorized', () => {
+      deleteTeam(uuid(), 'player1')
+        .its('status')
+        .should((status) => {
+          expect(status).to.equal(403);
+        });
+    });
   });
 
-  describe('related matches', () => {
-    const teamToDelete: TeamRequest = {
-      teamName: 'Anglia',
-      image: 'http://image.com/eng.png',
-      shortName: 'ENG',
-    };
-    const tournament: TournamentRequest = {
-      tournamentName: 'EB 2020'
-    };
+  describe('called as an admin', () => {
+    it('should delete team', () => {
+      let teamId: string;
 
-    let teamId: string;
-    let teamToDeleteId: string;
-    let tournamentId: string;
-
-    beforeEach(() => {
-      createTeam(team)
+      createTeam(team, 'admin')
         .its('body')
         .its('teamId')
         .then((id) => {
           teamId = id;
-          createdTeamIds.push(id);
           expect(id).to.be.a('string');
-          return createTeam(teamToDelete);
-        })
-        .its('body')
-        .its('teamId')
-        .then((id) => {
-          teamToDeleteId = id;
-          expect(id).to.be.a('string');
-          return createTournament(tournament);
-        })
-        .its('body')
-        .its('tournamentId')
-        .then((id) => {
-          tournamentId = id;
-          createdTournamentIds.push(id);
-          expect(id).to.be.a('string');
-        });
-    });
-
-    it('should be deleted if "home team" is deleted', () => {
-      let matchId: string;
-      createMatch({
-        tournamentId,
-        homeTeamId: teamToDeleteId,
-        awayTeamId: teamId,
-        group: 'A csoport',
-        startTime: addMinutes(10).toISOString(),
-      })
-        .its('body')
-        .its('matchId')
-        .then((id) => {
-          matchId = id;
-          createdMatchIds.push(id);
-          return deleteTeam(teamToDeleteId);
+          return deleteTeam(teamId, 'admin');
         })
         .its('status')
         .then((status) => {
           expect(status).to.equal(200);
-          return getTeam(teamToDeleteId);
-        })
-        .its('status')
-        .then((status) => {
-          expect(status).to.equal(404);
-          return getMatch(matchId);
+          return getTeam(teamId, 'admin');
         })
         .its('status')
         .should((status) => {
@@ -121,36 +65,109 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
         });
     });
 
-    it('should be deleted if "away team" is deleted', () => {
-      let matchId: string;
-      createMatch({
-        tournamentId,
-        awayTeamId: teamToDeleteId,
-        homeTeamId: teamId,
-        group: 'A csoport',
-        startTime: addMinutes(10).toISOString(),
-      })
-        .its('body')
-        .its('matchId')
-        .then((id) => {
-          matchId = id;
-          createdMatchIds.push(id);
-          return deleteTeam(teamToDeleteId);
-        })
-        .its('status')
-        .then((status) => {
-          expect(status).to.equal(200);
-          return getTeam(teamToDeleteId);
-        })
-        .its('status')
-        .then((status) => {
-          expect(status).to.equal(404);
-          return getMatch(matchId);
-        })
-        .its('status')
-        .should((status) => {
-          expect(status).to.equal(404);
-        });
+    describe('related matches', () => {
+      const teamToDelete: TeamRequest = {
+        teamName: 'Anglia',
+        image: 'http://image.com/eng.png',
+        shortName: 'ENG',
+      };
+      const tournament: TournamentRequest = {
+        tournamentName: 'EB 2020'
+      };
+
+      let teamId: string;
+      let teamToDeleteId: string;
+      let tournamentId: string;
+
+      beforeEach(() => {
+        createTeam(team, 'admin')
+          .its('body')
+          .its('teamId')
+          .then((id) => {
+            teamId = id;
+            createdTeamIds.push(id);
+            expect(id).to.be.a('string');
+            return createTeam(teamToDelete, 'admin');
+          })
+          .its('body')
+          .its('teamId')
+          .then((id) => {
+            teamToDeleteId = id;
+            expect(id).to.be.a('string');
+            return createTournament(tournament, 'admin');
+          })
+          .its('body')
+          .its('tournamentId')
+          .then((id) => {
+            tournamentId = id;
+            createdTournamentIds.push(id);
+            expect(id).to.be.a('string');
+          });
+      });
+
+      it('should be deleted if "home team" is deleted', () => {
+        let matchId: string;
+        createMatch({
+          tournamentId,
+          homeTeamId: teamToDeleteId,
+          awayTeamId: teamId,
+          group: 'A csoport',
+          startTime: addMinutes(10).toISOString(),
+        }, 'admin')
+          .its('body')
+          .its('matchId')
+          .then((id) => {
+            matchId = id;
+            createdMatchIds.push(id);
+            return deleteTeam(teamToDeleteId, 'admin');
+          })
+          .its('status')
+          .then((status) => {
+            expect(status).to.equal(200);
+            return getTeam(teamToDeleteId, 'admin');
+          })
+          .its('status')
+          .then((status) => {
+            expect(status).to.equal(404);
+            return getMatch(matchId, 'admin');
+          })
+          .its('status')
+          .should((status) => {
+            expect(status).to.equal(404);
+          });
+      });
+
+      it('should be deleted if "away team" is deleted', () => {
+        let matchId: string;
+        createMatch({
+          tournamentId,
+          awayTeamId: teamToDeleteId,
+          homeTeamId: teamId,
+          group: 'A csoport',
+          startTime: addMinutes(10).toISOString(),
+        }, 'admin')
+          .its('body')
+          .its('matchId')
+          .then((id) => {
+            matchId = id;
+            createdMatchIds.push(id);
+            return deleteTeam(teamToDeleteId, 'admin');
+          })
+          .its('status')
+          .then((status) => {
+            expect(status).to.equal(200);
+            return getTeam(teamToDeleteId, 'admin');
+          })
+          .its('status')
+          .then((status) => {
+            expect(status).to.equal(404);
+            return getMatch(matchId, 'admin');
+          })
+          .its('status')
+          .should((status) => {
+            expect(status).to.equal(404);
+          });
+      });
     });
   });
 });

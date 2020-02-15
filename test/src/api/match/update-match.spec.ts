@@ -4,6 +4,7 @@ import { createTournament, deleteTournament, validateTournament } from '../tourn
 import { addMinutes } from 'api/shared/common';
 import { deleteMatch, createMatch, updateMatch, getMatch, validateMatch } from './match-common';
 import uuid from 'uuid';
+import { authenticate } from '../auth/auth-common';
 
 describe('PUT /match/v1/matches/{matchId}', () => {
   const homeTeam: TeamRequest = {
@@ -34,6 +35,9 @@ describe('PUT /match/v1/matches/{matchId}', () => {
     createdMatchIds = [];
     createdTeamIds = [];
     createdTournamentIds = [];
+
+    authenticate('admin');
+    authenticate('player1');
   });
 
   let homeTeamId: string;
@@ -43,14 +47,14 @@ describe('PUT /match/v1/matches/{matchId}', () => {
   let match: MatchRequest;
 
   before(() => {
-    createTeam(homeTeam)
+    createTeam(homeTeam, 'admin')
       .its('body')
       .its('teamId')
       .then((id) => {
         homeTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTeam(awayTeam);
+        return createTeam(awayTeam, 'admin');
       })
       .its('body')
       .its('teamId')
@@ -58,7 +62,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
         awayTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTournament(tournament);
+        return createTournament(tournament, 'admin');
       })
       .its('body')
       .its('tournamentId')
@@ -66,7 +70,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
         tournamentId = id;
         createdTournamentIds.push(id);
         expect(id).to.be.a('string');
-        return createTournament(oldTournament);
+        return createTournament(oldTournament, 'admin');
       })
       .its('body')
       .its('tournamentId')
@@ -85,9 +89,9 @@ describe('PUT /match/v1/matches/{matchId}', () => {
   });
 
   after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId));
-    createdTeamIds.map(teamId => deleteTeam(teamId));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId));
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
   });
 
   let matchId: string;
@@ -99,7 +103,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       group: 'to update',
       startTime: addMinutes(20).toISOString(),
       tournamentId: oldTournamentId,
-    })
+    }, 'admin')
       .its('body')
       .its('matchId')
       .then((id) => {
@@ -109,227 +113,239 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       });
   });
 
-  it('should update a match', () => {
-    updateMatch(matchId, match)
-      .its('status')
-      .then((status) => {
-        expect(status).to.equal(200);
-        return getMatch(matchId);
-      })
-      .its('body')
-      .should((body: MatchResponse) => {
-        validateMatch(body, matchId, match);
-        validateTeam(body.homeTeam, homeTeamId, homeTeam);
-        validateTeam(body.awayTeam, awayTeamId, awayTeam);
-        validateTournament(body.tournament, tournamentId, tournament);
+  describe('called as a player', () => {
+    it('should return unauthorized', () => {
+      updateMatch(matchId, match, 'player1')
+        .its('status')
+        .should((status) => {
+          expect(status).to.equal(403);
+        });
+    });
+  });
+
+  describe('called as an admin', () => {
+    it('should update a match', () => {
+      updateMatch(matchId, match, 'admin')
+        .its('status')
+        .then((status) => {
+          expect(status).to.equal(200);
+          return getMatch(matchId, 'admin');
+        })
+        .its('body')
+        .should((body: MatchResponse) => {
+          validateMatch(body, matchId, match);
+          validateTeam(body.homeTeam, homeTeamId, homeTeam);
+          validateTeam(body.awayTeam, awayTeamId, awayTeam);
+          validateTournament(body.tournament, tournamentId, tournament);
+        });
+    });
+
+    describe('should return error if homeTeamId', () => {
+      it('is missing from body', () => {
+        updateMatch(matchId, {
+          ...match,
+          homeTeamId: undefined
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('homeTeamId').to.contain('required');
+          });
       });
-  });
 
-  describe('should return error if homeTeamId', () => {
-    it('is missing from body', () => {
-      updateMatch(matchId, {
-        ...match,
-        homeTeamId: undefined
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('homeTeamId').to.contain('required');
-        });
+      it('is not string', () => {
+        updateMatch(matchId, {
+          ...match,
+          homeTeamId: 1 as any
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('homeTeamId').to.contain('string');
+          });
+      });
+
+      it('is not uuid', () => {
+        updateMatch(matchId, {
+          ...match,
+          homeTeamId: `${uuid()}-not-valid`
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('homeTeamId').to.contain('format').to.contain('uuid');
+          });
+      });
+
+      it('does not belong to any team', () => {
+        updateMatch(matchId, {
+          ...match,
+          homeTeamId: uuid()
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body).to.equal('Home team not found');
+          });
+      });
     });
 
-    it('is not string', () => {
-      updateMatch(matchId, {
-        ...match,
-        homeTeamId: 1 as any
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('homeTeamId').to.contain('string');
-        });
+    describe('should return error if awayTeamId', () => {
+      it('is missing from body', () => {
+        updateMatch(matchId, {
+          ...match,
+          awayTeamId: undefined,
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('awayTeamId').to.contain('required');
+          });
+      });
+
+      it('is not string', () => {
+        updateMatch(matchId, {
+          ...match,
+          awayTeamId: 1 as any
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('awayTeamId').to.contain('string');
+          });
+      });
+
+      it('is not uuid', () => {
+        updateMatch(matchId, {
+          ...match,
+          awayTeamId: `${uuid()}-not-valid`
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('awayTeamId').to.contain('format').to.contain('uuid');
+          });
+      });
+
+      it('does not belong to any team', () => {
+        updateMatch(matchId, {
+          ...match,
+          awayTeamId: uuid()
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body).to.equal('Away team not found');
+          });
+      });
+
+      it('is the same as homeTeamId', () => {
+        updateMatch(matchId, {
+          ...match,
+          awayTeamId: homeTeamId
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body).to.equal('Home and away teams cannot be the same');
+          });
+      });
     });
 
-    it('is not uuid', () => {
-      updateMatch(matchId, {
-        ...match,
-        homeTeamId: `${uuid()}-not-valid`
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('homeTeamId').to.contain('format').to.contain('uuid');
-        });
+    describe('should return error if tournamentId', () => {
+      it('is missing from body', () => {
+        updateMatch(matchId, {
+          ...match,
+          tournamentId: undefined
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('tournamentId').to.contain('required');
+          });
+      });
+
+      it('is not string', () => {
+        updateMatch(matchId, {
+          ...match,
+          tournamentId: 1 as any
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('tournamentId').to.contain('string');
+          });
+      });
+
+      it('is not uuid', () => {
+        updateMatch(matchId, {
+          ...match,
+          tournamentId: `${uuid()}-not-valid`
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('tournamentId').to.contain('format').to.contain('uuid');
+          });
+      });
+
+      it('does not belong to any tournament', () => {
+        updateMatch(matchId, {
+          ...match,
+          tournamentId: uuid()
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body).to.equal('Tournament not found');
+          });
+      });
     });
 
-    it('does not belong to any team', () => {
-      updateMatch(matchId, {
-        ...match,
-        homeTeamId: uuid()
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body).to.equal('Home team not found');
-        });
-    });
-  });
+    describe('should return error if group', () => {
+      it('is missing from body', () => {
+        updateMatch(matchId, {
+          ...match,
+          group: undefined
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('group').to.contain('required');
+          });
+      });
 
-  describe('should return error if awayTeamId', () => {
-    it('is missing from body', () => {
-      updateMatch(matchId, {
-        ...match,
-        awayTeamId: undefined,
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('awayTeamId').to.contain('required');
-        });
-    });
-
-    it('is not string', () => {
-      updateMatch(matchId, {
-        ...match,
-        awayTeamId: 1 as any
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('awayTeamId').to.contain('string');
-        });
+      it('is not string', () => {
+        updateMatch(matchId, {
+          ...match,
+          group: 1 as any
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('group').to.contain('string');
+          });
+      });
     });
 
-    it('is not uuid', () => {
-      updateMatch(matchId, {
-        ...match,
-        awayTeamId: `${uuid()}-not-valid`
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('awayTeamId').to.contain('format').to.contain('uuid');
-        });
-    });
+    describe('should return error if startTime', () => {
+      it('is missing from body', () => {
+        updateMatch(matchId, {
+          ...match,
+          startTime: undefined
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('startTime').to.contain('required');
+          });
+      });
 
-    it('does not belong to any team', () => {
-      updateMatch(matchId, {
-        ...match,
-        awayTeamId: uuid()
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body).to.equal('Away team not found');
-        });
-    });
+      it('is not string', () => {
+        updateMatch(matchId, {
+          ...match,
+          startTime: 1 as any
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('startTime').to.contain('string');
+          });
+      });
 
-    it('is the same as homeTeamId', () => {
-      updateMatch(matchId, {
-        ...match,
-        awayTeamId: homeTeamId
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body).to.equal('Home and away teams cannot be the same');
-        });
-    });
-  });
-
-  describe('should return error if tournamentId', () => {
-    it('is missing from body', () => {
-      updateMatch(matchId, {
-        ...match,
-        tournamentId: undefined
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('tournamentId').to.contain('required');
-        });
-    });
-
-    it('is not string', () => {
-      updateMatch(matchId, {
-        ...match,
-        tournamentId: 1 as any
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('tournamentId').to.contain('string');
-        });
-    });
-
-    it('is not uuid', () => {
-      updateMatch(matchId, {
-        ...match,
-        tournamentId: `${uuid()}-not-valid`
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('tournamentId').to.contain('format').to.contain('uuid');
-        });
-    });
-
-    it('does not belong to any tournament', () => {
-      updateMatch(matchId, {
-        ...match,
-        tournamentId: uuid()
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body).to.equal('Tournament not found');
-        });
-    });
-  });
-
-  describe('should return error if group', () => {
-    it('is missing from body', () => {
-      updateMatch(matchId, {
-        ...match,
-        group: undefined
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('group').to.contain('required');
-        });
-    });
-
-    it('is not string', () => {
-      updateMatch(matchId, {
-        ...match,
-        group: 1 as any
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('group').to.contain('string');
-        });
-    });
-  });
-
-  describe('should return error if startTime', () => {
-    it('is missing from body', () => {
-      updateMatch(matchId, {
-        ...match,
-        startTime: undefined
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('startTime').to.contain('required');
-        });
-    });
-
-    it('is not string', () => {
-      updateMatch(matchId, {
-        ...match,
-        startTime: 1 as any
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('startTime').to.contain('string');
-        });
-    });
-
-    it('is less than 5 minutes from now', () => {
-      updateMatch(matchId, {
-        ...match,
-        startTime: addMinutes(4.9).toISOString()
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body).to.equal('Start time has to be at least 5 minutes from now');
-        });
+      it('is less than 5 minutes from now', () => {
+        updateMatch(matchId, {
+          ...match,
+          startTime: addMinutes(4.9).toISOString()
+        }, 'admin')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body).to.equal('Start time has to be at least 5 minutes from now');
+          });
+      });
     });
   });
 });

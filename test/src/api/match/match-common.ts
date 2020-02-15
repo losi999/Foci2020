@@ -1,48 +1,69 @@
 import { MatchRequest, MatchResponse } from 'api/shared/types/types';
+import { User } from '../constants';
 
-export const createMatch = (match: MatchRequest) => {
-  return cy.request({
-    body: match,
-    method: 'POST',
-    url: '/match/v1/matches',
-    failOnStatusCode: false
-  });
+export const createMatch = (match: MatchRequest, user: User) => {
+  return cy.getCookie(user)
+    .then(cookie => cy.request({
+      body: match,
+      method: 'POST',
+      url: '/match/v1/matches',
+      headers: {
+        Authorization: cookie.value
+      },
+      failOnStatusCode: false
+    }));
 };
 
-export const updateMatch = (matchId: string, match: MatchRequest) => {
-  return cy.request({
-    body: match,
-    method: 'PUT',
-    url: `/match/v1/matches/${matchId}`,
-    failOnStatusCode: false
-  });
+export const updateMatch = (matchId: string, match: MatchRequest, user: User) => {
+  return cy.getCookie(user)
+    .then(cookie => cy.request({
+      body: match,
+      method: 'PUT',
+      url: `/match/v1/matches/${matchId}`,
+      headers: {
+        Authorization: cookie.value
+      },
+      failOnStatusCode: false
+    }));
 };
 
-export const deleteMatch = (matchId: string) => {
-  return cy.request({
-    method: 'DELETE',
-    url: `/match/v1/matches/${matchId}`,
-    failOnStatusCode: false
-  });
+export const deleteMatch = (matchId: string, user: User) => {
+  return cy.getCookie(user)
+    .then(cookie => cy.request({
+      method: 'DELETE',
+      url: `/match/v1/matches/${matchId}`,
+      headers: {
+        Authorization: cookie.value
+      },
+      failOnStatusCode: false
+    }));
 };
 
-export const getMatch = (matchId: string) => {
-  return cy.request({
-    method: 'GET',
-    url: `/match/v1/matches/${matchId}`,
-    failOnStatusCode: false
-  });
+export const getMatch = (matchId: string, user: User) => {
+  return cy.getCookie(user)
+    .then(cookie => cy.request({
+      method: 'GET',
+      url: `/match/v1/matches/${matchId}`,
+      headers: {
+        Authorization: cookie.value
+      },
+      failOnStatusCode: false
+    }));
 };
 
-export const getMatchList = (tournamentId: string) => {
-  return cy.request({
-    method: 'GET',
-    url: '/match/v1/matches',
-    failOnStatusCode: false,
-    qs: {
-      tournamentId
-    }
-  });
+export const getMatchList = (tournamentId: string, user: User) => {
+  return cy.getCookie(user)
+    .then(cookie => cy.request({
+      method: 'GET',
+      url: '/match/v1/matches',
+      headers: {
+        Authorization: cookie.value
+      },
+      failOnStatusCode: false,
+      qs: {
+        tournamentId
+      }
+    }));
 };
 
 export const validateMatch = (body: MatchResponse, matchId: string, match: MatchRequest) => {

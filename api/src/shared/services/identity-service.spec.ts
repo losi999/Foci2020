@@ -28,7 +28,7 @@ describe('Notification service', () => {
         displayName,
         email,
         password
-      });
+      }, 'player');
       expect(mockCognito.functions.adminCreateUser).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
         Username: email,

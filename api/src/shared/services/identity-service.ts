@@ -1,8 +1,8 @@
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
-import { RegistrationRequest, LoginRequest } from '@/shared/types/types';
+import { RegistrationRequest, LoginRequest, UserType } from '@/shared/types/types';
 
 export interface IIdentityService {
-  register(body: RegistrationRequest): Promise<any>;
+  register(body: RegistrationRequest, userGroup: UserType): Promise<any>;
   login(body: LoginRequest): Promise<CognitoIdentityServiceProvider.AdminInitiateAuthResponse>;
 }
 
@@ -11,7 +11,7 @@ export const cognitoIdentityService = (
   clientId: string,
   cognito: CognitoIdentityServiceProvider): IIdentityService => {
   return {
-    register: async (body) => {
+    register: async (body, userGroup) => {
       await cognito.adminCreateUser({
         UserPoolId: userPoolId,
         Username: body.email,
@@ -29,7 +29,7 @@ export const cognitoIdentityService = (
 
       await cognito.adminAddUserToGroup({
         UserPoolId: userPoolId,
-        GroupName: 'player',
+        GroupName: userGroup,
         Username: body.email
       }).promise();
 

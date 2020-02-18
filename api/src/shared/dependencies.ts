@@ -1,7 +1,7 @@
 import ajv from 'ajv';
 import uuid from 'uuid';
 import { captureAWSClient } from 'aws-xray-sdk';
-import { DynamoDB, SNS, CognitoIdentityServiceProvider, config } from 'aws-sdk';
+import { DynamoDB, SNS, CognitoIdentityServiceProvider, config, Lambda, CloudFormation } from 'aws-sdk';
 import { ajvValidatorService } from '@/shared/services/validator-service';
 import { default as apiRequestValidatorHandler } from '@/shared/handlers/api-request-validator-handler';
 import { default as authorizerHandler } from '@/shared/handlers/authorizer-handler';
@@ -25,6 +25,9 @@ const dynamoDbClient = new DynamoDB.DocumentClient();
 const sns = captureAWSClient(new SNS());
 const cognito = captureAWSClient(new CognitoIdentityServiceProvider());
 captureAWSClient((dynamoDbClient as any).service);
+
+export const lambda = captureAWSClient(new Lambda());
+export const cloudFormation = captureAWSClient(new CloudFormation());
 
 export const matchDocumentConverter = matchDocumentConverterFactory(uuid);
 export const teamDocumentConverter = teamDocumentConverterFactory(uuid);

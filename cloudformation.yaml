@@ -2,6 +2,9 @@ AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
   Env:
     Type: String
+  TestUserPassword:
+    Type: String
+    Default: ""    
 
 Resources:
   Infrastructure:
@@ -10,6 +13,7 @@ Resources:
       TemplateURL: infrastructure/cloudformation.yaml
       Parameters:
         Env: !Ref Env
+        TestUserPassword: !Ref TestUserPassword
 
   Team:
     Type: AWS::CloudFormation::Stack

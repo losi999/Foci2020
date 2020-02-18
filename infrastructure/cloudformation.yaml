@@ -3,6 +3,20 @@ Transform: "AWS::Serverless-2016-10-31"
 Parameters:
   Env:
     Type: String
+  TestUserPassword:
+    Type: String
+    Default: ""
+
+Conditions:
+  ShouldCreateTestUsers: !Not [!Equals [!Ref TestUserPassword, ""]]
+
+Globals:
+  Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 512
+    Tracing: Active
 
 Resources:
   Database:
@@ -112,9 +126,12 @@ Resources:
                   - sns:Publish
                   - xray:*
                   - cognito-idp:AdminCreateUser
+                  - cognito-idp:AdminGetUser
                   - cognito-idp:AdminInitiateAuth
                   - cognito-idp:AdminAddUserToGroup
                   - cognito-idp:AdminSetUserPassword
+                  - cloudformation:DescribeStacks
+                  - lambda:InvokeFunction
                 Resource: "*"
 
   TeamDeletedTopic:
@@ -220,6 +237,31 @@ Resources:
       UserPoolId: !Ref UserPool
       Username: losonczil@gmail.com
 
+  PostDeploy:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-PostDeploy
+      CodeUri: ../api/dist/post-deploy
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          INFRASTRUCTURE_STACK: !Ref AWS::StackName
+
+  CreateTestUsers:
+    Type: AWS::Serverless::Function
+    Condition: ShouldCreateTestUsers
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-CreateTestUsers
+      CodeUri: ../api/dist/create-test-users
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref UserPool
+          CLIENT_ID: !Ref ApplicationClient
+          ADMIN_COUNT: 1
+          PLAYER_COUNT: 3
+          TEST_USER_PASSWORD: !Ref TestUserPassword
+
 Outputs:
   Database:
     Value: !Ref Database
@@ -239,3 +281,5 @@ Outputs:
     Value: !Ref ApplicationClient
   UserPoolArn:
     Value: !GetAtt UserPool.Arn
+  PostDeployCreateTestUsers:
+    Value: !If [ShouldCreateTestUsers, !GetAtt CreateTestUsers.Arn, ""]

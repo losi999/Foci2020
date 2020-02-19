@@ -26,6 +26,7 @@ describe('Match document service', () => {
 
   describe('updateMatch', () => {
     it('should call dynamo.update with correct parameters', async () => {
+      const documentTypeId = 'match-id1';
       const document = {
         startTime,
         group,
@@ -34,11 +35,12 @@ describe('Match document service', () => {
         awayTeamId,
         homeTeamId,
         tournament,
-        tournamentId
+        tournamentId,
+        'documentType-id': documentTypeId
       } as MatchDocument;
       mockDynamoClient.functions.put.mockReturnValue(awsResolvedValue());
 
-      await service.updateMatch(matchId, document);
+      await service.updateMatch(document);
       expect(mockDynamoClient.functions.put).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Item: document,
@@ -47,7 +49,7 @@ describe('Match document service', () => {
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
+          ':documentTypeId': documentTypeId,
         }
       }));
     });

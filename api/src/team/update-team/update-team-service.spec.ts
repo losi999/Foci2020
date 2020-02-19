@@ -46,7 +46,7 @@ describe('Update team service', () => {
     });
     expect(result).toBeUndefined();
     expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
-    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
+    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(converted);
     expect(mockNotificationService.functions.teamUpdated).toHaveBeenCalledWith({
       teamId,
       team: converted
@@ -78,7 +78,7 @@ describe('Update team service', () => {
       body
     }).catch(validateError('Error while updating team', 500));
     expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
-    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
+    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(converted);
     expect(mockNotificationService.functions.teamUpdated).not.toHaveBeenCalled();
     expect.assertions(5);
   });
@@ -109,7 +109,7 @@ describe('Update team service', () => {
       body
     }).catch(validateError('Unable to send team updated notification', 500));
     expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
-    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(teamId, converted);
+    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(converted);
     expect(mockNotificationService.functions.teamUpdated).toHaveBeenCalledWith({
       teamId,
       team: converted

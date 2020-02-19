@@ -3,7 +3,7 @@ import { TeamDocument } from '@/shared/types/types';
 
 export interface ITeamDocumentService {
   saveTeam(document: TeamDocument): Promise<any>;
-  updateTeam(teamId: string, document: TeamDocument): Promise<any>;
+  updateTeam(document: TeamDocument): Promise<any>;
   queryTeamById(teamId: string): Promise<TeamDocument>;
   queryTeams(): Promise<TeamDocument[]>;
   deleteTeam(teamId: string): Promise<any>;
@@ -22,7 +22,7 @@ export const teamDocumentServiceFactory = (
         Item: document
       }).promise();
     },
-    updateTeam: async (teamId, document) => {
+    updateTeam: async (document) => {
       return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: teamTableName,
@@ -32,7 +32,7 @@ export const teamDocumentServiceFactory = (
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `team-${teamId}`,
+          ':documentTypeId': document['documentType-id'],
         }
       }).promise();
     },

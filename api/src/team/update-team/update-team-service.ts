@@ -18,7 +18,7 @@ export const updateTeamServiceFactory = (
   return async ({ body, teamId }) => {
     const document = teamDocumentConverter.update(teamId, body);
 
-    await teamDocumentService.updateTeam(teamId, document).catch((error) => {
+    await teamDocumentService.updateTeam(document).catch((error) => {
       console.error('Update team', error);
       throw httpError(500, 'Error while updating team');
     });

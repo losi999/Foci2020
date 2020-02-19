@@ -4,7 +4,7 @@ import { MatchDocument, TournamentDocument, TeamDocument, IndexByTournamentIdDoc
 
 export interface IMatchDocumentService {
   saveMatch(document: MatchDocument): Promise<any>;
-  updateMatch(matchId: string, document: MatchDocument): Promise<any>;
+  updateMatch(document: MatchDocument): Promise<any>;
   updateTournamentOfMatches(matchIds: string[], tournament: TournamentDocument): Promise<any>;
   updateTeamOfMatches(matchId: string[], team: TeamDocument, type: 'home' | 'away'): Promise<any>;
   queryMatchById(matchId: string): Promise<MatchDocument>;
@@ -81,7 +81,7 @@ export const matchDocumentServiceFactory = (
         }).promise();
       }));
     },
-    updateMatch: (matchId, document) => {
+    updateMatch: (document) => {
       return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: matchTableName,
@@ -91,7 +91,7 @@ export const matchDocumentServiceFactory = (
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
+          ':documentTypeId': document['documentType-id'],
         }
       }).promise();
     },

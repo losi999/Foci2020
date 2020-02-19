@@ -81,14 +81,16 @@ describe('Tournament document service', () => {
   });
 
   describe('updateTournament', () => {
+    const documentTypeId = 'tournament-id1';
     const document: TournamentDocument = {
-      tournamentName
+      tournamentName,
+      'documentType-id': documentTypeId
     } as TournamentDocument;
 
     it('should call dynamo.update with correct parameters', async () => {
       mockDynamoClient.functions.put.mockReturnValue(awsResolvedValue());
 
-      await service.updateTournament(tournamentId, document);
+      await service.updateTournament(document);
       expect(mockDynamoClient.functions.put).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Item: document,
@@ -97,7 +99,7 @@ describe('Tournament document service', () => {
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `tournament-${tournamentId}`,
+          ':documentTypeId': documentTypeId,
         }
       }));
     });

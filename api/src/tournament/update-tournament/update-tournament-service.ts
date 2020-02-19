@@ -19,7 +19,7 @@ export const updateTournamentServiceFactory = (
   return async ({ body, tournamentId }) => {
     const document = tournamentDocumentConverter.update(tournamentId, body);
 
-    await tournamentDocumentService.updateTournament(tournamentId, document).catch((error) => {
+    await tournamentDocumentService.updateTournament(document).catch((error) => {
       console.error('Update tournament', error);
       throw httpError(500, 'Error while updating tournament');
     });

@@ -41,7 +41,7 @@ describe('Update tournament service', () => {
     expect(result).toBeUndefined();
 
     expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(tournamentId, body);
-    expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(tournamentId, converted);
+    expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(converted);
     expect(mockNotificationService.functions.tournamentUpdated).toHaveBeenCalledWith({
       tournamentId,
       tournament: converted
@@ -68,7 +68,7 @@ describe('Update tournament service', () => {
     }).catch(validateError('Error while updating tournament', 500));
 
     expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(tournamentId, body);
-    expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(tournamentId, converted);
+    expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(converted);
     expect(mockNotificationService.functions.tournamentUpdated).not.toHaveBeenCalled();
     expect.assertions(5);
   });
@@ -93,7 +93,7 @@ describe('Update tournament service', () => {
       body
     }).catch(validateError('Unable to send tournament updated notification', 500));
     expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(tournamentId, body);
-    expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(tournamentId, converted);
+    expect(mockTournamentDocumentService.functions.updateTournament).toHaveBeenCalledWith(converted);
     expect(mockNotificationService.functions.tournamentUpdated).toHaveBeenCalledWith({
       tournamentId,
       tournament: converted

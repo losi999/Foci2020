@@ -42,33 +42,26 @@ export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentCon
     };
   };
 
+  const update = (matchId: string, matchRequest: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): MatchDocument => {
+    return {
+      ...matchRequest,
+      homeTeam,
+      awayTeam,
+      tournament,
+      id: matchId,
+      documentType: 'match',
+      orderingValue: `${matchRequest.tournamentId}-${matchRequest.startTime}`,
+      'documentType-id': `match-${matchId}`
+    };
+  };
+
   return {
     toResponse,
+    update,
     toResponseList: matchDocuments => matchDocuments.map<MatchResponse>(d => toResponse(d)),
     create: (matchRequest, homeTeam, awayTeam, tournament) => {
       const id = uuid();
-      return {
-        ...matchRequest,
-        homeTeam,
-        awayTeam,
-        tournament,
-        id,
-        documentType: 'match',
-        orderingValue: `${matchRequest.tournamentId}-${matchRequest.startTime}`,
-        'documentType-id': `match-${id}`
-      };
+      return update(id, matchRequest, homeTeam, awayTeam, tournament);
     },
-    update: (matchId, matchRequest, homeTeam, awayTeam, tournament) => {
-      return {
-        ...matchRequest,
-        homeTeam,
-        awayTeam,
-        tournament,
-        id: matchId,
-        documentType: 'match',
-        orderingValue: `${matchRequest.tournamentId}-${matchRequest.startTime}`,
-        'documentType-id': `match-${matchId}`
-      };
-    }
   };
 };

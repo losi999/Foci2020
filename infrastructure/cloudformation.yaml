@@ -6,6 +6,8 @@ Parameters:
   TestUserPassword:
     Type: String
     Default: ""
+  AdminUserEmail:
+    Type: String
 
 Conditions:
   ShouldCreateTestUsers: !Not [!Equals [!Ref TestUserPassword, ""]]
@@ -216,10 +218,10 @@ Resources:
     Type: AWS::Cognito::UserPoolUser
     Properties:
       UserPoolId: !Ref UserPool
-      Username: losonczil@gmail.com
+      Username: !Ref AdminUserEmail
       UserAttributes:
         - Name: email
-          Value: losonczil@gmail.com
+          Value: !Ref AdminUserEmail
         - Name: nickname
           Value: Losi
   AdminUserToAdminGroup:
@@ -228,14 +230,14 @@ Resources:
     Properties:
       GroupName: admin
       UserPoolId: !Ref UserPool
-      Username: losonczil@gmail.com
+      Username: !Ref AdminUserEmail
   AdminUserToPlayerGroup:
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     DependsOn: AdminUser
     Properties:
       GroupName: player
       UserPoolId: !Ref UserPool
-      Username: losonczil@gmail.com
+      Username: !Ref AdminUserEmail
 
   PostDeploy:
     Type: AWS::Serverless::Function

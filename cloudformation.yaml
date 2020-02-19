@@ -5,6 +5,8 @@ Parameters:
   TestUserPassword:
     Type: String
     Default: ""    
+  AdminUserEmail:
+    Type: String
 
 Resources:
   Infrastructure:
@@ -14,6 +16,7 @@ Resources:
       Parameters:
         Env: !Ref Env
         TestUserPassword: !Ref TestUserPassword
+        AdminUserEmail: !Ref AdminUserEmail
 
   Team:
     Type: AWS::CloudFormation::Stack

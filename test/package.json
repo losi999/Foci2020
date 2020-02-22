@@ -4,8 +4,7 @@
   "description": "",
   "scripts": {
     "start": "cypress open -d -C cypress.LOCAL.json",
-    "test:LOCAL": "cypress run -C cypress.LOCAL.json",
-    "test:DEV": "cypress run -C cypress.DEV.json"
+    "test": "cypress run -C cypress.${ENV}.json"
   },
   "devDependencies": {
     "@cypress/webpack-preprocessor": "4.1.1",

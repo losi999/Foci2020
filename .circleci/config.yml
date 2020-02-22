@@ -45,6 +45,8 @@ jobs:
         type: string
     docker: 
       - image: cibuilds/aws:1.16.1
+        environment: 
+          ENV: <<parameters.env>>
     working_directory: ~/repo
     steps:
       - checkout
@@ -55,13 +57,15 @@ jobs:
           command: aws cloudformation package --template-file cloudformation.yaml --s3-bucket ${AWS_PACKAGES_S3} --output-template-file packaged.cloudformation.yaml
       - deploy:
           name: AWS Deploy
-          command: aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-<<parameters.env>> --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=<<parameters.env>>
+          command: aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-${ENV} --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=${ENV} TestUserPassword=${CYPRESS_PASSWORD:-'""'} AdminUserEmail=${ADMIN_USER_EMAIL}
   test:
     parameters:
       env:
         type: string
     docker:
       - image: cypress/base
+        environment: 
+          ENV: <<parameters.env>>
     working_directory: ~/repo
     steps:
       - checkout
@@ -81,7 +85,7 @@ jobs:
 
       - run:
           name: Running tests
-          command: cd test && npm run test:<<parameters.env>>  
+          command: cd test && npm run test
 
 workflows:
   version: 2.1

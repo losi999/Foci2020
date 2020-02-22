@@ -1,22 +1,65 @@
 AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
 Parameters:
   Env:
     Type: String
   TestUserPassword:
     Type: String
-    Default: ""    
+    Default: ""
   AdminUserEmail:
     Type: String
 
+Conditions:
+  ShouldCreateTestUsers: !Not [!Equals [!Ref TestUserPassword, ""]]
+
+Globals:
+  Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 512
+    Tracing: Active
+
 Resources:
+  PostDeploy:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-PostDeploy
+      CodeUri: api/dist/post-deploy
+      Role: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+      Environment:
+        Variables:
+          INFRASTRUCTURE_STACK: !Ref AWS::StackName
+
+  CreateTestUsers:
+    Type: AWS::Serverless::Function
+    Condition: ShouldCreateTestUsers
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-CreateTestUsers
+      CodeUri: api/dist/create-test-users
+      Role: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+      Environment:
+        Variables:
+          USER_POOL_ID: !GetAtt Infrastructure.Outputs.UserPoolArn
+          CLIENT_ID: !GetAtt Infrastructure.Outputs.ClientId
+          ADMIN_COUNT: 1
+          PLAYER_COUNT: 3
+          TEST_USER_PASSWORD: !Ref TestUserPassword
+
+  Data:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: infrastructure/data.yaml
+      Parameters:
+        Env: !Ref Env
+        AdminUserEmail: !Ref AdminUserEmail
+
   Infrastructure:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: infrastructure/cloudformation.yaml
       Parameters:
         Env: !Ref Env
-        TestUserPassword: !Ref TestUserPassword
-        AdminUserEmail: !Ref AdminUserEmail
 
   Team:
     Type: AWS::CloudFormation::Stack
@@ -24,10 +67,10 @@ Resources:
       TemplateURL: api/sam.team.yaml
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
-        Database: !GetAtt Infrastructure.Outputs.Database
+        Database: !GetAtt Data.Outputs.Database
         TeamDeletedTopic: !GetAtt Infrastructure.Outputs.TeamDeletedTopic
         TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
-        UserPoolArn: !GetAtt Infrastructure.Outputs.UserPoolArn
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
         Env: !Ref Env
 
   Tournament:
@@ -36,10 +79,10 @@ Resources:
       TemplateURL: api/sam.tournament.yaml
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
-        Database: !GetAtt Infrastructure.Outputs.Database
+        Database: !GetAtt Data.Outputs.Database
         TournamentDeletedTopic: !GetAtt Infrastructure.Outputs.TournamentDeletedTopic
         TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
-        UserPoolArn: !GetAtt Infrastructure.Outputs.UserPoolArn
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
         Env: !Ref Env
 
   Match:
@@ -48,12 +91,12 @@ Resources:
       TemplateURL: api/sam.match.yaml
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
-        Database: !GetAtt Infrastructure.Outputs.Database
+        Database: !GetAtt Data.Outputs.Database
         TeamUpdatedTopic: !GetAtt Infrastructure.Outputs.TeamUpdatedTopic
         TournamentUpdatedTopic: !GetAtt Infrastructure.Outputs.TournamentUpdatedTopic
         TeamDeletedTopic: !GetAtt Infrastructure.Outputs.TeamDeletedTopic
         TournamentDeletedTopic: !GetAtt Infrastructure.Outputs.TournamentDeletedTopic
-        UserPoolArn: !GetAtt Infrastructure.Outputs.UserPoolArn
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
         Env: !Ref Env
 
   User:
@@ -62,8 +105,8 @@ Resources:
       TemplateURL: api/sam.user.yaml
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
-        UserPoolId: !GetAtt Infrastructure.Outputs.UserPoolId
-        ClientId: !GetAtt Infrastructure.Outputs.ClientId
+        UserPoolId: !GetAtt Data.Outputs.UserPoolId
+        ClientId: !GetAtt Data.Outputs.ClientId
         Env: !Ref Env
 
   Api:
@@ -187,3 +230,5 @@ Outputs:
   FociApi:
     Description: "Foci 2020 API"
     Value: !Sub https://${Api.DomainName}
+  PostDeployCreateTestUsers:
+    Value: !If [ShouldCreateTestUsers, !GetAtt CreateTestUsers.Arn, ""]

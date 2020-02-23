@@ -13,6 +13,8 @@ Resources:
     UpdateReplacePolicy: Retain
     Properties:
       BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
       AttributeDefinitions:
         - AttributeName: documentType-id
           AttributeType: S
@@ -166,6 +168,8 @@ Resources:
 Outputs:
   Database:
     Value: !Ref Database
+  DatabaseStreamArn:
+    Value: !GetAtt Database.StreamArn
   UserPoolId:
     Value: !Ref UserPool
   ClientId:

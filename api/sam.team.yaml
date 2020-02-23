@@ -6,10 +6,6 @@ Parameters:
     Type: String
   Database:
     Type: String
-  TeamDeletedTopic:
-    Type: String
-  TeamUpdatedTopic:
-    Type: String
   UserPoolArn:
     Type: String
   Env:
@@ -79,9 +75,6 @@ Resources:
             Method: PUT
             Auth:
               Authorizer: CognitoAuthorizer
-      Environment:
-        Variables:
-          TEAM_UPDATED_TOPIC: !Ref TeamUpdatedTopic
 
   ListTeams:
     Type: AWS::Serverless::Function
@@ -130,9 +123,6 @@ Resources:
             Method: DELETE
             Auth:
               Authorizer: CognitoAuthorizer
-      Environment:
-        Variables:
-          TEAM_DELETED_TOPIC: !Ref TeamDeletedTopic
 
 Outputs:
   TeamApi:

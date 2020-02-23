@@ -2,6 +2,8 @@ export type UserType = 'admin' | 'player';
 export type Remove<T> = { [prop in keyof T]: undefined };
 export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';
 
+export type Document = TournamentDocument | TeamDocument | MatchDocument | BetDocument;
+
 export type DocumentKey = {
   'documentType-id': string;
   id: string;

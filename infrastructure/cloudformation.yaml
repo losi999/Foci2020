@@ -27,6 +27,10 @@ Resources:
                   - dynamodb:Query
                   - dynamodb:UpdateItem
                   - dynamodb:GetItem
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                  - dynamodb:DescribeStream
+                  - dynamodb:ListStreams
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - logs:CreateLogGroup
@@ -41,34 +45,6 @@ Resources:
                   - lambda:InvokeFunction
                 Resource: "*"
 
-  TeamDeletedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub Foci2020-${Env}-TeamDeleted
-
-  TournamentDeletedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub Foci2020-${Env}-TournamentDeleted
-
-  TeamUpdatedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub Foci2020-${Env}-TeamUpdated
-
-  TournamentUpdatedTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: !Sub Foci2020-${Env}-TournamentUpdated
-
 Outputs:
   LambdaRoleArn:
     Value: !GetAtt LambdaRole.Arn
-  TeamDeletedTopic:
-    Value: !Ref TeamDeletedTopic
-  TournamentDeletedTopic:
-    Value: !Ref TournamentDeletedTopic
-  TeamUpdatedTopic:
-    Value: !Ref TeamUpdatedTopic
-  TournamentUpdatedTopic:
-    Value: !Ref TournamentUpdatedTopic

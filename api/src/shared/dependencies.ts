@@ -1,11 +1,10 @@
 import ajv from 'ajv';
 import uuid from 'uuid';
 import { captureAWSClient } from 'aws-xray-sdk';
-import { DynamoDB, SNS, CognitoIdentityServiceProvider, config, Lambda, CloudFormation } from 'aws-sdk';
+import { DynamoDB, CognitoIdentityServiceProvider, config, Lambda, CloudFormation } from 'aws-sdk';
 import { ajvValidatorService } from '@/shared/services/validator-service';
 import { default as apiRequestValidatorHandler } from '@/shared/handlers/api-request-validator-handler';
 import { default as authorizerHandler } from '@/shared/handlers/authorizer-handler';
-import { snsNotificationService } from '@/shared/services/notification-service';
 import { matchDocumentConverterFactory } from '@/match/match-document-converter';
 import { teamDocumentConverterFactory } from '@/team/team-document-converter';
 import { tournamentDocumentConverterFactory } from '@/tournament/tournament-document-converter';
@@ -22,7 +21,6 @@ const ajvValidator = new ajv({
 });
 config.logger = console;
 const dynamoDbClient = new DynamoDB.DocumentClient();
-const sns = captureAWSClient(new SNS());
 const cognito = captureAWSClient(new CognitoIdentityServiceProvider());
 captureAWSClient((dynamoDbClient as any).service);
 
@@ -40,12 +38,6 @@ export const matchDocumentService = matchDocumentServiceFactory(process.env.DYNA
 export const betDocumentService = betDocumentServiceFactory(process.env.DYNAMO_TABLE, dynamoDbClient);
 
 export const validatorService = ajvValidatorService(ajvValidator);
-export const notificationService = snsNotificationService(
-  process.env.TEAM_DELETED_TOPIC,
-  process.env.TEAM_UPDATED_TOPIC,
-  process.env.TOURNAMENT_DELETED_TOPIC,
-  process.env.TOURNAMENT_UPDATED_TOPIC,
-  sns);
 export const identityService = cognitoIdentityService(process.env.USER_POOL_ID, process.env.CLIENT_ID, cognito);
 
 export const apiRequestValidator = apiRequestValidatorHandler(validatorService);

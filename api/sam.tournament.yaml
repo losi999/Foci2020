@@ -6,10 +6,6 @@ Parameters:
     Type: String
   Database:
     Type: String
-  TournamentDeletedTopic:
-    Type: String
-  TournamentUpdatedTopic:
-    Type: String
   UserPoolArn:
     Type: String
   Env:
@@ -79,9 +75,6 @@ Resources:
             Method: PUT
             Auth:
               Authorizer: CognitoAuthorizer
-      Environment:
-        Variables:
-          TOURNAMENT_UPDATED_TOPIC: !Ref TournamentUpdatedTopic
 
   ListTournaments:
     Type: AWS::Serverless::Function
@@ -130,9 +123,6 @@ Resources:
             Method: DELETE
             Auth:
               Authorizer: CognitoAuthorizer
-      Environment:
-        Variables:
-          TOURNAMENT_DELETED_TOPIC: !Ref TournamentDeletedTopic
 
 Outputs:
   TournamentApi:

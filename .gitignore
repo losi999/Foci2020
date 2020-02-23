@@ -16,3 +16,4 @@ packaged.*.yaml
 *.txt
 test/cypress
 !test/src/plugins/index.js
+*.env.json

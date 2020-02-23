@@ -6,13 +6,7 @@ Parameters:
     Type: String
   Database:
     Type: String
-  TeamUpdatedTopic:
-    Type: String
-  TournamentUpdatedTopic:
-    Type: String
-  TeamDeletedTopic:
-    Type: String
-  TournamentDeletedTopic:
+  DatabaseStreamArn:
     Type: String
   UserPoolArn:
     Type: String
@@ -164,66 +158,22 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
 
-  UpdateHomeTeamOfMatches:
+  MatchRelatedDocument:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateHomeTeamOfMatches
-      CodeUri: ./dist/update-home-team-of-matches
+      FunctionName: !Sub Foci2020-${Env}-MatchRelatedDocument
+      CodeUri: ./dist/match-related-document
       Role: !Ref LambdaRoleArn
       Events:
-        SNS:
-          Type: SNS
+        DynamoDB:
+          Type: DynamoDB
           Properties:
-            Topic: !Ref TeamUpdatedTopic
-
-  UpdateAwayTeamOfMatches:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateAwayTeamOfMatches
-      CodeUri: ./dist/update-away-team-of-matches
-      Role: !Ref LambdaRoleArn
-      Events:
-        SNS:
-          Type: SNS
-          Properties:
-            Topic: !Ref TeamUpdatedTopic
-
-  UpdateTournamentOfMatches:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateTournamentOfMatchse
-      CodeUri: ./dist/update-tournament-of-matches
-      Role: !Ref LambdaRoleArn
-      Events:
-        SNS:
-          Type: SNS
-          Properties:
-            Topic: !Ref TournamentUpdatedTopic
-
-  DeleteMatchesByTeam:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-DeleteMatchesByTeam
-      CodeUri: ./dist/delete-matches-by-team
-      Role: !Ref LambdaRoleArn
-      Events:
-        SNS:
-          Type: SNS
-          Properties:
-            Topic: !Ref TeamDeletedTopic
-
-  DeleteMatchesByTournament:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-DeleteMatchesByTournament
-      CodeUri: ./dist/delete-matches-by-tournament
-      Role: !Ref LambdaRoleArn
-      Events:
-        SNS:
-          Type: SNS
-          Properties:
-            Topic: !Ref TournamentDeletedTopic
-
+            StartingPosition: LATEST
+            Stream: !Ref DatabaseStreamArn
+            Enabled: true
+            MaximumRetryAttempts: 5
+            BisectBatchOnFunctionError: true
+            
 Outputs:
   MatchApi:
     Description: "Foci 2020 Match API"

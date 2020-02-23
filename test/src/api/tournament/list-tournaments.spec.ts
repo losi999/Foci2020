@@ -1,6 +1,5 @@
 import { createTournament, deleteTournament, getTournamentList, validateTournament } from './tournament-common';
 import { TournamentRequest, TournamentResponse } from 'api/shared/types/types';
-import { authenticate } from '../auth/auth-common';
 
 describe('GET /tournament/v1/tournaments', () => {
   const tournament1: TournamentRequest = {
@@ -15,13 +14,10 @@ describe('GET /tournament/v1/tournaments', () => {
 
   before(() => {
     createdTournamentIds = [];
-
-    authenticate('admin');
-    authenticate('player1');
   });
 
   after(() => {
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
   describe('called as a player', () => {
@@ -39,20 +35,20 @@ describe('GET /tournament/v1/tournaments', () => {
       let tournamentId1: string;
       let tournamentId2: string;
 
-      createTournament(tournament1, 'admin')
+      createTournament(tournament1, 'admin1')
         .its('body')
         .its('tournamentId')
         .then((id) => {
           tournamentId1 = id;
           createdTournamentIds.push(id);
-          return createTournament(tournament2, 'admin');
+          return createTournament(tournament2, 'admin1');
         })
         .its('body')
         .its('tournamentId')
         .then((id) => {
           tournamentId2 = id;
           createdTournamentIds.push(id);
-          return getTournamentList('admin');
+          return getTournamentList('admin1');
         })
         .its('body')
         .should((tournaments: TournamentResponse[]) => {

@@ -1,6 +1,5 @@
 import { deleteTeam, createTeam, getTeamList, validateTeam } from './team-common';
 import { TeamRequest, TeamResponse } from 'api/shared/types/types';
-import { authenticate } from '../auth/auth-common';
 
 describe('GET /team/v1/teams', () => {
   const team1: TeamRequest = {
@@ -19,13 +18,10 @@ describe('GET /team/v1/teams', () => {
 
   before(() => {
     createdTeamIds = [];
-
-    authenticate('admin');
-    authenticate('player1');
   });
 
   after(() => {
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
   });
 
   describe('called as a player', () => {
@@ -43,20 +39,20 @@ describe('GET /team/v1/teams', () => {
       let teamId1: string;
       let teamId2: string;
 
-      createTeam(team1, 'admin')
+      createTeam(team1, 'admin1')
         .its('body')
         .its('teamId')
         .then((id) => {
           teamId1 = id;
           createdTeamIds.push(id);
-          return createTeam(team2, 'admin');
+          return createTeam(team2, 'admin1');
         })
         .its('body')
         .its('teamId')
         .then((id) => {
           teamId2 = id;
           createdTeamIds.push(id);
-          return getTeamList('admin');
+          return getTeamList('admin1');
         })
         .its('body')
         .should((teams: TeamResponse[]) => {

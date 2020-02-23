@@ -1,63 +1,64 @@
 import { TournamentRequest, TournamentResponse } from 'api/shared/types/types';
 import { User } from '../constants';
+import { authenticate } from '../auth/auth-common';
 
 export const createTournament = (tournament: TournamentRequest, user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       body: tournament,
       method: 'POST',
       url: '/tournament/v1/tournaments',
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false
     }));
 };
 
 export const updateTournament = (tournamentId: string, tournament: TournamentRequest, user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       body: tournament,
       method: 'PUT',
       url: `/tournament/v1/tournaments/${tournamentId}`,
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false
     }));
 };
 
 export const deleteTournament = (tournamentId: string, user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       method: 'DELETE',
       url: `/tournament/v1/tournaments/${tournamentId}`,
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false
     }));
 };
 
 export const getTournament = (tournamentId: string, user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       method: 'GET',
       url: `/tournament/v1/tournaments/${tournamentId}`,
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false
     }));
 };
 
 export const getTournamentList = (user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       method: 'GET',
       url: '/tournament/v1/tournaments',
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false
     }));

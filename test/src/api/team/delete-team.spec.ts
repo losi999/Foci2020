@@ -3,7 +3,6 @@ import { createTournament, deleteTournament } from '../tournament/tournament-com
 import { addMinutes } from 'api/shared/common';
 import { createMatch, getMatch, deleteMatch } from '../match/match-common';
 import { TeamRequest, TournamentRequest } from 'api/shared/types/types';
-import { authenticate } from '../auth/auth-common';
 import uuid from 'uuid';
 
 describe('DELETE /team/v1/teams/{teamId}', () => {
@@ -21,15 +20,12 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
     createdMatchIds = [];
     createdTeamIds = [];
     createdTournamentIds = [];
-
-    authenticate('admin');
-    authenticate('player1');
   });
 
   after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin'));
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin'));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
   describe('called as a player', () => {
@@ -46,18 +42,18 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
     it('should delete team', () => {
       let teamId: string;
 
-      createTeam(team, 'admin')
+      createTeam(team, 'admin1')
         .its('body')
         .its('teamId')
         .then((id) => {
           teamId = id;
           expect(id).to.be.a('string');
-          return deleteTeam(teamId, 'admin');
+          return deleteTeam(teamId, 'admin1');
         })
         .its('status')
         .then((status) => {
           expect(status).to.equal(200);
-          return getTeam(teamId, 'admin');
+          return getTeam(teamId, 'admin1');
         })
         .its('status')
         .should((status) => {
@@ -80,21 +76,21 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
       let tournamentId: string;
 
       beforeEach(() => {
-        createTeam(team, 'admin')
+        createTeam(team, 'admin1')
           .its('body')
           .its('teamId')
           .then((id) => {
             teamId = id;
             createdTeamIds.push(id);
             expect(id).to.be.a('string');
-            return createTeam(teamToDelete, 'admin');
+            return createTeam(teamToDelete, 'admin1');
           })
           .its('body')
           .its('teamId')
           .then((id) => {
             teamToDeleteId = id;
             expect(id).to.be.a('string');
-            return createTournament(tournament, 'admin');
+            return createTournament(tournament, 'admin1');
           })
           .its('body')
           .its('tournamentId')
@@ -113,23 +109,23 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
           awayTeamId: teamId,
           group: 'A csoport',
           startTime: addMinutes(10).toISOString(),
-        }, 'admin')
+        }, 'admin1')
           .its('body')
           .its('matchId')
           .then((id) => {
             matchId = id;
             createdMatchIds.push(id);
-            return deleteTeam(teamToDeleteId, 'admin');
+            return deleteTeam(teamToDeleteId, 'admin1');
           })
           .its('status')
           .then((status) => {
             expect(status).to.equal(200);
-            return getTeam(teamToDeleteId, 'admin');
+            return getTeam(teamToDeleteId, 'admin1');
           })
           .its('status')
           .then((status) => {
             expect(status).to.equal(404);
-            return getMatch(matchId, 'admin');
+            return getMatch(matchId, 'admin1');
           })
           .its('status')
           .should((status) => {
@@ -145,23 +141,23 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
           homeTeamId: teamId,
           group: 'A csoport',
           startTime: addMinutes(10).toISOString(),
-        }, 'admin')
+        }, 'admin1')
           .its('body')
           .its('matchId')
           .then((id) => {
             matchId = id;
             createdMatchIds.push(id);
-            return deleteTeam(teamToDeleteId, 'admin');
+            return deleteTeam(teamToDeleteId, 'admin1');
           })
           .its('status')
           .then((status) => {
             expect(status).to.equal(200);
-            return getTeam(teamToDeleteId, 'admin');
+            return getTeam(teamToDeleteId, 'admin1');
           })
           .its('status')
           .then((status) => {
             expect(status).to.equal(404);
-            return getMatch(matchId, 'admin');
+            return getMatch(matchId, 'admin1');
           })
           .its('status')
           .should((status) => {

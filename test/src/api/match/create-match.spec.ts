@@ -3,8 +3,7 @@ import { createTeam, deleteTeam, validateTeam } from '../team/team-common';
 import { createTournament, deleteTournament, validateTournament } from '../tournament/tournament-common';
 import { deleteMatch, createMatch, getMatch, validateMatch } from './match-common';
 import uuid from 'uuid';
-import { TeamRequest, TournamentRequest, MatchRequest, MatchResponse, LoginResponse } from 'api/shared/types/types';
-import { authenticate } from '../auth/auth-common';
+import { TeamRequest, TournamentRequest, MatchRequest, MatchResponse } from 'api/shared/types/types';
 
 describe('POST /match/v1/matches', () => {
   const homeTeam: TeamRequest = {
@@ -31,9 +30,6 @@ describe('POST /match/v1/matches', () => {
     createdMatchIds = [];
     createdTeamIds = [];
     createdTournamentIds = [];
-
-    authenticate('admin');
-    authenticate('player1');
   });
 
   let homeTeamId: string;
@@ -42,14 +38,14 @@ describe('POST /match/v1/matches', () => {
   let match: MatchRequest;
 
   before(() => {
-    createTeam(homeTeam, 'admin')
+    createTeam(homeTeam, 'admin1')
       .its('body')
       .its('teamId')
       .then((id) => {
         homeTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTeam(awayTeam, 'admin');
+        return createTeam(awayTeam, 'admin1');
       })
       .its('body')
       .its('teamId')
@@ -57,7 +53,7 @@ describe('POST /match/v1/matches', () => {
         awayTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTournament(tournament, 'admin');
+        return createTournament(tournament, 'admin1');
       })
       .its('body')
       .its('tournamentId')
@@ -77,9 +73,9 @@ describe('POST /match/v1/matches', () => {
   });
 
   after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin'));
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin'));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
   describe('called as a player', () => {
@@ -96,14 +92,14 @@ describe('POST /match/v1/matches', () => {
     it('should create a match', () => {
       let matchId: string;
 
-      createMatch(match, 'admin')
+      createMatch(match, 'admin1')
         .its('body')
         .its('matchId')
         .then((id) => {
           matchId = id;
           createdMatchIds.push(id);
           expect(id).to.be.a('string');
-          return getMatch(matchId, 'admin');
+          return getMatch(matchId, 'admin1');
         })
         .its('body')
         .should((body: MatchResponse) => {
@@ -119,7 +115,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           homeTeamId: undefined
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('homeTeamId').to.contain('required');
@@ -130,7 +126,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           homeTeamId: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('homeTeamId').to.contain('string');
@@ -141,7 +137,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           homeTeamId: `${uuid()}-not-valid`
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('homeTeamId').to.contain('format').to.contain('uuid');
@@ -152,7 +148,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           homeTeamId: uuid()
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body).to.equal('Home team not found');
@@ -165,7 +161,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           awayTeamId: undefined,
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('awayTeamId').to.contain('required');
@@ -176,7 +172,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           awayTeamId: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('awayTeamId').to.contain('string');
@@ -187,7 +183,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           awayTeamId: `${uuid()}-not-valid`
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('awayTeamId').to.contain('format').to.contain('uuid');
@@ -198,7 +194,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           awayTeamId: uuid()
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body).to.equal('Away team not found');
@@ -209,7 +205,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           awayTeamId: homeTeamId
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body).to.equal('Home and away teams cannot be the same');
@@ -222,7 +218,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           tournamentId: undefined
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('tournamentId').to.contain('required');
@@ -233,7 +229,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           tournamentId: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('tournamentId').to.contain('string');
@@ -244,7 +240,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           tournamentId: `${uuid()}-not-valid`
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('tournamentId').to.contain('format').to.contain('uuid');
@@ -255,7 +251,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           tournamentId: uuid()
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body).to.equal('Tournament not found');
@@ -268,7 +264,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           group: undefined
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('group').to.contain('required');
@@ -279,7 +275,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           group: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('group').to.contain('string');
@@ -292,7 +288,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           startTime: undefined
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('startTime').to.contain('required');
@@ -303,7 +299,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           startTime: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('startTime').to.contain('string');
@@ -314,7 +310,7 @@ describe('POST /match/v1/matches', () => {
         createMatch({
           ...match,
           startTime: addMinutes(4.9).toISOString()
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body).to.equal('Start time has to be at least 5 minutes from now');

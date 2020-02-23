@@ -1,63 +1,64 @@
 import { MatchRequest, MatchResponse } from 'api/shared/types/types';
 import { User } from '../constants';
+import { authenticate } from '../auth/auth-common';
 
 export const createMatch = (match: MatchRequest, user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       body: match,
       method: 'POST',
       url: '/match/v1/matches',
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false
     }));
 };
 
 export const updateMatch = (matchId: string, match: MatchRequest, user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       body: match,
       method: 'PUT',
       url: `/match/v1/matches/${matchId}`,
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false
     }));
 };
 
 export const deleteMatch = (matchId: string, user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       method: 'DELETE',
       url: `/match/v1/matches/${matchId}`,
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false
     }));
 };
 
 export const getMatch = (matchId: string, user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       method: 'GET',
       url: `/match/v1/matches/${matchId}`,
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false
     }));
 };
 
 export const getMatchList = (tournamentId: string, user: User) => {
-  return cy.getCookie(user)
-    .then(cookie => cy.request({
+  return authenticate(user)
+    .then(idToken => cy.request({
       method: 'GET',
       url: '/match/v1/matches',
       headers: {
-        Authorization: cookie.value
+        Authorization: idToken
       },
       failOnStatusCode: false,
       qs: {

@@ -3,7 +3,6 @@ import { TournamentRequest, TeamRequest, TournamentResponse, MatchResponse } fro
 import { deleteTeam, createTeam } from '../team/team-common';
 import { deleteTournament, createTournament, updateTournament, getTournament, validateTournament } from './tournament-common';
 import { addMinutes } from 'api/shared/common';
-import { authenticate } from '../auth/auth-common';
 
 describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
@@ -22,21 +21,18 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
     createdMatchIds = [];
     createdTeamIds = [];
     createdTournamentIds = [];
-
-    authenticate('admin');
-    authenticate('player1');
   });
 
   after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin'));
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin'));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
   let tournamentId: string;
 
   before(() => {
-    createTournament(tournamentToUpdate, 'admin')
+    createTournament(tournamentToUpdate, 'admin1')
       .its('body')
       .its('tournamentId')
       .then((id) => {
@@ -58,11 +54,11 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
 
   describe('called as an admin', () => {
     it('should update a tournament', () => {
-      updateTournament(tournamentId, tournament, 'admin')
+      updateTournament(tournamentId, tournament, 'admin1')
         .its('status')
         .then((status) => {
           expect(status).to.equal(200);
-          return getTournament(tournamentId, 'admin');
+          return getTournament(tournamentId, 'admin1');
         })
         .its('body')
         .should((body: TournamentResponse) => {
@@ -89,15 +85,15 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
       let homeTeamId: string;
       let awayTeamId: string;
 
-      before(() => {
-        createTeam(homeTeam, 'admin')
+      beforeEach(() => {
+        createTeam(homeTeam, 'admin1')
           .its('body')
           .its('teamId')
           .then((id) => {
             homeTeamId = id;
             createdTeamIds.push(id);
             expect(id).to.be.a('string');
-            return createTeam(awayTeam, 'admin');
+            return createTeam(awayTeam, 'admin1');
           })
           .its('body')
           .its('teamId')
@@ -117,23 +113,23 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
           awayTeamId,
           group: 'A csoport',
           startTime: addMinutes(10).toISOString()
-        }, 'admin').its('body')
+        }, 'admin1').its('body')
           .its('matchId')
           .then((id) => {
             matchId = id;
             createdMatchIds.push(id);
             expect(id).to.be.a('string');
-            return getMatch(matchId, 'admin');
+            return getMatch(matchId, 'admin1');
           })
           .its('body')
           .then(() => {
-            return updateTournament(tournamentId, updatedTournament, 'admin');
+            return updateTournament(tournamentId, updatedTournament, 'admin1');
           })
           .its('status')
           .wait(1000)
           .then((status) => {
             expect(status).to.equal(200);
-            return getMatch(matchId, 'admin');
+            return getMatch(matchId, 'admin1');
           })
           .its('body')
           .should((body: MatchResponse) => {
@@ -146,7 +142,7 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
       it('is missing from body', () => {
         updateTournament(tournamentId, {
           tournamentName: undefined
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('tournamentName').to.contain('required');
@@ -156,7 +152,7 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
       it('is not string', () => {
         updateTournament(tournamentId, {
           tournamentName: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('tournamentName').to.contain('string');

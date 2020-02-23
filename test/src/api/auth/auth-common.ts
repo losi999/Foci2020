@@ -1,4 +1,4 @@
-import { LoginRequest, LoginResponse } from 'api/shared/types/types';
+import { LoginRequest } from 'api/shared/types/types';
 import { User, usernames } from '../constants';
 
 export const authenticate = (user: User) => {
@@ -6,13 +6,10 @@ export const authenticate = (user: User) => {
     email: usernames[user],
     password: Cypress.env('PASSWORD')
   };
-  return cy.request({
+  return cy.log(`Logging in as ${user}`).request({
     body,
     method: 'POST',
     url: 'user/v1/login',
     failOnStatusCode: false
-  }).its('body')
-    .then((response: LoginResponse) => {
-      cy.setCookie(user, response.idToken);
-    });
+  }).its('body').its('idToken');
 };

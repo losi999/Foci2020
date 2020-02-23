@@ -1,6 +1,5 @@
 import { createTeam, getTeam, deleteTeam, validateTeam } from './team-common';
 import { TeamRequest, TeamResponse } from 'api/shared/types/types';
-import { authenticate } from '../auth/auth-common';
 
 describe('POST /team/v1/teams', () => {
   const team: TeamRequest = {
@@ -13,13 +12,10 @@ describe('POST /team/v1/teams', () => {
 
   before(() => {
     createdTeamIds = [];
-
-    authenticate('admin');
-    authenticate('player1');
   });
 
   after(() => {
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
   });
 
   describe('called as a player', () => {
@@ -35,14 +31,14 @@ describe('POST /team/v1/teams', () => {
   describe('called as an admin', () => {
     it('should create a team', () => {
       let teamId: string;
-      createTeam(team, 'admin')
+      createTeam(team, 'admin1')
         .its('body')
         .its('teamId')
         .then((id) => {
           teamId = id;
           createdTeamIds.push(id);
           expect(id).to.be.a('string');
-          return getTeam(id, 'admin');
+          return getTeam(id, 'admin1');
         })
         .its('body')
         .should((body: TeamResponse) => {
@@ -55,7 +51,7 @@ describe('POST /team/v1/teams', () => {
         createTeam({
           ...team,
           teamName: undefined
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('teamName').to.contain('required');
@@ -66,7 +62,7 @@ describe('POST /team/v1/teams', () => {
         createTeam({
           ...team,
           teamName: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('teamName').to.contain('string');
@@ -79,7 +75,7 @@ describe('POST /team/v1/teams', () => {
         createTeam({
           ...team,
           image: undefined
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('image').to.contain('required');
@@ -90,7 +86,7 @@ describe('POST /team/v1/teams', () => {
         createTeam({
           ...team,
           image: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('image').to.contain('string');
@@ -101,7 +97,7 @@ describe('POST /team/v1/teams', () => {
         createTeam({
           ...team,
           image: 'not.an.uri'
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('image').to.contain('format').to.contain('uri');
@@ -114,7 +110,7 @@ describe('POST /team/v1/teams', () => {
         createTeam({
           ...team,
           shortName: undefined
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('shortName').to.contain('required');
@@ -125,7 +121,7 @@ describe('POST /team/v1/teams', () => {
         createTeam({
           ...team,
           shortName: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('shortName').to.contain('string');
@@ -136,7 +132,7 @@ describe('POST /team/v1/teams', () => {
         createTeam({
           ...team,
           shortName: 'AB'
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('shortName').to.contain('shorter').to.contain('3');
@@ -147,7 +143,7 @@ describe('POST /team/v1/teams', () => {
         createTeam({
           ...team,
           shortName: 'ABCD'
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('shortName').to.contain('longer').to.contain('3');

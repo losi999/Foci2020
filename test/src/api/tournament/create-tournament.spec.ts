@@ -1,6 +1,5 @@
 import { deleteTournament, createTournament, getTournament, validateTournament } from './tournament-common';
 import { TournamentRequest, TournamentResponse } from 'api/shared/types/types';
-import { authenticate } from '../auth/auth-common';
 
 describe('POST /tournament/v1/tournaments', () => {
   const tournament: TournamentRequest = {
@@ -11,13 +10,10 @@ describe('POST /tournament/v1/tournaments', () => {
 
   before(() => {
     createdTournamentIds = [];
-
-    authenticate('admin');
-    authenticate('player1');
   });
 
   after(() => {
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
   describe('called as a player', () => {
@@ -33,14 +29,14 @@ describe('POST /tournament/v1/tournaments', () => {
   describe('called as an admin', () => {
     it('should create a tournament', () => {
       let tournamentId: string;
-      createTournament(tournament, 'admin')
+      createTournament(tournament, 'admin1')
         .its('body')
         .its('tournamentId')
         .then((id) => {
           tournamentId = id;
           createdTournamentIds.push(id);
           expect(id).to.be.a('string');
-          return getTournament(id, 'admin');
+          return getTournament(id, 'admin1');
         })
         .its('body')
         .should((body: TournamentResponse) => {
@@ -52,7 +48,7 @@ describe('POST /tournament/v1/tournaments', () => {
       it('is missing from body', () => {
         createTournament({
           tournamentName: undefined
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('tournamentName').to.contain('required');
@@ -62,7 +58,7 @@ describe('POST /tournament/v1/tournaments', () => {
       it('is not string', () => {
         createTournament({
           tournamentName: 1 as any
-        }, 'admin')
+        }, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.body).to.contain('tournamentName').to.contain('string');

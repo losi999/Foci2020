@@ -1,7 +1,6 @@
 import { TournamentRequest, TournamentResponse } from 'api/shared/types/types';
 import { deleteTournament, createTournament, getTournament, validateTournament } from './tournament-common';
 import uuid from 'uuid';
-import { authenticate } from '../auth/auth-common';
 
 describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
@@ -12,13 +11,10 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
 
   before(() => {
     createdTournamentIds = [];
-
-    authenticate('admin');
-    authenticate('player1');
   });
 
   after(() => {
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
   describe('called as a player', () => {
@@ -35,14 +31,14 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
     it('should get tournament by id', () => {
       let tournamentId: string;
 
-      createTournament(tournament, 'admin')
+      createTournament(tournament, 'admin1')
         .its('body')
         .its('tournamentId')
         .then((id) => {
           tournamentId = id;
           createdTournamentIds.push(id);
           expect(id).to.be.a('string');
-          return getTournament(id, 'admin');
+          return getTournament(id, 'admin1');
         })
         .its('body')
         .should((body: TournamentResponse) => {
@@ -52,7 +48,7 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
 
     describe('should return error if tournamentId', () => {
       it('is not uuid', () => {
-        getTournament(`${uuid()}-not-valid`, 'admin')
+        getTournament(`${uuid()}-not-valid`, 'admin1')
           .should((response) => {
             expect(response.status).to.equal(400);
             expect(response.body.pathParameters).to.contain('tournamentId').to.contain('format').to.contain('uuid');
@@ -60,7 +56,7 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
       });
 
       it('does not belong to any tournament', () => {
-        getTournament(uuid(), 'admin')
+        getTournament(uuid(), 'admin1')
           .should((response) => {
             expect(response.status).to.equal(404);
           });

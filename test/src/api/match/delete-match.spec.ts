@@ -3,7 +3,6 @@ import { createTeam, deleteTeam } from '../team/team-common';
 import { createTournament, deleteTournament } from '../tournament/tournament-common';
 import { addMinutes } from 'api/shared/common';
 import { deleteMatch, createMatch, getMatch } from './match-common';
-import { authenticate } from '../auth/auth-common';
 import uuid from 'uuid';
 
 describe('DELETE /match/v1/matches/{matchId}', () => {
@@ -31,15 +30,12 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
     createdMatchIds = [];
     createdTeamIds = [];
     createdTournamentIds = [];
-
-    authenticate('admin');
-    authenticate('player1');
   });
 
   after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin'));
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin'));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin'));
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
   let homeTeamId: string;
@@ -48,14 +44,14 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
   let match: MatchRequest;
 
   before(() => {
-    createTeam(homeTeam, 'admin')
+    createTeam(homeTeam, 'admin1')
       .its('body')
       .its('teamId')
       .then((id) => {
         homeTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTeam(awayTeam, 'admin');
+        return createTeam(awayTeam, 'admin1');
       })
       .its('body')
       .its('teamId')
@@ -63,7 +59,7 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
         awayTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTournament(tournament, 'admin');
+        return createTournament(tournament, 'admin1');
       })
       .its('body')
       .its('tournamentId')
@@ -96,19 +92,19 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
     it('should delete match', () => {
       let matchId: string;
 
-      createMatch(match, 'admin')
+      createMatch(match, 'admin1')
         .its('body')
         .its('matchId')
         .then((id) => {
           matchId = id;
           createdMatchIds.push(id);
           expect(id).to.be.a('string');
-          return deleteMatch(matchId, 'admin');
+          return deleteMatch(matchId, 'admin1');
         })
         .its('status')
         .then((status) => {
           expect(status).to.equal(200);
-          return getMatch(matchId, 'admin');
+          return getMatch(matchId, 'admin1');
         })
         .its('status')
         .should((status) => {

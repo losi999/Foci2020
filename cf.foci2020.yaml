@@ -1,5 +1,4 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Transform: "AWS::Serverless-2016-10-31"
 Parameters:
   Env:
     Type: String
@@ -9,47 +8,24 @@ Parameters:
   AdminUserEmail:
     Type: String
 
-Conditions:
-  ShouldCreateTestUsers: !Not [!Equals [!Ref TestUserPassword, ""]]
-
-Globals:
-  Function:
-    Handler: index.default
-    Runtime: nodejs12.x
-    Timeout: 10
-    MemorySize: 512
-    Tracing: Active
-
 Resources:
-  PostDeploy:
-    Type: AWS::Serverless::Function
+  Functions:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-PostDeploy
-      CodeUri: api/dist/post-deploy
-      Role: !GetAtt Infrastructure.Outputs.LambdaRoleArn
-      Environment:
-        Variables:
-          INFRASTRUCTURE_STACK: !Ref AWS::StackName
-
-  CreateTestUsers:
-    Type: AWS::Serverless::Function
-    Condition: ShouldCreateTestUsers
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-CreateTestUsers
-      CodeUri: api/dist/create-test-users
-      Role: !GetAtt Infrastructure.Outputs.LambdaRoleArn
-      Environment:
-        Variables:
-          USER_POOL_ID: !GetAtt Data.Outputs.UserPoolId
-          CLIENT_ID: !GetAtt Data.Outputs.ClientId
-          ADMIN_COUNT: 1
-          PLAYER_COUNT: 3
-          TEST_USER_PASSWORD: !Ref TestUserPassword
+      TemplateURL: sam.functions.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        DatabaseStreamArn: !GetAtt Data.Outputs.DatabaseStreamArn
+        UserPoolId: !GetAtt Data.Outputs.UserPoolId
+        ClientId: !GetAtt Data.Outputs.ClientId
+        Env: !Ref Env
+        TestUserPassword: !Ref TestUserPassword
 
   Data:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: infrastructure/data.yaml
+      TemplateURL: cf.data.yaml
       Parameters:
         Env: !Ref Env
         AdminUserEmail: !Ref AdminUserEmail
@@ -57,14 +33,14 @@ Resources:
   Infrastructure:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: infrastructure/cloudformation.yaml
+      TemplateURL: cf.infrastructure.yaml
       Parameters:
         Env: !Ref Env
 
   Team:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: api/sam.team.yaml
+      TemplateURL: sam.team.yaml
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Data.Outputs.Database
@@ -74,7 +50,7 @@ Resources:
   Tournament:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: api/sam.tournament.yaml
+      TemplateURL: sam.tournament.yaml
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Data.Outputs.Database
@@ -84,18 +60,17 @@ Resources:
   Match:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: api/sam.match.yaml
+      TemplateURL: sam.match.yaml
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         Database: !GetAtt Data.Outputs.Database
-        DatabaseStreamArn: !GetAtt Data.Outputs.DatabaseStreamArn
         UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
         Env: !Ref Env
 
   User:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: api/sam.user.yaml
+      TemplateURL: sam.user.yaml
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
         UserPoolId: !GetAtt Data.Outputs.UserPoolId
@@ -223,5 +198,3 @@ Outputs:
   FociApi:
     Description: "Foci 2020 API"
     Value: !Sub https://${Api.DomainName}
-  PostDeployCreateTestUsers:
-    Value: !If [ShouldCreateTestUsers, !GetAtt CreateTestUsers.Arn, ""]

@@ -4,7 +4,8 @@ import { DynamoDB } from 'aws-sdk';
 export interface IBetDocumentService {
   queryBetById(userId: string, matchId: string): Promise<BetDocument>;
   queryBetsByMatchId(matchId: string): Promise<BetDocument[]>;
-  saveBet(document: BetDocument): Promise<any>;
+  saveBet(document: BetDocument): Promise<unknown>;
+  deleteBet(betId: string): Promise<unknown>;
 }
 
 export const betDocumentServiceFactory = (
@@ -36,6 +37,15 @@ export const betDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: betTableName,
         Item: document,
+      }).promise();
+    },
+    deleteBet: (betId) => {
+      return dynamoClient.delete({
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: betTableName,
+        Key: {
+          'documentType-id': `bet-${betId}`,
+        }
       }).promise();
     }
   };

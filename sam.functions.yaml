@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 Functions"
+Parameters:
+  LambdaRoleArn:
+    Type: String
+  Database:
+    Type: String
+  DatabaseStreamArn:
+    Type: String
+  UserPoolId:
+    Type: String
+  ClientId:
+    Type: String
+  Env:
+    Type: String
+  TestUserPassword:
+    Type: String
+    Default: ""    
+
+Conditions:
+  ShouldCreateTestUsers: !Not [!Equals [!Ref TestUserPassword, ""]]
+
+Globals:
+  Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 512
+    Tracing: Active
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !Ref Database
+
+Resources:
+  PostDeploy:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-PostDeploy
+      CodeUri: api/dist/post-deploy
+      Role: !Ref LambdaRoleArn
+      Environment:
+        Variables:
+          INFRASTRUCTURE_STACK: !Ref AWS::StackName
+
+  CreateTestUsers:
+    Type: AWS::Serverless::Function
+    Condition: ShouldCreateTestUsers
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-CreateTestUsers
+      CodeUri: api/dist/create-test-users
+      Role: !Ref LambdaRoleArn
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref UserPoolId
+          CLIENT_ID: !Ref ClientId
+          ADMIN_COUNT: "1"
+          PLAYER_COUNT: "3"
+          TEST_USER_PASSWORD: !Ref TestUserPassword
+
+
+  RelatedDocument:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-RelatedDocument
+      CodeUri: api/dist/related-document
+      Role: !Ref LambdaRoleArn
+      Events:
+        DynamoDB:
+          Type: DynamoDB
+          Properties:
+            StartingPosition: LATEST
+            Stream: !Ref DatabaseStreamArn
+            Enabled: true
+            MaximumRetryAttempts: 5
+            BisectBatchOnFunctionError: true
+            
+Outputs:
+  PostDeployCreateTestUsers:
+    Value: !If [ShouldCreateTestUsers, !GetAtt CreateTestUsers.Arn, ""]

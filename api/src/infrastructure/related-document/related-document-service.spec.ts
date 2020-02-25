@@ -1,19 +1,23 @@
-import { IMatchRelatedDocumentService, matchRelatedDocumentServiceFactory } from '@/match/match-related-document/match-related-document-service';
+import { IRelatedDocumentService, relatedDocumentServiceFactory } from '@/infrastructure/related-document/related-document-service';
 import { Mock, createMockService, validateError } from '@/shared/common';
 import { IMatchDocumentService } from '@/match/match-document-service';
-import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, IndexByTournamentIdDocument, TournamentDocument, TeamDocument } from '@/shared/types/types';
+import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, IndexByTournamentIdDocument, TournamentDocument, TeamDocument, BetDocument } from '@/shared/types/types';
+import { IBetDocumentService } from '@/match/bet-document-service';
 
-describe('Match related document service', () => {
-  let service: IMatchRelatedDocumentService;
+describe('Related document service', () => {
+  let service: IRelatedDocumentService;
   let mockMatchDocumentService: Mock<IMatchDocumentService>;
+  let mockBetDocumentService: Mock<IBetDocumentService>;
 
   beforeEach(() => {
     mockMatchDocumentService = createMockService('deleteMatch', 'updateTeamOfMatch', 'updateTournamentOfMatch', 'queryMatchKeysByAwayTeamId', 'queryMatchKeysByHomeTeamId', 'queryMatchKeysByTournamentId');
 
-    service = matchRelatedDocumentServiceFactory(mockMatchDocumentService.service);
+    mockBetDocumentService = createMockService('queryBetsByMatchId', 'deleteBet');
+
+    service = relatedDocumentServiceFactory(mockMatchDocumentService.service, mockBetDocumentService.service);
   });
 
-  describe('deleteMatchByTeam', () => {
+  describe('teamDeleted', () => {
     it('should return undefined if matches are deleted successfully', async () => {
       const teamId = 'teamId';
       const matchId1 = 'matchId1';
@@ -35,7 +39,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
       mockMatchDocumentService.functions.deleteMatch.mockResolvedValue(undefined);
 
-      const result = await service.deleteMatchByTeam(teamId);
+      const result = await service.teamDeleted(teamId);
       expect(result).toBeUndefined();
       expect(mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId).toHaveBeenCalledWith(teamId);
       expect(mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId).toHaveBeenCalledWith(teamId);
@@ -58,7 +62,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId.mockRejectedValue({ message });
       mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
 
-      await service.deleteMatchByTeam(teamId).catch(validateError(message));
+      await service.teamDeleted(teamId).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId).toHaveBeenCalledWith(teamId);
       expect(mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId).toHaveBeenCalledWith(teamId);
       expect(mockMatchDocumentService.functions.deleteMatch).not.toHaveBeenCalled();
@@ -79,7 +83,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId.mockResolvedValue(queriedHomeMatches);
       mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId.mockRejectedValue({ message });
 
-      await service.deleteMatchByTeam(teamId).catch(validateError(message));
+      await service.teamDeleted(teamId).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId).toHaveBeenCalledWith(teamId);
       expect(mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId).toHaveBeenCalledWith(teamId);
       expect(mockMatchDocumentService.functions.deleteMatch).not.toHaveBeenCalled();
@@ -108,7 +112,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
       mockMatchDocumentService.functions.deleteMatch.mockRejectedValue({ message });
 
-      await service.deleteMatchByTeam(teamId).catch(validateError(message));
+      await service.teamDeleted(teamId).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId).toHaveBeenCalledWith(teamId);
       expect(mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId).toHaveBeenCalledWith(teamId);
       expect(mockMatchDocumentService.functions.deleteMatch).toHaveBeenNthCalledWith(1, matchId1);
@@ -117,7 +121,7 @@ describe('Match related document service', () => {
     });
   });
 
-  describe('deleteMatchByTournament', () => {
+  describe('tournamentDeleted', () => {
     it('should return undefined if matches are deleted sucessfully', async () => {
       const tournamentId = 'tournamentId';
       const matchId1 = 'matchId1';
@@ -131,7 +135,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
       mockMatchDocumentService.functions.deleteMatch.mockResolvedValue(undefined);
 
-      const result = await service.deleteMatchByTournament(tournamentId);
+      const result = await service.tournamentDeleted(tournamentId);
 
       expect(result).toBeUndefined();
       expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
@@ -145,7 +149,7 @@ describe('Match related document service', () => {
       const message = 'This is a dynamo error';
       mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockRejectedValue({ message });
 
-      await service.deleteMatchByTournament(tournamentId).catch(validateError(message));
+      await service.tournamentDeleted(tournamentId).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.deleteMatch).not.toHaveBeenCalled();
       expect.assertions(3);
@@ -165,14 +169,14 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
       mockMatchDocumentService.functions.deleteMatch.mockRejectedValue({ message });
 
-      await service.deleteMatchByTournament(tournamentId).catch(validateError(message));
+      await service.tournamentDeleted(tournamentId).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.deleteMatch).toHaveBeenCalledWith(matchId1);
       expect.assertions(3);
     });
   });
 
-  describe('updateTeamOfMatch', () => {
+  describe('teamUpdated', () => {
     it('should return undefined if matches are updated successfully', async () => {
       const team = {
         id: 'teamId'
@@ -196,7 +200,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
       mockMatchDocumentService.functions.updateTeamOfMatch.mockResolvedValue(undefined);
 
-      const result = await service.updateTeamOfMatch(team);
+      const result = await service.teamUpdated(team);
       expect(result).toBeUndefined();
       expect(mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId).toHaveBeenCalledWith(team.id);
       expect(mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId).toHaveBeenCalledWith(team.id);
@@ -221,7 +225,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId.mockRejectedValue({ message });
       mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
 
-      await service.updateTeamOfMatch(team).catch(validateError(message));
+      await service.teamUpdated(team).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId).toHaveBeenCalledWith(team.id);
       expect(mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId).toHaveBeenCalledWith(team.id);
       expect(mockMatchDocumentService.functions.updateTeamOfMatch).not.toHaveBeenCalled();
@@ -244,7 +248,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId.mockResolvedValue(queriedHomeMatches);
       mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId.mockRejectedValue({ message });
 
-      await service.updateTeamOfMatch(team).catch(validateError(message));
+      await service.teamUpdated(team).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId).toHaveBeenCalledWith(team.id);
       expect(mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId).toHaveBeenCalledWith(team.id);
       expect(mockMatchDocumentService.functions.deleteMatch).not.toHaveBeenCalled();
@@ -275,7 +279,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
       mockMatchDocumentService.functions.updateTeamOfMatch.mockRejectedValue({ message });
 
-      await service.updateTeamOfMatch(team).catch(validateError(message));
+      await service.teamUpdated(team).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByHomeTeamId).toHaveBeenCalledWith(team.id);
       expect(mockMatchDocumentService.functions.queryMatchKeysByAwayTeamId).toHaveBeenCalledWith(team.id);
       expect(mockMatchDocumentService.functions.updateTeamOfMatch).toHaveBeenNthCalledWith(1, matchId1, team, 'home');
@@ -284,7 +288,7 @@ describe('Match related document service', () => {
     });
   });
 
-  describe('updateTournamentOfMatch', () => {
+  describe('tournamentUpdated', () => {
     it('should return undefined if matches are updated sucessfully', async () => {
       const tournamentId = 'tournamentId';
       const matchId1 = 'matchId1';
@@ -299,7 +303,7 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
       mockMatchDocumentService.functions.updateTournamentOfMatch.mockResolvedValue(undefined);
 
-      const result = await service.updateTournamentOfMatch(tournament);
+      const result = await service.tournamentUpdated(tournament);
 
       expect(result).toBeUndefined();
       expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
@@ -314,7 +318,7 @@ describe('Match related document service', () => {
       const message = 'This is a dynamo error';
       mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockRejectedValue({ message });
 
-      await service.updateTournamentOfMatch(tournament).catch(validateError(message));
+      await service.tournamentUpdated(tournament).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.updateTournamentOfMatch).not.toHaveBeenCalled();
       expect.assertions(3);
@@ -335,9 +339,55 @@ describe('Match related document service', () => {
       mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
       mockMatchDocumentService.functions.updateTournamentOfMatch.mockRejectedValue({ message });
 
-      await service.updateTournamentOfMatch(tournament).catch(validateError(message));
+      await service.tournamentUpdated(tournament).catch(validateError(message));
       expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.updateTournamentOfMatch).toHaveBeenCalledWith(matchId1, tournament);
+      expect.assertions(3);
+    });
+  });
+
+  describe('matchDeleted', () => {
+    it('should return undefined if bets are deleted', async () => {
+      const matchId = 'matchId';
+      const bet = {
+        id: 'betId'
+      } as BetDocument;
+      mockBetDocumentService.functions.queryBetsByMatchId.mockResolvedValue([bet]);
+
+      mockBetDocumentService.functions.deleteBet.mockResolvedValue(undefined);
+
+      const result = await service.matchDeleted(matchId);
+      expect(result).toBeUndefined();
+      expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
+      expect(mockBetDocumentService.functions.deleteBet).toHaveBeenCalledWith(bet.id);
+      expect.assertions(3);
+    });
+
+    it('should throw error if unable to query bets by match Id', async () => {
+      const matchId = 'matchId';
+
+      const message = 'this is a dynamo error';
+      mockBetDocumentService.functions.queryBetsByMatchId.mockRejectedValue({ message });
+
+      await service.matchDeleted(matchId).catch(validateError(message));
+      expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
+      expect(mockBetDocumentService.functions.deleteBet).not.toHaveBeenCalled();
+      expect.assertions(3);
+    });
+
+    it('should throw error if unable to delete bet', async () => {
+      const matchId = 'matchId';
+      const bet = {
+        id: 'betId'
+      } as BetDocument;
+      mockBetDocumentService.functions.queryBetsByMatchId.mockResolvedValue([bet]);
+
+      const message = 'this is a dynamo error';
+      mockBetDocumentService.functions.deleteBet.mockRejectedValue({ message });
+
+      await service.matchDeleted(matchId).catch(validateError(message));
+      expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
+      expect(mockBetDocumentService.functions.deleteBet).toHaveBeenCalledWith(bet.id);
       expect.assertions(3);
     });
   });

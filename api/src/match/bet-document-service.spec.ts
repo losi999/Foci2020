@@ -9,7 +9,7 @@ describe('Bet document service', () => {
   const tableName = 'table-name';
 
   beforeEach(() => {
-    mockDynamoClient = createMockService('put', 'get', 'query');
+    mockDynamoClient = createMockService('put', 'get', 'query', 'delete');
     service = betDocumentServiceFactory(tableName, mockDynamoClient.service);
   });
 
@@ -53,6 +53,21 @@ describe('Bet document service', () => {
       expect(mockDynamoClient.functions.put).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Item: document
+      }));
+    });
+  });
+
+  describe('deleteBet', () => {
+    it('should call dynamo.delete with correct parameters', async () => {
+      const betId = 'betId';
+      mockDynamoClient.functions.delete.mockReturnValue(awsResolvedValue());
+
+      await service.deleteBet(betId);
+      expect(mockDynamoClient.functions.delete).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        Key: {
+          'documentType-id': `bet-${betId}`,
+        }
       }));
     });
   });

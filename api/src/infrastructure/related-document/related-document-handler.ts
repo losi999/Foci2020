@@ -1,9 +1,9 @@
 import { DynamoDBStreamHandler } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 import { Document } from '@/shared/types/types';
-import { IMatchRelatedDocumentService } from '@/match/match-related-document/match-related-document-service';
+import { IRelatedDocumentService } from '@/infrastructure/related-document/related-document-service';
 
-export default (matchRelatedDocument: IMatchRelatedDocumentService): DynamoDBStreamHandler =>
+export default (relatedDocument: IRelatedDocumentService): DynamoDBStreamHandler =>
   async (event) => {
     await Promise.all(event.Records.map(async (record) => {
       switch (record.eventName) {
@@ -11,10 +11,10 @@ export default (matchRelatedDocument: IMatchRelatedDocumentService): DynamoDBStr
           const document = DynamoDB.Converter.unmarshall(record.dynamodb.NewImage) as Document;
           switch (document.documentType) {
             case 'team': {
-              await matchRelatedDocument.updateTeamOfMatch(document);
+              await relatedDocument.teamUpdated(document);
             } break;
             case 'tournament': {
-              await matchRelatedDocument.updateTournamentOfMatch(document);
+              await relatedDocument.tournamentUpdated(document);
             } break;
           }
         } break;
@@ -22,13 +22,13 @@ export default (matchRelatedDocument: IMatchRelatedDocumentService): DynamoDBStr
           const document = DynamoDB.Converter.unmarshall(record.dynamodb.OldImage) as Document;
           switch (document.documentType) {
             case 'team': {
-              await matchRelatedDocument.deleteMatchByTeam(document.id);
+              await relatedDocument.teamDeleted(document.id);
             } break;
             case 'tournament': {
-              await matchRelatedDocument.deleteMatchByTournament(document.id);
+              await relatedDocument.tournamentDeleted(document.id);
             } break;
-            case 'bet': {
-
+            case 'match': {
+              await relatedDocument.matchDeleted(document.id);
             } break;
           }
         } break;

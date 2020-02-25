@@ -54,10 +54,10 @@ jobs:
           at: ~/
       - deploy: 
           name: AWS Package
-          command: aws cloudformation package --template-file cloudformation.yaml --s3-bucket ${AWS_PACKAGES_S3} --output-template-file packaged.cloudformation.yaml
+          command: aws cloudformation package --template-file cf.foci2020.yaml --s3-bucket ${AWS_PACKAGES_S3} --output-template-file packaged.cf.foci2020.yaml
       - deploy:
           name: AWS Deploy
-          command: aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-${ENV} --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=${ENV} TestUserPassword=${CYPRESS_PASSWORD:-'""'} AdminUserEmail=${ADMIN_USER_EMAIL}
+          command: aws cloudformation deploy --template-file packaged.cf.foci2020.yaml --stack-name foci2020-${ENV} --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=${ENV} TestUserPassword=${CYPRESS_PASSWORD:-'""'} AdminUserEmail=${ADMIN_USER_EMAIL}
   test:
     parameters:
       env:

@@ -1,7 +1,7 @@
 import { default as handler } from '@/tournament/list-tournaments/list-tournaments-handler';
-import { tournamentDocumentConverter, tournamentDocumentService } from '@/shared/dependencies';
+import { tournamentDocumentConverter, tournamentDocumentService, authorizer } from '@/shared/dependencies';
 import { listTournamentsServiceFactory } from '@/tournament/list-tournaments/list-tournaments-service';
 
 const listTournamentsService = listTournamentsServiceFactory(tournamentDocumentService, tournamentDocumentConverter);
 
-export default handler(listTournamentsService);
+export default authorizer('admin')(handler(listTournamentsService));

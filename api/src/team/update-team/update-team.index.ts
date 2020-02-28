@@ -1,11 +1,11 @@
 import { default as handler } from '@/team/update-team/update-team-handler';
-import { apiRequestValidator, notificationService, teamDocumentService, teamDocumentConverter } from '@/shared/dependencies';
+import { apiRequestValidator, teamDocumentService, teamDocumentConverter, authorizer } from '@/shared/dependencies';
 import { body, pathParameters } from '@/team/update-team/update-team-schemas';
 import { updateTeamServiceFactory } from '@/team/update-team/update-team-service';
 
-const updateTeamService = updateTeamServiceFactory(teamDocumentService, teamDocumentConverter, notificationService);
+const updateTeamService = updateTeamServiceFactory(teamDocumentService, teamDocumentConverter);
 
-export default apiRequestValidator({
+export default authorizer('admin')(apiRequestValidator({
   body,
   pathParameters
-})(handler(updateTeamService));
+})(handler(updateTeamService)));

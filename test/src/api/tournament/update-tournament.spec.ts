@@ -24,15 +24,15 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
   });
 
   after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId));
-    createdTeamIds.map(teamId => deleteTeam(teamId));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId));
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
   let tournamentId: string;
 
   before(() => {
-    createTournament(tournamentToUpdate)
+    createTournament(tournamentToUpdate, 'admin1')
       .its('body')
       .its('tournamentId')
       .then((id) => {
@@ -42,110 +42,122 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
       });
   });
 
-  it('should update a tournament', () => {
-    updateTournament(tournamentId, tournament)
-      .its('status')
-      .then((status) => {
-        expect(status).to.equal(200);
-        return getTournament(tournamentId);
-      })
-      .its('body')
-      .should((body: TournamentResponse) => {
-        validateTournament(body, tournamentId, tournament);
-      });
-  });
-
-  describe('related matches', () => {
-    const homeTeam: TeamRequest = {
-      teamName: 'Magyarország',
-      image: 'http://image.com/hun.png',
-      shortName: 'HUN',
-    };
-    const awayTeam: TeamRequest = {
-      teamName: 'Anglia',
-      image: 'http://image.com/eng.png',
-      shortName: 'ENG',
-    };
-
-    const updatedTournament: TournamentRequest = {
-      tournamentName: 'updated'
-    };
-
-    let homeTeamId: string;
-    let awayTeamId: string;
-
-    before(() => {
-      createTeam(homeTeam)
-        .its('body')
-        .its('teamId')
-        .then((id) => {
-          homeTeamId = id;
-          createdTeamIds.push(id);
-          expect(id).to.be.a('string');
-          return createTeam(awayTeam);
-        })
-        .its('body')
-        .its('teamId')
-        .then((id) => {
-          awayTeamId = id;
-          createdTeamIds.push(id);
-          expect(id).to.be.a('string');
+  describe('called as a player', () => {
+    it('should return unauthorized', () => {
+      updateTournament(tournamentId, tournament, 'player1')
+        .its('status')
+        .should((status) => {
+          expect(status).to.equal(403);
         });
     });
+  });
 
-    it('should be updated if tournament is updated', () => {
-      let matchId: string;
-
-      createMatch({
-        tournamentId,
-        homeTeamId,
-        awayTeamId,
-        group: 'A csoport',
-        startTime: addMinutes(10).toISOString()
-      }).its('body')
-        .its('matchId')
-        .then((id) => {
-          matchId = id;
-          createdMatchIds.push(id);
-          expect(id).to.be.a('string');
-          return getMatch(matchId);
-        })
-        .its('body')
-        .then(() => {
-          return updateTournament(tournamentId, updatedTournament);
-        })
+  describe('called as an admin', () => {
+    it('should update a tournament', () => {
+      updateTournament(tournamentId, tournament, 'admin1')
         .its('status')
-        .wait(1000)
         .then((status) => {
           expect(status).to.equal(200);
-          return getMatch(matchId);
+          return getTournament(tournamentId, 'admin1');
         })
         .its('body')
-        .should((body: MatchResponse) => {
-          validateTournament(body.tournament, tournamentId, updatedTournament);
-        });
-    });
-  });
-
-  describe('should return error if tournamentName', () => {
-    it('is missing from body', () => {
-      updateTournament(tournamentId, {
-        tournamentName: undefined
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('tournamentName').to.contain('required');
+        .should((body: TournamentResponse) => {
+          validateTournament(body, tournamentId, tournament);
         });
     });
 
-    it('is not string', () => {
-      updateTournament(tournamentId, {
-        tournamentName: 1 as any
-      })
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.body).to.contain('tournamentName').to.contain('string');
-        });
+    describe('related matches', () => {
+      const homeTeam: TeamRequest = {
+        teamName: 'Magyarország',
+        image: 'http://image.com/hun.png',
+        shortName: 'HUN',
+      };
+      const awayTeam: TeamRequest = {
+        teamName: 'Anglia',
+        image: 'http://image.com/eng.png',
+        shortName: 'ENG',
+      };
+
+      const updatedTournament: TournamentRequest = {
+        tournamentName: 'updated'
+      };
+
+      let homeTeamId: string;
+      let awayTeamId: string;
+
+      beforeEach(() => {
+        createTeam(homeTeam, 'admin1')
+          .its('body')
+          .its('teamId')
+          .then((id) => {
+            homeTeamId = id;
+            createdTeamIds.push(id);
+            expect(id).to.be.a('string');
+            return createTeam(awayTeam, 'admin1');
+          })
+          .its('body')
+          .its('teamId')
+          .then((id) => {
+            awayTeamId = id;
+            createdTeamIds.push(id);
+            expect(id).to.be.a('string');
+          });
+      });
+
+      it('should be updated if tournament is updated', () => {
+        let matchId: string;
+
+        createMatch({
+          tournamentId,
+          homeTeamId,
+          awayTeamId,
+          group: 'A csoport',
+          startTime: addMinutes(10).toISOString()
+        }, 'admin1').its('body')
+          .its('matchId')
+          .then((id) => {
+            matchId = id;
+            createdMatchIds.push(id);
+            expect(id).to.be.a('string');
+            return getMatch(matchId, 'admin1');
+          })
+          .its('body')
+          .then(() => {
+            return updateTournament(tournamentId, updatedTournament, 'admin1');
+          })
+          .its('status')
+          .wait(1000)
+          .then((status) => {
+            expect(status).to.equal(200);
+            return getMatch(matchId, 'admin1');
+          })
+          .its('body')
+          .should((body: MatchResponse) => {
+            validateTournament(body.tournament, tournamentId, updatedTournament);
+          });
+      });
+    });
+
+    describe('should return error if tournamentName', () => {
+      it('is missing from body', () => {
+        updateTournament(tournamentId, {
+          tournamentName: undefined
+        }, 'admin1')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('tournamentName').to.contain('required');
+          });
+      });
+
+      it('is not string', () => {
+        updateTournament(tournamentId, {
+          tournamentName: 1 as any
+        }, 'admin1')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.body).to.contain('tournamentName').to.contain('string');
+          });
+      });
     });
   });
 });

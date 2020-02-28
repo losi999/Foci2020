@@ -43,6 +43,10 @@ jobs:
     parameters:
       env:
         type: string
+      cypress_password:
+        type: string
+      admin_user_email:
+        type: string
     docker: 
       - image: cibuilds/aws:1.16.1
     working_directory: ~/repo
@@ -52,16 +56,21 @@ jobs:
           at: ~/
       - deploy: 
           name: AWS Package
-          command: aws cloudformation package --template-file cloudformation.yaml --s3-bucket ${AWS_PACKAGES_S3} --output-template-file packaged.cloudformation.yaml
+          command: aws cloudformation package --template-file cf.foci2020.yaml --s3-bucket ${AWS_PACKAGES_S3} --output-template-file packaged.cf.foci2020.yaml
       - deploy:
           name: AWS Deploy
-          command: aws cloudformation deploy --template-file packaged.cloudformation.yaml --stack-name foci2020-<<parameters.env>> --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=<<parameters.env>>
+          command: aws cloudformation deploy --template-file packaged.cf.foci2020.yaml --stack-name foci2020-<<parameters.env>> --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=<<parameters.env>> TestUserPassword=<<parameters.cypress_password>> AdminUserEmail=<<parameters.admin_user_email>>
+      - run:
+          name: Invoke Post deploy Lambda
+          command: aws lambda invoke --function-name Foci2020-<<parameters.env>>-PostDeploy /dev/null
   test:
     parameters:
       env:
         type: string
     docker:
       - image: cypress/base
+        environment: 
+          ENV: <<parameters.env>>
     working_directory: ~/repo
     steps:
       - checkout
@@ -81,16 +90,17 @@ jobs:
 
       - run:
           name: Running tests
-          command: cd test && npm run test:<<parameters.env>>  
-
+          command: cd test && npm run test
 workflows:
   version: 2.1
   api: 
-    jobs:
+    jobs:               
       - api_unit_test   
       - api_deploy:
           name: api_deploy_dev
           env: 'DEV'
+          cypress_password: ${CYPRESS_PASSWORD}
+          admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
             - api_unit_test
           filters:
@@ -100,12 +110,25 @@ workflows:
       - api_deploy:
           name: api_deploy_uat
           env: 'UAT'
+          cypress_password: ${CYPRESS_PASSWORD}
+          admin_user_email: ${ADMIN_USER_EMAIL}          
           requires:
             - api_unit_test
           filters:
             branches:
               only: 
                 - release      
+      - api_deploy:
+          name: api_deploy_prod
+          env: 'PROD'
+          cypress_password: ''
+          admin_user_email: ${ADMIN_USER_EMAIL}          
+          requires:
+            - api_unit_test
+          filters:
+            branches:
+              only: 
+                - master                    
       - test:
           name: test_dev
           env: 'DEV'

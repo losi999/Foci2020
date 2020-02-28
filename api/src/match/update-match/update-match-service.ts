@@ -50,7 +50,7 @@ export const updateMatchServiceFactory = (
 
     const document = matchDocumentConverter.update(matchId, body, homeTeam, awayTeam, tournament);
 
-    await matchDocumentService.updateMatch(matchId, document).catch((error) => {
+    await matchDocumentService.updateMatch(document).catch((error) => {
       console.error('Update match', error);
       throw httpError(500, 'Error while updating match');
     });

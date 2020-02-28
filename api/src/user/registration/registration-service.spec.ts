@@ -20,7 +20,7 @@ describe('Registration service', () => {
 
     const result = await service({ body });
     expect(result).toBeUndefined();
-    expect(mockIdentityService.functions.register).toHaveBeenCalledWith(body);
+    expect(mockIdentityService.functions.register).toHaveBeenCalledWith(body, 'player');
   });
 
   it('should throw error if unable to register', async () => {
@@ -29,7 +29,7 @@ describe('Registration service', () => {
     mockIdentityService.functions.register.mockRejectedValue({ message: 'This is a cognito error' });
 
     await service({ body }).catch(validateError('This is a cognito error', 500));
-    expect(mockIdentityService.functions.register).toHaveBeenCalledWith(body);
+    expect(mockIdentityService.functions.register).toHaveBeenCalledWith(body, 'player');
     expect.assertions(3);
   });
 });

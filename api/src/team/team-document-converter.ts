@@ -18,27 +18,23 @@ export const teamDocumentConverterFactory = (uuid: v4String): ITeamDocumentConve
     };
   };
 
+  const update = (teamId: string, teamRequest: TeamRequest): TeamDocument => {
+    return {
+      ...teamRequest,
+      id: teamId,
+      documentType: 'team',
+      orderingValue: teamRequest.teamName,
+      'documentType-id': `team-${teamId}`
+    };
+  };
+
   return {
     toResponse,
+    update,
     toResponseList: teamDocuments => teamDocuments.map<TeamResponse>(d => toResponse(d)),
     create: (teamRequest) => {
       const id = uuid();
-      return {
-        ...teamRequest,
-        id,
-        documentType: 'team',
-        orderingValue: teamRequest.teamName,
-        'documentType-id': `team-${id}`
-      };
+      return update(id, teamRequest);
     },
-    update: (teamId, teamRequest) => {
-      return {
-        ...teamRequest,
-        id: teamId,
-        documentType: 'team',
-        orderingValue: teamRequest.teamName,
-        'documentType-id': `team-${teamId}`
-      };
-    }
   };
 };

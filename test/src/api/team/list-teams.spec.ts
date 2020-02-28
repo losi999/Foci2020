@@ -21,32 +21,44 @@ describe('GET /team/v1/teams', () => {
   });
 
   after(() => {
-    createdTeamIds.map(teamId => deleteTeam(teamId));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
   });
 
-  it('should get a list of teams', () => {
-    let teamId1: string;
-    let teamId2: string;
+  describe('called as a player', () => {
+    it('should return unauthorized', () => {
+      getTeamList('player1')
+        .its('status')
+        .should((status) => {
+          expect(status).to.equal(403);
+        });
+    });
+  });
 
-    createTeam(team1)
-      .its('body')
-      .its('teamId')
-      .then((id) => {
-        teamId1 = id;
-        createdTeamIds.push(id);
-        return createTeam(team2);
-      })
-      .its('body')
-      .its('teamId')
-      .then((id) => {
-        teamId2 = id;
-        createdTeamIds.push(id);
-        return getTeamList();
-      })
-      .its('body')
-      .should((teams: TeamResponse[]) => {
-        validateTeam(teams.find(t => t.teamId === teamId1), teamId1, team1);
-        validateTeam(teams.find(t => t.teamId === teamId2), teamId2, team2);
-      });
+  describe('called as an admin', () => {
+    it('should get a list of teams', () => {
+      let teamId1: string;
+      let teamId2: string;
+
+      createTeam(team1, 'admin1')
+        .its('body')
+        .its('teamId')
+        .then((id) => {
+          teamId1 = id;
+          createdTeamIds.push(id);
+          return createTeam(team2, 'admin1');
+        })
+        .its('body')
+        .its('teamId')
+        .then((id) => {
+          teamId2 = id;
+          createdTeamIds.push(id);
+          return getTeamList('admin1');
+        })
+        .its('body')
+        .should((teams: TeamResponse[]) => {
+          validateTeam(teams.find(t => t.teamId === teamId1), teamId1, team1);
+          validateTeam(teams.find(t => t.teamId === teamId2), teamId2, team2);
+        });
+    });
   });
 });

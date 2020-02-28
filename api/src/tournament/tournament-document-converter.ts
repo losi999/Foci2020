@@ -18,27 +18,22 @@ export const tournamentDocumentConverterFactory = (uuid: v4String): ITournamentD
     };
   };
 
+  const update = (tournamentId: string, tournamentRequest: TournamentRequest): TournamentDocument => {
+    return {
+      ...tournamentRequest,
+      id: tournamentId,
+      documentType: 'tournament',
+      orderingValue: tournamentRequest.tournamentName,
+      'documentType-id': `tournament-${tournamentId}`
+    };
+  };
   return {
     toResponse,
+    update,
     toResponseList: tournamentDocuments => tournamentDocuments.map<TournamentResponse>(d => toResponse(d)),
     create: (tournamentRequest) => {
       const id = uuid();
-      return {
-        ...tournamentRequest,
-        id,
-        documentType: 'tournament',
-        orderingValue: tournamentRequest.tournamentName,
-        'documentType-id': `tournament-${id}`
-      };
+      return update(id, tournamentRequest);
     },
-    update: (tournamentId, tournamentRequest) => {
-      return {
-        ...tournamentRequest,
-        id: tournamentId,
-        documentType: 'tournament',
-        orderingValue: tournamentRequest.tournamentName,
-        'documentType-id': `tournament-${tournamentId}`
-      };
-    }
   };
 };

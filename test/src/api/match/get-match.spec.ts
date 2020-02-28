@@ -38,14 +38,14 @@ describe('GET /match/v1/matches/{matchId}', () => {
   let match: MatchRequest;
 
   before(() => {
-    createTeam(homeTeam)
+    createTeam(homeTeam, 'admin1')
       .its('body')
       .its('teamId')
       .then((id) => {
         homeTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTeam(awayTeam);
+        return createTeam(awayTeam, 'admin1');
       })
       .its('body')
       .its('teamId')
@@ -53,7 +53,7 @@ describe('GET /match/v1/matches/{matchId}', () => {
         awayTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTournament(tournament);
+        return createTournament(tournament, 'admin1');
       })
       .its('body')
       .its('tournamentId')
@@ -73,46 +73,58 @@ describe('GET /match/v1/matches/{matchId}', () => {
   });
 
   after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId));
-    createdTeamIds.map(teamId => deleteTeam(teamId));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId));
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
-  it('should get match by id', () => {
-    let matchId: string;
-
-    createMatch(match)
-      .its('body')
-      .its('matchId')
-      .then((id) => {
-        matchId = id;
-        createdMatchIds.push(id);
-        expect(id).to.be.a('string');
-        return getMatch(matchId);
-      })
-      .its('body')
-      .should((body: MatchResponse) => {
-        validateMatch(body, matchId, match);
-        validateTeam(body.homeTeam, homeTeamId, homeTeam);
-        validateTeam(body.awayTeam, awayTeamId, awayTeam);
-        validateTournament(body.tournament, tournamentId, tournament);
-      });
+  describe('called as a player', () => {
+    it('should return unauthorized', () => {
+      getMatch(uuid(), 'player1')
+        .its('status')
+        .should((status) => {
+          expect(status).to.equal(403);
+        });
+    });
   });
 
-  describe('should return error if matchId', () => {
-    it('is not uuid', () => {
-      getMatch(`${uuid()}-not-valid`)
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.pathParameters).to.contain('matchId').to.contain('format').to.contain('uuid');
+  describe('called as an admin', () => {
+    it('should get match by id', () => {
+      let matchId: string;
+
+      createMatch(match, 'admin1')
+        .its('body')
+        .its('matchId')
+        .then((id) => {
+          matchId = id;
+          createdMatchIds.push(id);
+          expect(id).to.be.a('string');
+          return getMatch(matchId, 'admin1');
+        })
+        .its('body')
+        .should((body: MatchResponse) => {
+          validateMatch(body, matchId, match);
+          validateTeam(body.homeTeam, homeTeamId, homeTeam);
+          validateTeam(body.awayTeam, awayTeamId, awayTeam);
+          validateTournament(body.tournament, tournamentId, tournament);
         });
     });
 
-    it('does not belong to any match', () => {
-      getMatch(uuid())
-        .should((response) => {
-          expect(response.status).to.equal(404);
-        });
+    describe('should return error if matchId', () => {
+      it('is not uuid', () => {
+        getMatch(`${uuid()}-not-valid`, 'admin1')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.pathParameters).to.contain('matchId').to.contain('format').to.contain('uuid');
+          });
+      });
+
+      it('does not belong to any match', () => {
+        getMatch(uuid(), 'admin1')
+          .should((response) => {
+            expect(response.status).to.equal(404);
+          });
+      });
     });
   });
 });

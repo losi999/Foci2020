@@ -17,32 +17,44 @@ describe('GET /tournament/v1/tournaments', () => {
   });
 
   after(() => {
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
-  it('should get a list of tournaments', () => {
-    let tournamentId1: string;
-    let tournamentId2: string;
+  describe('called as a player', () => {
+    it('should return unauthorized', () => {
+      getTournamentList('player1')
+        .its('status')
+        .should((status) => {
+          expect(status).to.equal(403);
+        });
+    });
+  });
 
-    createTournament(tournament1)
-      .its('body')
-      .its('tournamentId')
-      .then((id) => {
-        tournamentId1 = id;
-        createdTournamentIds.push(id);
-        return createTournament(tournament2);
-      })
-      .its('body')
-      .its('tournamentId')
-      .then((id) => {
-        tournamentId2 = id;
-        createdTournamentIds.push(id);
-        return getTournamentList();
-      })
-      .its('body')
-      .should((tournaments: TournamentResponse[]) => {
-        validateTournament(tournaments.find(t => t.tournamentId === tournamentId1), tournamentId1, tournament1);
-        validateTournament(tournaments.find(t => t.tournamentId === tournamentId2), tournamentId2, tournament2);
-      });
+  describe('called as an admin', () => {
+    it('should get a list of tournaments', () => {
+      let tournamentId1: string;
+      let tournamentId2: string;
+
+      createTournament(tournament1, 'admin1')
+        .its('body')
+        .its('tournamentId')
+        .then((id) => {
+          tournamentId1 = id;
+          createdTournamentIds.push(id);
+          return createTournament(tournament2, 'admin1');
+        })
+        .its('body')
+        .its('tournamentId')
+        .then((id) => {
+          tournamentId2 = id;
+          createdTournamentIds.push(id);
+          return getTournamentList('admin1');
+        })
+        .its('body')
+        .should((tournaments: TournamentResponse[]) => {
+          validateTournament(tournaments.find(t => t.tournamentId === tournamentId1), tournamentId1, tournament1);
+          validateTournament(tournaments.find(t => t.tournamentId === tournamentId2), tournamentId2, tournament2);
+        });
+    });
   });
 });

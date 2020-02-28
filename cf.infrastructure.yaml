@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Action:
+            - sts:AssumeRole
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+      Policies:
+        - PolicyName: LambdaPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:DeleteItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                  - dynamodb:UpdateItem
+                  - dynamodb:GetItem
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                  - dynamodb:DescribeStream
+                  - dynamodb:ListStreams
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:CreateLogGroup
+                  - sns:Publish
+                  - xray:*
+                  - cognito-idp:AdminCreateUser
+                  - cognito-idp:AdminGetUser
+                  - cognito-idp:AdminInitiateAuth
+                  - cognito-idp:AdminAddUserToGroup
+                  - cognito-idp:AdminSetUserPassword
+                  - cloudformation:DescribeStacks
+                  - lambda:InvokeFunction
+                Resource: "*"
+
+Outputs:
+  LambdaRoleArn:
+    Value: !GetAtt LambdaRole.Arn

@@ -2,5 +2,7 @@
     "integrationFolder": "src/api",
     "testFiles": "**/*.spec.ts",
     "baseUrl": "https://d2tm4opeg4njny.cloudfront.net",
-    "pluginsFile": "src/plugins"
+    "pluginsFile": "src/plugins",
+    "viewportWidth": 0,
+    "viewportHeight": 0
 }

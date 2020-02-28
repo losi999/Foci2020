@@ -123,7 +123,7 @@ describe('Update match service', () => {
     expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).toHaveBeenCalledWith(matchId, body, queriedAwayTeam, queriedHomeTeam, queriedTournament);
-    expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith(matchId, convertedMatch);
+    expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith(convertedMatch);
   });
 
   it('should throw error if startTime is less than 5 minutes from now', async () => {
@@ -270,7 +270,7 @@ describe('Update match service', () => {
     expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
     expect(mockTournamentDocumentService.functions.queryTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).toHaveBeenCalledWith(matchId, body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
-    expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith(matchId, convertedMatch);
+    expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith(convertedMatch);
     expect.assertions(7);
   });
 

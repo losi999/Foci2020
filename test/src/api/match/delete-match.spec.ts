@@ -3,6 +3,7 @@ import { createTeam, deleteTeam } from '../team/team-common';
 import { createTournament, deleteTournament } from '../tournament/tournament-common';
 import { addMinutes } from 'api/shared/common';
 import { deleteMatch, createMatch, getMatch } from './match-common';
+import uuid from 'uuid';
 
 describe('DELETE /match/v1/matches/{matchId}', () => {
   const homeTeam: TeamRequest = {
@@ -31,20 +32,26 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
     createdTournamentIds = [];
   });
 
+  after(() => {
+    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
+    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
+  });
+
   let homeTeamId: string;
   let awayTeamId: string;
   let tournamentId: string;
   let match: MatchRequest;
 
   before(() => {
-    createTeam(homeTeam)
+    createTeam(homeTeam, 'admin1')
       .its('body')
       .its('teamId')
       .then((id) => {
         homeTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTeam(awayTeam);
+        return createTeam(awayTeam, 'admin1');
       })
       .its('body')
       .its('teamId')
@@ -52,7 +59,7 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
         awayTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTournament(tournament);
+        return createTournament(tournament, 'admin1');
       })
       .its('body')
       .its('tournamentId')
@@ -71,32 +78,44 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
       });
   });
 
-  after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId));
-    createdTeamIds.map(teamId => deleteTeam(teamId));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId));
+  describe('called as a player', () => {
+    it('should return unauthorized', () => {
+      deleteMatch(uuid(), 'player1')
+        .its('status')
+        .should((status) => {
+          expect(status).to.equal(403);
+        });
+    });
   });
 
-  it('should delete match', () => {
-    let matchId: string;
+  describe('called as an admin', () => {
+    it('should delete match', () => {
+      let matchId: string;
 
-    createMatch(match)
-      .its('body')
-      .its('matchId')
-      .then((id) => {
-        matchId = id;
-        createdMatchIds.push(id);
-        expect(id).to.be.a('string');
-        return deleteMatch(matchId);
-      })
-      .its('status')
-      .then((status) => {
-        expect(status).to.equal(200);
-        return getMatch(matchId);
-      })
-      .its('status')
-      .should((status) => {
-        expect(status).to.equal(404);
+      createMatch(match, 'admin1')
+        .its('body')
+        .its('matchId')
+        .then((id) => {
+          matchId = id;
+          createdMatchIds.push(id);
+          expect(id).to.be.a('string');
+          return deleteMatch(matchId, 'admin1');
+        })
+        .its('status')
+        .then((status) => {
+          expect(status).to.equal(200);
+          return getMatch(matchId, 'admin1');
+        })
+        .its('status')
+        .should((status) => {
+          expect(status).to.equal(404);
+        });
+    });
+
+    describe('related bets', () => {
+      it.skip('should be deleted if match is deleted', () => {
+
       });
+    });
   });
 });

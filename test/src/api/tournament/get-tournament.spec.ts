@@ -14,41 +14,53 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   });
 
   after(() => {
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId));
+    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
   });
 
-  it('should get tournament by id', () => {
-    let tournamentId: string;
-
-    createTournament(tournament)
-      .its('body')
-      .its('tournamentId')
-      .then((id) => {
-        tournamentId = id;
-        createdTournamentIds.push(id);
-        expect(id).to.be.a('string');
-        return getTournament(id);
-      })
-      .its('body')
-      .should((body: TournamentResponse) => {
-        validateTournament(body, tournamentId, tournament);
-      });
+  describe('called as a player', () => {
+    it('should return unauthorized', () => {
+      getTournament(uuid(), 'player1')
+        .its('status')
+        .should((status) => {
+          expect(status).to.equal(403);
+        });
+    });
   });
 
-  describe('should return error if tournamentId', () => {
-    it('is not uuid', () => {
-      getTournament(`${uuid()}-not-valid`)
-        .should((response) => {
-          expect(response.status).to.equal(400);
-          expect(response.body.pathParameters).to.contain('tournamentId').to.contain('format').to.contain('uuid');
+  describe('called as an admin', () => {
+    it('should get tournament by id', () => {
+      let tournamentId: string;
+
+      createTournament(tournament, 'admin1')
+        .its('body')
+        .its('tournamentId')
+        .then((id) => {
+          tournamentId = id;
+          createdTournamentIds.push(id);
+          expect(id).to.be.a('string');
+          return getTournament(id, 'admin1');
+        })
+        .its('body')
+        .should((body: TournamentResponse) => {
+          validateTournament(body, tournamentId, tournament);
         });
     });
 
-    it('does not belong to any tournament', () => {
-      getTournament(uuid())
-        .should((response) => {
-          expect(response.status).to.equal(404);
-        });
+    describe('should return error if tournamentId', () => {
+      it('is not uuid', () => {
+        getTournament(`${uuid()}-not-valid`, 'admin1')
+          .should((response) => {
+            expect(response.status).to.equal(400);
+            expect(response.body.pathParameters).to.contain('tournamentId').to.contain('format').to.contain('uuid');
+          });
+      });
+
+      it('does not belong to any tournament', () => {
+        getTournament(uuid(), 'admin1')
+          .should((response) => {
+            expect(response.status).to.equal(404);
+          });
+      });
     });
   });
 });

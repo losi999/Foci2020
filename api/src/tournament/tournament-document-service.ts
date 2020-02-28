@@ -3,7 +3,7 @@ import { TournamentDocument } from '@/shared/types/types';
 
 export interface ITournamentDocumentService {
   saveTournament(document: TournamentDocument): Promise<any>;
-  updateTournament(tournamentId: string, document: TournamentDocument): Promise<any>;
+  updateTournament(document: TournamentDocument): Promise<any>;
   queryTournamentById(tournamentId: string): Promise<TournamentDocument>;
   queryTournaments(): Promise<TournamentDocument[]>;
   deleteTournament(tournamentId: string): Promise<any>;
@@ -22,7 +22,7 @@ export const tournamentDocumentServiceFactory = (
         Item: document
       }).promise();
     },
-    updateTournament: async (tournamentId, document) => {
+    updateTournament: async (document) => {
       return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tournamentTableName,
@@ -32,7 +32,7 @@ export const tournamentDocumentServiceFactory = (
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `tournament-${tournamentId}`,
+          ':documentTypeId': document['documentType-id'],
         },
       }).promise();
     },

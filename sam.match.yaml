@@ -1,0 +1,162 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 Match API"
+Parameters:
+  LambdaRoleArn:
+    Type: String
+  Database:
+    Type: String
+  UserPoolArn:
+    Type: String
+  Env:
+    Type: String
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+  Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 512
+    Tracing: Active
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !Ref Database
+
+Resources:
+  MatchApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub Foci2020-${Env}-Match
+      StageName: Prod
+      TracingEnabled: true
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref UserPoolArn
+      GatewayResponses:
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
+
+  CreateMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-CreateMatch
+      CodeUri: api/dist/create-match
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches
+            Method: POST
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  PlaceBet:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-PlaceBet
+      CodeUri: api/dist/place-bet
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches/{matchId}/bets
+            Method: POST
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  ListBetsOfMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-ListBetsOfMatch
+      CodeUri: api/dist/list-bets-of-match
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches/{matchId}/bets
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  UpdateMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-UpdateMatch
+      CodeUri: api/dist/update-match
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches/{matchId}
+            Method: PUT
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  ListMatches:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-ListMatches
+      CodeUri: api/dist/list-matches
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-GetMatch
+      CodeUri: api/dist/get-match
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches/{matchId}
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  DeleteMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-DeleteMatch
+      CodeUri: api/dist/delete-match
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches/{matchId}
+            Method: DELETE
+            Auth:
+              Authorizer: CognitoAuthorizer
+            
+Outputs:
+  MatchApi:
+    Description: "Foci 2020 Match API"
+    Value: !Sub "${MatchApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

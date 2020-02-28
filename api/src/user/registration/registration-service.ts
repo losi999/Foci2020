@@ -11,7 +11,7 @@ export interface IRegistrationService {
 export const registrationServiceFactory = (identityService: IIdentityService): IRegistrationService => {
   return async ({ body }) => {
 
-    await identityService.register(body).catch((error) => {
+    await identityService.register(body, 'player').catch((error) => {
       console.error('Register', error);
       throw httpError(500, error.message);
     });

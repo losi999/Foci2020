@@ -1,0 +1,198 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  Env:
+    Type: String
+  TestUserPassword:
+    Type: String
+    Default: ""
+  AdminUserEmail:
+    Type: String
+
+Resources:
+  Functions:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.functions.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        DatabaseStreamArn: !GetAtt Data.Outputs.DatabaseStreamArn
+        UserPoolId: !GetAtt Data.Outputs.UserPoolId
+        ClientId: !GetAtt Data.Outputs.ClientId
+        Env: !Ref Env
+        TestUserPassword: !Ref TestUserPassword
+
+  Data:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: cf.data.yaml
+      Parameters:
+        Env: !Ref Env
+        AdminUserEmail: !Ref AdminUserEmail
+
+  Infrastructure:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: cf.infrastructure.yaml
+
+  Team:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.team.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
+        Env: !Ref Env
+
+  Tournament:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.tournament.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
+        Env: !Ref Env
+
+  Match:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.match.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
+        Env: !Ref Env
+
+  User:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.user.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        UserPoolId: !GetAtt Data.Outputs.UserPoolId
+        ClientId: !GetAtt Data.Outputs.ClientId
+        Env: !Ref Env
+
+  Api:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        PriceClass: PriceClass_100
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - PATCH
+            - POST
+            - DELETE
+          MinTTL: 0
+          MaxTTL: 0
+          DefaultTTL: 0
+          ForwardedValues:
+            QueryString: true
+          TargetOriginId: Team
+        CacheBehaviors:
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /team/*
+            TargetOriginId: Team
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /match/*
+            TargetOriginId: Match
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /tournament/*
+            TargetOriginId: Tournament
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /user/*
+            TargetOriginId: User
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+        Origins:
+          - DomainName: !GetAtt Team.Outputs.TeamApi
+            OriginPath: /Prod
+            Id: Team
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt Match.Outputs.MatchApi
+            OriginPath: /Prod
+            Id: Match
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt Tournament.Outputs.TournamentApi
+            OriginPath: /Prod
+            Id: Tournament
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt User.Outputs.UserApi
+            OriginPath: /Prod
+            Id: User
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+
+Outputs:
+  FociApi:
+    Description: "Foci 2020 API"
+    Value: !Sub https://${Api.DomainName}

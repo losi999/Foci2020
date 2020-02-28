@@ -9,7 +9,7 @@ describe('Match document service', () => {
   const tableName = 'table-name';
 
   beforeEach(() => {
-    mockDynamoClient = createMockService('put', 'query', 'delete', 'get', 'transactWrite');
+    mockDynamoClient = createMockService('put', 'query', 'delete', 'get', 'transactWrite', 'update');
 
     service = matchDocumentServiceFactory(tableName, mockDynamoClient.service);
   });
@@ -26,6 +26,7 @@ describe('Match document service', () => {
 
   describe('updateMatch', () => {
     it('should call dynamo.update with correct parameters', async () => {
+      const documentTypeId = 'match-id1';
       const document = {
         startTime,
         group,
@@ -34,11 +35,12 @@ describe('Match document service', () => {
         awayTeamId,
         homeTeamId,
         tournament,
-        tournamentId
+        tournamentId,
+        'documentType-id': documentTypeId
       } as MatchDocument;
       mockDynamoClient.functions.put.mockReturnValue(awsResolvedValue());
 
-      await service.updateMatch(matchId, document);
+      await service.updateMatch(document);
       expect(mockDynamoClient.functions.put).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Item: document,
@@ -47,65 +49,57 @@ describe('Match document service', () => {
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
+          ':documentTypeId': documentTypeId,
         }
       }));
     });
   });
 
-  describe('updateTeamOfMatches', () => {
-    it('should call dynamo.transactWrite with correct parameters', async () => {
-      mockDynamoClient.functions.transactWrite.mockReturnValue(awsResolvedValue());
+  describe('updateTeamOfMatch', () => {
+    it('should call dynamo.update with correct parameters', async () => {
+      mockDynamoClient.functions.update.mockReturnValue(awsResolvedValue());
 
-      await service.updateTeamOfMatches([matchId], homeTeam, 'home');
+      await service.updateTeamOfMatch(matchId, homeTeam, 'home');
 
-      expect(mockDynamoClient.functions.transactWrite).toHaveBeenCalledWith(expect.objectContaining({
-        TransactItems: [{
-          Update: {
-            TableName: tableName,
-            Key: {
-              'documentType-id': `match-${matchId}`,
-            },
-            ConditionExpression: '#documentTypeId = :documentTypeId',
-            UpdateExpression: 'set #team = :team',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id',
-              '#team': 'homeTeam'
-            },
-            ExpressionAttributeValues: {
-              ':documentTypeId': `match-${matchId}`,
-              ':team': homeTeam,
-            }
-          }
-        }]
+      expect(mockDynamoClient.functions.update).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        Key: {
+          'documentType-id': `match-${matchId}`,
+        },
+        ConditionExpression: '#documentTypeId = :documentTypeId',
+        UpdateExpression: 'set #team = :team',
+        ExpressionAttributeNames: {
+          '#documentTypeId': 'documentType-id',
+          '#team': 'homeTeam'
+        },
+        ExpressionAttributeValues: {
+          ':documentTypeId': `match-${matchId}`,
+          ':team': homeTeam,
+        }
       }));
     });
   });
 
-  describe('updateTournamentOfMatches', () => {
-    it('should call dynamo.transactWrite with correct parameters', async () => {
-      mockDynamoClient.functions.transactWrite.mockReturnValue(awsResolvedValue());
+  describe('updateTournamentOfMatch', () => {
+    it('should call dynamo.update with correct parameters', async () => {
+      mockDynamoClient.functions.update.mockReturnValue(awsResolvedValue());
 
-      await service.updateTournamentOfMatches([matchId], tournament);
+      await service.updateTournamentOfMatch(matchId, tournament);
 
-      expect(mockDynamoClient.functions.transactWrite).toHaveBeenCalledWith(expect.objectContaining({
-        TransactItems: [{
-          Update: {
-            TableName: tableName,
-            Key: {
-              'documentType-id': `match-${matchId}`,
-            },
-            ConditionExpression: '#documentTypeId = :documentTypeId',
-            UpdateExpression: 'set tournament = :tournament',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id'
-            },
-            ExpressionAttributeValues: {
-              ':documentTypeId': `match-${matchId}`,
-              ':tournament': tournament
-            }
-          }
-        }]
+      expect(mockDynamoClient.functions.update).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        Key: {
+          'documentType-id': `match-${matchId}`,
+        },
+        ConditionExpression: '#documentTypeId = :documentTypeId',
+        UpdateExpression: 'set tournament = :tournament',
+        ExpressionAttributeNames: {
+          '#documentTypeId': 'documentType-id'
+        },
+        ExpressionAttributeValues: {
+          ':documentTypeId': `match-${matchId}`,
+          ':tournament': tournament
+        }
       }));
     });
   });
@@ -278,32 +272,6 @@ describe('Match document service', () => {
       const result = await service.queryMatchKeysByTournamentId(tournamentId);
 
       expect(result).toEqual(queriedMatches);
-    });
-  });
-
-  describe('deleteMatches', () => {
-    it('should call dynamo.transactWrite with correct parameters', async () => {
-      mockDynamoClient.functions.transactWrite.mockReturnValue(awsResolvedValue());
-
-      await service.deleteMatches([matchId]);
-
-      expect(mockDynamoClient.functions.transactWrite).toHaveBeenCalledWith(expect.objectContaining({
-        TransactItems: [{
-          Delete: {
-            TableName: tableName,
-            Key: {
-              'documentType-id': `match-${matchId}`,
-            },
-            ConditionExpression: '#documentTypeId = :documentTypeId',
-            ExpressionAttributeNames: {
-              '#documentTypeId': 'documentType-id'
-            },
-            ExpressionAttributeValues: {
-              ':documentTypeId': `match-${matchId}`,
-            }
-          }
-        }]
-      }));
     });
   });
 });

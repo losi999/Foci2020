@@ -14,6 +14,8 @@ export const postDeployServiceFactory = (cloudFormation: CloudFormation, lambda:
     }).promise()).Stacks[0];
     const steps = infraStack.Outputs.filter(output => output.OutputKey.startsWith('PostDeploy') && !!output.OutputValue);
 
+    console.log('Post deploy functions to invoke', steps);
+
     await Promise.all(steps.map(s => lambda.invoke({
       FunctionName: s.OutputValue
     }).promise()));

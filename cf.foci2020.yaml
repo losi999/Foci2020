@@ -34,8 +34,6 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: cf.infrastructure.yaml
-      Parameters:
-        Env: !Ref Env
 
   Team:
     Type: AWS::CloudFormation::Stack

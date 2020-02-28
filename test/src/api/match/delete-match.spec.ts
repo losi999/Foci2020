@@ -111,5 +111,11 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
           expect(status).to.equal(404);
         });
     });
+
+    describe('related bets', () => {
+      it.skip('should be deleted if match is deleted', () => {
+
+      });
+    });
   });
 });

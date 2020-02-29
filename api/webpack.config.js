@@ -3,7 +3,7 @@ var entry = require('webpack-glob-entry')
 const entries = entry((filePath) => {
   const parts = filePath.split(/[\/\.]/)
   return parts[parts.length - 3];
-}, './src/*/*/*.index.ts');
+}, './src/functions/*/*.index.ts');
 
 module.exports = {
   entry: entries,

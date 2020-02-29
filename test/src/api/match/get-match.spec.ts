@@ -1,7 +1,7 @@
-import { MatchRequest, TeamRequest, TournamentRequest, MatchResponse } from 'api/shared/types/types';
+import { MatchRequest, TeamRequest, TournamentRequest, MatchResponse } from 'api/types/types';
 import { createTeam, deleteTeam, validateTeam } from '../team/team-common';
 import { createTournament, deleteTournament, validateTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/shared/common';
+import { addMinutes } from 'api/common';
 import { deleteMatch, createMatch, getMatch, validateMatch } from './match-common';
 import uuid from 'uuid';
 

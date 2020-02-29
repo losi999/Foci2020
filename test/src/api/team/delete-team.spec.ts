@@ -1,8 +1,8 @@
 import { createTeam, deleteTeam, getTeam } from './team-common';
 import { createTournament, deleteTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/shared/common';
+import { addMinutes } from 'api/common';
 import { createMatch, getMatch, deleteMatch } from '../match/match-common';
-import { TeamRequest, TournamentRequest } from 'api/shared/types/types';
+import { TeamRequest, TournamentRequest } from 'api/types/types';
 import uuid from 'uuid';
 
 describe('DELETE /team/v1/teams/{teamId}', () => {

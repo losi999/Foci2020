@@ -1,6 +1,6 @@
 import { createTeam, getTeam, deleteTeam, validateTeam } from './team-common';
 import uuid from 'uuid';
-import { TeamRequest, TeamResponse } from 'api/shared/types/types';
+import { TeamRequest, TeamResponse } from 'api/types/types';
 
 describe('GET /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {

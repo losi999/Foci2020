@@ -1,4 +1,4 @@
-import { LoginRequest } from 'api/shared/types/types';
+import { LoginRequest } from 'api/types/types';
 import { User, usernames } from '../constants';
 
 export const authenticate = (user: User) => {

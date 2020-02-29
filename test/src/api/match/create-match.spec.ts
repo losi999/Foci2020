@@ -1,9 +1,9 @@
-import { addMinutes } from 'api/shared/common';
+import { addMinutes } from 'api/common';
 import { createTeam, deleteTeam, validateTeam } from '../team/team-common';
 import { createTournament, deleteTournament, validateTournament } from '../tournament/tournament-common';
 import { deleteMatch, createMatch, getMatch, validateMatch } from './match-common';
 import uuid from 'uuid';
-import { TeamRequest, TournamentRequest, MatchRequest, MatchResponse } from 'api/shared/types/types';
+import { TeamRequest, TournamentRequest, MatchRequest, MatchResponse } from 'api/types/types';
 
 describe('POST /match/v1/matches', () => {
   const homeTeam: TeamRequest = {

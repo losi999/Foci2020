@@ -1,5 +1,6 @@
 import { IMatchDocumentConverter, matchDocumentConverterFactory } from '@/converters/match-document-converter';
 import { matchDocument, matchResponse, matchRequest, teamDocument, tournamentDocument } from './test-data-factory';
+import { Score } from '@/types/types';
 
 describe('Match document converter', () => {
   let converter: IMatchDocumentConverter;
@@ -8,8 +9,10 @@ describe('Match document converter', () => {
   const homeTeamId = 'homeTeamId';
   const awayTeamId = 'awayTeamId';
   const tournamentId = 'tournamentId';
-  const homeScore = 1;
-  const awayScore = 3;
+  const finalScore: Score = {
+    homeScore: 1,
+    awayScore: 3,
+  };
 
   beforeEach(() => {
     mockUuid = jest.fn();
@@ -19,8 +22,8 @@ describe('Match document converter', () => {
 
   describe('toResponse', () => {
     it('should convert document to response', () => {
-      const input = matchDocument(matchId, homeTeamId, awayTeamId, tournamentId, homeScore, awayScore);
-      const expectedResponse = matchResponse(matchId, homeTeamId, awayTeamId, tournamentId, homeScore, awayScore);
+      const input = matchDocument(matchId, homeTeamId, awayTeamId, tournamentId, finalScore);
+      const expectedResponse = matchResponse(matchId, homeTeamId, awayTeamId, tournamentId, finalScore);
 
       const result = converter.toResponse(input);
       expect(result).toEqual(expectedResponse);
@@ -29,8 +32,8 @@ describe('Match document converter', () => {
 
   describe('toResponseList', () => {
     it('should convert documents to responses', () => {
-      const input = matchDocument(matchId, homeTeamId, awayTeamId, tournamentId, homeScore, awayScore);
-      const expectedResponse = matchResponse(matchId, homeTeamId, awayTeamId, tournamentId, homeScore, awayScore);
+      const input = matchDocument(matchId, homeTeamId, awayTeamId, tournamentId, finalScore);
+      const expectedResponse = matchResponse(matchId, homeTeamId, awayTeamId, tournamentId, finalScore);
 
       const result = converter.toResponseList([input]);
       expect(result).toEqual([expectedResponse]);

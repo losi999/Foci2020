@@ -165,5 +165,13 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
           });
       });
     });
+
+    describe('should return error', () => {
+      describe('if teamId', () => {
+        it.skip('is not uuid', () => {
+
+        });
+      });
+    });
   });
 });

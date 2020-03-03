@@ -25,7 +25,7 @@ describe('Bet document service', () => {
       expect(mockDynamoClient.functions.get).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `bet-${userId}-${matchId}`
+          'documentType-id': `bet#${userId}#${matchId}`
         },
       }));
     });
@@ -80,7 +80,7 @@ describe('Bet document service', () => {
 
       expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
-        IndexName: 'indexByMatchId2',
+        IndexName: 'indexByMatchId',
         KeyConditionExpression: 'matchId = :matchId',
         ExpressionAttributeValues: {
           ':matchId': matchId,

@@ -1,6 +1,9 @@
-import { TeamDocument, TournamentDocument } from '@/types/types';
+import { TeamDocument, TournamentDocument, MatchDocument, BetDocument } from '@/types/types';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { IBetDocumentService } from '@/services/bet-document-service';
+import { IBetDocumentConverter } from '@/converters/bet-document-converter';
+import { IStandingDocumentConverter } from '@/converters/standing-document-converter';
+import { IStandingDocumentService } from '@/services/standing-document-service';
 
 export interface IRelatedDocumentService {
   teamDeleted(teamId: string): Promise<void>;
@@ -8,11 +11,16 @@ export interface IRelatedDocumentService {
   teamUpdated(team: TeamDocument): Promise<void>;
   tournamentUpdated(tournament: TournamentDocument): Promise<void>;
   matchDeleted(matchId: string): Promise<void>;
+  matchFinalScoreUpdated(match: MatchDocument): Promise<void>;
+  betResultCalculated(tournamentIdUserId: string): Promise<void>;
 }
 
 export const relatedDocumentServiceFactory = (
   matchDocumentService: IMatchDocumentService,
-  betDocumentService: IBetDocumentService
+  betDocumentService: IBetDocumentService,
+  betDocumentConverter: IBetDocumentConverter,
+  standingDocumentConverter: IStandingDocumentConverter,
+  standingDocumentService: IStandingDocumentService
 ): IRelatedDocumentService => {
   const deleteMatchesById = async (matchIds: string[]): Promise<unknown> => {
     return Promise.all(matchIds.map(id => matchDocumentService.deleteMatch(id))).catch((error) => {
@@ -44,6 +52,13 @@ export const relatedDocumentServiceFactory = (
       homeMatchIds: homeMatches.map(m => m.id),
       awayMatchIds: awayMatches.map(m => m.id)
     };
+  };
+
+  const queryBetsOfMatch = (matchId: string): Promise<BetDocument[]> => {
+    return betDocumentService.queryBetsByMatchId(matchId).catch((error) => {
+      console.error('Query bets of match', matchId, error);
+      throw error;
+    });
   };
 
   return {
@@ -80,10 +95,33 @@ export const relatedDocumentServiceFactory = (
       });
     },
     matchDeleted: async (matchId) => {
-      const bets = await betDocumentService.queryBetsByMatchId(matchId);
+      const bets = await queryBetsOfMatch(matchId);
 
       await Promise.all(bets.map(bet => betDocumentService.deleteBet(bet.id))).catch((error) => {
         console.error('Delete bets of match', matchId, error);
+        throw error;
+      });
+    },
+    matchFinalScoreUpdated: async (match) => {
+      const bets = await queryBetsOfMatch(match.id);
+
+      const betsWithResult = bets.map(bet => betDocumentConverter.calculateResult(bet, match.finalScore));
+
+      await Promise.all(betsWithResult.map(bet => betDocumentService.updateBet(bet))).catch((error) => {
+        console.error('Bet update with result', match.id, error);
+        throw error;
+      });
+    },
+    betResultCalculated: async (tournamentIdUserId) => {
+      const bets = await betDocumentService.queryBetsByTournamentIdUserId(tournamentIdUserId).catch((error) => {
+        console.error('Query bets by tournament and user Id', tournamentIdUserId, error);
+        throw error;
+      });
+
+      const standing = standingDocumentConverter.create(bets);
+
+      await standingDocumentService.saveStanding(standing).catch((error) => {
+        console.error('Save standing', error);
         throw error;
       });
     }

@@ -18,6 +18,10 @@ export const chunk = (input: any[], count: number): any[][] => {
   return chunked;
 };
 
+const SEPARATOR = '#';
+export const concatenate = (...parts: any[]) => parts.join(SEPARATOR);
+export const getPartOfConcatenated = (concatenated: string, index: number) => concatenated.split(SEPARATOR)[index];
+
 export type Mock<T> = {
   service: T;
   functions: {

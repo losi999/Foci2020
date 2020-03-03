@@ -136,5 +136,13 @@ describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
           });
       });
     });
+
+    describe('should return error', () => {
+      describe('if tournamentId', () => {
+        it.skip('is not uuid', () => {
+
+        });
+      });
+    });
   });
 });

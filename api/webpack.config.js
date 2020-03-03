@@ -12,7 +12,7 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader?configFile=tsconfig.webpack.json',
+        use: 'ts-loader',
         exclude: [
           /node_modules/
         ]

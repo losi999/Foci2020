@@ -43,7 +43,7 @@ export const placeBetServiceFactory = (
       throw httpError(400, 'Betting time expired');
     }
 
-    const document = betDocumentConverter.create(bet, userId, userName, matchId);
+    const document = betDocumentConverter.create(bet, userId, userName, matchId, match.tournamentId);
 
     await betDocumentService.saveBet(document).catch((error) => {
       console.error('Save bet', error);

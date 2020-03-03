@@ -30,6 +30,8 @@ Resources:
           AttributeType: S
         - AttributeName: userId
           AttributeType: S
+        - AttributeName: tournamentId-userId
+          AttributeType: S          
         - AttributeName: orderingValue
           AttributeType: S
       KeySchema:
@@ -72,6 +74,12 @@ Resources:
               KeyType: HASH
           Projection:
             ProjectionType: ALL
+        - IndexName: indexByTournamentIdUserId
+          KeySchema:
+            - AttributeName: tournamentId-userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL            
         - IndexName: indexByDocumentType
           KeySchema:
             - AttributeName: documentType

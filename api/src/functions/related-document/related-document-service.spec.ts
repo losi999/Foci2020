@@ -1,20 +1,33 @@
 import { IRelatedDocumentService, relatedDocumentServiceFactory } from '@/functions/related-document/related-document-service';
 import { Mock, createMockService, validateError } from '@/common';
 import { IMatchDocumentService } from '@/services/match-document-service';
-import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, IndexByTournamentIdDocument, TournamentDocument, TeamDocument, BetDocument } from '@/types/types';
+import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, IndexByTournamentIdDocument, TournamentDocument, TeamDocument, BetDocument, MatchDocument, StandingDocument } from '@/types/types';
 import { IBetDocumentService } from '@/services/bet-document-service';
+import { IBetDocumentConverter } from '@/converters/bet-document-converter';
+import { IStandingDocumentService } from '@/services/standing-document-service';
+import { IStandingDocumentConverter } from '@/converters/standing-document-converter';
 
 describe('Related document service', () => {
   let service: IRelatedDocumentService;
   let mockMatchDocumentService: Mock<IMatchDocumentService>;
   let mockBetDocumentService: Mock<IBetDocumentService>;
+  let mockBetDocumentConverter: Mock<IBetDocumentConverter>;
+  let mockStandingDocumentService: Mock<IStandingDocumentService>;
+  let mockStandingDocumentConverter: Mock<IStandingDocumentConverter>;
 
   beforeEach(() => {
     mockMatchDocumentService = createMockService('deleteMatch', 'updateTeamOfMatch', 'updateTournamentOfMatch', 'queryMatchKeysByAwayTeamId', 'queryMatchKeysByHomeTeamId', 'queryMatchKeysByTournamentId');
+    mockBetDocumentService = createMockService('queryBetsByMatchId', 'deleteBet', 'updateBet', 'queryBetsByTournamentIdUserId');
+    mockBetDocumentConverter = createMockService('calculateResult');
+    mockStandingDocumentService = createMockService('saveStanding');
+    mockStandingDocumentConverter = createMockService('create');
 
-    mockBetDocumentService = createMockService('queryBetsByMatchId', 'deleteBet');
-
-    service = relatedDocumentServiceFactory(mockMatchDocumentService.service, mockBetDocumentService.service);
+    service = relatedDocumentServiceFactory(
+      mockMatchDocumentService.service,
+      mockBetDocumentService.service,
+      mockBetDocumentConverter.service,
+      mockStandingDocumentConverter.service,
+      mockStandingDocumentService.service);
   });
 
   describe('teamDeleted', () => {
@@ -389,6 +402,134 @@ describe('Related document service', () => {
       expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
       expect(mockBetDocumentService.functions.deleteBet).toHaveBeenCalledWith(bet.id);
       expect.assertions(3);
+    });
+  });
+
+  describe('matchFinalScoreUpdated', () => {
+    it('should return undefined if bets are updated', async () => {
+      const match = {
+        id: 'matchId',
+        finalScore: {
+          homeScore: 1,
+          awayScore: 0
+        }
+      } as MatchDocument;
+
+      const bet = {
+        id: 'betId'
+      } as BetDocument;
+      mockBetDocumentService.functions.queryBetsByMatchId.mockResolvedValue([bet]);
+
+      const converted = {
+        id: bet.id
+      } as BetDocument;
+      mockBetDocumentConverter.functions.calculateResult.mockReturnValue(converted);
+
+      mockBetDocumentService.functions.updateBet.mockResolvedValue(undefined);
+
+      await service.matchFinalScoreUpdated(match);
+      expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(match.id);
+      expect(mockBetDocumentConverter.functions.calculateResult).toHaveBeenCalledWith(bet, match.finalScore);
+      expect(mockBetDocumentService.functions.updateBet).toHaveBeenCalledWith(converted);
+    });
+
+    it('should throw error if unable to query bets by match id', async () => {
+      const match = {
+        id: 'matchId',
+      } as MatchDocument;
+
+      const message = 'This is a dynamo error';
+      mockBetDocumentService.functions.queryBetsByMatchId.mockRejectedValue({ message });
+
+      await service.matchFinalScoreUpdated(match).catch((validateError(message)));
+      expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(match.id);
+      expect(mockBetDocumentConverter.functions.calculateResult).not.toHaveBeenCalled();
+      expect(mockBetDocumentService.functions.updateBet).not.toHaveBeenCalled();
+    });
+
+    it('should throw error if unable to update bet', async () => {
+      const match = {
+        id: 'matchId',
+        finalScore: {
+          homeScore: 1,
+          awayScore: 0
+        }
+      } as MatchDocument;
+
+      const bet = {
+        id: 'betId'
+      } as BetDocument;
+      mockBetDocumentService.functions.queryBetsByMatchId.mockResolvedValue([bet]);
+
+      const converted = {
+        id: bet.id
+      } as BetDocument;
+      mockBetDocumentConverter.functions.calculateResult.mockReturnValue(converted);
+
+      const message = 'This is a dynamo error';
+      mockBetDocumentService.functions.updateBet.mockRejectedValue({ message });
+
+      await service.matchFinalScoreUpdated(match).catch((validateError(message)));
+      expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(match.id);
+      expect(mockBetDocumentConverter.functions.calculateResult).toHaveBeenCalledWith(bet, match.finalScore);
+      expect(mockBetDocumentService.functions.updateBet).toHaveBeenCalledWith(converted);
+    });
+  });
+
+  describe('betResultCalculated', () => {
+    it('should return undefined if standing document is saved successfully', async () => {
+      const tournamentIdUserId = 'tournamentIdUserId';
+
+      const bets = [{
+        id: 'betId'
+      }] as BetDocument[];
+      mockBetDocumentService.functions.queryBetsByTournamentIdUserId.mockResolvedValue(bets);
+
+      const converted = {
+        id: 'standingId'
+      } as StandingDocument;
+      mockStandingDocumentConverter.functions.create.mockReturnValue(converted);
+
+      mockStandingDocumentService.functions.saveStanding.mockResolvedValue(undefined);
+
+      await service.betResultCalculated(tournamentIdUserId);
+      expect(mockBetDocumentService.functions.queryBetsByTournamentIdUserId).toHaveBeenCalledWith(tournamentIdUserId);
+      expect(mockStandingDocumentConverter.functions.create).toHaveBeenCalledWith(bets);
+      expect(mockStandingDocumentService.functions.saveStanding).toHaveBeenCalledWith(converted);
+    });
+
+    it('should throw error if unable to query bets by tournament and user id', async () => {
+      const tournamentIdUserId = 'tournamentIdUserId';
+
+      const message = 'This is a dynamo error';
+      mockBetDocumentService.functions.queryBetsByTournamentIdUserId.mockRejectedValue({ message });
+
+      await service.betResultCalculated(tournamentIdUserId).catch((validateError(message)));
+      expect(mockBetDocumentService.functions.queryBetsByTournamentIdUserId).toHaveBeenCalledWith(tournamentIdUserId);
+      expect(mockStandingDocumentConverter.functions.create).not.toHaveBeenCalled();
+      expect(mockStandingDocumentService.functions.saveStanding).not.toHaveBeenCalled();
+    });
+
+    it('should throw error if unable to save standing document', async () => {
+      const tournamentIdUserId = 'tournamentIdUserId';
+
+      const bets = [{
+        id: 'betId'
+      }] as BetDocument[];
+      mockBetDocumentService.functions.queryBetsByTournamentIdUserId.mockResolvedValue(bets);
+
+      const converted = {
+        id: 'standingId'
+      } as StandingDocument;
+      mockStandingDocumentConverter.functions.create.mockReturnValue(converted);
+
+      const message = 'This is a dynamo error';
+      mockStandingDocumentService.functions.saveStanding.mockRejectedValue({ message });
+
+      await service.betResultCalculated(tournamentIdUserId).catch((validateError(message)));
+      expect(mockBetDocumentService.functions.queryBetsByTournamentIdUserId).toHaveBeenCalledWith(tournamentIdUserId);
+      expect(mockStandingDocumentConverter.functions.create).toHaveBeenCalledWith(bets);
+      expect(mockStandingDocumentService.functions.saveStanding).toHaveBeenCalledWith(converted);
     });
   });
 });

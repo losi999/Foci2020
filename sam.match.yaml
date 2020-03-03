@@ -108,6 +108,22 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
 
+  SetFinalScoreOfMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-SetFinalScoreOfMatch
+      CodeUri: api/dist/set-final-score-of-match
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MatchApi
+            Path: /match/v1/matches/{matchId}
+            Method: PATCH
+            Auth:
+              Authorizer: CognitoAuthorizer
+
   ListMatches:
     Type: AWS::Serverless::Function
     Properties:

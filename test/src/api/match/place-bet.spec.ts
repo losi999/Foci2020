@@ -26,7 +26,7 @@ describe('POST /match/v1/matches/{matchId}/bets', () => {
 
         });
 
-        it.skip('is not number', () => {
+        it.skip('is not integer', () => {
 
         });
 
@@ -40,7 +40,7 @@ describe('POST /match/v1/matches/{matchId}/bets', () => {
 
         });
 
-        it.skip('is not number', () => {
+        it.skip('is not integer', () => {
 
         });
 

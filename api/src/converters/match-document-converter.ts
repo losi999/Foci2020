@@ -1,6 +1,7 @@
 import { v4String } from 'uuid/interfaces';
 import { MatchDocument, MatchResponse, MatchRequest, TeamDocument, TournamentDocument } from '@/types/types';
 import { internalDocumentPropertiesToRemove } from '@/constants';
+import { concatenate } from '@/common';
 
 export interface IMatchDocumentConverter {
   toResponse(matchDocument: MatchDocument): MatchResponse;
@@ -35,10 +36,7 @@ export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentCon
         ...internalDocumentPropertiesToRemove,
         tournamentId: matchDocument.tournament.id
       },
-      finalScore: {
-        homeScore: matchDocument.homeScore,
-        awayScore: matchDocument.awayScore,
-      }
+      finalScore: matchDocument.finalScore
     };
   };
 
@@ -50,8 +48,8 @@ export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentCon
       tournament,
       id: matchId,
       documentType: 'match',
-      orderingValue: `${matchRequest.tournamentId}-${matchRequest.startTime}`,
-      'documentType-id': `match-${matchId}`
+      orderingValue: concatenate(matchRequest.tournamentId, matchRequest.startTime),
+      'documentType-id': concatenate('match', matchId)
     };
   };
 

@@ -1,5 +1,5 @@
 import { IListBetsOfMatchService, listBetsOfMatchServiceFactory } from '@/functions/list-bets-of-match/list-bets-of-match-service';
-import { Mock, createMockService, awsResolvedValue, addMinutes, validateError } from '@/common';
+import { Mock, createMockService, addMinutes, validateError } from '@/common';
 import { IBetDocumentService } from '@/services/bet-document-service';
 import { IBetDocumentConverter } from '@/converters/bet-document-converter';
 import { IMatchDocumentService } from '@/services/match-document-service';

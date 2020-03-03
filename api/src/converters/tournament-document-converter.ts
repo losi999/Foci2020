@@ -1,6 +1,7 @@
 import { v4String } from 'uuid/interfaces';
 import { TournamentDocument, TournamentResponse, TournamentRequest } from '@/types/types';
 import { internalDocumentPropertiesToRemove } from '@/constants';
+import { concatenate } from '@/common';
 
 export interface ITournamentDocumentConverter {
   toResponse(tournamentDocument: TournamentDocument): TournamentResponse;
@@ -24,7 +25,7 @@ export const tournamentDocumentConverterFactory = (uuid: v4String): ITournamentD
       id: tournamentId,
       documentType: 'tournament',
       orderingValue: tournamentRequest.tournamentName,
-      'documentType-id': `tournament-${tournamentId}`
+      'documentType-id': concatenate('tournament', tournamentId)
     };
   };
   return {

@@ -1,6 +1,7 @@
 import { v4String } from 'uuid/interfaces';
 import { TeamRequest, TeamDocument, TeamResponse } from '@/types/types';
 import { internalDocumentPropertiesToRemove } from '@/constants';
+import { concatenate } from '@/common';
 
 export interface ITeamDocumentConverter {
   create(teamRequest: TeamRequest): TeamDocument;
@@ -24,7 +25,7 @@ export const teamDocumentConverterFactory = (uuid: v4String): ITeamDocumentConve
       id: teamId,
       documentType: 'team',
       orderingValue: teamRequest.teamName,
-      'documentType-id': `team-${teamId}`
+      'documentType-id': concatenate('team', teamId)
     };
   };
 

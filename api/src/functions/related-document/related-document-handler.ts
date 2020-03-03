@@ -16,6 +16,14 @@ export default (relatedDocument: IRelatedDocumentService): DynamoDBStreamHandler
             case 'tournament': {
               await relatedDocument.tournamentUpdated(document);
             } break;
+            case 'match': {
+              if (document.finalScore) {
+                await relatedDocument.matchFinalScoreUpdated(document);
+              }
+            } break;
+            case 'bet': {
+              await relatedDocument.betResultCalculated(document['tournamentId-userId']);
+            }
           }
         } break;
         case 'REMOVE': {

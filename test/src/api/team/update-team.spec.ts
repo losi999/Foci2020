@@ -176,108 +176,120 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       });
     });
 
-    describe('should return error if teamName', () => {
-      it('is missing from body', () => {
-        updateTeam(teamId, {
-          ...team,
-          teamName: undefined
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('teamName').to.contain('required');
-          });
+    describe('should return error', () => {
+      describe('if teamName', () => {
+        it('is missing from body', () => {
+          updateTeam(teamId, {
+            ...team,
+            teamName: undefined
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('teamName').to.contain('required');
+            });
+        });
+
+        it('is not string', () => {
+          updateTeam(teamId, {
+            ...team,
+            teamName: 1 as any
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('teamName').to.contain('string');
+            });
+        });
       });
 
-      it('is not string', () => {
-        updateTeam(teamId, {
-          ...team,
-          teamName: 1 as any
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('teamName').to.contain('string');
-          });
-      });
-    });
+      describe('if image', () => {
+        it('is missing from body', () => {
+          updateTeam(teamId, {
+            ...team,
+            image: undefined
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('image').to.contain('required');
+            });
+        });
 
-    describe('should return error if image', () => {
-      it('is missing from body', () => {
-        updateTeam(teamId, {
-          ...team,
-          image: undefined
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('image').to.contain('required');
-          });
-      });
+        it('is not string', () => {
+          updateTeam(teamId, {
+            ...team,
+            image: 1 as any
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('image').to.contain('string');
+            });
+        });
 
-      it('is not string', () => {
-        updateTeam(teamId, {
-          ...team,
-          image: 1 as any
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('image').to.contain('string');
-          });
-      });
-
-      it('is not an URI', () => {
-        updateTeam(teamId, {
-          ...team,
-          image: 'not.an.uri'
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('image').to.contain('format').to.contain('uri');
-          });
-      });
-    });
-
-    describe('should return error if shortName', () => {
-      it('is missing from body', () => {
-        updateTeam(teamId, {
-          ...team,
-          shortName: undefined
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('shortName').to.contain('required');
-          });
+        it('is not an URI', () => {
+          updateTeam(teamId, {
+            ...team,
+            image: 'not.an.uri'
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('image').to.contain('format').to.contain('uri');
+            });
+        });
       });
 
-      it('is not string', () => {
-        updateTeam(teamId, {
-          ...team,
-          shortName: 1 as any
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('shortName').to.contain('string');
-          });
+      describe('if shortName', () => {
+        it('is missing from body', () => {
+          updateTeam(teamId, {
+            ...team,
+            shortName: undefined
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('shortName').to.contain('required');
+            });
+        });
+
+        it('is not string', () => {
+          updateTeam(teamId, {
+            ...team,
+            shortName: 1 as any
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('shortName').to.contain('string');
+            });
+        });
+
+        it('is shorter than 3 characters', () => {
+          updateTeam(teamId, {
+            ...team,
+            shortName: 'AB'
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('shortName').to.contain('shorter').to.contain('3');
+            });
+        });
+
+        it('is longer than 3 characters', () => {
+          updateTeam(teamId, {
+            ...team,
+            shortName: 'ABCD'
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('shortName').to.contain('longer').to.contain('3');
+            });
+        });
       });
 
-      it('is shorter than 3 characters', () => {
-        updateTeam(teamId, {
-          ...team,
-          shortName: 'AB'
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('shortName').to.contain('shorter').to.contain('3');
-          });
-      });
+      describe('if teamId', () => {
+        it.skip('is not uuid', () => {
 
-      it('is longer than 3 characters', () => {
-        updateTeam(teamId, {
-          ...team,
-          shortName: 'ABCD'
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('shortName').to.contain('longer').to.contain('3');
-          });
+        });
+
+        it.skip('does not belong to any team', () => {
+
+        });
       });
     });
   });

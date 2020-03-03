@@ -33,12 +33,14 @@ describe('Place bet service', () => {
   };
   const userId = 'userId';
   const matchId = 'matchId';
+  const tournamentId = 'tournamentId';
   const userName = 'userName';
 
   it('should return undefined if bet is placed on a match', async () => {
     mockBetDocumentService.functions.queryBetById.mockResolvedValue(undefined);
     mockMatchDocumentService.functions.queryMatchById.mockResolvedValue({
-      startTime: addMinutes(6, now).toISOString()
+      tournamentId,
+      startTime: addMinutes(6, now).toISOString(),
     } as MatchDocument);
     const converted = {
       homeScore: 1,
@@ -56,7 +58,7 @@ describe('Place bet service', () => {
     expect(result).toBeUndefined();
     expect(mockBetDocumentService.functions.queryBetById).toHaveBeenCalledWith(userId, matchId);
     expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
-    expect(mockBetDocumentConverter.functions.create).toHaveBeenCalledWith(bet, userId, userName, matchId);
+    expect(mockBetDocumentConverter.functions.create).toHaveBeenCalledWith(bet, userId, userName, matchId, tournamentId);
     expect(mockBetDocumentService.functions.saveBet).toHaveBeenCalledWith(converted);
     expect.assertions(5);
 
@@ -152,6 +154,7 @@ describe('Place bet service', () => {
   it('should throw error if unable to save bet', async () => {
     mockBetDocumentService.functions.queryBetById.mockResolvedValue(undefined);
     mockMatchDocumentService.functions.queryMatchById.mockResolvedValue({
+      tournamentId,
       startTime: addMinutes(6, now).toISOString()
     } as MatchDocument);
     const converted = {
@@ -169,7 +172,7 @@ describe('Place bet service', () => {
     }).catch(validateError('Unable to save bet', 500));
     expect(mockBetDocumentService.functions.queryBetById).toHaveBeenCalledWith(userId, matchId);
     expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
-    expect(mockBetDocumentConverter.functions.create).toHaveBeenCalledWith(bet, userId, userName, matchId);
+    expect(mockBetDocumentConverter.functions.create).toHaveBeenCalledWith(bet, userId, userName, matchId, tournamentId);
     expect(mockBetDocumentService.functions.saveBet).toHaveBeenCalledWith(converted);
     expect.assertions(6);
   });

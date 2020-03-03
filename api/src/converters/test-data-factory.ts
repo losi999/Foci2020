@@ -1,4 +1,19 @@
-import { TeamRequest, TeamResponse, TeamDocument, TournamentRequest, TournamentDocument, TournamentResponse, MatchRequest, MatchDocument, MatchResponse, BetRequest, BetDocument, BetResponse } from '@/types/types';
+import {
+  TeamRequest,
+  TeamResponse,
+  TeamDocument,
+  TournamentRequest,
+  TournamentDocument,
+  TournamentResponse,
+  MatchRequest,
+  MatchDocument,
+  MatchResponse,
+  BetRequest,
+  BetDocument,
+  BetResponse,
+  Score,
+  BetResult
+} from '@/types/types';
 
 export const teamRequest = (): TeamRequest => ({
   image: 'http://image.com',
@@ -10,7 +25,7 @@ export const teamDocument = (teamId: string): TeamDocument => ({
   image: 'http://image.com',
   shortName: 'TMN',
   teamName: 'Team name',
-  'documentType-id': `team-${teamId}`,
+  'documentType-id': `team#${teamId}`,
   documentType: 'team',
   id: teamId,
   orderingValue: 'Team name'
@@ -33,7 +48,7 @@ export const tournamentRequest = (): TournamentRequest => ({
 
 export const tournamentDocument = (tournamentId: string): TournamentDocument => ({
   tournamentName: 'Tournament',
-  'documentType-id': `tournament-${tournamentId}`,
+  'documentType-id': `tournament#${tournamentId}`,
   documentType: 'tournament',
   id: tournamentId,
   orderingValue: 'Tournament'
@@ -56,25 +71,25 @@ export const matchRequest = (homeTeamId: string, awayTeamId: string, tournamentI
   startTime: 'startTime',
 });
 
-export const matchDocument = (matchId: string, homeTeamId: string, awayTeamId: string, tournamentId: string, homeScore?: number, awayScore?: number): MatchDocument => ({
+export const matchDocument = (matchId: string, homeTeamId: string, awayTeamId: string, tournamentId: string, finalScore?: Score): MatchDocument => ({
   awayTeamId,
   homeTeamId,
   tournamentId,
-  awayScore,
-  homeScore,
+  finalScore,
   id: matchId,
   group: 'Group',
   startTime: 'startTime',
-  'documentType-id': `match-${matchId}`,
+  'documentType-id': `match#${matchId}`,
   documentType: 'match',
-  orderingValue: `${tournamentId}-startTime`,
+  orderingValue: `${tournamentId}#startTime`,
   homeTeam: teamDocument(homeTeamId),
   awayTeam: teamDocument(awayTeamId),
   tournament: tournamentDocument(tournamentId),
 });
 
-export const matchResponse = (matchId: string, homeTeamId: string, awayTeamId: string, tournamentId: string, homeScore?: number, awayScore?: number): MatchResponse => ({
+export const matchResponse = (matchId: string, homeTeamId: string, awayTeamId: string, tournamentId: string, finalScore?: Score): MatchResponse => ({
   matchId,
+  finalScore,
   group: 'Group',
   startTime: 'startTime',
   awayTeamId: undefined,
@@ -89,10 +104,6 @@ export const matchResponse = (matchId: string, homeTeamId: string, awayTeamId: s
   homeTeam: teamResponse(homeTeamId),
   awayTeam: teamResponse(awayTeamId),
   tournament: tournamentResponse(tournamentId),
-  finalScore: {
-    homeScore,
-    awayScore
-  }
 });
 
 export const betRequest = (homeScore: number, awayScore: number): BetRequest => ({
@@ -100,15 +111,16 @@ export const betRequest = (homeScore: number, awayScore: number): BetRequest => 
   awayScore
 });
 
-export const betDocument = (userId: string, matchId: string, userName: string, homeScore?: number, awayScore?: number, result?: number): BetDocument => ({
+export const betDocument = (userId: string, matchId: string, tournamentId: string, userName: string, homeScore?: number, awayScore?: number, result?: BetResult): BetDocument => ({
   userName,
   userId,
   matchId,
-  result,
   homeScore,
   awayScore,
-  id: `${userId}-${matchId}`,
-  'documentType-id': `bet-${userId}-${matchId}`,
+  result,
+  'tournamentId-userId': `${tournamentId}#${userId}`,
+  id: `${userId}#${matchId}`,
+  'documentType-id': `bet#${userId}#${matchId}`,
   documentType: 'bet',
   orderingValue: userName,
 });
@@ -116,9 +128,11 @@ export const betDocument = (userId: string, matchId: string, userName: string, h
 export const betResponse = (userId: string, userName: string, homeScore?: number, awayScore?: number, result?: number): BetResponse => ({
   userId,
   userName,
-  result,
   homeScore,
   awayScore,
+  result: undefined,
+  'tournamentId-userId': undefined,
+  point: result,
   matchId: undefined,
   id: undefined,
   documentType: undefined,

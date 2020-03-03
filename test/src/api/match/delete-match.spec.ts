@@ -117,5 +117,13 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
 
       });
     });
+
+    describe('should return error', () => {
+      describe('if matchId', () => {
+        it.skip('is not uuid', () => {
+
+        });
+      });
+    });
   });
 });

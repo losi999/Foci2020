@@ -2,14 +2,14 @@ export type UserType = 'admin' | 'player';
 export type Remove<T> = { [prop in keyof T]: undefined };
 export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';
 
-export type Document = TournamentDocument | TeamDocument | MatchDocument | BetDocument;
+export type Document = TournamentDocument | TeamDocument | MatchDocument | BetDocument | StandingDocument;
 
 export type DocumentKey = {
   'documentType-id': string;
   id: string;
 };
 
-export type InternalDocumentProperties<T extends DocumentType> = DocumentKey & {
+export type InternalDocumentProperties<T extends DocumentType = never> = DocumentKey & {
   documentType: T;
   orderingValue: string;
 };
@@ -24,7 +24,7 @@ export type TournamentId = {
 
 export type TournamentRequest = TournamentBase;
 export type TournamentDocument = TournamentBase & InternalDocumentProperties<'tournament'>;
-export type TournamentResponse = TournamentBase & TournamentId & Remove<InternalDocumentProperties<never>>;
+export type TournamentResponse = TournamentBase & TournamentId & Remove<InternalDocumentProperties>;
 
 export type TeamBase = {
   teamName: string
@@ -38,7 +38,7 @@ export type TeamId = {
 
 export type TeamRequest = TeamBase;
 export type TeamDocument = TeamBase & InternalDocumentProperties<'team'>;
-export type TeamResponse = TeamBase & TeamId & Remove<InternalDocumentProperties<never>>;
+export type TeamResponse = TeamBase & TeamId & Remove<InternalDocumentProperties>;
 
 export type MatchBase = {
   startTime: string;
@@ -60,12 +60,14 @@ export type MatchTeamIds = {
 };
 
 export type MatchRequest = MatchBase & MatchTeamIds & TournamentId;
-export type MatchDocument = MatchBase & Partial<Score> & MatchTeamIds & TournamentId & InternalDocumentProperties<'match'> & {
+export type MatchFinalScoreRequest = Score;
+export type MatchDocument = MatchBase & MatchTeamIds & TournamentId & InternalDocumentProperties<'match'> & {
   homeTeam: TeamDocument;
   awayTeam: TeamDocument;
   tournament: TournamentDocument;
+  finalScore?: Score;
 };
-export type MatchResponse = MatchId & MatchBase & Remove<Score> & Remove<MatchTeamIds> & Remove<TournamentId> & Remove<InternalDocumentProperties<never>> & {
+export type MatchResponse = MatchId & MatchBase & Remove<Score> & Remove<MatchTeamIds> & Remove<TournamentId> & Remove<InternalDocumentProperties> & {
   homeTeam: TeamResponse;
   awayTeam: TeamResponse;
   tournament: TournamentResponse;
@@ -76,15 +78,33 @@ export type IndexByTournamentIdDocument = Pick<MatchDocument, keyof DocumentKey 
 export type IndexByHomeTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'homeTeamId'>;
 export type IndexByAwayTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'awayTeamId'>;
 
+export type BetResult = 'nothing' | 'outcome' | 'goalDifference' | 'exactMatch';
+export type BetResultPoint = {
+  [result in BetResult]: number;
+};
+
 type BetBase = {
   userName: string;
   userId: string;
-  result?: number;
 };
 
 export type BetRequest = Score;
-export type BetDocument = Score & BetBase & MatchId & InternalDocumentProperties<'bet'>;
-export type BetResponse = (Score | Remove<Score>) & BetBase & Remove<MatchId> & Remove<InternalDocumentProperties<never>>;
+export type BetDocument = Score & BetBase & MatchId & InternalDocumentProperties<'bet'> & {
+  result?: BetResult;
+  'tournamentId-userId': string;
+};
+export type BetResponse = (Score | Remove<Score>) & BetBase & Remove<MatchId> & Remove<InternalDocumentProperties> & Remove<Pick<BetDocument, 'result' | 'tournamentId-userId'>> & {
+  point: number;
+};
+
+type StandingBase = {
+  total: number;
+  results: {
+    [key in BetResult]: number;
+  };
+} & Pick<BetBase, 'userName'>;
+
+export type StandingDocument = InternalDocumentProperties<'standing'> & StandingBase;
 
 export type LoginRequest = {
   email: string;

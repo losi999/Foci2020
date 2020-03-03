@@ -2,7 +2,7 @@ import { default as handler } from '@/functions/related-document/related-documen
 import { DynamoDBStreamEvent, DynamoDBRecord } from 'aws-lambda';
 import { IRelatedDocumentService } from '@/functions/related-document/related-document-service';
 import { Mock, createMockService } from '@/common';
-import { Document } from '@/types/types';
+import { Document, BetDocument } from '@/types/types';
 import { DynamoDB } from 'aws-sdk';
 
 describe('Match related handler', () => {
@@ -10,7 +10,7 @@ describe('Match related handler', () => {
   let mockRelatedDocumentService: Mock<IRelatedDocumentService>;
 
   beforeEach(() => {
-    mockRelatedDocumentService = createMockService('teamDeleted', 'teamUpdated', 'tournamentUpdated', 'tournamentDeleted', 'matchDeleted');
+    mockRelatedDocumentService = createMockService('teamDeleted', 'teamUpdated', 'tournamentUpdated', 'tournamentDeleted', 'matchDeleted', 'matchFinalScoreUpdated', 'betResultCalculated');
 
     apiHandler = handler(mockRelatedDocumentService.service);
   });
@@ -38,7 +38,9 @@ describe('Match related handler', () => {
     expect(mockRelatedDocumentService.functions.teamDeleted).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.tournamentUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.matchDeleted).not.toHaveBeenCalled();
-    expect.assertions(5);
+    expect(mockRelatedDocumentService.functions.matchFinalScoreUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.betResultCalculated).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should process modified tournament document', async () => {
@@ -64,7 +66,38 @@ describe('Match related handler', () => {
     expect(mockRelatedDocumentService.functions.teamDeleted).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.teamUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.matchDeleted).not.toHaveBeenCalled();
-    expect.assertions(5);
+    expect(mockRelatedDocumentService.functions.matchFinalScoreUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.betResultCalculated).not.toHaveBeenCalled();
+    expect.assertions(7);
+  });
+
+  it('should process modified bet document', async () => {
+    const document = {
+      documentType: 'bet',
+      'tournamentId-userId': 'tournamentIdUserId'
+    } as BetDocument;
+    const event: DynamoDBStreamEvent = {
+      Records: [
+        {
+          eventName: 'MODIFY',
+          dynamodb: {
+            NewImage: DynamoDB.Converter.marshall(document)
+          }
+        } as DynamoDBRecord
+      ]
+    };
+
+    mockRelatedDocumentService.functions.tournamentUpdated.mockResolvedValue(undefined);
+
+    await apiHandler(event, undefined, undefined);
+    expect(mockRelatedDocumentService.functions.betResultCalculated).toHaveBeenCalledWith(document['tournamentId-userId']);
+    expect(mockRelatedDocumentService.functions.tournamentUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.tournamentDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.teamDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.teamUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.matchDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.matchFinalScoreUpdated).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should process deleted team document', async () => {
@@ -91,7 +124,9 @@ describe('Match related handler', () => {
     expect(mockRelatedDocumentService.functions.teamUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.tournamentUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.matchDeleted).not.toHaveBeenCalled();
-    expect.assertions(5);
+    expect(mockRelatedDocumentService.functions.matchFinalScoreUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.betResultCalculated).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should process deleted tournament document', async () => {
@@ -118,7 +153,9 @@ describe('Match related handler', () => {
     expect(mockRelatedDocumentService.functions.teamUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.tournamentUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.matchDeleted).not.toHaveBeenCalled();
-    expect.assertions(5);
+    expect(mockRelatedDocumentService.functions.matchFinalScoreUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.betResultCalculated).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should process deleted match document', async () => {
@@ -145,7 +182,69 @@ describe('Match related handler', () => {
     expect(mockRelatedDocumentService.functions.teamUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.tournamentUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.tournamentDeleted).not.toHaveBeenCalled();
-    expect.assertions(5);
+    expect(mockRelatedDocumentService.functions.matchFinalScoreUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.betResultCalculated).not.toHaveBeenCalled();
+    expect.assertions(7);
+  });
+
+  it('should process modified match document with finalScore', async () => {
+    const document = {
+      documentType: 'match',
+      id: 'id1',
+      finalScore: {
+        homeScore: 1,
+        awayScore: 2
+      }
+    } as Document;
+    const event: DynamoDBStreamEvent = {
+      Records: [
+        {
+          eventName: 'MODIFY',
+          dynamodb: {
+            NewImage: DynamoDB.Converter.marshall(document)
+          }
+        } as DynamoDBRecord
+      ]
+    };
+
+    mockRelatedDocumentService.functions.matchFinalScoreUpdated.mockResolvedValue(undefined);
+
+    await apiHandler(event, undefined, undefined);
+    expect(mockRelatedDocumentService.functions.matchFinalScoreUpdated).toHaveBeenCalledWith(document);
+    expect(mockRelatedDocumentService.functions.teamDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.teamUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.tournamentUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.tournamentDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.matchDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.betResultCalculated).not.toHaveBeenCalled();
+    expect.assertions(7);
+  });
+
+  it('should skip processing modified match document without finalScore', async () => {
+    const document = {
+      documentType: 'match',
+      id: 'id1'
+    } as Document;
+    const event: DynamoDBStreamEvent = {
+      Records: [
+        {
+          eventName: 'MODIFY',
+          dynamodb: {
+            NewImage: DynamoDB.Converter.marshall(document)
+          }
+        } as DynamoDBRecord
+      ]
+    };
+
+    await apiHandler(event, undefined, undefined);
+    expect(mockRelatedDocumentService.functions.matchFinalScoreUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.teamDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.teamUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.tournamentUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.tournamentDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.matchDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.betResultCalculated).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 
   it('should skip processing otherwise', async () => {
@@ -171,6 +270,9 @@ describe('Match related handler', () => {
     expect(mockRelatedDocumentService.functions.teamDeleted).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.teamUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.tournamentUpdated).not.toHaveBeenCalled();
-    expect.assertions(4);
+    expect(mockRelatedDocumentService.functions.matchDeleted).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.matchFinalScoreUpdated).not.toHaveBeenCalled();
+    expect(mockRelatedDocumentService.functions.betResultCalculated).not.toHaveBeenCalled();
+    expect.assertions(7);
   });
 });

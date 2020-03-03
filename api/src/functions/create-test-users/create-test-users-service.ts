@@ -15,7 +15,7 @@ export const createTestUsersServiceFactory = (identityService: IIdentityService)
       await identityService.register({
         email,
         password: process.env.TEST_USER_PASSWORD,
-        displayName: userGroup
+        displayName: `${userGroup}${index}`
       }, userGroup);
     } catch (error) {
       if (error.code !== 'UsernameExistsException') {

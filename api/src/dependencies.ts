@@ -16,6 +16,7 @@ import { betDocumentServiceFactory } from '@/services/bet-document-service';
 import { betDocumentConverterFactory } from '@/converters/bet-document-converter';
 import { standingDocumentConverterFactory } from './converters/standing-document-converter';
 import { standingDocumentServiceFactory } from './services/standing-document-service';
+import { infrastructureServiceFactory } from './services/infrastructure-service';
 
 const ajvValidator = new ajv({
   allErrors: true,
@@ -43,6 +44,7 @@ export const standingDocumentService = standingDocumentServiceFactory(process.en
 
 export const validatorService = ajvValidatorService(ajvValidator);
 export const identityService = cognitoIdentityService(process.env.USER_POOL_ID, process.env.CLIENT_ID, cognito);
+export const infrastructureService = infrastructureServiceFactory(cloudFormation, lambda);
 
 export const apiRequestValidator = apiRequestValidatorHandler(validatorService);
 export const authorizer = authorizerHandler();

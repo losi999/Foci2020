@@ -41,6 +41,39 @@ describe('Bet document service', () => {
     });
   });
 
+  describe('queryBetsByTournamentIdUserId', () => {
+    const tournamentIdUserId = 'tournament1-user1';
+
+    it('should call dynamo.query with correct parameters', async () => {
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: {} }));
+
+      await service.queryBetsByTournamentIdUserId(tournamentIdUserId);
+
+      expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        IndexName: 'indexByTournamentIdUserId',
+        ReturnConsumedCapacity: 'INDEXES',
+        KeyConditionExpression: '#tournamentIdUserId = :tournamentIdUserId',
+        ExpressionAttributeNames: {
+          '#tournamentIdUserId': 'tournamentId-userId'
+        },
+        ExpressionAttributeValues: {
+          ':tournamentIdUserId': tournamentIdUserId
+        }
+      }));
+    });
+
+    it('should return the queried bet', async () => {
+      const queriedBets = ['bet'];
+
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedBets }));
+
+      const result = await service.queryBetsByTournamentIdUserId(tournamentIdUserId);
+
+      expect(result).toEqual(queriedBets);
+    });
+  });
+
   describe('saveBet', () => {
     it('should call dynamo.put with correct parameters', async () => {
       const document = {
@@ -67,6 +100,28 @@ describe('Bet document service', () => {
         TableName: tableName,
         Key: {
           'documentType-id': `bet-${betId}`,
+        }
+      }));
+    });
+  });
+
+  describe('updateBet', () => {
+    it('should call dynamo.put with correct parameters', async () => {
+      const document = {
+        'documentType-id': 'bet-id1'
+      } as BetDocument;
+      mockDynamoClient.functions.put.mockReturnValue(awsResolvedValue());
+
+      await service.updateBet(document);
+      expect(mockDynamoClient.functions.put).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        Item: document,
+        ConditionExpression: '#documentTypeId = :documentTypeId',
+        ExpressionAttributeNames: {
+          '#documentTypeId': 'documentType-id',
+        },
+        ExpressionAttributeValues: {
+          ':documentTypeId': document['documentType-id'],
         }
       }));
     });

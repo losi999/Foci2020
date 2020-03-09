@@ -4,7 +4,7 @@
   "scripts": {
     "build:api": "cd api && npm run build",
     "deploy:local": "export ENV=LOCAL && npm run sam-package -- --profile losonczil && npm run sam-deploy -- --profile losonczil && npm run postdeploy -- --profile losonczil",
-    "deploy:ci": "export ENV=CI && npm run sam-package -- --profile ci && npm run sam-deploy -- --profile ci && npm run postdeploy -- --profile losonczil",
+    "deploy:ci": "export ENV=CI && npm run sam-package -- --profile ci && npm run sam-deploy -- --profile ci && npm run postdeploy -- --profile ci",
     "sam-package": "sam package -t cf.foci2020.yaml --s3-bucket losonczil-packages-eu-west-1 --output-template-file packaged.cf.foci2020.yaml",
     "sam-deploy": "sam deploy -t packaged.cf.foci2020.yaml --stack-name foci2020-${ENV} --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=${ENV} TestUserPassword=${CYPRESS_PASSWORD:-'\"\"'} AdminUserEmail=${ADMIN_USER_EMAIL}",
     "postdeploy": "aws lambda invoke --function-name Foci2020-${ENV}-PostDeploy /dev/null"

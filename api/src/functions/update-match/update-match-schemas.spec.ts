@@ -2,7 +2,7 @@ import * as schemas from '@/functions/update-match/update-match-schemas';
 import { validatorService } from '@/dependencies';
 import { MatchRequest } from '@/types/types';
 
-describe('Create match schema', () => {
+describe('Update match schema', () => {
   describe('body', () => {
     const instanceType = 'body';
     let body: MatchRequest;

@@ -1,11 +1,12 @@
 import { createMatchServiceFactory, ICreateMatchService } from '@/functions/create-match/create-match-service';
 import { advanceTo, clear } from 'jest-date-mock';
-import { addMinutes, Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { TeamDocument, TournamentDocument, MatchDocument, MatchRequest } from '@/types/types';
+import { addMinutes } from '@/common';
 
 describe('Create match service', () => {
   let mockMatchDocumentService: Mock<IMatchDocumentService>;

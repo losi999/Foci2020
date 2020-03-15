@@ -1,7 +1,7 @@
 import { IGetTournamentService, getTournamentServiceFactory } from '@/functions/get-tournament/get-tournament-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { TournamentDocument, TournamentResponse } from '@/types/types';
 
 describe('Get tournament service', () => {

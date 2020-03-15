@@ -1,6 +1,6 @@
 import { IUpdateTeamService, updateTeamServiceFactory } from '@/functions/update-team/update-team-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { TeamRequest, TeamDocument } from '@/types/types';
 

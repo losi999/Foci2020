@@ -1,7 +1,7 @@
 import { IListTournamentsService, listTournamentsServiceFactory } from '@/functions/list-tournaments/list-tournaments-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { TournamentDocument, TournamentResponse } from '@/types/types';
 
 describe('List tournaments service', () => {

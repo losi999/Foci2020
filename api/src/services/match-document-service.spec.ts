@@ -1,6 +1,6 @@
 import { IMatchDocumentService, matchDocumentServiceFactory } from '@/services/match-document-service';
 import { DynamoDB } from 'aws-sdk';
-import { Mock, createMockService, awsResolvedValue } from '@/common';
+import { Mock, createMockService, awsResolvedValue } from '@/common/unit-testing';
 import { TeamDocument, TournamentDocument, MatchDocument } from '@/types/types';
 
 describe('Match document service', () => {
@@ -217,6 +217,33 @@ describe('Match document service', () => {
         TableName: tableName,
         Item: document
       }));
+    });
+  });
+
+  describe('listMatches', () => {
+    it('should call dynamo.query with correct parameters', async () => {
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
+
+      await service.listMatches();
+
+      expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
+        TableName: tableName,
+        IndexName: 'indexByDocumentType',
+        KeyConditionExpression: 'documentType = :documentType',
+        ExpressionAttributeValues: {
+          ':documentType': 'match',
+        }
+      }));
+    });
+
+    it('should return the queried items', async () => {
+      const queriedMatches = ['match1', 'match2', 'match3'];
+
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedMatches }));
+
+      const result = await service.listMatches();
+
+      expect(result).toEqual(queriedMatches);
     });
   });
 

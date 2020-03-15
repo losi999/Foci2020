@@ -1,10 +1,11 @@
 import { IListBetsOfMatchService, listBetsOfMatchServiceFactory } from '@/functions/list-bets-of-match/list-bets-of-match-service';
-import { Mock, createMockService, addMinutes, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { IBetDocumentService } from '@/services/bet-document-service';
 import { IBetDocumentConverter } from '@/converters/bet-document-converter';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { advanceTo, clear } from 'jest-date-mock';
 import { MatchDocument, BetDocument, BetResponse } from '@/types/types';
+import { addMinutes } from '@/common';
 
 describe('List bets of match service', () => {
   let service: IListBetsOfMatchService;

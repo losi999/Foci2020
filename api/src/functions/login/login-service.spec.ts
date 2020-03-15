@@ -1,6 +1,6 @@
 import { ILoginService, loginServiceFactory } from '@/functions/login/login-service';
 import { IIdentityService } from '@/services/identity-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { LoginRequest, LoginResponse } from '@/types/types';
 
 describe('Login service', () => {

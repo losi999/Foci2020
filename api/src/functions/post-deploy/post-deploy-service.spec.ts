@@ -1,5 +1,5 @@
 import { IPostDeployService, postDeployServiceFactory } from '@/functions/post-deploy/post-deploy-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { IInfrastructureService } from '@/services/infrastructure-service';
 
 describe('Post deploy service', () => {

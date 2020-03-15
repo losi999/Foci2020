@@ -1,7 +1,7 @@
 import { IGetMatchService, getMatchServiceFactory } from '@/functions/get-match/get-match-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { IMatchDocumentService } from '@/services/match-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { MatchDocument, MatchResponse } from '@/types/types';
 
 describe('Get match service', () => {

@@ -1,7 +1,7 @@
 import { ITournamentDocumentService, tournamentDocumentServiceFactory } from '@/services/tournament-document-service';
 import { DynamoDB } from 'aws-sdk';
 import { TournamentDocument } from '@/types/types';
-import { Mock, createMockService, awsResolvedValue } from '@/common';
+import { Mock, createMockService, awsResolvedValue } from '@/common/unit-testing';
 
 describe('Tournament document service', () => {
   let service: ITournamentDocumentService;

@@ -1,5 +1,5 @@
 import { IInfrastructureService, infrastructureServiceFactory } from './infrastructure-service';
-import { Mock, createMockService, awsResolvedValue, awsRejectedValue, validateError } from '@/common';
+import { Mock, createMockService, awsResolvedValue, awsRejectedValue, validateError } from '@/common/unit-testing';
 import { CloudFormation, Lambda } from 'aws-sdk';
 import { Stack } from 'aws-sdk/clients/cloudformation';
 

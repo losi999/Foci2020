@@ -1,6 +1,6 @@
 import { IDeleteTournamentService, deleteTournamentServiceFactory } from '@/functions/delete-tournament/delete-tournament-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 
 describe('Delete tournament service', () => {
   let service: IDeleteTournamentService;

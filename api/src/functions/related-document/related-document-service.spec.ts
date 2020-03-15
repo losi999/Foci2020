@@ -1,5 +1,5 @@
 import { IRelatedDocumentService, relatedDocumentServiceFactory } from '@/functions/related-document/related-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, IndexByTournamentIdDocument, TournamentDocument, TeamDocument, BetDocument, MatchDocument, StandingDocument } from '@/types/types';
 import { IBetDocumentService } from '@/services/bet-document-service';

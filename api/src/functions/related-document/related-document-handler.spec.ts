@@ -1,7 +1,7 @@
 import { default as handler } from '@/functions/related-document/related-document-handler';
 import { DynamoDBStreamEvent, DynamoDBRecord } from 'aws-lambda';
 import { IRelatedDocumentService } from '@/functions/related-document/related-document-service';
-import { Mock, createMockService } from '@/common';
+import { Mock, createMockService } from '@/common/unit-testing';
 import { Document, BetDocument } from '@/types/types';
 import { DynamoDB } from 'aws-sdk';
 

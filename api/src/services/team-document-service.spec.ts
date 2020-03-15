@@ -1,7 +1,7 @@
 import { ITeamDocumentService, teamDocumentServiceFactory } from '@/services/team-document-service';
 import { DynamoDB } from 'aws-sdk';
 import { TeamDocument } from '@/types/types';
-import { Mock, createMockService, awsResolvedValue } from '@/common';
+import { Mock, createMockService, awsResolvedValue } from '@/common/unit-testing';
 
 describe('Team document service', () => {
   let service: ITeamDocumentService;

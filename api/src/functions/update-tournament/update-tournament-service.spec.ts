@@ -1,6 +1,6 @@
 import { IUpdateTournamentService, updateTournamentServiceFactory } from '@/functions/update-tournament/update-tournament-service';
 import { ITournamentDocumentService } from '@/services/tournament-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { TournamentRequest, TournamentDocument } from '@/types/types';
 

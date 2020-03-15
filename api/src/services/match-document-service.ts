@@ -8,6 +8,7 @@ export interface IMatchDocumentService {
   updateTournamentOfMatch(matchId: string, tournament: TournamentDocument): Promise<unknown>;
   updateTeamOfMatch(matchId: string, team: TeamDocument, type: 'home' | 'away'): Promise<unknown>;
   queryMatchById(matchId: string): Promise<MatchDocument>;
+  listMatches(): Promise<MatchDocument[]>;
   queryMatches(tournamentId: string): Promise<MatchDocument[]>;
   queryMatchKeysByTournamentId(tournamentId: string): Promise<IndexByTournamentIdDocument[]>;
   queryMatchKeysByHomeTeamId(teamId: string): Promise<IndexByHomeTeamIdDocument[]>;
@@ -19,7 +20,7 @@ export const matchDocumentServiceFactory = (
   matchTableName: string,
   dynamoClient: DynamoDB.DocumentClient,
 ): IMatchDocumentService => {
-  return {
+  const instance: IMatchDocumentService = {
     saveMatch: (document) => {
       return dynamoClient.put({
         ReturnConsumedCapacity: 'INDEXES',
@@ -99,6 +100,17 @@ export const matchDocumentServiceFactory = (
         }
       }).promise()).Items as MatchDocument[];
     },
+    listMatches: async () => {
+      return (await dynamoClient.query({
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: matchTableName,
+        IndexName: 'indexByDocumentType',
+        KeyConditionExpression: 'documentType = :documentType',
+        ExpressionAttributeValues: {
+          ':documentType': 'match',
+        }
+      }).promise()).Items as MatchDocument[];
+    },
     queryMatchKeysByTournamentId: async (tournamentId) => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
@@ -142,4 +154,6 @@ export const matchDocumentServiceFactory = (
       }).promise();
     }
   };
+
+  return instance;
 };

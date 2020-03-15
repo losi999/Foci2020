@@ -1,6 +1,6 @@
 import { IBetDocumentService, betDocumentServiceFactory } from '@/services/bet-document-service';
 import { DynamoDB } from 'aws-sdk';
-import { Mock, createMockService, awsResolvedValue } from '@/common';
+import { Mock, createMockService, awsResolvedValue } from '@/common/unit-testing';
 import { BetDocument } from '@/types/types';
 
 describe('Bet document service', () => {

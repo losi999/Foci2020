@@ -1,6 +1,6 @@
 import { IRegistrationService, registrationServiceFactory } from '@/functions/registration/registration-service';
 import { IIdentityService } from '@/services/identity-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { RegistrationRequest } from '@/types/types';
 
 describe('Registration service', () => {

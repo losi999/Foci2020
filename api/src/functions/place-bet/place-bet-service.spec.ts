@@ -2,9 +2,10 @@ import { IPlaceBetService, placeBetServiceFactory } from '@/functions/place-bet/
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { IBetDocumentConverter } from '@/converters/bet-document-converter';
 import { IBetDocumentService } from '@/services/bet-document-service';
-import { Mock, createMockService, addMinutes, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { advanceTo, clear } from 'jest-date-mock';
 import { BetRequest, MatchDocument, BetDocument } from '@/types/types';
+import { addMinutes } from '@/common';
 
 describe('Place bet service', () => {
   let service: IPlaceBetService;

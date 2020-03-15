@@ -1,6 +1,6 @@
 import { IDeleteTeamService, deleteTeamServiceFactory } from '@/functions/delete-team/delete-team-service';
 import { ITeamDocumentService } from '@/services/team-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 
 describe('Delete team service', () => {
   let service: IDeleteTeamService;

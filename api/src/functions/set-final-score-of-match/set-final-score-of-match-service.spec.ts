@@ -1,8 +1,9 @@
 import { ISetFinalScoreOfMatchService, setFinalScoreOfMatchServiceFactory } from '@/functions/set-final-score-of-match/set-final-score-of-match-service';
-import { Mock, createMockService, addMinutes, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { IMatchDocumentService } from '@/services/match-document-service';
 import { Score, MatchDocument } from '@/types/types';
 import { advanceTo, clear } from 'jest-date-mock';
+import { addMinutes } from '@/common';
 
 describe('Set final score of match service', () => {
   let service: ISetFinalScoreOfMatchService;

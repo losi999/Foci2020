@@ -5,6 +5,6 @@ import { listMatchesServiceFactory } from '@/functions/list-matches/list-matches
 
 const listMatchesService = listMatchesServiceFactory(matchDocumentService, matchDocumentConverter);
 
-export default authorizer('admin', 'player')(apiRequestValidator({
+export default authorizer('admin')(apiRequestValidator({
   queryStringParameters
 })(handler(listMatchesService)));

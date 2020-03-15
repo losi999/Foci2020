@@ -1,7 +1,7 @@
 import { IListTeamsService, listTeamsServiceFactory } from '@/functions/list-teams/list-teams-service';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { ITeamDocumentService } from '@/services/team-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { TeamDocument, TeamResponse } from '@/types/types';
 
 describe('List teams service', () => {

@@ -1,6 +1,6 @@
 import { IStandingDocumentService, standingDocumentServiceFactory } from '@/services/standing-document-service';
 import { DynamoDB } from 'aws-sdk';
-import { Mock, createMockService, awsResolvedValue } from '@/common';
+import { Mock, createMockService, awsResolvedValue } from '@/common/unit-testing';
 import { StandingDocument } from '@/types/types';
 
 describe('Standing document service', () => {

@@ -1,5 +1,5 @@
 import { default as handler } from '@/functions/create-test-users/create-test-users-handler';
-import { validateError } from '@/common';
+import { validateError } from '@/common/unit-testing';
 
 describe('Create test users handler', () => {
   let handlerFunction: ReturnType<typeof handler>;

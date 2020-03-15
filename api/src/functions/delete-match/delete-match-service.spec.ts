@@ -1,6 +1,6 @@
 import { IDeleteMatchService, deleteMatchServiceFactory } from '@/functions/delete-match/delete-match-service';
 import { IMatchDocumentService } from '@/services/match-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 
 describe('Delete match service', () => {
   let service: IDeleteMatchService;

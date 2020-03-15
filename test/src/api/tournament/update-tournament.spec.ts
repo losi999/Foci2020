@@ -1,8 +1,8 @@
 import { deleteMatch, createMatch, getMatch } from '../match/match-common';
-import { TournamentRequest, TeamRequest, TournamentResponse, MatchResponse } from 'api/shared/types/types';
+import { TournamentRequest, TeamRequest, TournamentResponse, MatchResponse } from 'api/types/types';
 import { deleteTeam, createTeam } from '../team/team-common';
 import { deleteTournament, createTournament, updateTournament, getTournament, validateTournament } from './tournament-common';
-import { addMinutes } from 'api/shared/common';
+import { addMinutes } from 'api/common';
 
 describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
@@ -138,25 +138,37 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
       });
     });
 
-    describe('should return error if tournamentName', () => {
-      it('is missing from body', () => {
-        updateTournament(tournamentId, {
-          tournamentName: undefined
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('tournamentName').to.contain('required');
-          });
+    describe('should return error', () => {
+      describe('if tournamentName', () => {
+        it('is missing from body', () => {
+          updateTournament(tournamentId, {
+            tournamentName: undefined
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('tournamentName').to.contain('required');
+            });
+        });
+
+        it('is not string', () => {
+          updateTournament(tournamentId, {
+            tournamentName: 1 as any
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('tournamentName').to.contain('string');
+            });
+        });
       });
 
-      it('is not string', () => {
-        updateTournament(tournamentId, {
-          tournamentName: 1 as any
-        }, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.body).to.contain('tournamentName').to.contain('string');
-          });
+      describe('if tournamentId', () => {
+        it.skip('is not uuid', () => {
+
+        });
+
+        it.skip('does not belong to any tournament', () => {
+
+        });
       });
     });
   });

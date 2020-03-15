@@ -1,7 +1,7 @@
-import { TeamRequest, TournamentRequest, MatchRequest } from 'api/shared/types/types';
+import { TeamRequest, TournamentRequest, MatchRequest } from 'api/types/types';
 import { createTeam, deleteTeam } from '../team/team-common';
 import { createTournament, deleteTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/shared/common';
+import { addMinutes } from 'api/common';
 import { deleteMatch, createMatch, getMatch } from './match-common';
 import uuid from 'uuid';
 
@@ -115,6 +115,14 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
     describe('related bets', () => {
       it.skip('should be deleted if match is deleted', () => {
 
+      });
+    });
+
+    describe('should return error', () => {
+      describe('if matchId', () => {
+        it.skip('is not uuid', () => {
+
+        });
       });
     });
   });

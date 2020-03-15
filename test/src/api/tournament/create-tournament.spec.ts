@@ -1,5 +1,5 @@
 import { deleteTournament, createTournament, getTournament, validateTournament } from './tournament-common';
-import { TournamentRequest, TournamentResponse } from 'api/shared/types/types';
+import { TournamentRequest, TournamentResponse } from 'api/types/types';
 
 describe('POST /tournament/v1/tournaments', () => {
   const tournament: TournamentRequest = {

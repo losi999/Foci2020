@@ -1,4 +1,4 @@
-import { TournamentRequest, TournamentResponse } from 'api/shared/types/types';
+import { TournamentRequest, TournamentResponse } from 'api/types/types';
 import { deleteTournament, createTournament, getTournament, validateTournament } from './tournament-common';
 import uuid from 'uuid';
 

@@ -9,6 +9,7 @@
       "es2019"
     ],
     "noImplicitAny": true,
+    "noUnusedLocals": true,
     "sourceMap": false,
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -22,6 +23,7 @@
     }
   },
   "include": [
-    "src"
+    "src",
+    "**/*.spec.ts"
   ]
 }

@@ -1,8 +1,8 @@
 import { createTournament, deleteTournament, getTournament } from './tournament-common';
 import { deleteMatch, createMatch, getMatch } from '../match/match-common';
 import { deleteTeam, createTeam } from '../team/team-common';
-import { addMinutes } from 'api/shared/common';
-import { TournamentRequest, TeamRequest } from 'api/shared/types/types';
+import { addMinutes } from 'api/common';
+import { TournamentRequest, TeamRequest } from 'api/types/types';
 import uuid from 'uuid';
 
 describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
@@ -134,6 +134,14 @@ describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
           .should((status) => {
             expect(status).to.equal(404);
           });
+      });
+    });
+
+    describe('should return error', () => {
+      describe('if tournamentId', () => {
+        it.skip('is not uuid', () => {
+
+        });
       });
     });
   });

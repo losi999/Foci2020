@@ -1,4 +1,4 @@
-import { TournamentRequest, TournamentResponse } from 'api/shared/types/types';
+import { TournamentRequest, TournamentResponse } from 'api/types/types';
 import { User } from '../constants';
 import { authenticate } from '../auth/auth-common';
 

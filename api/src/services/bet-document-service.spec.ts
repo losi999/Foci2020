@@ -99,7 +99,7 @@ describe('Bet document service', () => {
       expect(mockDynamoClient.functions.delete).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `bet-${betId}`,
+          'documentType-id': `bet#${betId}`,
         }
       }));
     });

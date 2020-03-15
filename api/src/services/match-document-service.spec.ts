@@ -64,7 +64,7 @@ describe('Match document service', () => {
       expect(mockDynamoClient.functions.update).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `match-${matchId}`,
+          'documentType-id': `match#${matchId}`,
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set #team = :team',
@@ -73,7 +73,7 @@ describe('Match document service', () => {
           '#team': 'homeTeam'
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
+          ':documentTypeId': `match#${matchId}`,
           ':team': homeTeam,
         }
       }));
@@ -89,7 +89,7 @@ describe('Match document service', () => {
       expect(mockDynamoClient.functions.update).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `match-${matchId}`,
+          'documentType-id': `match#${matchId}`,
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set tournament = :tournament',
@@ -97,7 +97,7 @@ describe('Match document service', () => {
           '#documentTypeId': 'documentType-id'
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
+          ':documentTypeId': `match#${matchId}`,
           ':tournament': tournament
         }
       }));
@@ -113,7 +113,7 @@ describe('Match document service', () => {
       expect(mockDynamoClient.functions.get).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `match-${matchId}`
+          'documentType-id': `match#${matchId}`
         },
       }));
     });
@@ -192,7 +192,7 @@ describe('Match document service', () => {
       expect(mockDynamoClient.functions.delete).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `match-${matchId}`,
+          'documentType-id': `match#${matchId}`,
         }
       }));
     });

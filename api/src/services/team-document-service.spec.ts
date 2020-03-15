@@ -80,7 +80,7 @@ describe('Team document service', () => {
       expect(mockDynamoClient.functions.delete).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `team-${teamId}`,
+          'documentType-id': `team#${teamId}`,
         }
       }));
     });
@@ -113,7 +113,7 @@ describe('Team document service', () => {
       expect(mockDynamoClient.functions.get).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `team-${teamId}`,
+          'documentType-id': `team#${teamId}`,
         }
       }));
     });

@@ -75,7 +75,7 @@ export const betDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: betTableName,
         Key: {
-          'documentType-id': `bet-${betId}`,
+          'documentType-id': concatenate('bet', betId),
         }
       }).promise();
     }

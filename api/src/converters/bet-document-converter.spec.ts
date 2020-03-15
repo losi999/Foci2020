@@ -131,21 +131,6 @@ describe('Bet document converter', () => {
         const result = converter.calculateResult(bet, finalScore);
         expect(result).toEqual(expectedBet);
       });
-
-      it('draw is guessed with correct margin', () => {
-        const bet = betDocument(userId, matchId, tournamentId, userName, 1, 1);
-        const finalScore: Score = {
-          homeScore: 1,
-          awayScore: 1
-        };
-        const expectedBet: BetDocument = {
-          ...bet,
-          result: 'goalDifference'
-        };
-
-        const result = converter.calculateResult(bet, finalScore);
-        expect(result).toEqual(expectedBet);
-      });
     });
 
     describe('should set result to "exactMatch" if', () => {

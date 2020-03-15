@@ -1,5 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
 import { MatchDocument, TournamentDocument, TeamDocument, IndexByTournamentIdDocument, IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/types';
+import { concatenate } from '@/common';
 
 export interface IMatchDocumentService {
   saveMatch(document: MatchDocument): Promise<unknown>;
@@ -31,7 +32,7 @@ export const matchDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: matchTableName,
         Key: {
-          'documentType-id': `match-${matchId}`,
+          'documentType-id': concatenate('match', matchId),
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set tournament = :tournament',
@@ -39,7 +40,7 @@ export const matchDocumentServiceFactory = (
           '#documentTypeId': 'documentType-id'
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
+          ':documentTypeId': concatenate('match', matchId),
           ':tournament': tournament
         }
       }).promise();
@@ -49,7 +50,7 @@ export const matchDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: matchTableName,
         Key: {
-          'documentType-id': `match-${matchId}`,
+          'documentType-id': concatenate('match', matchId),
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set #team = :team',
@@ -58,7 +59,7 @@ export const matchDocumentServiceFactory = (
           '#team': `${type}Team`
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `match-${matchId}`,
+          ':documentTypeId': concatenate('match', matchId),
           ':team': team,
         }
       }).promise();
@@ -82,7 +83,7 @@ export const matchDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: matchTableName,
         Key: {
-          'documentType-id': `match-${matchId}`
+          'documentType-id': concatenate('match', matchId)
         },
       }).promise()).Item as MatchDocument;
     },
@@ -136,7 +137,7 @@ export const matchDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: matchTableName,
         Key: {
-          'documentType-id': `match-${matchId}`,
+          'documentType-id': concatenate('match', matchId),
         }
       }).promise();
     }

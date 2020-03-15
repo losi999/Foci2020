@@ -1,5 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
 import { TeamDocument } from '@/types/types';
+import { concatenate } from '@/common';
 
 export interface ITeamDocumentService {
   saveTeam(document: TeamDocument): Promise<any>;
@@ -41,7 +42,7 @@ export const teamDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: teamTableName,
         Key: {
-          'documentType-id': `team-${teamId}`
+          'documentType-id': concatenate('team', teamId)
         },
       }).promise()).Item as TeamDocument;
     },
@@ -61,7 +62,7 @@ export const teamDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: teamTableName,
         Key: {
-          'documentType-id': `team-${teamId}`,
+          'documentType-id': concatenate('team', teamId),
         }
       }).promise();
     },

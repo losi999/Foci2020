@@ -58,7 +58,7 @@ describe('Tournament document service', () => {
       expect(mockDynamoClient.functions.delete).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `tournament-${tournamentId}`,
+          'documentType-id': `tournament#${tournamentId}`,
         }
       }));
     });
@@ -114,7 +114,7 @@ describe('Tournament document service', () => {
       expect(mockDynamoClient.functions.get).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
         Key: {
-          'documentType-id': `tournament-${tournamentId}`,
+          'documentType-id': `tournament#${tournamentId}`,
         }
       }));
     });

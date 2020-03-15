@@ -1,5 +1,6 @@
 import { DynamoDB } from 'aws-sdk';
 import { TournamentDocument } from '@/types/types';
+import { concatenate } from '@/common';
 
 export interface ITournamentDocumentService {
   saveTournament(document: TournamentDocument): Promise<any>;
@@ -41,7 +42,7 @@ export const tournamentDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tournamentTableName,
         Key: {
-          'documentType-id': `tournament-${tournamentId}`,
+          'documentType-id': concatenate('tournament', tournamentId),
         },
       }).promise()).Item as TournamentDocument;
     },
@@ -61,7 +62,7 @@ export const tournamentDocumentServiceFactory = (
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tournamentTableName,
         Key: {
-          'documentType-id': `tournament-${tournamentId}`,
+          'documentType-id': concatenate('tournament', tournamentId),
         }
       }).promise();
     },

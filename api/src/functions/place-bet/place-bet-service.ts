@@ -28,7 +28,7 @@ export const placeBetServiceFactory = (
       throw httpError(400, 'You already placed a bet on this match');
     }
 
-    const match = await matchDocumentService.queryMatchById(matchId).catch((error) => {
+    const match = await matchDocumentService.getMatchById(matchId).catch((error) => {
       console.error('Query match by id', error);
       throw httpError(500, 'Unable to query match by id');
     });

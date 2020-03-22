@@ -14,7 +14,7 @@ export const getTeamServiceFactory = (
   teamDocumentConverter: ITeamDocumentConverter
 ): IGetTeamService => {
   return async ({ teamId }) => {
-    const team = await teamDocumentService.queryTeamById(teamId).catch((error) => {
+    const team = await teamDocumentService.getTeamById(teamId).catch((error) => {
       console.error('Query team by Id', error);
       throw httpError(500, 'Unable to query team');
     });

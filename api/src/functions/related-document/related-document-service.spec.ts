@@ -1,7 +1,7 @@
 import { IRelatedDocumentService, relatedDocumentServiceFactory } from '@/functions/related-document/related-document-service';
 import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { IMatchDocumentService } from '@/services/match-document-service';
-import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, IndexByTournamentIdDocument, TournamentDocument, TeamDocument, BetDocument, MatchDocument, StandingDocument } from '@/types/types';
+import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, TournamentDocument, TeamDocument, BetDocument, MatchDocument, StandingDocument } from '@/types/types';
 import { IBetDocumentService } from '@/services/bet-document-service';
 import { IBetDocumentConverter } from '@/converters/bet-document-converter';
 import { IStandingDocumentService } from '@/services/standing-document-service';
@@ -16,7 +16,12 @@ describe('Related document service', () => {
   let mockStandingDocumentConverter: Mock<IStandingDocumentConverter>;
 
   beforeEach(() => {
-    mockMatchDocumentService = createMockService('deleteMatch', 'updateTeamOfMatch', 'updateTournamentOfMatch', 'queryMatchKeysByAwayTeamId', 'queryMatchKeysByHomeTeamId', 'queryMatchKeysByTournamentId');
+    mockMatchDocumentService = createMockService('deleteMatch',
+      'updateTeamOfMatch',
+      'updateTournamentOfMatch',
+      'queryMatchKeysByAwayTeamId',
+      'queryMatchKeysByHomeTeamId',
+      'queryMatchesByTournamentId');
     mockBetDocumentService = createMockService('queryBetsByMatchId', 'deleteBet', 'updateBet', 'queryBetsByTournamentIdUserId');
     mockBetDocumentConverter = createMockService('calculateResult');
     mockStandingDocumentService = createMockService('saveStanding');
@@ -139,19 +144,19 @@ describe('Related document service', () => {
       const tournamentId = 'tournamentId';
       const matchId1 = 'matchId1';
 
-      const queriedMatches: IndexByTournamentIdDocument[] = [{
+      const queriedMatches = [{
         tournamentId,
         id: matchId1,
         'documentType-id': ''
-      }];
+      }] as MatchDocument[];
 
-      mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
+      mockMatchDocumentService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedMatches);
       mockMatchDocumentService.functions.deleteMatch.mockResolvedValue(undefined);
 
       const result = await service.tournamentDeleted(tournamentId);
 
       expect(result).toBeUndefined();
-      expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+      expect(mockMatchDocumentService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.deleteMatch).toHaveBeenCalledWith(matchId1);
       expect.assertions(3);
     });
@@ -160,10 +165,10 @@ describe('Related document service', () => {
       const tournamentId = 'tournamentId';
 
       const message = 'This is a dynamo error';
-      mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockRejectedValue({ message });
+      mockMatchDocumentService.functions.queryMatchesByTournamentId.mockRejectedValue({ message });
 
       await service.tournamentDeleted(tournamentId).catch(validateError(message));
-      expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+      expect(mockMatchDocumentService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.deleteMatch).not.toHaveBeenCalled();
       expect.assertions(3);
     });
@@ -172,18 +177,18 @@ describe('Related document service', () => {
       const tournamentId = 'tournamentId';
       const matchId1 = 'matchId1';
 
-      const queriedMatches: IndexByTournamentIdDocument[] = [{
+      const queriedMatches = [{
         tournamentId,
         id: matchId1,
         'documentType-id': ''
-      }];
+      }] as MatchDocument[];
 
       const message = 'This is a dynamo error';
-      mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
+      mockMatchDocumentService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedMatches);
       mockMatchDocumentService.functions.deleteMatch.mockRejectedValue({ message });
 
       await service.tournamentDeleted(tournamentId).catch(validateError(message));
-      expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+      expect(mockMatchDocumentService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.deleteMatch).toHaveBeenCalledWith(matchId1);
       expect.assertions(3);
     });
@@ -307,19 +312,19 @@ describe('Related document service', () => {
       const matchId1 = 'matchId1';
       const tournament = { id: tournamentId } as TournamentDocument;
 
-      const queriedMatches: IndexByTournamentIdDocument[] = [{
+      const queriedMatches = [{
         tournamentId,
         id: matchId1,
         'documentType-id': ''
-      }];
+      }] as MatchDocument[];
 
-      mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
+      mockMatchDocumentService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedMatches);
       mockMatchDocumentService.functions.updateTournamentOfMatch.mockResolvedValue(undefined);
 
       const result = await service.tournamentUpdated(tournament);
 
       expect(result).toBeUndefined();
-      expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+      expect(mockMatchDocumentService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.updateTournamentOfMatch).toHaveBeenCalledWith(matchId1, tournament);
       expect.assertions(3);
     });
@@ -329,10 +334,10 @@ describe('Related document service', () => {
       const tournament = { id: tournamentId } as TournamentDocument;
 
       const message = 'This is a dynamo error';
-      mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockRejectedValue({ message });
+      mockMatchDocumentService.functions.queryMatchesByTournamentId.mockRejectedValue({ message });
 
       await service.tournamentUpdated(tournament).catch(validateError(message));
-      expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+      expect(mockMatchDocumentService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.updateTournamentOfMatch).not.toHaveBeenCalled();
       expect.assertions(3);
     });
@@ -342,18 +347,18 @@ describe('Related document service', () => {
       const matchId1 = 'matchId1';
       const tournament = { id: tournamentId } as TournamentDocument;
 
-      const queriedMatches: IndexByTournamentIdDocument[] = [{
+      const queriedMatches = [{
         tournamentId,
         id: matchId1,
         'documentType-id': ''
-      }];
+      }] as MatchDocument[];
 
       const message = 'This is a dynamo error';
-      mockMatchDocumentService.functions.queryMatchKeysByTournamentId.mockResolvedValue(queriedMatches);
+      mockMatchDocumentService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedMatches);
       mockMatchDocumentService.functions.updateTournamentOfMatch.mockRejectedValue({ message });
 
       await service.tournamentUpdated(tournament).catch(validateError(message));
-      expect(mockMatchDocumentService.functions.queryMatchKeysByTournamentId).toHaveBeenCalledWith(tournamentId);
+      expect(mockMatchDocumentService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
       expect(mockMatchDocumentService.functions.updateTournamentOfMatch).toHaveBeenCalledWith(matchId1, tournament);
       expect.assertions(3);
     });
@@ -477,8 +482,9 @@ describe('Related document service', () => {
   });
 
   describe('betResultCalculated', () => {
+    const tournamentId = 'tournamentId';
+    const userId = 'userId';
     it('should return undefined if standing document is saved successfully', async () => {
-      const tournamentIdUserId = 'tournamentIdUserId';
 
       const bets = [{
         id: 'betId'
@@ -492,27 +498,23 @@ describe('Related document service', () => {
 
       mockStandingDocumentService.functions.saveStanding.mockResolvedValue(undefined);
 
-      await service.betResultCalculated(tournamentIdUserId);
-      expect(mockBetDocumentService.functions.queryBetsByTournamentIdUserId).toHaveBeenCalledWith(tournamentIdUserId);
+      await service.betResultCalculated(tournamentId, userId);
+      expect(mockBetDocumentService.functions.queryBetsByTournamentIdUserId).toHaveBeenCalledWith(tournamentId, userId);
       expect(mockStandingDocumentConverter.functions.create).toHaveBeenCalledWith(bets);
       expect(mockStandingDocumentService.functions.saveStanding).toHaveBeenCalledWith(converted);
     });
 
     it('should throw error if unable to query bets by tournament and user id', async () => {
-      const tournamentIdUserId = 'tournamentIdUserId';
-
       const message = 'This is a dynamo error';
       mockBetDocumentService.functions.queryBetsByTournamentIdUserId.mockRejectedValue({ message });
 
-      await service.betResultCalculated(tournamentIdUserId).catch((validateError(message)));
-      expect(mockBetDocumentService.functions.queryBetsByTournamentIdUserId).toHaveBeenCalledWith(tournamentIdUserId);
+      await service.betResultCalculated(tournamentId, userId).catch((validateError(message)));
+      expect(mockBetDocumentService.functions.queryBetsByTournamentIdUserId).toHaveBeenCalledWith(tournamentId, userId);
       expect(mockStandingDocumentConverter.functions.create).not.toHaveBeenCalled();
       expect(mockStandingDocumentService.functions.saveStanding).not.toHaveBeenCalled();
     });
 
     it('should throw error if unable to save standing document', async () => {
-      const tournamentIdUserId = 'tournamentIdUserId';
-
       const bets = [{
         id: 'betId'
       }] as BetDocument[];
@@ -526,8 +528,8 @@ describe('Related document service', () => {
       const message = 'This is a dynamo error';
       mockStandingDocumentService.functions.saveStanding.mockRejectedValue({ message });
 
-      await service.betResultCalculated(tournamentIdUserId).catch((validateError(message)));
-      expect(mockBetDocumentService.functions.queryBetsByTournamentIdUserId).toHaveBeenCalledWith(tournamentIdUserId);
+      await service.betResultCalculated(tournamentId, userId).catch((validateError(message)));
+      expect(mockBetDocumentService.functions.queryBetsByTournamentIdUserId).toHaveBeenCalledWith(tournamentId, userId);
       expect(mockStandingDocumentConverter.functions.create).toHaveBeenCalledWith(bets);
       expect(mockStandingDocumentService.functions.saveStanding).toHaveBeenCalledWith(converted);
     });

@@ -10,7 +10,7 @@ describe('Get match service', () => {
   let mockMatchDocumentConverter: Mock<IMatchDocumentConverter>;
 
   beforeEach(() => {
-    mockMatchDocumentService = createMockService('queryMatchById');
+    mockMatchDocumentService = createMockService('getMatchById');
     mockMatchDocumentConverter = createMockService('toResponse');
 
     service = getMatchServiceFactory(mockMatchDocumentService.service, mockMatchDocumentConverter.service);
@@ -22,7 +22,7 @@ describe('Get match service', () => {
       id: matchId,
     } as MatchDocument;
 
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue(matchDocument);
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue(matchDocument);
 
     const matchResponse = {
       matchId,
@@ -32,26 +32,26 @@ describe('Get match service', () => {
 
     const result = await service({ matchId });
     expect(result).toEqual(matchResponse);
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockMatchDocumentConverter.functions.toResponse).toHaveBeenCalledWith(matchDocument);
   });
 
   it('should throw error if unable to query match', async () => {
     const matchId = 'matchId';
-    mockMatchDocumentService.functions.queryMatchById.mockRejectedValue('This is a dynamo error');
+    mockMatchDocumentService.functions.getMatchById.mockRejectedValue('This is a dynamo error');
 
     await service({ matchId }).catch(validateError('Unable to query match', 500));
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockMatchDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
     expect.assertions(4);
   });
 
   it('should return with error if no match found', async () => {
     const matchId = 'matchId';
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue(undefined);
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue(undefined);
 
     await service({ matchId }).catch(validateError('No match found', 404));
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockMatchDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
     expect.assertions(4);
   });

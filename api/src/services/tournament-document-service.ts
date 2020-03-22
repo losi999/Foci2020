@@ -5,8 +5,8 @@ import { concatenate } from '@/common';
 export interface ITournamentDocumentService {
   saveTournament(document: TournamentDocument): Promise<any>;
   updateTournament(document: TournamentDocument): Promise<any>;
-  queryTournamentById(tournamentId: string): Promise<TournamentDocument>;
-  queryTournaments(): Promise<TournamentDocument[]>;
+  getTournamentById(tournamentId: string): Promise<TournamentDocument>;
+  listTournaments(): Promise<TournamentDocument[]>;
   deleteTournament(tournamentId: string): Promise<any>;
 }
 
@@ -37,7 +37,7 @@ export const tournamentDocumentServiceFactory = (
         },
       }).promise();
     },
-    queryTournamentById: async (tournamentId) => {
+    getTournamentById: async (tournamentId) => {
       return (await dynamoClient.get({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tournamentTableName,
@@ -46,7 +46,7 @@ export const tournamentDocumentServiceFactory = (
         },
       }).promise()).Item as TournamentDocument;
     },
-    queryTournaments: async () => {
+    listTournaments: async () => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tournamentTableName,

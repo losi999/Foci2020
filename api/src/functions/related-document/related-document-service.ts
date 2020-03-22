@@ -12,7 +12,7 @@ export interface IRelatedDocumentService {
   tournamentUpdated(tournament: TournamentDocument): Promise<void>;
   matchDeleted(matchId: string): Promise<void>;
   matchFinalScoreUpdated(match: MatchDocument): Promise<void>;
-  betResultCalculated(tournamentIdUserId: string): Promise<void>;
+  betResultCalculated(tournamentId: string, userId: string): Promise<void>;
 }
 
 export const relatedDocumentServiceFactory = (
@@ -30,7 +30,7 @@ export const relatedDocumentServiceFactory = (
   };
 
   const queryMatchIdsByTournamentId = async (tournamentId: string): Promise<string[]> => {
-    return (await matchDocumentService.queryMatchKeysByTournamentId(tournamentId).catch((error) => {
+    return (await matchDocumentService.queryMatchesByTournamentId(tournamentId).catch((error) => {
       console.error('Query matches to delete', error, tournamentId);
       throw error;
     })).map(m => m.id);
@@ -112,9 +112,9 @@ export const relatedDocumentServiceFactory = (
         throw error;
       });
     },
-    betResultCalculated: async (tournamentIdUserId) => {
-      const bets = await betDocumentService.queryBetsByTournamentIdUserId(tournamentIdUserId).catch((error) => {
-        console.error('Query bets by tournament and user Id', tournamentIdUserId, error);
+    betResultCalculated: async (tournamentId, userId) => {
+      const bets = await betDocumentService.queryBetsByTournamentIdUserId(tournamentId, userId).catch((error) => {
+        console.error('Query bets by tournament and user Id', tournamentId, userId, error);
         throw error;
       });
 

@@ -5,7 +5,7 @@ import { concatenate } from '@/common';
 export interface IBetDocumentService {
   queryBetById(userId: string, matchId: string): Promise<BetDocument>;
   queryBetsByMatchId(matchId: string): Promise<BetDocument[]>;
-  queryBetsByTournamentIdUserId(tournamentIdUserId: string): Promise<BetDocument[]>;
+  queryBetsByTournamentIdUserId(tournamentId:string, userId: string): Promise<BetDocument[]>;
   saveBet(document: BetDocument): Promise<unknown>;
   updateBet(document: BetDocument): Promise<unknown>;
   deleteBet(betId: string): Promise<unknown>;
@@ -27,25 +27,28 @@ export const betDocumentServiceFactory = (
     queryBetsByMatchId: async (matchId) => {
       return (await dynamoClient.query({
         TableName: betTableName,
-        IndexName: 'indexByMatchId',
+        IndexName: 'indexByMatchIdDocumentType',
         ReturnConsumedCapacity: 'INDEXES',
-        KeyConditionExpression: 'matchId = :matchId',
+        KeyConditionExpression: '#matchIdDocumentType = :matchIdDocumentType',
+        ExpressionAttributeNames: {
+          '#matchIdDocumentType': 'matchId-documentType'
+        },
         ExpressionAttributeValues: {
-          ':matchId': matchId
+          ':matchIdDocumentType': concatenate(matchId, 'bet')
         }
       }).promise()).Items as BetDocument[];
     },
-    queryBetsByTournamentIdUserId: async (tournamentIdUserId) => {
+    queryBetsByTournamentIdUserId: async (tournamentId, userId) => {
       return (await dynamoClient.query({
         TableName: betTableName,
-        IndexName: 'indexByTournamentIdUserId',
+        IndexName: 'indexByTournamentIdUserIdDocumentType',
         ReturnConsumedCapacity: 'INDEXES',
-        KeyConditionExpression: '#tournamentIdUserId = :tournamentIdUserId',
+        KeyConditionExpression: '#ournamentIdUserIdDocumentType = :ournamentIdUserIdDocumentType',
         ExpressionAttributeNames: {
-          '#tournamentIdUserId': 'tournamentId-userId'
+          '#ournamentIdUserIdDocumentType': 'tournamentId-userId-documentType'
         },
         ExpressionAttributeValues: {
-          ':tournamentIdUserId': tournamentIdUserId
+          ':ournamentIdUserIdDocumentType': concatenate(tournamentId, userId, 'bet')
         }
       }).promise()).Items as BetDocument[];
     },

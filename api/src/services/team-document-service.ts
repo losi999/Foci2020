@@ -5,8 +5,8 @@ import { concatenate } from '@/common';
 export interface ITeamDocumentService {
   saveTeam(document: TeamDocument): Promise<any>;
   updateTeam(document: TeamDocument): Promise<any>;
-  queryTeamById(teamId: string): Promise<TeamDocument>;
-  queryTeams(): Promise<TeamDocument[]>;
+  getTeamById(teamId: string): Promise<TeamDocument>;
+  listTeams(): Promise<TeamDocument[]>;
   deleteTeam(teamId: string): Promise<any>;
 }
 
@@ -37,7 +37,7 @@ export const teamDocumentServiceFactory = (
         }
       }).promise();
     },
-    queryTeamById: async (teamId) => {
+    getTeamById: async (teamId) => {
       return (await dynamoClient.get({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: teamTableName,
@@ -46,7 +46,7 @@ export const teamDocumentServiceFactory = (
         },
       }).promise()).Item as TeamDocument;
     },
-    queryTeams: async () => {
+    listTeams: async () => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
         TableName: teamTableName,

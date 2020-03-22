@@ -20,7 +20,7 @@ describe('List bets of match service', () => {
   beforeEach(() => {
     mockBetDocumentService = createMockService('queryBetsByMatchId');
     mockBetDocumentConverter = createMockService('toResponseList');
-    mockMatchDocumentService = createMockService('queryMatchById');
+    mockMatchDocumentService = createMockService('getMatchById');
 
     advanceTo(now);
 
@@ -32,7 +32,7 @@ describe('List bets of match service', () => {
   });
 
   it('should return a list of bets with scores hidden', async () => {
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue({
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue({
       startTime: addMinutes(6, now).toISOString()
     } as MatchDocument);
     const queriedBets = [{
@@ -47,14 +47,14 @@ describe('List bets of match service', () => {
       userId
     });
     expect(result).toEqual(convertedResponse);
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedBets, userId);
     expect.assertions(4);
   });
 
   it('should return a list of bets with scores visible because betting time is expired', async () => {
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue({
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue({
       startTime: addMinutes(4, now).toISOString()
     } as MatchDocument);
     const queriedBets = [{
@@ -69,14 +69,14 @@ describe('List bets of match service', () => {
       userId
     });
     expect(result).toEqual(convertedResponse);
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedBets, undefined);
     expect.assertions(4);
   });
 
   it('should return a list of bets with scores visible because player has placed a bet', async () => {
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue({
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue({
       startTime: addMinutes(6, now).toISOString()
     } as MatchDocument);
     const queriedBets = [
@@ -102,14 +102,14 @@ describe('List bets of match service', () => {
       userId
     });
     expect(result).toEqual(convertedResponse);
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedBets, undefined);
     expect.assertions(4);
   });
 
   it('should throw error if unable to query match by id', async () => {
-    mockMatchDocumentService.functions.queryMatchById.mockRejectedValue(undefined);
+    mockMatchDocumentService.functions.getMatchById.mockRejectedValue(undefined);
     const queriedBets = [{
       userId: userId2
     }] as BetDocument[];
@@ -121,14 +121,14 @@ describe('List bets of match service', () => {
       matchId,
       userId
     }).catch(validateError('Unable to query documents', 500));
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
     expect.assertions(5);
   });
 
   it('should throw error if unable to query bets by match id', async () => {
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue({
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue({
       startTime: addMinutes(6, now).toISOString()
     } as MatchDocument);
     mockBetDocumentService.functions.queryBetsByMatchId.mockRejectedValue(undefined);
@@ -137,14 +137,14 @@ describe('List bets of match service', () => {
       matchId,
       userId
     }).catch(validateError('Unable to query documents', 500));
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
     expect.assertions(5);
   });
 
   it('should throw error if no match found', async () => {
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue(undefined);
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue(undefined);
     const queriedBets = [{
       userId: userId2
     }] as BetDocument[];
@@ -154,7 +154,7 @@ describe('List bets of match service', () => {
       matchId,
       userId
     }).catch(validateError('No match found', 404));
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentService.functions.queryBetsByMatchId).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
     expect.assertions(5);

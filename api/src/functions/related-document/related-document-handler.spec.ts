@@ -74,7 +74,8 @@ describe('Match related handler', () => {
   it('should process modified bet document', async () => {
     const document = {
       documentType: 'bet',
-      'tournamentId-userId': 'tournamentIdUserId'
+      tournamentId: 'tournamentId',
+      userId: 'userId'
     } as BetDocument;
     const event: DynamoDBStreamEvent = {
       Records: [
@@ -90,7 +91,7 @@ describe('Match related handler', () => {
     mockRelatedDocumentService.functions.tournamentUpdated.mockResolvedValue(undefined);
 
     await apiHandler(event, undefined, undefined);
-    expect(mockRelatedDocumentService.functions.betResultCalculated).toHaveBeenCalledWith(document['tournamentId-userId']);
+    expect(mockRelatedDocumentService.functions.betResultCalculated).toHaveBeenCalledWith(document.tournamentId, document.userId);
     expect(mockRelatedDocumentService.functions.tournamentUpdated).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.tournamentDeleted).not.toHaveBeenCalled();
     expect(mockRelatedDocumentService.functions.teamDeleted).not.toHaveBeenCalled();

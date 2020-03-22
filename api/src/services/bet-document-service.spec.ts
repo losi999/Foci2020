@@ -42,12 +42,13 @@ describe('Bet document service', () => {
   });
 
   describe('queryBetsByTournamentIdUserId', () => {
-    const tournamentIdUserId = 'tournament1-user1';
+    const tournamentId = 'tournament1';
+    const userId = 'user1';
 
     it('should call dynamo.query with correct parameters', async () => {
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: {} }));
 
-      await service.queryBetsByTournamentIdUserId(tournamentIdUserId);
+      await service.queryBetsByTournamentIdUserId(tournamentId, userId);
 
       expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
@@ -58,7 +59,7 @@ describe('Bet document service', () => {
           '#tournamentIdUserId': 'tournamentId-userId'
         },
         ExpressionAttributeValues: {
-          ':tournamentIdUserId': tournamentIdUserId
+          ':tournamentIdUserId': tournamentId
         }
       }));
     });
@@ -68,7 +69,7 @@ describe('Bet document service', () => {
 
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedBets }));
 
-      const result = await service.queryBetsByTournamentIdUserId(tournamentIdUserId);
+      const result = await service.queryBetsByTournamentIdUserId(tournamentId, userId);
 
       expect(result).toEqual(queriedBets);
     });

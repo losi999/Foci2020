@@ -27,10 +27,13 @@ describe('Standing document converter', () => {
 
       const expectedDocument: StandingDocument = {
         userName,
+        tournamentId,
+        userId,
+        'tournamentId-documentType': `${tournamentId}#standing`,
         id: `${tournamentId}#${userId}`,
         'documentType-id': `standing#${tournamentId}#${userId}`,
         documentType: 'standing',
-        orderingValue: `${tournamentId}#7#1#1#2`,
+        orderingValue: '0007#0001#0001#0002',
         total: 7,
         results: {
           nothing: 1,

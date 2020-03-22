@@ -108,7 +108,7 @@ describe('Match document service', () => {
     it('should call dynamo.get with correct parameters', async () => {
       mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: {} }));
 
-      await service.queryMatchById(matchId);
+      await service.getMatchById(matchId);
 
       expect(mockDynamoClient.functions.get).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
@@ -123,7 +123,7 @@ describe('Match document service', () => {
 
       mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedMatch }));
 
-      const result = await service.queryMatchById(matchId);
+      const result = await service.getMatchById(matchId);
 
       expect(result).toEqual(queriedMatch);
     });
@@ -251,7 +251,7 @@ describe('Match document service', () => {
     it('should call dynamo.query with correct parameters', async () => {
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
 
-      await service.queryMatches(tournamentId);
+      await service.queryMatchesByTournamentId(tournamentId);
 
       expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
@@ -269,34 +269,7 @@ describe('Match document service', () => {
 
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedMatches }));
 
-      const result = await service.queryMatches(tournamentId);
-
-      expect(result).toEqual(queriedMatches);
-    });
-  });
-
-  describe('queryMatchKeysByTournamentId', () => {
-    it('should call dynamo.query with correct parameters', async () => {
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
-
-      await service.queryMatchKeysByTournamentId(tournamentId);
-
-      expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
-        TableName: tableName,
-        IndexName: 'indexByTournamentId',
-        KeyConditionExpression: 'tournamentId = :tournamentId',
-        ExpressionAttributeValues: {
-          ':tournamentId': tournamentId,
-        }
-      }));
-    });
-
-    it('should return the queried items', async () => {
-      const queriedMatches = ['match1', 'match2', 'match3'];
-
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedMatches }));
-
-      const result = await service.queryMatchKeysByTournamentId(tournamentId);
+      const result = await service.queryMatchesByTournamentId(tournamentId);
 
       expect(result).toEqual(queriedMatches);
     });

@@ -11,7 +11,7 @@ export interface ISetFinalScoreOfMatchService {
 
 export const setFinalScoreOfMatchServiceFactory = (matchDocumentService: IMatchDocumentService): ISetFinalScoreOfMatchService =>
   async ({ matchId, finalScore }) => {
-    const match = await matchDocumentService.queryMatchById(matchId).catch((error) => {
+    const match = await matchDocumentService.getMatchById(matchId).catch((error) => {
       console.error('Query match by id', error);
       throw httpError(500, 'Unable to query match by Id');
     });

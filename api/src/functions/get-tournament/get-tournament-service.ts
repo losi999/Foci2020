@@ -14,7 +14,7 @@ export const getTournamentServiceFactory = (
   tournamentDocumentConverte: ITournamentDocumentConverter
 ): IGetTournamentService => {
   return async ({ tournamentId }) => {
-    const tournament = await tournamentDocumentService.queryTournamentById(tournamentId).catch((error) => {
+    const tournament = await tournamentDocumentService.getTournamentById(tournamentId).catch((error) => {
       console.error('Query tournament by Id', error);
       throw httpError(500, 'Unable to query tournament');
     });

@@ -12,7 +12,7 @@ export const listTeamsServiceFactory = (
   teamDocumentConverter: ITeamDocumentConverter
 ): IListTeamsService => {
   return async () => {
-    const teams = await teamDocumentService.queryTeams().catch((error) => {
+    const teams = await teamDocumentService.listTeams().catch((error) => {
       console.error('Query teams', error);
       throw httpError(500, 'Unable to query teams');
     });

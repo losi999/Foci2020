@@ -10,7 +10,7 @@ describe('List tournaments service', () => {
   let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
 
   beforeEach(() => {
-    mockTournamentDocumentService = createMockService('queryTournaments');
+    mockTournamentDocumentService = createMockService('listTournaments');
     mockTournamentDocumentConverter = createMockService('toResponseList');
 
     service = listTournamentsServiceFactory(mockTournamentDocumentService.service, mockTournamentDocumentConverter.service);
@@ -33,7 +33,7 @@ describe('List tournaments service', () => {
     const queriedDocuments: TournamentDocument[] = [
       tournamentDocument1,
       tournamentDocument2] as TournamentDocument[];
-    mockTournamentDocumentService.functions.queryTournaments.mockResolvedValue(queriedDocuments);
+    mockTournamentDocumentService.functions.listTournaments.mockResolvedValue(queriedDocuments);
 
     const tournamentResponse = [
       {
@@ -49,15 +49,15 @@ describe('List tournaments service', () => {
 
     const result = await service();
     expect(result).toEqual(tournamentResponse);
-    expect(mockTournamentDocumentService.functions.queryTournaments).toHaveBeenCalledWith();
+    expect(mockTournamentDocumentService.functions.listTournaments).toHaveBeenCalledWith();
     expect(mockTournamentDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
   });
 
   it('should throw error if unable to query tournaments', async () => {
-    mockTournamentDocumentService.functions.queryTournaments.mockRejectedValue('This is a dynamo error');
+    mockTournamentDocumentService.functions.listTournaments.mockRejectedValue('This is a dynamo error');
 
     await service().catch(validateError('Unable to query tournaments', 500));
-    expect(mockTournamentDocumentService.functions.queryTournaments).toHaveBeenCalledWith();
+    expect(mockTournamentDocumentService.functions.listTournaments).toHaveBeenCalledWith();
     expect(mockTournamentDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
     expect.assertions(4);
   });

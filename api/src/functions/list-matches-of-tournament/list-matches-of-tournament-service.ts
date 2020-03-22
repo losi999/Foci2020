@@ -12,7 +12,7 @@ export const listMatchesOfTournamentServiceFactory = (
   matchDocumentConverter: IMatchDocumentConverter,
 ): IListMatchesOfTournamentService => {
   return async ({ tournamentId }) => {
-    const matches = await matchDocumentService.queryMatches(tournamentId).catch((error) => {
+    const matches = await matchDocumentService.queryMatchesByTournamentId(tournamentId).catch((error) => {
       console.error('Query matches', error);
       throw httpError(500, 'Unable to query matches');
     });

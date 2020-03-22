@@ -10,7 +10,7 @@ describe('Get team service', () => {
   let mockTeamDocumentConverter: Mock<ITeamDocumentConverter>;
 
   beforeEach(() => {
-    mockTeamDocumentService = createMockService('queryTeamById');
+    mockTeamDocumentService = createMockService('getTeamById');
 
     mockTeamDocumentConverter = createMockService('toResponse');
 
@@ -25,7 +25,7 @@ describe('Get team service', () => {
       id: teamId,
     } as TeamDocument;
 
-    mockTeamDocumentService.functions.queryTeamById.mockResolvedValue(teamDocument);
+    mockTeamDocumentService.functions.getTeamById.mockResolvedValue(teamDocument);
 
     const teamResponse = {
       teamId,
@@ -36,26 +36,26 @@ describe('Get team service', () => {
 
     const result = await service({ teamId });
     expect(result).toEqual(teamResponse);
-    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenCalledWith(teamId);
+    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenCalledWith(teamId);
     expect(mockTeamDocumentConverter.functions.toResponse).toHaveBeenCalledWith(teamDocument);
   });
 
   it('should throw error if unable to query team', async () => {
     const teamId = 'teamId';
-    mockTeamDocumentService.functions.queryTeamById.mockRejectedValue('This is a dynamo error');
+    mockTeamDocumentService.functions.getTeamById.mockRejectedValue('This is a dynamo error');
 
     await service({ teamId }).catch(validateError('Unable to query team', 500));
-    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenCalledWith(teamId);
+    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenCalledWith(teamId);
     expect(mockTeamDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
     expect.assertions(4);
   });
 
   it('should return with error if no team found', async () => {
     const teamId = 'teamId';
-    mockTeamDocumentService.functions.queryTeamById.mockResolvedValue(undefined);
+    mockTeamDocumentService.functions.getTeamById.mockResolvedValue(undefined);
 
     await service({ teamId }).catch(validateError('No team found', 404));
-    expect(mockTeamDocumentService.functions.queryTeamById).toHaveBeenCalledWith(teamId);
+    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenCalledWith(teamId);
     expect(mockTeamDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
     expect.assertions(4);
   });

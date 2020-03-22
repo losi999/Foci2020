@@ -27,7 +27,7 @@ describe('Tournament document service', () => {
     it('should call dynamo.query with correct parameters', async () => {
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: [] }));
 
-      await service.queryTournaments();
+      await service.listTournaments();
 
       expect(mockDynamoClient.functions.query).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
@@ -44,7 +44,7 @@ describe('Tournament document service', () => {
 
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queried }));
 
-      const result = await service.queryTournaments();
+      const result = await service.listTournaments();
 
       expect(result).toEqual(queried);
     });
@@ -109,7 +109,7 @@ describe('Tournament document service', () => {
     it('should call dynamo.get with correct parameters', async () => {
       mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: {} }));
 
-      await service.queryTournamentById(tournamentId);
+      await service.getTournamentById(tournamentId);
 
       expect(mockDynamoClient.functions.get).toHaveBeenCalledWith(expect.objectContaining({
         TableName: tableName,
@@ -124,7 +124,7 @@ describe('Tournament document service', () => {
 
       mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queried }));
 
-      const result = await service.queryTournamentById(tournamentId);
+      const result = await service.getTournamentById(tournamentId);
 
       expect(result).toEqual(queried);
     });

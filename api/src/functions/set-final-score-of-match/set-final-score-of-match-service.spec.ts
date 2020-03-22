@@ -16,7 +16,7 @@ describe('Set final score of match service', () => {
   };
   const now = new Date(2020, 3, 9, 23, 40, 0);
   beforeEach(() => {
-    mockMatchDocumentService = createMockService('queryMatchById', 'updateMatch');
+    mockMatchDocumentService = createMockService('getMatchById', 'updateMatch');
 
     advanceTo(now);
 
@@ -31,7 +31,7 @@ describe('Set final score of match service', () => {
     const queriedMatch = {
       startTime: addMinutes(-120, now).toISOString()
     } as MatchDocument;
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue(queriedMatch);
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
     mockMatchDocumentService.functions.updateMatch.mockResolvedValue(undefined);
 
@@ -40,7 +40,7 @@ describe('Set final score of match service', () => {
       finalScore
     });
     expect(result).toBeUndefined();
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith({
       ...queriedMatch,
       finalScore
@@ -49,13 +49,13 @@ describe('Set final score of match service', () => {
   });
 
   it('should throw error if unable to query match by Id', async () => {
-    mockMatchDocumentService.functions.queryMatchById.mockRejectedValue('This is a dynamo error');
+    mockMatchDocumentService.functions.getMatchById.mockRejectedValue('This is a dynamo error');
 
     await service({
       matchId,
       finalScore
     }).catch(validateError('Unable to query match by Id', 500));
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(4);
   });
@@ -64,13 +64,13 @@ describe('Set final score of match service', () => {
     const queriedMatch = {
       startTime: addMinutes(-104, now).toISOString()
     } as MatchDocument;
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue(queriedMatch);
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
     await service({
       matchId,
       finalScore
     }).catch(validateError('Final score cannot be set during the game', 400));
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(4);
   });
@@ -79,7 +79,7 @@ describe('Set final score of match service', () => {
     const queriedMatch = {
       startTime: addMinutes(-120, now).toISOString()
     } as MatchDocument;
-    mockMatchDocumentService.functions.queryMatchById.mockResolvedValue(queriedMatch);
+    mockMatchDocumentService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
     mockMatchDocumentService.functions.updateMatch.mockRejectedValue('This is a dynamo error');
 
@@ -87,7 +87,7 @@ describe('Set final score of match service', () => {
       matchId,
       finalScore
     }).catch(validateError('Unable to update match', 500));
-    expect(mockMatchDocumentService.functions.queryMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith({
       ...queriedMatch,
       finalScore

@@ -1,6 +1,6 @@
 import { JSONSchema7 } from 'json-schema';
 
-export const body: JSONSchema7 = {
+const schema: JSONSchema7 = {
   type: 'object',
   additionalProperties: false,
   required: [
@@ -18,3 +18,5 @@ export const body: JSONSchema7 = {
     },
   }
 };
+
+export default schema;

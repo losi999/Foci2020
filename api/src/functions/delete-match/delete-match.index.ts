@@ -1,7 +1,7 @@
 import { default as handler } from '@/functions/delete-match/delete-match-handler';
 import { apiRequestValidator, matchDocumentService, authorizer } from '@/dependencies';
 import { deleteMatchServiceFactory } from '@/functions/delete-match/delete-match-service';
-import { pathParameters } from '@/functions/delete-match/delete-match-schemas';
+import { default as pathParameters } from '@/schemas/match-id';
 
 const deleteMatchService = deleteMatchServiceFactory(matchDocumentService);
 

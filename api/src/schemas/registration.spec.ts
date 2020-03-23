@@ -1,13 +1,12 @@
-import * as schemas from '@/functions/registration/registration-schemas';
+import { default as schema } from '@/schemas/registration';
 import { validatorService } from '@/dependencies';
 import { RegistrationRequest } from '@/types/types';
 
-describe('Registration body schema', () => {
-  const instanceType = 'body';
-  let body: RegistrationRequest;
+describe('Registration schema', () => {
+  let data: RegistrationRequest;
 
   beforeEach(() => {
-    body = {
+    data = {
       email: 'aaa@aaa.com',
       displayName: 'John',
       password: 'asdfghjk'
@@ -15,75 +14,75 @@ describe('Registration body schema', () => {
   });
 
   it('should accept valid body', () => {
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    const result = validatorService.validate(data, schema);
     expect(result).toBeUndefined();
   });
 
   it('should deny if body has additional property', () => {
-    (body as any).extra = 'asd';
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    (data as any).extra = 'asd';
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('additional');
   });
 
   it('should deny if email is missing from body', () => {
-    body.email = undefined;
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    data.email = undefined;
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('email');
     expect(result).toContain('required');
   });
 
   it('should deny if email is not string', () => {
-    (body.email as any) = 2;
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    (data.email as any) = 2;
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('email');
     expect(result).toContain('string');
   });
 
   it('should deny if email is not email', () => {
-    body.email = 'abcd';
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    data.email = 'abcd';
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('email');
     expect(result).toContain('format');
   });
 
   it('should deny if displayName is missing from body', () => {
-    body.displayName = undefined;
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    data.displayName = undefined;
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('displayName');
     expect(result).toContain('required');
   });
 
   it('should deny if displayName is not string', () => {
-    (body.displayName as any) = 2;
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    (data.displayName as any) = 2;
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('displayName');
     expect(result).toContain('string');
   });
 
   it('should deny if displayName is too short', () => {
-    body.displayName = '';
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    data.displayName = '';
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('displayName');
     expect(result).toContain('shorter');
   });
 
   it('should deny if password is missing from body', () => {
-    body.password = undefined;
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    data.password = undefined;
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('password');
     expect(result).toContain('required');
   });
 
   it('should deny if password is not string', () => {
-    (body.password as any) = 2;
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    (data.password as any) = 2;
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('password');
     expect(result).toContain('string');
   });
 
   it('should deny if password is too short', () => {
-    body.password = 'ab';
-    const result = validatorService.validate(body, schemas.body, instanceType);
+    data.password = 'ab';
+    const result = validatorService.validate(data, schema);
     expect(result).toContain('password');
     expect(result).toContain('shorter');
   });

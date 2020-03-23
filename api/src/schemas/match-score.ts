@@ -1,21 +1,11 @@
 import { JSONSchema7 } from 'json-schema';
-import { matchId } from '@/schemas/partials';
 
-export const pathParameters: JSONSchema7 = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['matchId'],
-  properties: {
-    ...matchId
-  }
-};
-
-export const body: JSONSchema7 = {
+const schema: JSONSchema7 = {
   type: 'object',
   additionalProperties: false,
   required: [
     'homeScore',
-    'awayScore',
+    'awayScore'
   ],
   properties: {
     homeScore: {
@@ -28,3 +18,5 @@ export const body: JSONSchema7 = {
     }
   }
 };
+
+export default schema;

@@ -1,11 +1,15 @@
 import { JSONSchema7 } from 'json-schema';
-import { matchId } from '@/schemas/partials';
 
-export const pathParameters: JSONSchema7 = {
+const schema: JSONSchema7 = {
   type: 'object',
   additionalProperties: false,
   required: ['matchId'],
   properties: {
-    ...matchId
+    matchId: {
+      type: 'string',
+      format: 'uuid'
+    }
   }
 };
+
+export default schema;

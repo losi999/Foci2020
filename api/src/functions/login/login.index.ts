@@ -1,7 +1,7 @@
 import { apiRequestValidator, identityService } from '@/dependencies';
 import { default as handler } from '@/functions/login/login-handler';
 import { loginServiceFactory } from '@/functions/login/login-service';
-import { body } from '@/functions/login/login-schemas';
+import { default as body } from '@/schemas/login';
 
 const loginService = loginServiceFactory(identityService);
 

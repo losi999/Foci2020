@@ -1,19 +1,19 @@
 import { createTeamServiceFactory, ICreateTeamService } from '@/functions/create-team/create-team-service';
-import { ITeamDocumentService } from '@/services/team-document-service';
 import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { TeamDocument, TeamRequest } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 describe('Create team service', () => {
-  let mockTeamDocumentService: Mock<ITeamDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockTeamDocumentConverter: Mock<ITeamDocumentConverter>;
   let service: ICreateTeamService;
 
   beforeEach(() => {
-    mockTeamDocumentService = createMockService('saveTeam');
+    mockDatabaseService = createMockService('saveTeam');
     mockTeamDocumentConverter = createMockService('create');
 
-    service = createTeamServiceFactory(mockTeamDocumentService.service, mockTeamDocumentConverter.service);
+    service = createTeamServiceFactory(mockDatabaseService.service, mockTeamDocumentConverter.service);
   });
 
   type TestDataInput = {
@@ -45,12 +45,12 @@ describe('Create team service', () => {
     const { body, convertedTeam } = setup();
 
     mockTeamDocumentConverter.functions.create.mockReturnValue(convertedTeam);
-    mockTeamDocumentService.functions.saveTeam.mockRejectedValue({});
+    mockDatabaseService.functions.saveTeam.mockRejectedValue({});
 
     await service({ body }).catch(validateError('Error while saving team', 500));
 
     expect(mockTeamDocumentConverter.functions.create).toHaveBeenCalledWith(body);
-    expect(mockTeamDocumentService.functions.saveTeam).toHaveBeenCalledWith(convertedTeam);
+    expect(mockDatabaseService.functions.saveTeam).toHaveBeenCalledWith(convertedTeam);
     expect.assertions(4);
   });
 
@@ -58,12 +58,12 @@ describe('Create team service', () => {
     const { body, teamId, convertedTeam } = setup();
 
     mockTeamDocumentConverter.functions.create.mockReturnValue(convertedTeam);
-    mockTeamDocumentService.functions.saveTeam.mockResolvedValue(undefined);
+    mockDatabaseService.functions.saveTeam.mockResolvedValue(undefined);
 
     const result = await service({ body });
 
     expect(result).toEqual(teamId);
     expect(mockTeamDocumentConverter.functions.create).toHaveBeenCalledWith(body);
-    expect(mockTeamDocumentService.functions.saveTeam).toHaveBeenCalledWith(convertedTeam);
+    expect(mockDatabaseService.functions.saveTeam).toHaveBeenCalledWith(convertedTeam);
   });
 });

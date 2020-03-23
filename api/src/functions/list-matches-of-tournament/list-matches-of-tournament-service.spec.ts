@@ -1,20 +1,20 @@
 import { IListMatchesOfTournamentService, listMatchesOfTournamentServiceFactory } from '@/functions/list-matches-of-tournament/list-matches-of-tournament-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { IMatchDocumentService } from '@/services/match-document-service';
 import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { MatchDocument, MatchResponse } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 describe('List matches of tournament service', () => {
   let service: IListMatchesOfTournamentService;
-  let mockMatchDocumentService: Mock<IMatchDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockMatchDocumentConverter: Mock<IMatchDocumentConverter>;
 
   beforeEach(() => {
-    mockMatchDocumentService = createMockService('queryMatchesByTournamentId');
+    mockDatabaseService = createMockService('queryMatchesByTournamentId');
 
     mockMatchDocumentConverter = createMockService('toResponseList');
 
-    service = listMatchesOfTournamentServiceFactory(mockMatchDocumentService.service, mockMatchDocumentConverter.service);
+    service = listMatchesOfTournamentServiceFactory(mockDatabaseService.service, mockMatchDocumentConverter.service);
   });
 
   const tournamentId = 'tournamentId';
@@ -41,7 +41,7 @@ describe('List matches of tournament service', () => {
       matchDocument2,
       matchDocument3,
       matchDocument4] as MatchDocument[];
-    mockMatchDocumentService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedDocuments);
+    mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedDocuments);
 
     const matchResponse = [
       {
@@ -62,15 +62,15 @@ describe('List matches of tournament service', () => {
 
     const result = await service({ tournamentId });
     expect(result).toEqual(matchResponse);
-    expect(mockMatchDocumentService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
   });
 
   it('should throw error if unable to query matches', async () => {
-    mockMatchDocumentService.functions.queryMatchesByTournamentId.mockRejectedValue('This is a dynamo error');
+    mockDatabaseService.functions.queryMatchesByTournamentId.mockRejectedValue('This is a dynamo error');
 
     await service({ tournamentId }).catch(validateError('Unable to query matches', 500));
-    expect(mockMatchDocumentService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
     expect.assertions(4);
   });

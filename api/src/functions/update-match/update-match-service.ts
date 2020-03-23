@@ -1,9 +1,7 @@
 import { httpError, addMinutes } from '@/common';
-import { IMatchDocumentService } from '@/services/match-document-service';
-import { ITeamDocumentService } from '@/services/team-document-service';
-import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { MatchRequest } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface IUpdateMatchService {
   (ctx: {
@@ -13,10 +11,8 @@ export interface IUpdateMatchService {
 }
 
 export const updateMatchServiceFactory = (
-  matchDocumentService: IMatchDocumentService,
-  matchDocumentConverter: IMatchDocumentConverter,
-  teamDocumentService: ITeamDocumentService,
-  tournamentDocumentService: ITournamentDocumentService
+  databaseService: IDatabaseService,
+  matchDocumentConverter: IMatchDocumentConverter
 ): IUpdateMatchService => {
   return async ({ body, matchId }) => {
     if (addMinutes(5) > new Date(body.startTime)) {
@@ -28,9 +24,9 @@ export const updateMatchServiceFactory = (
     }
 
     const [homeTeam, awayTeam, tournament] = await Promise.all([
-      teamDocumentService.getTeamById(body.homeTeamId),
-      teamDocumentService.getTeamById(body.awayTeamId),
-      tournamentDocumentService.getTournamentById(body.tournamentId)
+      databaseService.getTeamById(body.homeTeamId),
+      databaseService.getTeamById(body.awayTeamId),
+      databaseService.getTournamentById(body.tournamentId)
     ]).catch((error) => {
       console.error('Query related documents', error);
       throw httpError(500, 'Unable to query related document');
@@ -50,7 +46,7 @@ export const updateMatchServiceFactory = (
 
     const document = matchDocumentConverter.update(matchId, body, homeTeam, awayTeam, tournament);
 
-    await matchDocumentService.updateMatch(document).catch((error) => {
+    await databaseService.updateMatch(document).catch((error) => {
       console.error('Update match', error);
       throw httpError(500, 'Error while updating match');
     });

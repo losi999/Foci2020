@@ -1,5 +1,5 @@
 import { httpError } from '@/common';
-import { ITeamDocumentService } from '@/services/team-document-service';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface IDeleteTeamService {
   (ctx: {
@@ -8,10 +8,10 @@ export interface IDeleteTeamService {
 }
 
 export const deleteTeamServiceFactory = (
-  teamDocumentService: ITeamDocumentService
+  databaseService: IDatabaseService
 ): IDeleteTeamService => {
   return async ({ teamId }) => {
-    await teamDocumentService.deleteTeam(teamId).catch((error) => {
+    await databaseService.deleteTeam(teamId).catch((error) => {
       console.error('Delete team', error);
       throw httpError(500, 'Unable to delete team');
     });

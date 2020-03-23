@@ -1,8 +1,7 @@
 import { BetResponse } from '@/types/types';
-import { IBetDocumentService } from '@/services/bet-document-service';
 import { IBetDocumentConverter } from '@/converters/bet-document-converter';
-import { IMatchDocumentService } from '@/services/match-document-service';
 import { httpError, addMinutes } from '@/common';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface IListBetsOfMatchService {
   (ctx: {
@@ -12,14 +11,13 @@ export interface IListBetsOfMatchService {
 }
 
 export const listBetsOfMatchServiceFactory = (
-  betDocumentService: IBetDocumentService,
-  betDocumentConverter: IBetDocumentConverter,
-  matchDocumentService: IMatchDocumentService
+  databaseService: IDatabaseService,
+  betDocumentConverter: IBetDocumentConverter
 ): IListBetsOfMatchService =>
   async ({ matchId, userId }) => {
     const [match, bets] = await Promise.all([
-      matchDocumentService.getMatchById(matchId),
-      betDocumentService.queryBetsByMatchId(matchId)
+      databaseService.getMatchById(matchId),
+      databaseService.queryBetsByMatchId(matchId)
     ]).catch((error) => {
       console.error('Query documents', error);
       throw httpError(500, 'Unable to query documents');

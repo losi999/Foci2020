@@ -1,7 +1,7 @@
 import { default as handler } from '@/functions/list-teams/list-teams-handler';
-import { teamDocumentConverter, teamDocumentService, authorizer } from '@/dependencies';
+import { teamDocumentConverter, databaseService, authorizer } from '@/dependencies';
 import { listTeamsServiceFactory } from '@/functions/list-teams/list-teams-service';
 
-const listTeamsService = listTeamsServiceFactory(teamDocumentService, teamDocumentConverter);
+const listTeamsService = listTeamsServiceFactory(databaseService, teamDocumentConverter);
 
 export default authorizer('admin')(handler(listTeamsService));

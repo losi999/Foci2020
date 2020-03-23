@@ -1,19 +1,19 @@
 import { createTournamentServiceFactory, ICreateTournamentService } from '@/functions/create-tournament/create-tournament-service';
-import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { TournamentDocument, TournamentRequest } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 describe('Create tournament service', () => {
-  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
   let service: ICreateTournamentService;
 
   beforeEach(() => {
-    mockTournamentDocumentService = createMockService('saveTournament');
+    mockDatabaseService = createMockService('saveTournament');
     mockTournamentDocumentConverter = createMockService('create');
 
-    service = createTournamentServiceFactory(mockTournamentDocumentService.service, mockTournamentDocumentConverter.service);
+    service = createTournamentServiceFactory(mockDatabaseService.service, mockTournamentDocumentConverter.service);
   });
 
   type TestDataInput = {
@@ -45,11 +45,11 @@ describe('Create tournament service', () => {
     const { body, convertedTournament } = setup();
 
     mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
-    mockTournamentDocumentService.functions.saveTournament.mockRejectedValue({});
+    mockDatabaseService.functions.saveTournament.mockRejectedValue({});
 
     await service({ body }).catch(validateError('Error while saving tournament', 500));
     expect(mockTournamentDocumentConverter.functions.create).toHaveBeenCalledWith(body);
-    expect(mockTournamentDocumentService.functions.saveTournament).toHaveBeenCalledWith(convertedTournament);
+    expect(mockDatabaseService.functions.saveTournament).toHaveBeenCalledWith(convertedTournament);
     expect.assertions(4);
   });
 
@@ -57,12 +57,12 @@ describe('Create tournament service', () => {
     const { body, convertedTournament, tournamentId } = setup();
 
     mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
-    mockTournamentDocumentService.functions.saveTournament.mockResolvedValue(undefined);
+    mockDatabaseService.functions.saveTournament.mockResolvedValue(undefined);
 
     const result = await service({ body });
 
     expect(result).toEqual(tournamentId);
     expect(mockTournamentDocumentConverter.functions.create).toHaveBeenCalledWith(body);
-    expect(mockTournamentDocumentService.functions.saveTournament).toHaveBeenCalledWith(convertedTournament);
+    expect(mockDatabaseService.functions.saveTournament).toHaveBeenCalledWith(convertedTournament);
   });
 });

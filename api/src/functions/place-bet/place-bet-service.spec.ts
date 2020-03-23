@@ -1,25 +1,22 @@
 import { IPlaceBetService, placeBetServiceFactory } from '@/functions/place-bet/place-bet-service';
-import { IMatchDocumentService } from '@/services/match-document-service';
 import { IBetDocumentConverter } from '@/converters/bet-document-converter';
-import { IBetDocumentService } from '@/services/bet-document-service';
 import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { advanceTo, clear } from 'jest-date-mock';
 import { BetRequest, MatchDocument, BetDocument } from '@/types/types';
 import { addMinutes } from '@/common';
+import { IDatabaseService } from '@/services/database-service';
 
 describe('Place bet service', () => {
   let service: IPlaceBetService;
-  let mockMatchDocumentService: Mock<IMatchDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockBetDocumentConverter: Mock<IBetDocumentConverter>;
-  let mockBetDocumentService: Mock<IBetDocumentService>;
 
   const now = new Date(2020, 2, 11, 21, 6, 0);
   beforeEach(() => {
     mockBetDocumentConverter = createMockService('create');
-    mockBetDocumentService = createMockService('queryBetById', 'saveBet');
-    mockMatchDocumentService = createMockService('getMatchById');
+    mockDatabaseService = createMockService('getBetById', 'saveBet', 'getMatchById');
 
-    service = placeBetServiceFactory(mockMatchDocumentService.service, mockBetDocumentConverter.service, mockBetDocumentService.service);
+    service = placeBetServiceFactory(mockDatabaseService.service, mockBetDocumentConverter.service);
 
     advanceTo(now);
   });
@@ -38,8 +35,8 @@ describe('Place bet service', () => {
   const userName = 'userName';
 
   it('should return undefined if bet is placed on a match', async () => {
-    mockBetDocumentService.functions.queryBetById.mockResolvedValue(undefined);
-    mockMatchDocumentService.functions.getMatchById.mockResolvedValue({
+    mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
+    mockDatabaseService.functions.getMatchById.mockResolvedValue({
       tournamentId,
       startTime: addMinutes(6, now).toISOString(),
     } as MatchDocument);
@@ -48,7 +45,7 @@ describe('Place bet service', () => {
       awayScore: 3
     } as BetDocument;
     mockBetDocumentConverter.functions.create.mockReturnValue(converted);
-    mockBetDocumentService.functions.saveBet.mockResolvedValue(undefined);
+    mockDatabaseService.functions.saveBet.mockResolvedValue(undefined);
 
     const result = await service({
       bet,
@@ -57,16 +54,16 @@ describe('Place bet service', () => {
       userName
     });
     expect(result).toBeUndefined();
-    expect(mockBetDocumentService.functions.queryBetById).toHaveBeenCalledWith(userId, matchId);
-    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockDatabaseService.functions.getBetById).toHaveBeenCalledWith(userId, matchId);
+    expect(mockDatabaseService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.create).toHaveBeenCalledWith(bet, userId, userName, matchId, tournamentId);
-    expect(mockBetDocumentService.functions.saveBet).toHaveBeenCalledWith(converted);
+    expect(mockDatabaseService.functions.saveBet).toHaveBeenCalledWith(converted);
     expect.assertions(5);
 
   });
 
   it('should throw error if bet is already placed on a match', async () => {
-    mockBetDocumentService.functions.queryBetById.mockResolvedValue({
+    mockDatabaseService.functions.getBetById.mockResolvedValue({
       id: 'there is a bet'
     } as BetDocument);
 
@@ -76,15 +73,15 @@ describe('Place bet service', () => {
       userId,
       userName
     }).catch(validateError('You already placed a bet on this match', 400));
-    expect(mockBetDocumentService.functions.queryBetById).toHaveBeenCalledWith(userId, matchId);
-    expect(mockMatchDocumentService.functions.getMatchById).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.getBetById).toHaveBeenCalledWith(userId, matchId);
+    expect(mockDatabaseService.functions.getMatchById).not.toHaveBeenCalled();
     expect(mockBetDocumentConverter.functions.create).not.toHaveBeenCalled();
-    expect(mockBetDocumentService.functions.saveBet).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.saveBet).not.toHaveBeenCalled();
     expect.assertions(6);
   });
 
   it('should throw error if unable to query bet', async () => {
-    mockBetDocumentService.functions.queryBetById.mockRejectedValue(undefined);
+    mockDatabaseService.functions.getBetById.mockRejectedValue(undefined);
 
     await service({
       bet,
@@ -92,16 +89,16 @@ describe('Place bet service', () => {
       userId,
       userName
     }).catch(validateError('Unable to query bet', 500));
-    expect(mockBetDocumentService.functions.queryBetById).toHaveBeenCalledWith(userId, matchId);
-    expect(mockMatchDocumentService.functions.getMatchById).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.getBetById).toHaveBeenCalledWith(userId, matchId);
+    expect(mockDatabaseService.functions.getMatchById).not.toHaveBeenCalled();
     expect(mockBetDocumentConverter.functions.create).not.toHaveBeenCalled();
-    expect(mockBetDocumentService.functions.saveBet).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.saveBet).not.toHaveBeenCalled();
     expect.assertions(6);
   });
 
   it('should throw error if unable to query match', async () => {
-    mockBetDocumentService.functions.queryBetById.mockResolvedValue(undefined);
-    mockMatchDocumentService.functions.getMatchById.mockRejectedValue(undefined);
+    mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
+    mockDatabaseService.functions.getMatchById.mockRejectedValue(undefined);
 
     await service({
       bet,
@@ -109,16 +106,16 @@ describe('Place bet service', () => {
       userId,
       userName
     }).catch(validateError('Unable to query match by id', 500));
-    expect(mockBetDocumentService.functions.queryBetById).toHaveBeenCalledWith(userId, matchId);
-    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockDatabaseService.functions.getBetById).toHaveBeenCalledWith(userId, matchId);
+    expect(mockDatabaseService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.create).not.toHaveBeenCalled();
-    expect(mockBetDocumentService.functions.saveBet).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.saveBet).not.toHaveBeenCalled();
     expect.assertions(6);
   });
 
   it('should throw error if no match found', async () => {
-    mockBetDocumentService.functions.queryBetById.mockResolvedValue(undefined);
-    mockMatchDocumentService.functions.getMatchById.mockResolvedValue(undefined);
+    mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
+    mockDatabaseService.functions.getMatchById.mockResolvedValue(undefined);
 
     await service({
       bet,
@@ -126,16 +123,16 @@ describe('Place bet service', () => {
       userId,
       userName
     }).catch(validateError('No match found', 404));
-    expect(mockBetDocumentService.functions.queryBetById).toHaveBeenCalledWith(userId, matchId);
-    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockDatabaseService.functions.getBetById).toHaveBeenCalledWith(userId, matchId);
+    expect(mockDatabaseService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.create).not.toHaveBeenCalled();
-    expect(mockBetDocumentService.functions.saveBet).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.saveBet).not.toHaveBeenCalled();
     expect.assertions(6);
   });
 
   it('should throw error if betting time is expired', async () => {
-    mockBetDocumentService.functions.queryBetById.mockResolvedValue(undefined);
-    mockMatchDocumentService.functions.getMatchById.mockResolvedValue({
+    mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
+    mockDatabaseService.functions.getMatchById.mockResolvedValue({
       startTime: addMinutes(4, now).toISOString()
     } as MatchDocument);
 
@@ -145,16 +142,16 @@ describe('Place bet service', () => {
       userId,
       userName
     }).catch(validateError('Betting time expired', 400));
-    expect(mockBetDocumentService.functions.queryBetById).toHaveBeenCalledWith(userId, matchId);
-    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockDatabaseService.functions.getBetById).toHaveBeenCalledWith(userId, matchId);
+    expect(mockDatabaseService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.create).not.toHaveBeenCalled();
-    expect(mockBetDocumentService.functions.saveBet).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.saveBet).not.toHaveBeenCalled();
     expect.assertions(6);
   });
 
   it('should throw error if unable to save bet', async () => {
-    mockBetDocumentService.functions.queryBetById.mockResolvedValue(undefined);
-    mockMatchDocumentService.functions.getMatchById.mockResolvedValue({
+    mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
+    mockDatabaseService.functions.getMatchById.mockResolvedValue({
       tournamentId,
       startTime: addMinutes(6, now).toISOString()
     } as MatchDocument);
@@ -163,7 +160,7 @@ describe('Place bet service', () => {
       awayScore: 3
     } as BetDocument;
     mockBetDocumentConverter.functions.create.mockReturnValue(converted);
-    mockBetDocumentService.functions.saveBet.mockRejectedValue(undefined);
+    mockDatabaseService.functions.saveBet.mockRejectedValue(undefined);
 
     await service({
       bet,
@@ -171,10 +168,10 @@ describe('Place bet service', () => {
       userId,
       userName
     }).catch(validateError('Unable to save bet', 500));
-    expect(mockBetDocumentService.functions.queryBetById).toHaveBeenCalledWith(userId, matchId);
-    expect(mockMatchDocumentService.functions.getMatchById).toHaveBeenCalledWith(matchId);
+    expect(mockDatabaseService.functions.getBetById).toHaveBeenCalledWith(userId, matchId);
+    expect(mockDatabaseService.functions.getMatchById).toHaveBeenCalledWith(matchId);
     expect(mockBetDocumentConverter.functions.create).toHaveBeenCalledWith(bet, userId, userName, matchId, tournamentId);
-    expect(mockBetDocumentService.functions.saveBet).toHaveBeenCalledWith(converted);
+    expect(mockDatabaseService.functions.saveBet).toHaveBeenCalledWith(converted);
     expect.assertions(6);
   });
 });

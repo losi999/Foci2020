@@ -1,18 +1,14 @@
 import { updateMatchServiceFactory, IUpdateMatchService } from '@/functions/update-match/update-match-service';
 import { advanceTo, clear } from 'jest-date-mock';
 import { Mock, createMockService, validateError } from '@/common/unit-testing';
-import { IMatchDocumentService } from '@/services/match-document-service';
-import { ITeamDocumentService } from '@/services/team-document-service';
-import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { TeamDocument, TournamentDocument, MatchDocument, MatchRequest } from '@/types/types';
 import { addMinutes } from '@/common';
+import { IDatabaseService } from '@/services/database-service';
 
 describe('Update match service', () => {
-  let mockMatchDocumentService: Mock<IMatchDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockMatchDocumentConverter: Mock<IMatchDocumentConverter>;
-  let mockTeamDocumentService: Mock<ITeamDocumentService>;
-  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
   let service: IUpdateMatchService;
 
   const now = new Date(2019, 3, 21, 19, 0, 0);
@@ -20,11 +16,9 @@ describe('Update match service', () => {
 
   beforeEach(() => {
     mockMatchDocumentConverter = createMockService('update');
-    mockMatchDocumentService = createMockService('updateMatch');
-    mockTeamDocumentService = createMockService('getTeamById');
-    mockTournamentDocumentService = createMockService('getTournamentById');
+    mockDatabaseService = createMockService('updateMatch', 'getTeamById', 'getTournamentById');
 
-    service = updateMatchServiceFactory(mockMatchDocumentService.service, mockMatchDocumentConverter.service, mockTeamDocumentService.service, mockTournamentDocumentService.service);
+    service = updateMatchServiceFactory(mockDatabaseService.service, mockMatchDocumentConverter.service);
     advanceTo(now);
   });
 
@@ -108,11 +102,11 @@ describe('Update match service', () => {
       body,
     } = setup();
 
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
-    mockTournamentDocumentService.functions.getTournamentById.mockResolvedValue(queriedTournament);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockDatabaseService.functions.getTournamentById.mockResolvedValue(queriedTournament);
     mockMatchDocumentConverter.functions.update.mockReturnValue(convertedMatch);
-    mockMatchDocumentService.functions.updateMatch.mockResolvedValue(undefined);
+    mockDatabaseService.functions.updateMatch.mockResolvedValue(undefined);
 
     const result = await service({
       body,
@@ -120,11 +114,11 @@ describe('Update match service', () => {
     });
 
     expect(result).toBeUndefined();
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).toHaveBeenCalledWith(matchId, body, queriedAwayTeam, queriedHomeTeam, queriedTournament);
-    expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith(convertedMatch);
+    expect(mockDatabaseService.functions.updateMatch).toHaveBeenCalledWith(convertedMatch);
   });
 
   it('should throw error if startTime is less than 5 minutes from now', async () => {
@@ -138,10 +132,10 @@ describe('Update match service', () => {
       matchId
     }).catch(validateError('Start time has to be at least 5 minutes from now', 400));
 
-    expect(mockTeamDocumentService.functions.getTeamById).not.toHaveBeenCalled();
-    expect(mockTournamentDocumentService.functions.getTournamentById).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.getTeamById).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.getTournamentById).not.toHaveBeenCalled();
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
-    expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(6);
   });
 
@@ -158,10 +152,10 @@ describe('Update match service', () => {
       matchId
     }).catch(validateError('Home and away teams cannot be the same', 400));
 
-    expect(mockTeamDocumentService.functions.getTeamById).not.toHaveBeenCalled();
-    expect(mockTournamentDocumentService.functions.getTournamentById).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.getTeamById).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.getTournamentById).not.toHaveBeenCalled();
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
-    expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(6);
   });
 
@@ -174,18 +168,18 @@ describe('Update match service', () => {
       body,
     } = setup();
 
-    mockTeamDocumentService.functions.getTeamById.mockRejectedValue('This is a dynamo error');
+    mockDatabaseService.functions.getTeamById.mockRejectedValue('This is a dynamo error');
 
     await service({
       body,
       matchId
     }).catch(validateError('Unable to query related document', 500));
 
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
-    expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(7);
   });
 
@@ -199,19 +193,19 @@ describe('Update match service', () => {
       body,
     } = setup();
 
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
-    mockTeamDocumentService.functions.getTeamById.mockRejectedValueOnce('This is a dynamo error');
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockDatabaseService.functions.getTeamById.mockRejectedValueOnce('This is a dynamo error');
 
     await service({
       body,
       matchId
     }).catch(validateError('Unable to query related document', 500));
 
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
-    expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(7);
   });
 
@@ -226,20 +220,20 @@ describe('Update match service', () => {
       body,
     } = setup();
 
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
-    mockTournamentDocumentService.functions.getTournamentById.mockRejectedValueOnce('This is a dynamo error');
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
+    mockDatabaseService.functions.getTournamentById.mockRejectedValueOnce('This is a dynamo error');
 
     await service({
       body,
       matchId
     }).catch(validateError('Unable to query related document', 500));
 
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
-    expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(7);
   });
 
@@ -256,22 +250,22 @@ describe('Update match service', () => {
       body,
     } = setup();
 
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
-    mockTournamentDocumentService.functions.getTournamentById.mockResolvedValue(queriedTournament);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
+    mockDatabaseService.functions.getTournamentById.mockResolvedValue(queriedTournament);
     mockMatchDocumentConverter.functions.update.mockReturnValue(convertedMatch);
-    mockMatchDocumentService.functions.updateMatch.mockRejectedValue('This is a dynamo error');
+    mockDatabaseService.functions.updateMatch.mockRejectedValue('This is a dynamo error');
 
     await service({
       body,
       matchId
     }).catch(validateError('Error while updating match', 500));
 
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).toHaveBeenCalledWith(matchId, body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
-    expect(mockMatchDocumentService.functions.updateMatch).toHaveBeenCalledWith(convertedMatch);
+    expect(mockDatabaseService.functions.updateMatch).toHaveBeenCalledWith(convertedMatch);
     expect.assertions(7);
   });
 
@@ -284,18 +278,18 @@ describe('Update match service', () => {
       body,
     } = setup();
 
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(undefined);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(undefined);
 
     await service({
       body,
       matchId
     }).catch(validateError('Home team not found', 400));
 
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
-    expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(7);
   });
 
@@ -309,19 +303,19 @@ describe('Update match service', () => {
       body,
     } = setup();
 
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(undefined);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(undefined);
 
     await service({
       body,
       matchId
     }).catch(validateError('Away team not found', 400));
 
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
-    expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(7);
   });
 
@@ -336,20 +330,20 @@ describe('Update match service', () => {
       body,
     } = setup();
 
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
-    mockTeamDocumentService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
-    mockTournamentDocumentService.functions.getTournamentById.mockResolvedValue(undefined);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
+    mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
+    mockDatabaseService.functions.getTournamentById.mockResolvedValue(undefined);
 
     await service({
       body,
       matchId
     }).catch(validateError('Tournament not found', 400));
 
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
-    expect(mockTeamDocumentService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, homeTeamId);
+    expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, awayTeamId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockMatchDocumentConverter.functions.update).not.toHaveBeenCalled();
-    expect(mockMatchDocumentService.functions.updateMatch).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.updateMatch).not.toHaveBeenCalled();
     expect.assertions(7);
   });
 });

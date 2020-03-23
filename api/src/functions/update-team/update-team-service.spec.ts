@@ -1,19 +1,19 @@
 import { IUpdateTeamService, updateTeamServiceFactory } from '@/functions/update-team/update-team-service';
-import { ITeamDocumentService } from '@/services/team-document-service';
 import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { TeamRequest, TeamDocument } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 describe('Update team service', () => {
   let service: IUpdateTeamService;
-  let mockTeamDocumentService: Mock<ITeamDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockTeamDocumentConverter: Mock<ITeamDocumentConverter>;
 
   beforeEach(() => {
-    mockTeamDocumentService = createMockService('updateTeam');
+    mockDatabaseService = createMockService('updateTeam');
     mockTeamDocumentConverter = createMockService('update');
 
-    service = updateTeamServiceFactory(mockTeamDocumentService.service, mockTeamDocumentConverter.service);
+    service = updateTeamServiceFactory(mockDatabaseService.service, mockTeamDocumentConverter.service);
   });
 
   it('should return with with undefined if team is updated successfully', async () => {
@@ -34,7 +34,7 @@ describe('Update team service', () => {
     } as TeamDocument;
 
     mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
-    mockTeamDocumentService.functions.updateTeam.mockResolvedValue(undefined);
+    mockDatabaseService.functions.updateTeam.mockResolvedValue(undefined);
 
     const result = await service({
       teamId,
@@ -42,7 +42,7 @@ describe('Update team service', () => {
     });
     expect(result).toBeUndefined();
     expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
-    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(converted);
+    expect(mockDatabaseService.functions.updateTeam).toHaveBeenCalledWith(converted);
     expect.assertions(3);
   });
 
@@ -64,14 +64,14 @@ describe('Update team service', () => {
     } as TeamDocument;
 
     mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
-    mockTeamDocumentService.functions.updateTeam.mockRejectedValue('This is a dynamo error');
+    mockDatabaseService.functions.updateTeam.mockRejectedValue('This is a dynamo error');
 
     await service({
       teamId,
       body
     }).catch(validateError('Error while updating team', 500));
     expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
-    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(converted);
+    expect(mockDatabaseService.functions.updateTeam).toHaveBeenCalledWith(converted);
     expect.assertions(4);
   });
 });

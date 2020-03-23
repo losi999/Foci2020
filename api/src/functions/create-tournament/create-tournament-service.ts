@@ -1,7 +1,7 @@
 import { httpError } from '@/common';
-import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { TournamentRequest } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface ICreateTournamentService {
   (ctx: {
@@ -10,12 +10,12 @@ export interface ICreateTournamentService {
 }
 
 export const createTournamentServiceFactory = (
-  tournamentDocumentService: ITournamentDocumentService,
+  databaseService: IDatabaseService,
   tournamentDocumentConverter: ITournamentDocumentConverter): ICreateTournamentService => {
   return async ({ body }) => {
     const document = tournamentDocumentConverter.create(body);
 
-    await tournamentDocumentService.saveTournament(document).catch((error) => {
+    await databaseService.saveTournament(document).catch((error) => {
       console.error('Save tournament', error);
       throw httpError(500, 'Error while saving tournament');
     });

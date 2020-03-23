@@ -1,20 +1,20 @@
 import { IGetTournamentService, getTournamentServiceFactory } from '@/functions/get-tournament/get-tournament-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { Mock, createMockService, validateError } from '@/common/unit-testing';
 import { TournamentDocument, TournamentResponse } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 describe('Get tournament service', () => {
   let service: IGetTournamentService;
-  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
 
   beforeEach(() => {
-    mockTournamentDocumentService = createMockService('getTournamentById');
+    mockDatabaseService = createMockService('getTournamentById');
 
     mockTournamentDocumentConverter = createMockService('toResponse');
 
-    service = getTournamentServiceFactory(mockTournamentDocumentService.service, mockTournamentDocumentConverter.service);
+    service = getTournamentServiceFactory(mockDatabaseService.service, mockTournamentDocumentConverter.service);
   });
 
   it('should return with a tournament', async () => {
@@ -25,7 +25,7 @@ describe('Get tournament service', () => {
       id: tournamentId,
     } as TournamentDocument;
 
-    mockTournamentDocumentService.functions.getTournamentById.mockResolvedValue(tournamentDocument);
+    mockDatabaseService.functions.getTournamentById.mockResolvedValue(tournamentDocument);
 
     const tournamentResponse = {
       tournamentId,
@@ -36,26 +36,26 @@ describe('Get tournament service', () => {
 
     const result = await service({ tournamentId });
     expect(result).toEqual(tournamentResponse);
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockTournamentDocumentConverter.functions.toResponse).toHaveBeenCalledWith(tournamentDocument);
   });
 
   it('should throw error if unable to query tournament', async () => {
     const tournamentId = 'tournamentId';
-    mockTournamentDocumentService.functions.getTournamentById.mockRejectedValue('This is a dynamo error');
+    mockDatabaseService.functions.getTournamentById.mockRejectedValue('This is a dynamo error');
 
     await service({ tournamentId }).catch(validateError('Unable to query tournament', 500));
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockTournamentDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
     expect.assertions(4);
   });
 
   it('should return with error if no tournament found', async () => {
     const tournamentId = 'tournamentId';
-    mockTournamentDocumentService.functions.getTournamentById.mockResolvedValue(undefined);
+    mockDatabaseService.functions.getTournamentById.mockResolvedValue(undefined);
 
     await service({ tournamentId }).catch(validateError('No tournament found', 404));
-    expect(mockTournamentDocumentService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
+    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
     expect(mockTournamentDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
     expect.assertions(4);
   });

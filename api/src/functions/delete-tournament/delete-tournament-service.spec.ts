@@ -1,5 +1,5 @@
 import { IDeleteTournamentService, deleteTournamentServiceFactory } from '@/functions/delete-tournament/delete-tournament-service';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { IDatabaseService } from '@/services/database-service';
 
 describe('Delete tournament service', () => {
@@ -19,7 +19,7 @@ describe('Delete tournament service', () => {
 
     const result = await service({ tournamentId });
     expect(result).toBeUndefined();
-    expect(mockDatabaseService.functions.deleteTournament).toHaveBeenCalledWith(tournamentId);
+    validateFunctionCall(mockDatabaseService.functions.deleteTournament, tournamentId);
     expect.assertions(2);
   });
 
@@ -29,7 +29,7 @@ describe('Delete tournament service', () => {
     mockDatabaseService.functions.deleteTournament.mockRejectedValue('This is a dynamo error');
 
     await service({ tournamentId }).catch(validateError('Unable to delete tournament', 500));
-    expect(mockDatabaseService.functions.deleteTournament).toHaveBeenCalledWith(tournamentId);
+    validateFunctionCall(mockDatabaseService.functions.deleteTournament, tournamentId);
     expect.assertions(3);
   });
 });

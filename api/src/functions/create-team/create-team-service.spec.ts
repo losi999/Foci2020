@@ -1,5 +1,5 @@
 import { createTeamServiceFactory, ICreateTeamService } from '@/functions/create-team/create-team-service';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { TeamDocument, TeamRequest } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
@@ -49,8 +49,8 @@ describe('Create team service', () => {
 
     await service({ body }).catch(validateError('Error while saving team', 500));
 
-    expect(mockTeamDocumentConverter.functions.create).toHaveBeenCalledWith(body);
-    expect(mockDatabaseService.functions.saveTeam).toHaveBeenCalledWith(convertedTeam);
+    validateFunctionCall(mockTeamDocumentConverter.functions.create, body);
+    validateFunctionCall(mockDatabaseService.functions.saveTeam, convertedTeam);
     expect.assertions(4);
   });
 
@@ -63,7 +63,7 @@ describe('Create team service', () => {
     const result = await service({ body });
 
     expect(result).toEqual(teamId);
-    expect(mockTeamDocumentConverter.functions.create).toHaveBeenCalledWith(body);
-    expect(mockDatabaseService.functions.saveTeam).toHaveBeenCalledWith(convertedTeam);
+    validateFunctionCall(mockTeamDocumentConverter.functions.create, body);
+    validateFunctionCall(mockDatabaseService.functions.saveTeam, convertedTeam);
   });
 });

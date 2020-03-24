@@ -1,6 +1,6 @@
 import { IListMatchesService, listMatchesServiceFactory } from '@/functions/list-matches/list-matches-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { MatchDocument, MatchResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
 
@@ -61,7 +61,7 @@ describe('List matches service', () => {
     const result = await service();
     expect(result).toEqual(matchResponse);
     expect(mockDatabaseService.functions.listMatches).toHaveBeenCalledWith();
-    expect(mockMatchDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
+    validateFunctionCall(mockMatchDocumentConverter.functions.toResponseList, queriedDocuments);
   });
 
   it('should throw error if unable to query matches', async () => {
@@ -69,7 +69,7 @@ describe('List matches service', () => {
 
     await service().catch(validateError('Unable to list matches', 500));
     expect(mockDatabaseService.functions.listMatches).toHaveBeenCalledWith();
-    expect(mockMatchDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
+    validateFunctionCall(mockMatchDocumentConverter.functions.toResponseList);
     expect.assertions(4);
   });
 });

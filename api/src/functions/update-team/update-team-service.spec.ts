@@ -1,5 +1,5 @@
 import { IUpdateTeamService, updateTeamServiceFactory } from '@/functions/update-team/update-team-service';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { TeamRequest, TeamDocument } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
@@ -41,8 +41,8 @@ describe('Update team service', () => {
       body
     });
     expect(result).toBeUndefined();
-    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
-    expect(mockDatabaseService.functions.updateTeam).toHaveBeenCalledWith(converted);
+    validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
+    validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
     expect.assertions(3);
   });
 
@@ -70,8 +70,8 @@ describe('Update team service', () => {
       teamId,
       body
     }).catch(validateError('Error while updating team', 500));
-    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
-    expect(mockDatabaseService.functions.updateTeam).toHaveBeenCalledWith(converted);
+    validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
+    validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
     expect.assertions(4);
   });
 });

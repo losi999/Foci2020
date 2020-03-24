@@ -25,7 +25,7 @@ describe('MatchId schema', () => {
       });
     });
 
-    describe('if matchId', () => {
+    describe('if data.matchId', () => {
       it('is missing', () => {
         data.matchId = undefined;
         const result = validatorService.validate(data, schema);

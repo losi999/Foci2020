@@ -1,6 +1,6 @@
 import { IListMatchesOfTournamentService, listMatchesOfTournamentServiceFactory } from '@/functions/list-matches-of-tournament/list-matches-of-tournament-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { MatchDocument, MatchResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
 
@@ -62,16 +62,16 @@ describe('List matches of tournament service', () => {
 
     const result = await service({ tournamentId });
     expect(result).toEqual(matchResponse);
-    expect(mockDatabaseService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
-    expect(mockMatchDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
+    validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
+    validateFunctionCall(mockMatchDocumentConverter.functions.toResponseList, queriedDocuments);
   });
 
   it('should throw error if unable to query matches', async () => {
     mockDatabaseService.functions.queryMatchesByTournamentId.mockRejectedValue('This is a dynamo error');
 
     await service({ tournamentId }).catch(validateError('Unable to query matches', 500));
-    expect(mockDatabaseService.functions.queryMatchesByTournamentId).toHaveBeenCalledWith(tournamentId);
-    expect(mockMatchDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
+    validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
+    validateFunctionCall(mockMatchDocumentConverter.functions.toResponseList);
     expect.assertions(4);
   });
 });

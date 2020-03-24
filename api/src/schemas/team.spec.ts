@@ -28,7 +28,7 @@ describe('Team schema', () => {
       });
     });
 
-    describe('if teamName', () => {
+    describe('if data.teamName', () => {
       it('is missing', () => {
         data.teamName = undefined;
         const result = validatorService.validate(data, schema);
@@ -48,7 +48,7 @@ describe('Team schema', () => {
       });
     });
 
-    describe('if image', () => {
+    describe('if data.image', () => {
       it('is missing', () => {
         data.image = undefined;
         const result = validatorService.validate(data, schema);
@@ -68,7 +68,7 @@ describe('Team schema', () => {
       });
     });
 
-    describe('if shortName', () => {
+    describe('if data.shortName', () => {
       it('is missing', () => {
         data.shortName = undefined;
         const result = validatorService.validate(data, schema);

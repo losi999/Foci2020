@@ -1,6 +1,6 @@
 import { IListTeamsService, listTeamsServiceFactory } from '@/functions/list-teams/list-teams-service';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { TeamDocument, TeamResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
 
@@ -51,7 +51,7 @@ describe('List teams service', () => {
     const result = await service();
     expect(result).toEqual(teamResponse);
     expect(mockDatabaseService.functions.listTeams).toHaveBeenCalledWith();
-    expect(mockTeamDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
+    validateFunctionCall(mockTeamDocumentConverter.functions.toResponseList, queriedDocuments);
   });
 
   it('should throw error if unable to query teams', async () => {
@@ -59,7 +59,7 @@ describe('List teams service', () => {
 
     await service().catch(validateError('Unable to query teams', 500));
     expect(mockDatabaseService.functions.listTeams).toHaveBeenCalledWith();
-    expect(mockTeamDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
+    validateFunctionCall(mockTeamDocumentConverter.functions.toResponseList);
     expect.assertions(4);
   });
 });

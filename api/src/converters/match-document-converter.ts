@@ -61,10 +61,7 @@ export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentCon
       };
     },
     toResponseList: matchDocuments => matchDocuments.map(d => instance.toResponse(d)),
-    create: (matchRequest, homeTeam, awayTeam, tournament) => {
-      const id = uuid();
-      return instance.update(id, matchRequest, homeTeam, awayTeam, tournament);
-    },
+    create: (matchRequest, homeTeam, awayTeam, tournament) => instance.update(uuid(), matchRequest, homeTeam, awayTeam, tournament),
   };
 
   return instance;

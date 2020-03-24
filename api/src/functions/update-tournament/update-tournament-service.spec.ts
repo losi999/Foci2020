@@ -1,5 +1,5 @@
 import { IUpdateTournamentService, updateTournamentServiceFactory } from '@/functions/update-tournament/update-tournament-service';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { TournamentRequest, TournamentDocument } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
@@ -35,8 +35,8 @@ describe('Update tournament service', () => {
       body
     });
     expect(result).toBeUndefined();
-    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(tournamentId, body);
-    expect(mockDatabaseService.functions.updateTournament).toHaveBeenCalledWith(converted);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body);
+    validateFunctionCall(mockDatabaseService.functions.updateTournament, converted);
     expect.assertions(3);
   });
 
@@ -59,8 +59,8 @@ describe('Update tournament service', () => {
       body
     }).catch(validateError('Error while updating tournament', 500));
 
-    expect(mockTournamentDocumentConverter.functions.update).toHaveBeenCalledWith(tournamentId, body);
-    expect(mockDatabaseService.functions.updateTournament).toHaveBeenCalledWith(converted);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body);
+    validateFunctionCall(mockDatabaseService.functions.updateTournament, converted);
     expect.assertions(4);
   });
 });

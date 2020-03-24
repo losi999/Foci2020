@@ -1,6 +1,6 @@
 import { createTournamentServiceFactory, ICreateTournamentService } from '@/functions/create-tournament/create-tournament-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { TournamentDocument, TournamentRequest } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
 
@@ -48,8 +48,8 @@ describe('Create tournament service', () => {
     mockDatabaseService.functions.saveTournament.mockRejectedValue({});
 
     await service({ body }).catch(validateError('Error while saving tournament', 500));
-    expect(mockTournamentDocumentConverter.functions.create).toHaveBeenCalledWith(body);
-    expect(mockDatabaseService.functions.saveTournament).toHaveBeenCalledWith(convertedTournament);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.create, body);
+    validateFunctionCall(mockDatabaseService.functions.saveTournament, convertedTournament);
     expect.assertions(4);
   });
 
@@ -62,7 +62,7 @@ describe('Create tournament service', () => {
     const result = await service({ body });
 
     expect(result).toEqual(tournamentId);
-    expect(mockTournamentDocumentConverter.functions.create).toHaveBeenCalledWith(body);
-    expect(mockDatabaseService.functions.saveTournament).toHaveBeenCalledWith(convertedTournament);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.create, body);
+    validateFunctionCall(mockDatabaseService.functions.saveTournament, convertedTournament);
   });
 });

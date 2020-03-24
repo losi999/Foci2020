@@ -163,6 +163,21 @@ describe('Bet document converter', () => {
         const result = converter.calculateResult(bet, finalScore);
         expect(result).toEqual(expectedBet);
       });
+
+      it('draw is guessed correctly', () => {
+        const bet = betDocument(userId, matchId, tournamentId, userName, 2, 2);
+        const finalScore: Score = {
+          homeScore: 2,
+          awayScore: 2
+        };
+        const expectedBet: BetDocument = {
+          ...bet,
+          result: 'exactMatch'
+        };
+
+        const result = converter.calculateResult(bet, finalScore);
+        expect(result).toEqual(expectedBet);
+      });
     });
 
     it('should set result to "nothing" otherwise', () => {

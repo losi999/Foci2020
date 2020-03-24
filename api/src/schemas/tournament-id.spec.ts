@@ -25,7 +25,7 @@ describe('TournamentId schema', () => {
       });
     });
 
-    describe('if tournamentId', () => {
+    describe('if data.tournamentId', () => {
       it('is missing', () => {
         data.tournamentId = undefined;
         const result = validatorService.validate(data, schema);

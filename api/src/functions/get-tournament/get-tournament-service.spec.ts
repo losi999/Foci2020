@@ -1,6 +1,6 @@
 import { IGetTournamentService, getTournamentServiceFactory } from '@/functions/get-tournament/get-tournament-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { TournamentDocument, TournamentResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
 
@@ -36,8 +36,8 @@ describe('Get tournament service', () => {
 
     const result = await service({ tournamentId });
     expect(result).toEqual(tournamentResponse);
-    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
-    expect(mockTournamentDocumentConverter.functions.toResponse).toHaveBeenCalledWith(tournamentDocument);
+    validateFunctionCall(mockDatabaseService.functions.getTournamentById, tournamentId);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.toResponse, tournamentDocument);
   });
 
   it('should throw error if unable to query tournament', async () => {
@@ -45,8 +45,8 @@ describe('Get tournament service', () => {
     mockDatabaseService.functions.getTournamentById.mockRejectedValue('This is a dynamo error');
 
     await service({ tournamentId }).catch(validateError('Unable to query tournament', 500));
-    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
-    expect(mockTournamentDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    validateFunctionCall(mockDatabaseService.functions.getTournamentById, tournamentId);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.toResponse);
     expect.assertions(4);
   });
 
@@ -55,8 +55,8 @@ describe('Get tournament service', () => {
     mockDatabaseService.functions.getTournamentById.mockResolvedValue(undefined);
 
     await service({ tournamentId }).catch(validateError('No tournament found', 404));
-    expect(mockDatabaseService.functions.getTournamentById).toHaveBeenCalledWith(tournamentId);
-    expect(mockTournamentDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    validateFunctionCall(mockDatabaseService.functions.getTournamentById, tournamentId);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.toResponse);
     expect.assertions(4);
   });
 });

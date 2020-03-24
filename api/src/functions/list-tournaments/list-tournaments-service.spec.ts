@@ -1,6 +1,6 @@
 import { IListTournamentsService, listTournamentsServiceFactory } from '@/functions/list-tournaments/list-tournaments-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { TournamentDocument, TournamentResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
 
@@ -50,7 +50,7 @@ describe('List tournaments service', () => {
     const result = await service();
     expect(result).toEqual(tournamentResponse);
     expect(mockDatabaseService.functions.listTournaments).toHaveBeenCalledWith();
-    expect(mockTournamentDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.toResponseList, queriedDocuments);
   });
 
   it('should throw error if unable to query tournaments', async () => {
@@ -58,7 +58,7 @@ describe('List tournaments service', () => {
 
     await service().catch(validateError('Unable to query tournaments', 500));
     expect(mockDatabaseService.functions.listTournaments).toHaveBeenCalledWith();
-    expect(mockTournamentDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
+    validateFunctionCall(mockTournamentDocumentConverter.functions.toResponseList);
     expect.assertions(4);
   });
 });

@@ -1,6 +1,7 @@
 import { default as schema } from '@/schemas/registration';
 import { validatorService } from '@/dependencies';
 import { RegistrationRequest } from '@/types/types';
+import { validateSchemaAdditionalProperties, validateSchemaRequired, validateSchemaType, validateSchemaFormat, validateSchemaMinLength } from '@/common/unit-testing';
 
 describe('Registration schema', () => {
   let data: RegistrationRequest;
@@ -18,72 +19,73 @@ describe('Registration schema', () => {
     expect(result).toBeUndefined();
   });
 
-  it('should deny if body has additional property', () => {
-    (data as any).extra = 'asd';
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('additional');
-  });
+  describe('should deny', () => {
+    describe('if data', () => {
+      it('has additional property', () => {
+        (data as any).extra = 'asd';
+        const result = validatorService.validate(data, schema);
+        validateSchemaAdditionalProperties(result, 'data');
+      });
+    });
 
-  it('should deny if email is missing from body', () => {
-    data.email = undefined;
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('email');
-    expect(result).toContain('required');
-  });
+    describe('if data.email', () => {
+      it('is missing', () => {
+        data.email = undefined;
+        const result = validatorService.validate(data, schema);
+        validateSchemaRequired(result, 'email');
+      });
 
-  it('should deny if email is not string', () => {
-    (data.email as any) = 2;
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('email');
-    expect(result).toContain('string');
-  });
+      it('is not string', () => {
+        (data.email as any) = 2;
+        const result = validatorService.validate(data, schema);
+        validateSchemaType(result, 'email', 'string');
+      });
 
-  it('should deny if email is not email', () => {
-    data.email = 'abcd';
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('email');
-    expect(result).toContain('format');
-  });
+      it('is not email', () => {
+        data.email = 'abcd';
+        const result = validatorService.validate(data, schema);
+        validateSchemaFormat(result, 'email', 'email');
+      });
+    });
 
-  it('should deny if displayName is missing from body', () => {
-    data.displayName = undefined;
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('displayName');
-    expect(result).toContain('required');
-  });
+    describe('if data.displayName', () => {
+      it('is missing', () => {
+        data.displayName = undefined;
+        const result = validatorService.validate(data, schema);
+        validateSchemaRequired(result, 'displayName');
+      });
 
-  it('should deny if displayName is not string', () => {
-    (data.displayName as any) = 2;
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('displayName');
-    expect(result).toContain('string');
-  });
+      it('is not string', () => {
+        (data.displayName as any) = 2;
+        const result = validatorService.validate(data, schema);
+        validateSchemaType(result, 'displayName', 'string');
+      });
 
-  it('should deny if displayName is too short', () => {
-    data.displayName = '';
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('displayName');
-    expect(result).toContain('shorter');
-  });
+      it('is too short', () => {
+        data.displayName = '';
+        const result = validatorService.validate(data, schema);
+        validateSchemaMinLength(result, 'displayName', 1);
+      });
+    });
 
-  it('should deny if password is missing from body', () => {
-    data.password = undefined;
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('password');
-    expect(result).toContain('required');
-  });
+    describe('if data.password', () => {
+      it('is missing', () => {
+        data.password = undefined;
+        const result = validatorService.validate(data, schema);
+        validateSchemaRequired(result, 'password');
+      });
 
-  it('should deny if password is not string', () => {
-    (data.password as any) = 2;
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('password');
-    expect(result).toContain('string');
-  });
+      it('is not string', () => {
+        (data.password as any) = 2;
+        const result = validatorService.validate(data, schema);
+        validateSchemaType(result, 'password', 'string');
+      });
 
-  it('should deny if password is too short', () => {
-    data.password = 'ab';
-    const result = validatorService.validate(data, schema);
-    expect(result).toContain('password');
-    expect(result).toContain('shorter');
+      it('is too short', () => {
+        data.password = 'ab';
+        const result = validatorService.validate(data, schema);
+        validateSchemaMinLength(result, 'password', 6);
+      });
+    });
   });
 });

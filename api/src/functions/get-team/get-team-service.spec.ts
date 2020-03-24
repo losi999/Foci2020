@@ -1,6 +1,6 @@
 import { IGetTeamService, getTeamServiceFactory } from '@/functions/get-team/get-team-service';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { TeamDocument, TeamResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
 
@@ -36,8 +36,8 @@ describe('Get team service', () => {
 
     const result = await service({ teamId });
     expect(result).toEqual(teamResponse);
-    expect(mockDatabaseService.functions.getTeamById).toHaveBeenCalledWith(teamId);
-    expect(mockTeamDocumentConverter.functions.toResponse).toHaveBeenCalledWith(teamDocument);
+    validateFunctionCall(mockDatabaseService.functions.getTeamById, teamId);
+    validateFunctionCall(mockTeamDocumentConverter.functions.toResponse, teamDocument);
   });
 
   it('should throw error if unable to query team', async () => {
@@ -45,8 +45,8 @@ describe('Get team service', () => {
     mockDatabaseService.functions.getTeamById.mockRejectedValue('This is a dynamo error');
 
     await service({ teamId }).catch(validateError('Unable to query team', 500));
-    expect(mockDatabaseService.functions.getTeamById).toHaveBeenCalledWith(teamId);
-    expect(mockTeamDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    validateFunctionCall(mockDatabaseService.functions.getTeamById, teamId);
+    validateFunctionCall(mockTeamDocumentConverter.functions.toResponse);
     expect.assertions(4);
   });
 
@@ -55,8 +55,8 @@ describe('Get team service', () => {
     mockDatabaseService.functions.getTeamById.mockResolvedValue(undefined);
 
     await service({ teamId }).catch(validateError('No team found', 404));
-    expect(mockDatabaseService.functions.getTeamById).toHaveBeenCalledWith(teamId);
-    expect(mockTeamDocumentConverter.functions.toResponse).not.toHaveBeenCalled();
+    validateFunctionCall(mockDatabaseService.functions.getTeamById, teamId);
+    validateFunctionCall(mockTeamDocumentConverter.functions.toResponse);
     expect.assertions(4);
   });
 });

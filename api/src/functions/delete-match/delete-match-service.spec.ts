@@ -1,5 +1,5 @@
 import { IDeleteMatchService, deleteMatchServiceFactory } from '@/functions/delete-match/delete-match-service';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { IDatabaseService } from '@/services/database-service';
 
 describe('Delete match service', () => {
@@ -19,7 +19,7 @@ describe('Delete match service', () => {
 
     const result = await service({ matchId });
     expect(result).toBeUndefined();
-    expect(mockDatabaseService.functions.deleteMatch).toHaveBeenCalledWith(matchId);
+    validateFunctionCall(mockDatabaseService.functions.deleteMatch, matchId);
   });
 
   it('should throw error if unable to delete match', async () => {
@@ -27,6 +27,6 @@ describe('Delete match service', () => {
 
     await service({ matchId }).catch(validateError('Unable to delete match', 500));
     expect.assertions(3);
-    expect(mockDatabaseService.functions.deleteMatch).toHaveBeenCalledWith(matchId);
+    validateFunctionCall(mockDatabaseService.functions.deleteMatch, matchId);
   });
 });

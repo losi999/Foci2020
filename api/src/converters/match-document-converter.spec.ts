@@ -1,18 +1,10 @@
 import { IMatchDocumentConverter, matchDocumentConverterFactory } from '@/converters/match-document-converter';
 import { matchDocument, matchResponse, matchRequest, teamDocument, tournamentDocument } from './test-data-factory';
-import { Score } from '@/types/types';
 
 describe('Match document converter', () => {
   let converter: IMatchDocumentConverter;
   let mockUuid: jest.Mock;
   const matchId = 'matchId';
-  const homeTeamId = 'homeTeamId';
-  const awayTeamId = 'awayTeamId';
-  const tournamentId = 'tournamentId';
-  const finalScore: Score = {
-    homeScore: 1,
-    awayScore: 3,
-  };
 
   beforeEach(() => {
     mockUuid = jest.fn();
@@ -22,8 +14,8 @@ describe('Match document converter', () => {
 
   describe('toResponse', () => {
     it('should convert document to response', () => {
-      const input = matchDocument(matchId, homeTeamId, awayTeamId, tournamentId, finalScore);
-      const expectedResponse = matchResponse(matchId, homeTeamId, awayTeamId, tournamentId, finalScore);
+      const input = matchDocument();
+      const expectedResponse = matchResponse();
 
       const result = converter.toResponse(input);
       expect(result).toEqual(expectedResponse);
@@ -32,8 +24,8 @@ describe('Match document converter', () => {
 
   describe('toResponseList', () => {
     it('should convert documents to responses', () => {
-      const input = matchDocument(matchId, homeTeamId, awayTeamId, tournamentId, finalScore);
-      const expectedResponse = matchResponse(matchId, homeTeamId, awayTeamId, tournamentId, finalScore);
+      const input = matchDocument();
+      const expectedResponse = matchResponse();
 
       const result = converter.toResponseList([input]);
       expect(result).toEqual([expectedResponse]);
@@ -42,14 +34,14 @@ describe('Match document converter', () => {
 
   describe('create', () => {
     it('should return a match document', () => {
-      const body = matchRequest(homeTeamId, awayTeamId, tournamentId);
-      const homeTeam = teamDocument(homeTeamId);
-      const awayTeam = teamDocument(awayTeamId);
-      const tournament = tournamentDocument(tournamentId);
+      const body = matchRequest();
+      const homeTeam = teamDocument({ id: 'homeTeamId' });
+      const awayTeam = teamDocument({ id: 'awayTeamId' });
+      const tournament = tournamentDocument();
 
       mockUuid.mockReturnValue(matchId);
 
-      const expectedDocument = matchDocument(matchId, homeTeamId, awayTeamId, tournamentId);
+      const expectedDocument = matchDocument();
 
       const result = converter.create(body, homeTeam, awayTeam, tournament);
       expect(result).toEqual(expectedDocument);
@@ -58,11 +50,11 @@ describe('Match document converter', () => {
 
   describe('update', () => {
     it('should return a match document for update', () => {
-      const body = matchRequest(homeTeamId, awayTeamId, tournamentId);
-      const homeTeam = teamDocument(homeTeamId);
-      const awayTeam = teamDocument(awayTeamId);
-      const tournament = tournamentDocument(tournamentId);
-      const expectedDocument = matchDocument(matchId, homeTeamId, awayTeamId, tournamentId);
+      const body = matchRequest();
+      const homeTeam = teamDocument({ id: 'homeTeamId' });
+      const awayTeam = teamDocument({ id: 'awayTeamId' });
+      const tournament = tournamentDocument();
+      const expectedDocument = matchDocument();
 
       const result = converter.update(matchId, body, homeTeam, awayTeam, tournament);
       expect(result).toEqual(expectedDocument);

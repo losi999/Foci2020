@@ -2,8 +2,8 @@ import { default as handler } from '@/functions/related-document/related-documen
 import { DynamoDBStreamEvent, DynamoDBRecord } from 'aws-lambda';
 import { IRelatedDocumentService } from '@/functions/related-document/related-document-service';
 import { Mock, createMockService, validateFunctionCall } from '@/common/unit-testing';
-import { Document, BetDocument, TournamentDocument, TeamDocument, MatchDocument } from '@/types/types';
 import { DynamoDB } from 'aws-sdk';
+import { tournamentDocument, teamDocument, betDocument, matchDocument } from '@/converters/test-data-factory';
 
 describe('Match related handler', () => {
   let apiHandler: ReturnType<typeof handler>;
@@ -16,9 +16,7 @@ describe('Match related handler', () => {
   });
 
   it('should process modified team document', async () => {
-    const document = {
-      documentType: 'team'
-    } as TeamDocument;
+    const document = teamDocument();
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -44,9 +42,7 @@ describe('Match related handler', () => {
   });
 
   it('should process modified tournament document', async () => {
-    const document = {
-      documentType: 'tournament'
-    } as TournamentDocument;
+    const document = tournamentDocument();
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -72,11 +68,7 @@ describe('Match related handler', () => {
   });
 
   it('should process modified bet document', async () => {
-    const document = {
-      documentType: 'bet',
-      tournamentId: 'tournamentId',
-      userId: 'userId'
-    } as BetDocument;
+    const document = betDocument();
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -102,10 +94,7 @@ describe('Match related handler', () => {
   });
 
   it('should process deleted team document', async () => {
-    const document = {
-      documentType: 'team',
-      id: 'id1'
-    } as Document;
+    const document = teamDocument();
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -131,10 +120,7 @@ describe('Match related handler', () => {
   });
 
   it('should process deleted tournament document', async () => {
-    const document = {
-      documentType: 'tournament',
-      id: 'id1'
-    } as Document;
+    const document = tournamentDocument();
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -160,10 +146,7 @@ describe('Match related handler', () => {
   });
 
   it('should process deleted match document', async () => {
-    const document = {
-      documentType: 'match',
-      id: 'id1'
-    } as Document;
+    const document = matchDocument();
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -189,14 +172,12 @@ describe('Match related handler', () => {
   });
 
   it('should process modified match document with finalScore', async () => {
-    const document = {
-      documentType: 'match',
-      id: 'id1',
+    const document = matchDocument({
       finalScore: {
         homeScore: 1,
         awayScore: 2
       }
-    } as MatchDocument;
+    });
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -222,10 +203,7 @@ describe('Match related handler', () => {
   });
 
   it('should skip processing modified match document without finalScore', async () => {
-    const document = {
-      documentType: 'match',
-      id: 'id1'
-    } as Document;
+    const document = matchDocument();
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -249,10 +227,7 @@ describe('Match related handler', () => {
   });
 
   it('should skip processing otherwise', async () => {
-    const document = {
-      documentType: 'match',
-      id: 'id1'
-    } as Document;
+    const document = matchDocument();
     const event: DynamoDBStreamEvent = {
       Records: [
         {

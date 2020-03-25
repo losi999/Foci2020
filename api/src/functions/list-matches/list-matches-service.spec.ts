@@ -1,8 +1,8 @@
 import { IListMatchesService, listMatchesServiceFactory } from '@/functions/list-matches/list-matches-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { MatchDocument, MatchResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
+import { matchDocument, matchResponse } from '@/converters/test-data-factory';
 
 describe('List matches service', () => {
   let service: IListMatchesService;
@@ -18,48 +18,15 @@ describe('List matches service', () => {
   });
 
   it('should return with list of matches', async () => {
-    const matchId1 = 'match1';
-    const matchId2 = 'match2';
-    const matchId3 = 'match3';
-    const matchDocument1 = {
-      id: matchId1,
-    } as MatchDocument;
-    const matchDocument2 = {
-      id: matchId2,
-    } as MatchDocument;
-    const matchDocument3 = {
-      id: matchId2,
-    } as MatchDocument;
-    const matchDocument4 = {
-      id: matchId3,
-    };
-
-    const queriedDocuments: MatchDocument[] = [
-      matchDocument1,
-      matchDocument2,
-      matchDocument3,
-      matchDocument4] as MatchDocument[];
+    const queriedDocuments = [matchDocument()];
     mockDatabaseService.functions.listMatches.mockResolvedValue(queriedDocuments);
 
-    const matchResponse = [
-      {
-        matchId: matchId1,
-        startTime: 'date1'
-      },
-      {
-        matchId: matchId2,
-        startTime: 'date2'
-      },
-      {
-        matchId: matchId3,
-        startTime: 'date3'
-      }
-    ] as MatchResponse[];
+    const response = [matchResponse()];
 
-    mockMatchDocumentConverter.functions.toResponseList.mockReturnValueOnce(matchResponse);
+    mockMatchDocumentConverter.functions.toResponseList.mockReturnValueOnce(response);
 
     const result = await service();
-    expect(result).toEqual(matchResponse);
+    expect(result).toEqual(response);
     expect(mockDatabaseService.functions.listMatches).toHaveBeenCalledWith();
     validateFunctionCall(mockMatchDocumentConverter.functions.toResponseList, queriedDocuments);
   });

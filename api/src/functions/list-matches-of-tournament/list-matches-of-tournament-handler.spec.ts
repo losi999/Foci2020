@@ -1,6 +1,6 @@
 import { default as handler } from '@/functions/list-matches-of-tournament/list-matches-of-tournament-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { MatchResponse } from '@/types/types';
+import { matchResponse } from '@/converters/test-data-factory';
 
 describe('List matches of tournament handler', () => {
   let mockListMatchesOfTournamentService: jest.Mock;
@@ -39,9 +39,8 @@ describe('List matches of tournament handler', () => {
       } as APIGatewayProxyEvent['pathParameters'],
       body: '{}'
     } as APIGatewayProxyEvent;
-    const matches: MatchResponse[] = [{
-      matchId: 'matchId'
-    }] as MatchResponse[];
+
+    const matches = [matchResponse()];
     mockListMatchesOfTournamentService.mockResolvedValue(matches);
 
     const response = await handler(mockListMatchesOfTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

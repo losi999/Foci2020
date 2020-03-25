@@ -1,16 +1,17 @@
 import { ISetFinalScoreOfMatchService, setFinalScoreOfMatchServiceFactory } from '@/functions/set-final-score-of-match/set-final-score-of-match-service';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { Score, MatchDocument } from '@/types/types';
+import { MatchFinalScoreRequest } from '@/types/types';
 import { advanceTo, clear } from 'jest-date-mock';
 import { addMinutes } from '@/common';
 import { IDatabaseService } from '@/services/database-service';
+import { matchDocument } from '@/converters/test-data-factory';
 
 describe('Set final score of match service', () => {
   let service: ISetFinalScoreOfMatchService;
   let mockDatabaseService: Mock<IDatabaseService>;
 
   const matchId = 'matchId';
-  const finalScore: Score = {
+  const finalScore: MatchFinalScoreRequest = {
     homeScore: 1,
     awayScore: 2
   };
@@ -28,9 +29,9 @@ describe('Set final score of match service', () => {
   });
 
   it('should return undefined if match is updated with final score', async () => {
-    const queriedMatch = {
+    const queriedMatch = matchDocument({
       startTime: addMinutes(-120, now).toISOString()
-    } as MatchDocument;
+    });
     mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
     mockDatabaseService.functions.updateMatch.mockResolvedValue(undefined);
@@ -61,9 +62,9 @@ describe('Set final score of match service', () => {
     });
 
     it('if the match has yet to finish', async () => {
-      const queriedMatch = {
+      const queriedMatch = matchDocument({
         startTime: addMinutes(-104, now).toISOString()
-      } as MatchDocument;
+      });
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
       await service({
@@ -76,9 +77,9 @@ describe('Set final score of match service', () => {
     });
 
     it('if unable to update match', async () => {
-      const queriedMatch = {
+      const queriedMatch = matchDocument({
         startTime: addMinutes(-120, now).toISOString()
-      } as MatchDocument;
+      });
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
       mockDatabaseService.functions.updateMatch.mockRejectedValue('This is a dynamo error');

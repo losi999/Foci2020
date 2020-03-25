@@ -1,9 +1,10 @@
 import { IRelatedDocumentService, relatedDocumentServiceFactory } from '@/functions/related-document/related-document-service';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, TournamentDocument, TeamDocument, BetDocument, MatchDocument, StandingDocument } from '@/types/types';
+import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/types';
 import { IBetDocumentConverter } from '@/converters/bet-document-converter';
 import { IStandingDocumentConverter } from '@/converters/standing-document-converter';
 import { IDatabaseService } from '@/services/database-service';
+import { matchDocument, teamDocument, tournamentDocument, betDocument, standingDocument } from '@/converters/test-data-factory';
 
 describe('Related document service', () => {
   let service: IRelatedDocumentService;
@@ -141,22 +142,17 @@ describe('Related document service', () => {
   describe('tournamentDeleted', () => {
     it('should return undefined if matches are deleted sucessfully', async () => {
       const tournamentId = 'tournamentId';
-      const matchId1 = 'matchId1';
 
-      const queriedMatches = [{
-        tournamentId,
-        id: matchId1,
-        'documentType-id': ''
-      }] as MatchDocument[];
+      const queriedMatch = matchDocument();
 
-      mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedMatches);
+      mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue([queriedMatch]);
       mockDatabaseService.functions.deleteMatch.mockResolvedValue(undefined);
 
       const result = await service.tournamentDeleted(tournamentId);
 
       expect(result).toBeUndefined();
       validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
-      validateFunctionCall(mockDatabaseService.functions.deleteMatch, matchId1);
+      validateFunctionCall(mockDatabaseService.functions.deleteMatch, queriedMatch.id);
       expect.assertions(3);
     });
 
@@ -175,21 +171,17 @@ describe('Related document service', () => {
 
       it('if unable to delete matches', async () => {
         const tournamentId = 'tournamentId';
-        const matchId1 = 'matchId1';
 
-        const queriedMatches = [{
-          tournamentId,
-          id: matchId1,
-          'documentType-id': ''
-        }] as MatchDocument[];
+        const queriedMatch = matchDocument();
+
+        mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue([queriedMatch]);
 
         const message = 'This is a dynamo error';
-        mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedMatches);
         mockDatabaseService.functions.deleteMatch.mockRejectedValue({ message });
 
         await service.tournamentDeleted(tournamentId).catch(validateError(message));
         validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
-        validateFunctionCall(mockDatabaseService.functions.deleteMatch, matchId1);
+        validateFunctionCall(mockDatabaseService.functions.deleteMatch, queriedMatch.id);
         expect.assertions(3);
       });
     });
@@ -197,9 +189,7 @@ describe('Related document service', () => {
 
   describe('teamUpdated', () => {
     it('should return undefined if matches are updated successfully', async () => {
-      const team = {
-        id: 'teamId'
-      } as TeamDocument;
+      const team = teamDocument();
       const matchId1 = 'matchId1';
       const matchId2 = 'matchId2';
 
@@ -230,9 +220,7 @@ describe('Related document service', () => {
 
     describe('should throw error', () => {
       it('if unable to query matches by homeTeam Id', async () => {
-        const team = {
-          id: 'teamId'
-        } as TeamDocument;
+        const team = teamDocument();
         const matchId2 = 'matchId2';
 
         const queriedAwayMatches: IndexByAwayTeamIdDocument[] = [{
@@ -253,9 +241,7 @@ describe('Related document service', () => {
       });
 
       it('if unable to query matches by awayTeam Id', async () => {
-        const team = {
-          id: 'teamId'
-        } as TeamDocument;
+        const team = teamDocument();
         const matchId1 = 'matchId1';
 
         const queriedHomeMatches: IndexByHomeTeamIdDocument[] = [{
@@ -276,9 +262,7 @@ describe('Related document service', () => {
       });
 
       it('if unable to update matches', async () => {
-        const team = {
-          id: 'teamId'
-        } as TeamDocument;
+        const team = teamDocument();
         const matchId1 = 'matchId1';
         const matchId2 = 'matchId2';
 
@@ -312,30 +296,25 @@ describe('Related document service', () => {
   describe('tournamentUpdated', () => {
     it('should return undefined if matches are updated sucessfully', async () => {
       const tournamentId = 'tournamentId';
-      const matchId1 = 'matchId1';
-      const tournament = { id: tournamentId } as TournamentDocument;
+      const tournament = tournamentDocument();
 
-      const queriedMatches = [{
-        tournamentId,
-        id: matchId1,
-        'documentType-id': ''
-      }] as MatchDocument[];
+      const queriedMatch = matchDocument();
 
-      mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedMatches);
+      mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue([queriedMatch]);
       mockDatabaseService.functions.updateTournamentOfMatch.mockResolvedValue(undefined);
 
       const result = await service.tournamentUpdated(tournament);
 
       expect(result).toBeUndefined();
       validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
-      validateFunctionCall(mockDatabaseService.functions.updateTournamentOfMatch, matchId1, tournament);
+      validateFunctionCall(mockDatabaseService.functions.updateTournamentOfMatch, queriedMatch.id, tournament);
       expect.assertions(3);
     });
 
     describe('should throw error', () => {
       it('if unable to query matches by tournament Id', async () => {
         const tournamentId = 'tournamentId';
-        const tournament = { id: tournamentId } as TournamentDocument;
+        const tournament = tournamentDocument();
 
         const message = 'This is a dynamo error';
         mockDatabaseService.functions.queryMatchesByTournamentId.mockRejectedValue({ message });
@@ -348,22 +327,17 @@ describe('Related document service', () => {
 
       it('if unable to update matches', async () => {
         const tournamentId = 'tournamentId';
-        const matchId1 = 'matchId1';
-        const tournament = { id: tournamentId } as TournamentDocument;
+        const tournament = tournamentDocument();
 
-        const queriedMatches = [{
-          tournamentId,
-          id: matchId1,
-          'documentType-id': ''
-        }] as MatchDocument[];
+        const queriedMatch = matchDocument();
+        mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue([queriedMatch]);
 
         const message = 'This is a dynamo error';
-        mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue(queriedMatches);
         mockDatabaseService.functions.updateTournamentOfMatch.mockRejectedValue({ message });
 
         await service.tournamentUpdated(tournament).catch(validateError(message));
         validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
-        validateFunctionCall(mockDatabaseService.functions.updateTournamentOfMatch, matchId1, tournament);
+        validateFunctionCall(mockDatabaseService.functions.updateTournamentOfMatch, queriedMatch.id, tournament);
         expect.assertions(3);
       });
     });
@@ -372,10 +346,8 @@ describe('Related document service', () => {
   describe('matchDeleted', () => {
     it('should return undefined if bets are deleted', async () => {
       const matchId = 'matchId';
-      const bet = {
-        userId: 'userId',
-        matchId: 'matchId'
-      } as BetDocument;
+
+      const bet = betDocument();
       mockDatabaseService.functions.queryBetsByMatchId.mockResolvedValue([bet]);
 
       mockDatabaseService.functions.deleteBet.mockResolvedValue(undefined);
@@ -402,10 +374,8 @@ describe('Related document service', () => {
 
       it('if unable to delete bet', async () => {
         const matchId = 'matchId';
-        const bet = {
-          userId: 'userId',
-          matchId: 'matchId'
-        } as BetDocument;
+
+        const bet = betDocument();
         mockDatabaseService.functions.queryBetsByMatchId.mockResolvedValue([bet]);
 
         const message = 'this is a dynamo error';
@@ -421,22 +391,17 @@ describe('Related document service', () => {
 
   describe('matchFinalScoreUpdated', () => {
     it('should return undefined if bets are updated', async () => {
-      const match = {
-        id: 'matchId',
+      const match = matchDocument({
         finalScore: {
           homeScore: 1,
           awayScore: 0
         }
-      } as MatchDocument;
+      });
 
-      const bet = {
-        id: 'betId'
-      } as BetDocument;
+      const bet = betDocument();
       mockDatabaseService.functions.queryBetsByMatchId.mockResolvedValue([bet]);
 
-      const converted = {
-        id: bet.id
-      } as BetDocument;
+      const converted = betDocument();
       mockBetDocumentConverter.functions.calculateResult.mockReturnValue(converted);
 
       mockDatabaseService.functions.updateBet.mockResolvedValue(undefined);
@@ -449,9 +414,7 @@ describe('Related document service', () => {
 
     describe('should throw error', () => {
       it('if unable to query bets by match id', async () => {
-        const match = {
-          id: 'matchId',
-        } as MatchDocument;
+        const match = matchDocument();
 
         const message = 'This is a dynamo error';
         mockDatabaseService.functions.queryBetsByMatchId.mockRejectedValue({ message });
@@ -463,22 +426,17 @@ describe('Related document service', () => {
       });
 
       it('if unable to update bet', async () => {
-        const match = {
-          id: 'matchId',
+        const match = matchDocument({
           finalScore: {
             homeScore: 1,
             awayScore: 0
           }
-        } as MatchDocument;
+        });
 
-        const bet = {
-          id: 'betId'
-        } as BetDocument;
+        const bet = betDocument();
         mockDatabaseService.functions.queryBetsByMatchId.mockResolvedValue([bet]);
 
-        const converted = {
-          id: bet.id
-        } as BetDocument;
+        const converted = betDocument();
         mockBetDocumentConverter.functions.calculateResult.mockReturnValue(converted);
 
         const message = 'This is a dynamo error';
@@ -497,14 +455,10 @@ describe('Related document service', () => {
     const userId = 'userId';
     it('should return undefined if standing document is saved successfully', async () => {
 
-      const bets = [{
-        id: 'betId'
-      }] as BetDocument[];
+      const bets = [betDocument()];
       mockDatabaseService.functions.queryBetsByTournamentIdUserId.mockResolvedValue(bets);
 
-      const converted = {
-        id: 'standingId'
-      } as StandingDocument;
+      const converted = standingDocument();
       mockStandingDocumentConverter.functions.create.mockReturnValue(converted);
 
       mockDatabaseService.functions.saveStanding.mockResolvedValue(undefined);
@@ -527,14 +481,10 @@ describe('Related document service', () => {
       });
 
       it('if unable to save standing document', async () => {
-        const bets = [{
-          id: 'betId'
-        }] as BetDocument[];
+        const bets = [betDocument()];
         mockDatabaseService.functions.queryBetsByTournamentIdUserId.mockResolvedValue(bets);
 
-        const converted = {
-          id: 'standingId'
-        } as StandingDocument;
+        const converted = standingDocument();
         mockStandingDocumentConverter.functions.create.mockReturnValue(converted);
 
         const message = 'This is a dynamo error';

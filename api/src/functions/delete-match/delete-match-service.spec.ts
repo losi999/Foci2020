@@ -26,7 +26,7 @@ describe('Delete match service', () => {
     mockDatabaseService.functions.deleteMatch.mockRejectedValue('This is a dynamo error');
 
     await service({ matchId }).catch(validateError('Unable to delete match', 500));
-    expect.assertions(3);
     validateFunctionCall(mockDatabaseService.functions.deleteMatch, matchId);
+    expect.assertions(3);
   });
 });

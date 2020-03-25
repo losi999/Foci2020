@@ -1,8 +1,8 @@
 import { createTournamentServiceFactory, ICreateTournamentService } from '@/functions/create-tournament/create-tournament-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { TournamentDocument, TournamentRequest } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
+import { tournamentRequest, tournamentDocument } from '@/converters/test-data-factory';
 
 describe('Create tournament service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;
@@ -16,33 +16,9 @@ describe('Create tournament service', () => {
     service = createTournamentServiceFactory(mockDatabaseService.service, mockTournamentDocumentConverter.service);
   });
 
-  type TestDataInput = {
-    tournamentId: string;
-    convertedTournament: TournamentDocument,
-  };
-
-  type TestData = TestDataInput & {
-    body: TournamentRequest,
-  };
-
-  const setup = (input?: Partial<TestDataInput> & { minutesFromNow?: number }): TestData => {
-    const tournamentId = input?.tournamentId ?? 'tournamentId';
-
-    const convertedTournament = input?.convertedTournament ?? {
-      id: tournamentId
-    } as TournamentDocument;
-
-    return {
-      convertedTournament,
-      tournamentId,
-      body: {
-        tournamentName: 'tournamentName'
-      } as TournamentRequest
-    };
-  };
-
   it('should throw error if unable to save tournament', async () => {
-    const { body, convertedTournament } = setup();
+    const convertedTournament = tournamentDocument();
+    const body = tournamentRequest();
 
     mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
     mockDatabaseService.functions.saveTournament.mockRejectedValue({});
@@ -54,15 +30,17 @@ describe('Create tournament service', () => {
   });
 
   it('should return with tournamentId if tournament is saved', async () => {
-    const { body, convertedTournament, tournamentId } = setup();
+    const convertedTournament = tournamentDocument();
+    const body = tournamentRequest();
 
     mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
     mockDatabaseService.functions.saveTournament.mockResolvedValue(undefined);
 
     const result = await service({ body });
 
-    expect(result).toEqual(tournamentId);
+    expect(result).toEqual(convertedTournament.id);
     validateFunctionCall(mockTournamentDocumentConverter.functions.create, body);
     validateFunctionCall(mockDatabaseService.functions.saveTournament, convertedTournament);
+    expect.assertions(3);
   });
 });

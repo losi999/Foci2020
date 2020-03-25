@@ -1,6 +1,6 @@
 import { default as handler } from '@/functions/get-tournament/get-tournament-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { TournamentResponse } from '@/types/types';
+import { tournamentResponse } from '@/converters/test-data-factory';
 
 describe('Get tournament handler', () => {
   let mockGetTournamentService: jest.Mock;
@@ -29,14 +29,11 @@ describe('Get tournament handler', () => {
   });
 
   it('should respond with HTTP 200 and tournament if getTournament executes successfully', async () => {
-    const tournamentId = 'tournamentId';
     const handlerEvent = {
       pathParameters: {},
       body: '{}'
     } as APIGatewayProxyEvent;
-    const tournament: TournamentResponse = {
-      tournamentId
-    } as TournamentResponse;
+    const tournament = tournamentResponse();
     mockGetTournamentService.mockResolvedValue(tournament);
 
     const response = await handler(mockGetTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

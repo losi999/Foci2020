@@ -1,8 +1,8 @@
 import { IGetTeamService, getTeamServiceFactory } from '@/functions/get-team/get-team-service';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { TeamDocument, TeamResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
+import { teamDocument, teamResponse } from '@/converters/test-data-factory';
 
 describe('Get team service', () => {
   let service: IGetTeamService;
@@ -19,25 +19,19 @@ describe('Get team service', () => {
 
   it('should return with a team', async () => {
     const teamId = 'teamId';
-    const teamName = 'Team';
-    const teamDocument = {
-      teamName,
-      id: teamId,
-    } as TeamDocument;
+    const document = teamDocument();
 
-    mockDatabaseService.functions.getTeamById.mockResolvedValue(teamDocument);
+    mockDatabaseService.functions.getTeamById.mockResolvedValue(document);
 
-    const teamResponse = {
-      teamId,
-      teamName
-    } as TeamResponse;
+    const response = teamResponse();
 
-    mockTeamDocumentConverter.functions.toResponse.mockReturnValue(teamResponse);
+    mockTeamDocumentConverter.functions.toResponse.mockReturnValue(response);
 
     const result = await service({ teamId });
-    expect(result).toEqual(teamResponse);
+    expect(result).toEqual(response);
     validateFunctionCall(mockDatabaseService.functions.getTeamById, teamId);
-    validateFunctionCall(mockTeamDocumentConverter.functions.toResponse, teamDocument);
+    validateFunctionCall(mockTeamDocumentConverter.functions.toResponse, document);
+    expect.assertions(3);
   });
 
   it('should throw error if unable to query team', async () => {

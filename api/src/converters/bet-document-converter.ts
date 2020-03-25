@@ -1,11 +1,11 @@
-import { BetDocument, BetRequest, BetResponse, Score, DocumentType } from '@/types/types';
+import { BetDocument, BetRequest, BetResponse, MatchFinalScoreRequest, DocumentType } from '@/types/types';
 import { internalDocumentPropertiesToRemove, betResultPoint } from '@/constants';
 import { concatenate } from '@/common';
 
 export interface IBetDocumentConverter {
   toResponseList(documents: BetDocument[], userId?: string): BetResponse[];
   create(body: BetRequest, userId: string, userName: string, matchId: string, tournamentId: string): BetDocument;
-  calculateResult(bet: BetDocument, finalScore: Score): BetDocument;
+  calculateResult(bet: BetDocument, finalScore: MatchFinalScoreRequest): BetDocument;
 }
 
 export const betDocumentConverterFactory = (): IBetDocumentConverter => {

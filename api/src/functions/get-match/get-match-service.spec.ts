@@ -1,8 +1,8 @@
 import { IGetMatchService, getMatchServiceFactory } from '@/functions/get-match/get-match-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { MatchDocument, MatchResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
+import { matchDocument, matchResponse } from '@/converters/test-data-factory';
 
 describe('Get match service', () => {
   let service: IGetMatchService;
@@ -18,22 +18,19 @@ describe('Get match service', () => {
 
   it('should return with a match', async () => {
     const matchId = 'matchId';
-    const matchDocument = {
-      id: matchId,
-    } as MatchDocument;
+    const document = matchDocument();
 
-    mockDatabaseService.functions.getMatchById.mockResolvedValue(matchDocument);
+    mockDatabaseService.functions.getMatchById.mockResolvedValue(document);
 
-    const matchResponse = {
-      matchId,
-    } as MatchResponse;
+    const response = matchResponse();
 
-    mockMatchDocumentConverter.functions.toResponse.mockReturnValue(matchResponse);
+    mockMatchDocumentConverter.functions.toResponse.mockReturnValue(response);
 
     const result = await service({ matchId });
-    expect(result).toEqual(matchResponse);
+    expect(result).toEqual(response);
     validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
-    validateFunctionCall(mockMatchDocumentConverter.functions.toResponse, matchDocument);
+    validateFunctionCall(mockMatchDocumentConverter.functions.toResponse, document);
+    expect.assertions(3);
   });
 
   it('should throw error if unable to query match', async () => {

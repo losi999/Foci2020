@@ -1,8 +1,8 @@
 import { IUpdateTeamService, updateTeamServiceFactory } from '@/functions/update-team/update-team-service';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { TeamRequest, TeamDocument } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
+import { teamRequest, teamDocument } from '@/converters/test-data-factory';
 
 describe('Update team service', () => {
   let service: IUpdateTeamService;
@@ -18,20 +18,9 @@ describe('Update team service', () => {
 
   it('should return with with undefined if team is updated successfully', async () => {
     const teamId = 'teamId';
-    const teamName = 'teamName';
-    const image = 'http://image.com/a.png';
-    const shortName = 'SHN';
-    const body: TeamRequest = {
-      teamName,
-      image,
-      shortName
-    };
+    const body = teamRequest();
 
-    const converted = {
-      image,
-      shortName,
-      teamName
-    } as TeamDocument;
+    const converted = teamDocument();
 
     mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
     mockDatabaseService.functions.updateTeam.mockResolvedValue(undefined);
@@ -48,20 +37,9 @@ describe('Update team service', () => {
 
   it('should throw error if unable to update team', async () => {
     const teamId = 'teamId';
-    const teamName = 'teamName';
-    const image = 'http://image.com/a.png';
-    const shortName = 'SHN';
-    const body: TeamRequest = {
-      teamName,
-      image,
-      shortName
-    };
+    const body = teamRequest();
 
-    const converted = {
-      image,
-      shortName,
-      teamName
-    } as TeamDocument;
+    const converted = teamDocument();
 
     mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
     mockDatabaseService.functions.updateTeam.mockRejectedValue('This is a dynamo error');

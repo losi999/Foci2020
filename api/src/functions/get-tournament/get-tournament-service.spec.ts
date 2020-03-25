@@ -1,8 +1,8 @@
 import { IGetTournamentService, getTournamentServiceFactory } from '@/functions/get-tournament/get-tournament-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { TournamentDocument, TournamentResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
+import { tournamentResponse, tournamentDocument } from '@/converters/test-data-factory';
 
 describe('Get tournament service', () => {
   let service: IGetTournamentService;
@@ -19,25 +19,19 @@ describe('Get tournament service', () => {
 
   it('should return with a tournament', async () => {
     const tournamentId = 'tournamentId';
-    const tournamentName = 'Tournament';
-    const tournamentDocument = {
-      tournamentName,
-      id: tournamentId,
-    } as TournamentDocument;
+    const document = tournamentDocument();
 
-    mockDatabaseService.functions.getTournamentById.mockResolvedValue(tournamentDocument);
+    mockDatabaseService.functions.getTournamentById.mockResolvedValue(document);
 
-    const tournamentResponse = {
-      tournamentId,
-      tournamentName
-    } as TournamentResponse;
+    const response = tournamentResponse();
 
-    mockTournamentDocumentConverter.functions.toResponse.mockReturnValueOnce(tournamentResponse);
+    mockTournamentDocumentConverter.functions.toResponse.mockReturnValueOnce(response);
 
     const result = await service({ tournamentId });
-    expect(result).toEqual(tournamentResponse);
+    expect(result).toEqual(response);
     validateFunctionCall(mockDatabaseService.functions.getTournamentById, tournamentId);
-    validateFunctionCall(mockTournamentDocumentConverter.functions.toResponse, tournamentDocument);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.toResponse, document);
+    expect.assertions(3);
   });
 
   it('should throw error if unable to query tournament', async () => {

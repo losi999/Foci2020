@@ -1,8 +1,8 @@
 import { IListTournamentsService, listTournamentsServiceFactory } from '@/functions/list-tournaments/list-tournaments-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { TournamentDocument, TournamentResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
+import { tournamentDocument, tournamentResponse } from '@/converters/test-data-factory';
 
 describe('List tournaments service', () => {
   let service: IListTournamentsService;
@@ -17,38 +17,15 @@ describe('List tournaments service', () => {
   });
 
   it('should return with list of tournaments', async () => {
-    const tournamentId1 = 'tournament1';
-    const tournamentId2 = 'tournament2';
-    const tournamentName1 = 'tournament1';
-    const tournamentName2 = 'tournament2';
-    const tournamentDocument1 = {
-      id: tournamentId1,
-      tournamentName: tournamentName1
-    } as TournamentDocument;
-    const tournamentDocument2 = {
-      id: tournamentId2,
-      tournamentName: tournamentName2
-    } as TournamentDocument;
-
-    const queriedDocuments: TournamentDocument[] = [
-      tournamentDocument1,
-      tournamentDocument2] as TournamentDocument[];
+    const queriedDocuments = [tournamentDocument()];
     mockDatabaseService.functions.listTournaments.mockResolvedValue(queriedDocuments);
 
-    const tournamentResponse = [
-      {
-        tournamentId: tournamentId1,
-        tournamentName: tournamentName1
-      },
-      {
-        tournamentId: tournamentId2,
-        tournamentName: tournamentName2
-      }] as TournamentResponse[];
+    const response = [tournamentResponse()];
 
-    mockTournamentDocumentConverter.functions.toResponseList.mockReturnValueOnce(tournamentResponse);
+    mockTournamentDocumentConverter.functions.toResponseList.mockReturnValueOnce(response);
 
     const result = await service();
-    expect(result).toEqual(tournamentResponse);
+    expect(result).toEqual(response);
     expect(mockDatabaseService.functions.listTournaments).toHaveBeenCalledWith();
     validateFunctionCall(mockTournamentDocumentConverter.functions.toResponseList, queriedDocuments);
   });

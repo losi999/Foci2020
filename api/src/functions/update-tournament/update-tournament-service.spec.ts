@@ -1,8 +1,8 @@
 import { IUpdateTournamentService, updateTournamentServiceFactory } from '@/functions/update-tournament/update-tournament-service';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { TournamentRequest, TournamentDocument } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
+import { tournamentDocument, tournamentRequest } from '@/converters/test-data-factory';
 
 describe('Update tournament service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;
@@ -18,14 +18,9 @@ describe('Update tournament service', () => {
 
   it('should return with with undefined if tournament is updated successfully', async () => {
     const tournamentId = 'tournamentId';
-    const tournamentName = 'tournamentName';
-    const body: TournamentRequest = {
-      tournamentName
-    };
+    const body = tournamentRequest();
 
-    const converted = {
-      tournamentName
-    } as TournamentDocument;
+    const converted = tournamentDocument();
 
     mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
     mockDatabaseService.functions.updateTournament.mockResolvedValue(undefined);
@@ -42,14 +37,9 @@ describe('Update tournament service', () => {
 
   it('should throw error if unable to update tournament', async () => {
     const tournamentId = 'tournamentId';
-    const tournamentName = 'tournamentName';
-    const body: TournamentRequest = {
-      tournamentName
-    };
+    const body = tournamentRequest();
 
-    const converted = {
-      tournamentName
-    } as TournamentDocument;
+    const converted = tournamentDocument();
 
     mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
     mockDatabaseService.functions.updateTournament.mockRejectedValue('This is a dynamo error');

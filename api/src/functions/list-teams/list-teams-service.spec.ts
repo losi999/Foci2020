@@ -1,8 +1,8 @@
 import { IListTeamsService, listTeamsServiceFactory } from '@/functions/list-teams/list-teams-service';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { TeamDocument, TeamResponse } from '@/types/types';
 import { IDatabaseService } from '@/services/database-service';
+import { teamDocument, teamResponse } from '@/converters/test-data-factory';
 
 describe('List teams service', () => {
   let service: IListTeamsService;
@@ -17,39 +17,15 @@ describe('List teams service', () => {
   });
 
   it('should return with list of teams', async () => {
-    const teamId1 = 'team1';
-    const teamId2 = 'team2';
-    const teamName1 = 'team1';
-    const teamName2 = 'team2';
-    const teamDocument1 = {
-      id: teamId1,
-      teamName: teamName1
-    } as TeamDocument;
-    const teamDocument2 = {
-      id: teamId2,
-      teamName: teamName2
-    } as TeamDocument;
-
-    const queriedDocuments: TeamDocument[] = [
-      teamDocument1,
-      teamDocument2] as TeamDocument[];
+    const queriedDocuments = [teamDocument()];
     mockDatabaseService.functions.listTeams.mockResolvedValue(queriedDocuments);
 
-    const teamResponse = [
-      {
-        teamId: teamId1,
-        teamName: teamName1
-      },
-      {
-        teamId: teamId2,
-        teamName: teamName2
-      }
-    ] as TeamResponse[];
+    const response = [teamResponse()];
 
-    mockTeamDocumentConverter.functions.toResponseList.mockReturnValue(teamResponse);
+    mockTeamDocumentConverter.functions.toResponseList.mockReturnValue(response);
 
     const result = await service();
-    expect(result).toEqual(teamResponse);
+    expect(result).toEqual(response);
     expect(mockDatabaseService.functions.listTeams).toHaveBeenCalledWith();
     validateFunctionCall(mockTeamDocumentConverter.functions.toResponseList, queriedDocuments);
   });

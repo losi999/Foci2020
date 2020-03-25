@@ -1,10 +1,10 @@
 import { default as schema } from '@/schemas/match-score';
 import { validatorService } from '@/dependencies';
-import { Score } from '@/types/types';
+import { MatchFinalScoreRequest } from '@/types/types';
 import { validateSchemaAdditionalProperties, validateSchemaRequired, validateSchemaType, validateSchemaMinimum } from '@/common/unit-testing';
 
 describe('Match score schema', () => {
-  let data: Score;
+  let data: MatchFinalScoreRequest;
 
   beforeEach(() => {
     data = {

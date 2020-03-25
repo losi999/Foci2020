@@ -2,9 +2,9 @@ import { IPlaceBetService, placeBetServiceFactory } from '@/functions/place-bet/
 import { IBetDocumentConverter } from '@/converters/bet-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { advanceTo, clear } from 'jest-date-mock';
-import { BetRequest, MatchDocument, BetDocument } from '@/types/types';
 import { addMinutes } from '@/common';
 import { IDatabaseService } from '@/services/database-service';
+import { betRequest, matchDocument, betDocument } from '@/converters/test-data-factory';
 
 describe('Place bet service', () => {
   let service: IPlaceBetService;
@@ -25,25 +25,26 @@ describe('Place bet service', () => {
     clear();
   });
 
-  const bet: BetRequest = {
+  const bet = betRequest({
     homeScore: 1,
     awayScore: 3
-  };
+  });
   const userId = 'userId';
   const matchId = 'matchId';
-  const tournamentId = 'tournamentId';
   const userName = 'userName';
 
   it('should return undefined if bet is placed on a match', async () => {
     mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
-    mockDatabaseService.functions.getMatchById.mockResolvedValue({
-      tournamentId,
+
+    const queriedMatch = matchDocument({
       startTime: addMinutes(6, now).toISOString(),
-    } as MatchDocument);
-    const converted = {
+    });
+    mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
+
+    const converted = betDocument({
       homeScore: 1,
       awayScore: 3
-    } as BetDocument;
+    });
     mockBetDocumentConverter.functions.create.mockReturnValue(converted);
     mockDatabaseService.functions.saveBet.mockResolvedValue(undefined);
 
@@ -56,16 +57,14 @@ describe('Place bet service', () => {
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
     validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
-    validateFunctionCall(mockBetDocumentConverter.functions.create, bet, userId, userName, matchId, tournamentId);
+    validateFunctionCall(mockBetDocumentConverter.functions.create, bet, userId, userName, matchId, queriedMatch.tournamentId);
     validateFunctionCall(mockDatabaseService.functions.saveBet, converted);
     expect.assertions(5);
   });
 
   describe('should throw error', () => {
     it('if bet is already placed on a match', async () => {
-      mockDatabaseService.functions.getBetById.mockResolvedValue({
-        id: 'there is a bet'
-      } as BetDocument);
+      mockDatabaseService.functions.getBetById.mockResolvedValue(betDocument());
 
       await service({
         bet,
@@ -132,9 +131,11 @@ describe('Place bet service', () => {
 
     it('if betting time is expired', async () => {
       mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
-      mockDatabaseService.functions.getMatchById.mockResolvedValue({
-        startTime: addMinutes(4, now).toISOString()
-      } as MatchDocument);
+
+      const queriedMatch = matchDocument({
+        startTime: addMinutes(4, now).toISOString(),
+      });
+      mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
       await service({
         bet,
@@ -151,14 +152,17 @@ describe('Place bet service', () => {
 
     it('if unable to save bet', async () => {
       mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
-      mockDatabaseService.functions.getMatchById.mockResolvedValue({
-        tournamentId,
-        startTime: addMinutes(6, now).toISOString()
-      } as MatchDocument);
-      const converted = {
+
+      const queriedMatch = matchDocument({
+        startTime: addMinutes(6, now).toISOString(),
+      });
+
+      mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
+
+      const converted = betDocument({
         homeScore: 1,
         awayScore: 3
-      } as BetDocument;
+      });
       mockBetDocumentConverter.functions.create.mockReturnValue(converted);
       mockDatabaseService.functions.saveBet.mockRejectedValue(undefined);
 
@@ -170,7 +174,7 @@ describe('Place bet service', () => {
       }).catch(validateError('Unable to save bet', 500));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
-      validateFunctionCall(mockBetDocumentConverter.functions.create, bet, userId, userName, matchId, tournamentId);
+      validateFunctionCall(mockBetDocumentConverter.functions.create, bet, userId, userName, matchId, queriedMatch.tournamentId);
       validateFunctionCall(mockDatabaseService.functions.saveBet, converted);
       expect.assertions(6);
     });

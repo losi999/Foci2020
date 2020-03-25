@@ -1,4 +1,4 @@
-import { Remove, InternalDocumentProperties, BetResultPoint } from './types/types';
+import { Remove, InternalDocumentProperties, BetResult } from './types/types';
 
 export const internalDocumentPropertiesToRemove: Remove<InternalDocumentProperties<never>> = {
   'documentType-id': undefined,
@@ -7,6 +7,9 @@ export const internalDocumentPropertiesToRemove: Remove<InternalDocumentProperti
   orderingValue: undefined
 };
 
+type BetResultPoint = {
+  [result in BetResult]: number;
+};
 export const betResultPoint: BetResultPoint = {
   nothing: 0,
   outcome: 1,

@@ -34,11 +34,11 @@ type IndexByTournamentIdUserIdDocumentType = {
   'tournamentId-userId-documentType': string;
 };
 
-export type TournamentBase = {
+type TournamentBase = {
   tournamentName: string;
 };
 
-export type TournamentId = {
+type TournamentId = {
   tournamentId: string;
 };
 
@@ -51,13 +51,13 @@ export type TournamentResponse = TournamentBase
   & TournamentId
   & Remove<InternalDocumentProperties>;
 
-export type TeamBase = {
+type TeamBase = {
   teamName: string
   shortName: string;
   image: string;
 };
 
-export type TeamId = {
+type TeamId = {
   teamId: string;
 };
 
@@ -70,21 +70,21 @@ export type TeamResponse = TeamBase
   & TeamId
   & Remove<InternalDocumentProperties>;
 
-export type MatchBase = {
+type MatchBase = {
   startTime: string;
   group: string;
 };
 
-export type Score = {
+type Score = {
   homeScore: number;
   awayScore: number;
 };
 
-export type MatchId = {
+type MatchId = {
   matchId: string;
 };
 
-export type MatchTeamIds = {
+type MatchTeamIds = {
   homeTeamId: string;
   awayTeamId: string;
 };
@@ -129,9 +129,6 @@ export type IndexByHomeTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 
 export type IndexByAwayTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'awayTeamId'>;
 
 export type BetResult = 'nothing' | 'outcome' | 'goalDifference' | 'exactMatch';
-export type BetResultPoint = {
-  [result in BetResult]: number;
-};
 
 type BetBase = {
   userName: string;

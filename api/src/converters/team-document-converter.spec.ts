@@ -14,8 +14,8 @@ describe('Team document converter', () => {
 
   describe('toResponse', () => {
     it('should convert document to response', () => {
-      const input = teamDocument(teamId);
-      const expectedResponse = teamResponse(teamId);
+      const input = teamDocument();
+      const expectedResponse = teamResponse();
 
       const result = converter.toResponse(input);
       expect(result).toEqual(expectedResponse);
@@ -24,8 +24,8 @@ describe('Team document converter', () => {
 
   describe('toResponseList', () => {
     it('should convert documents to responses', () => {
-      const input = teamDocument(teamId);
-      const expectedResponse = teamResponse(teamId);
+      const input = teamDocument();
+      const expectedResponse = teamResponse();
 
       const result = converter.toResponseList([input]);
       expect(result).toEqual([expectedResponse]);
@@ -38,7 +38,7 @@ describe('Team document converter', () => {
 
       mockUuid.mockReturnValue(teamId);
 
-      const expectedDocument = teamDocument(teamId);
+      const expectedDocument = teamDocument();
 
       const result = converter.create(body);
       expect(result).toEqual(expectedDocument);
@@ -49,7 +49,7 @@ describe('Team document converter', () => {
     it('should return a team document for update', () => {
       const body = teamRequest();
 
-      const expectedDocument = teamDocument(teamId);
+      const expectedDocument = teamDocument();
 
       const result = converter.update(teamId, body);
       expect(result).toEqual(expectedDocument);

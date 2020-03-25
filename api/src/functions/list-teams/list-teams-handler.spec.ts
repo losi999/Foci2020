@@ -1,6 +1,6 @@
 import { default as handler } from '@/functions/list-teams/list-teams-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { TeamResponse } from '@/types/types';
+import { teamResponse } from '@/converters/test-data-factory';
 
 describe('List teams handler', () => {
   let mockListTeamsService: jest.Mock;
@@ -31,9 +31,8 @@ describe('List teams handler', () => {
     const handlerEvent = {
       body: '{}'
     } as APIGatewayProxyEvent;
-    const teams: TeamResponse[] = [{
-      teamId: 'teamId'
-    }] as TeamResponse[];
+
+    const teams = [teamResponse()];
     mockListTeamsService.mockResolvedValue(teams);
 
     const response = await handler(mockListTeamsService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

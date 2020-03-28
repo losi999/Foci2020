@@ -1,6 +1,6 @@
 import { default as handler } from '@/functions/get-team/get-team-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { TeamResponse } from '@/types/types';
+import { teamResponse } from '@/converters/test-data-factory';
 
 describe('Get team handler', () => {
   let mockGetTeamService: jest.Mock;
@@ -29,14 +29,11 @@ describe('Get team handler', () => {
   });
 
   it('should respond with HTTP 200 and team if getTeam executes successfully', async () => {
-    const teamId = 'teamId';
     const handlerEvent = {
       pathParameters: {},
       body: '{}'
     } as APIGatewayProxyEvent;
-    const team: TeamResponse = {
-      teamId
-    } as TeamResponse;
+    const team = teamResponse();
     mockGetTeamService.mockResolvedValue(team);
 
     const response = await handler(mockGetTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

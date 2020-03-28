@@ -1,7 +1,7 @@
 import { httpError } from '@/common';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { TournamentResponse } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface IGetTournamentService {
   (ctx: {
@@ -10,11 +10,11 @@ export interface IGetTournamentService {
 }
 
 export const getTournamentServiceFactory = (
-  tournamentDocumentService: ITournamentDocumentService,
+  databaseService: IDatabaseService,
   tournamentDocumentConverte: ITournamentDocumentConverter
 ): IGetTournamentService => {
   return async ({ tournamentId }) => {
-    const tournament = await tournamentDocumentService.queryTournamentById(tournamentId).catch((error) => {
+    const tournament = await databaseService.getTournamentById(tournamentId).catch((error) => {
       console.error('Query tournament by Id', error);
       throw httpError(500, 'Unable to query tournament');
     });

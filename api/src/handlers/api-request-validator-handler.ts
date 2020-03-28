@@ -17,7 +17,7 @@ export default (validatorService: IValidatorService) => {
     return (handler) => {
       return async (event, context, callback) => {
         const validationErrors = keys(schemas).reduce((accumulator, currentValue) => {
-          const validation = validatorService.validate(event[currentValue], schemas[currentValue], currentValue);
+          const validation = validatorService.validate(event[currentValue], schemas[currentValue]);
           if (validation) {
             return {
               ...accumulator,

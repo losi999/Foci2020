@@ -32,7 +32,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       Name: !Sub Foci2020-${Env}-Team
-      StageName: Prod
+      StageName: team
       TracingEnabled: true
       Auth:
         Authorizers:
@@ -47,7 +47,7 @@ Resources:
   CreateTeam:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-CreateTeam
+      FunctionName: !Sub Foci2020-${Env}-Team-CreateTeam
       CodeUri: api/dist/create-team
       Role: !Ref LambdaRoleArn
       Events:
@@ -55,7 +55,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TeamApi
-            Path: /team/v1/teams
+            Path: /v1/teams
             Method: POST
             Auth:
               Authorizer: CognitoAuthorizer
@@ -63,7 +63,7 @@ Resources:
   UpdateTeam:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateTeam
+      FunctionName: !Sub Foci2020-${Env}-Team-UpdateTeam
       CodeUri: api/dist/update-team
       Role: !Ref LambdaRoleArn
       Events:
@@ -71,7 +71,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TeamApi
-            Path: /team/v1/teams/{teamId}
+            Path: /v1/teams/{teamId}
             Method: PUT
             Auth:
               Authorizer: CognitoAuthorizer
@@ -79,7 +79,7 @@ Resources:
   ListTeams:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-ListTeams
+      FunctionName: !Sub Foci2020-${Env}-Team-ListTeams
       CodeUri: api/dist/list-teams
       Role: !Ref LambdaRoleArn
       Events:
@@ -87,7 +87,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TeamApi
-            Path: /team/v1/teams
+            Path: /v1/teams
             Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
@@ -95,7 +95,7 @@ Resources:
   GetTeam:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-GetTeam
+      FunctionName: !Sub Foci2020-${Env}-Team-GetTeam
       CodeUri: api/dist/get-team
       Role: !Ref LambdaRoleArn
       Events:
@@ -103,7 +103,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TeamApi
-            Path: /team/v1/teams/{teamId}
+            Path: /v1/teams/{teamId}
             Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
@@ -111,7 +111,7 @@ Resources:
   DeleteTeam:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-DeleteTeam
+      FunctionName: !Sub Foci2020-${Env}-Team-DeleteTeam
       CodeUri: api/dist/delete-team
       Role: !Ref LambdaRoleArn
       Events:
@@ -119,7 +119,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TeamApi
-            Path: /team/v1/teams/{teamId}
+            Path: /v1/teams/{teamId}
             Method: DELETE
             Auth:
               Authorizer: CognitoAuthorizer

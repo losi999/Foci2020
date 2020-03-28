@@ -1,5 +1,5 @@
 import { IPostDeployService, postDeployServiceFactory } from '@/functions/post-deploy/post-deploy-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { IInfrastructureService } from '@/services/infrastructure-service';
 
 describe('Post deploy service', () => {
@@ -21,7 +21,7 @@ describe('Post deploy service', () => {
       stackName
     });
     expect(result).toBeUndefined();
-    expect(mockInfrastructureService.functions.executePostDeployFunctions).toHaveBeenCalledWith(stackName);
+    validateFunctionCall(mockInfrastructureService.functions.executePostDeployFunctions, stackName);
     expect.assertions(2);
   });
 
@@ -34,7 +34,7 @@ describe('Post deploy service', () => {
     await service({
       stackName
     }).catch(validateError(errorMessage));
-    expect(mockInfrastructureService.functions.executePostDeployFunctions).toHaveBeenCalledWith(stackName);
+    validateFunctionCall(mockInfrastructureService.functions.executePostDeployFunctions, stackName);
     expect.assertions(2);
   });
 });

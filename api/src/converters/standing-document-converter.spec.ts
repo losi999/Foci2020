@@ -6,10 +6,7 @@ describe('Standing document converter', () => {
   let converter: IStandingDocumentConverter;
   const userId = 'userId';
   const userName = 'userName';
-  const matchId = 'matchId';
   const tournamentId = 'tournamentId';
-  const homeScore = 1;
-  const awayScore = 2;
 
   beforeEach(() => {
     converter = standingDocumentConverterFactory();
@@ -18,19 +15,22 @@ describe('Standing document converter', () => {
   describe('create', () => {
     it('should create a standing document', () => {
       const bets: BetDocument[] = [
-        betDocument(userId, matchId, tournamentId, userName, homeScore, awayScore, 'nothing'),
-        betDocument(userId, matchId, tournamentId, userName, homeScore, awayScore, 'outcome'),
-        betDocument(userId, matchId, tournamentId, userName, homeScore, awayScore, 'goalDifference'),
-        betDocument(userId, matchId, tournamentId, userName, homeScore, awayScore, 'exactMatch'),
-        betDocument(userId, matchId, tournamentId, userName, homeScore, awayScore, 'outcome'),
+        betDocument({ userId, tournamentId, userName, result: 'nothing' }),
+        betDocument({ userId, tournamentId, userName, result: 'outcome' }),
+        betDocument({ userId, tournamentId, userName, result: 'goalDifference' }),
+        betDocument({ userId, tournamentId, userName, result: 'exactMatch' }),
+        betDocument({ userId, tournamentId, userName, result: 'outcome' }),
       ];
 
       const expectedDocument: StandingDocument = {
         userName,
+        tournamentId,
+        userId,
+        'tournamentId-documentType': `${tournamentId}#standing`,
         id: `${tournamentId}#${userId}`,
         'documentType-id': `standing#${tournamentId}#${userId}`,
         documentType: 'standing',
-        orderingValue: `${tournamentId}#7#1#1#2`,
+        orderingValue: '0007#0001#0001#0002',
         total: 7,
         results: {
           nothing: 1,

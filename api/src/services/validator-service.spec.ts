@@ -19,7 +19,7 @@ describe('Validator service', () => {
 
       validateSpy.mockReturnValue(true);
 
-      service.validate(JSON.stringify(instance), schema, 'body');
+      service.validate(JSON.stringify(instance), schema);
       expect(validateSpy).toHaveBeenCalledWith(schema, instance);
     });
 
@@ -29,7 +29,7 @@ describe('Validator service', () => {
 
       validateSpy.mockReturnValue(true);
 
-      const result = service.validate(instance, schema, 'body');
+      const result = service.validate(instance, schema);
       expect(result).toBeUndefined();
     });
 
@@ -44,8 +44,8 @@ describe('Validator service', () => {
         return false;
       });
 
-      const result = service.validate(instance, schema, 'body');
-      expect(result).toEqual('The body has 1 validation error(s): some validation error.');
+      const result = service.validate(instance, schema);
+      expect(result).toEqual('some validation error');
     });
   });
 });

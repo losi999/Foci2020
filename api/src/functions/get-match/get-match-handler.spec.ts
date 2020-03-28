@@ -1,6 +1,6 @@
 import { default as handler } from '@/functions/get-match/get-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { MatchResponse } from '@/types/types';
+import { matchResponse } from '@/converters/test-data-factory';
 
 describe('Get match handler', () => {
   let mockGetMatchService: jest.Mock;
@@ -29,14 +29,11 @@ describe('Get match handler', () => {
   });
 
   it('should respond with HTTP 200 and match if getMatch executes successfully', async () => {
-    const matchId = 'matchId';
     const handlerEvent = {
       pathParameters: {},
       body: '{}'
     } as APIGatewayProxyEvent;
-    const match: MatchResponse = {
-      matchId
-    } as MatchResponse;
+    const match = matchResponse();
     mockGetMatchService.mockResolvedValue(match);
 
     const response = await handler(mockGetMatchService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

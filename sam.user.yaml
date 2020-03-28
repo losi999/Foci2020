@@ -33,7 +33,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       Name: !Sub Foci2020-${Env}-User
-      StageName: Prod
+      StageName: user
       TracingEnabled: true
       GatewayResponses:
         MISSING_AUTHENTICATION_TOKEN:
@@ -44,7 +44,7 @@ Resources:
   Registration:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-Registration
+      FunctionName: !Sub Foci2020-${Env}-User-Registration
       CodeUri: api/dist/registration
       Role: !Ref LambdaRoleArn
       Events:
@@ -52,13 +52,13 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref UserApi
-            Path: /user/v1/registration
+            Path: /v1/registration
             Method: POST
 
   Login:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-Login
+      FunctionName: !Sub Foci2020-${Env}-User-Login
       CodeUri: api/dist/login
       Role: !Ref LambdaRoleArn
       Events:
@@ -66,7 +66,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref UserApi
-            Path: /user/v1/login
+            Path: /v1/login
             Method: POST
 
 Outputs:

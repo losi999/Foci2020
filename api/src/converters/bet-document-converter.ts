@@ -1,27 +1,31 @@
-import { BetDocument, BetRequest, BetResponse, Score } from '@/types/types';
+import { BetDocument, BetRequest, BetResponse, MatchFinalScoreRequest, DocumentType } from '@/types/types';
 import { internalDocumentPropertiesToRemove, betResultPoint } from '@/constants';
 import { concatenate } from '@/common';
 
 export interface IBetDocumentConverter {
   toResponseList(documents: BetDocument[], userId?: string): BetResponse[];
   create(body: BetRequest, userId: string, userName: string, matchId: string, tournamentId: string): BetDocument;
-  calculateResult(bet: BetDocument, finalScore: Score): BetDocument;
+  calculateResult(bet: BetDocument, finalScore: MatchFinalScoreRequest): BetDocument;
 }
 
 export const betDocumentConverterFactory = (): IBetDocumentConverter => {
+  const documentType: DocumentType = 'bet';
+
   const toResponse = (bet: BetDocument, hideScore: boolean): BetResponse => {
     return {
       ...bet,
       ...internalDocumentPropertiesToRemove,
       matchId: undefined,
       result: undefined,
-      'tournamentId-userId': undefined,
+      tournamentId: undefined,
+      'tournamentId-userId-documentType': undefined,
+      'matchId-documentType': undefined,
       homeScore: hideScore ? undefined : bet.homeScore,
       awayScore: hideScore ? undefined : bet.awayScore,
       point: hideScore ? undefined : betResultPoint[bet.result]
     };
   };
-  return {
+  const instance: IBetDocumentConverter = {
     create: (body, userId, userName, matchId, tournamentId) => {
       const betId = concatenate(userId, matchId);
       return {
@@ -29,9 +33,11 @@ export const betDocumentConverterFactory = (): IBetDocumentConverter => {
         userId,
         userName,
         matchId,
-        'documentType-id': concatenate('bet', betId),
-        'tournamentId-userId': concatenate(tournamentId, userId),
-        documentType: 'bet',
+        tournamentId,
+        documentType,
+        'documentType-id': concatenate(documentType, betId),
+        'tournamentId-userId-documentType': concatenate(tournamentId, userId, documentType),
+        'matchId-documentType': concatenate(matchId, documentType),
         id: betId,
         orderingValue: userName
       };
@@ -72,4 +78,6 @@ export const betDocumentConverterFactory = (): IBetDocumentConverter => {
       };
     }
   };
+
+  return instance;
 };

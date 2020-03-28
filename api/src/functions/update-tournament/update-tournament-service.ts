@@ -1,7 +1,7 @@
 import { httpError } from '@/common';
-import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { TournamentRequest } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface IUpdateTournamentService {
   (ctx: {
@@ -11,13 +11,13 @@ export interface IUpdateTournamentService {
 }
 
 export const updateTournamentServiceFactory = (
-  tournamentDocumentService: ITournamentDocumentService,
+  databaseService: IDatabaseService,
   tournamentDocumentConverter: ITournamentDocumentConverter
 ): IUpdateTournamentService => {
   return async ({ body, tournamentId }) => {
     const document = tournamentDocumentConverter.update(tournamentId, body);
 
-    await tournamentDocumentService.updateTournament(document).catch((error) => {
+    await databaseService.updateTournament(document).catch((error) => {
       console.error('Update tournament', error);
       throw httpError(500, 'Error while updating tournament');
     });

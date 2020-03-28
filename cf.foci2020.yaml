@@ -65,6 +65,16 @@ Resources:
         UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
         Env: !Ref Env
 
+  Betting:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.betting.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
+        Env: !Ref Env
+
   User:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -79,6 +89,7 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Comment: !Ref Env
         Enabled: true
         PriceClass: PriceClass_100
         DefaultCacheBehavior:
@@ -156,6 +167,24 @@ Resources:
               QueryString: true
               Headers:
                 - Authorization
+            PathPattern: /betting/*
+            TargetOriginId: Betting
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE              
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
             PathPattern: /user/*
             TargetOriginId: User
             ViewerProtocolPolicy: redirect-to-https
@@ -172,22 +201,22 @@ Resources:
               - DELETE
         Origins:
           - DomainName: !GetAtt Team.Outputs.TeamApi
-            OriginPath: /Prod
             Id: Team
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
           - DomainName: !GetAtt Match.Outputs.MatchApi
-            OriginPath: /Prod
             Id: Match
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
           - DomainName: !GetAtt Tournament.Outputs.TournamentApi
-            OriginPath: /Prod
             Id: Tournament
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt Betting.Outputs.BettingApi
+            Id: Betting
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only              
           - DomainName: !GetAtt User.Outputs.UserApi
-            OriginPath: /Prod
             Id: User
             CustomOriginConfig:
               OriginProtocolPolicy: https-only

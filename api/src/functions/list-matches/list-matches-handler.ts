@@ -3,13 +3,10 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { MatchResponse } from '@/types/types';
 
 export default (listMatches: IListMatchesService): APIGatewayProxyHandler => {
-  return async (event) => {
-    const { tournamentId } = event.queryStringParameters || {};
+  return async () => {
     let matches: MatchResponse[];
     try {
-      matches = await listMatches({
-        tournamentId
-      });
+      matches = await listMatches();
     } catch (error) {
       console.error(error);
       return {

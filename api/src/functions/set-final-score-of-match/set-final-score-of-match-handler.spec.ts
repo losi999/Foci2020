@@ -1,6 +1,6 @@
 import { default as handler } from '@/functions/set-final-score-of-match/set-final-score-of-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { Score } from '@/types/types';
+import { MatchFinalScoreRequest } from '@/types/types';
 
 describe('Set final score of match handler', () => {
   let apiHandler: ReturnType<typeof handler>;
@@ -13,7 +13,7 @@ describe('Set final score of match handler', () => {
   });
 
   const matchId = 'matchId';
-  const finalScore: Score = {
+  const finalScore: MatchFinalScoreRequest = {
     homeScore: 1,
     awayScore: 3,
   };

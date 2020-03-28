@@ -1,9 +1,10 @@
 import { default as handler } from '@/functions/place-bet/place-bet-handler';
-import { authorizer, apiRequestValidator, matchDocumentService, betDocumentService, betDocumentConverter } from '@/dependencies';
+import { authorizer, apiRequestValidator, databaseService, betDocumentConverter } from '@/dependencies';
 import { placeBetServiceFactory } from '@/functions/place-bet/place-bet-service';
-import { body, pathParameters } from '@/functions/place-bet/place-bet-schemas';
+import { default as body } from '@/schemas/match-score';
+import { default as pathParameters } from '@/schemas/match-id';
 
-const placeBetService = placeBetServiceFactory(matchDocumentService, betDocumentConverter, betDocumentService);
+const placeBetService = placeBetServiceFactory(databaseService, betDocumentConverter);
 
 export default authorizer('player')(apiRequestValidator({
   body,

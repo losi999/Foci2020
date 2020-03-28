@@ -1,20 +1,20 @@
 import { httpError } from '@/common';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { IMatchDocumentService } from '@/services/match-document-service';
 import { MatchResponse } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface IListMatchesService {
-  (ctx: { tournamentId: string }): Promise<MatchResponse[]>;
+  (): Promise<MatchResponse[]>;
 }
 
 export const listMatchesServiceFactory = (
-  matchDocumentService: IMatchDocumentService,
+  databaseService: IDatabaseService,
   matchDocumentConverter: IMatchDocumentConverter,
 ): IListMatchesService => {
-  return async ({ tournamentId }) => {
-    const matches = await matchDocumentService.queryMatches(tournamentId).catch((error) => {
-      console.error('Query matches', error);
-      throw httpError(500, 'Unable to query matches');
+  return async () => {
+    const matches = await databaseService.listMatches().catch((error) => {
+      console.error('List matches', error);
+      throw httpError(500, 'Unable to list matches');
     });
 
     return matchDocumentConverter.toResponseList(matches);

@@ -8,15 +8,11 @@ import { default as authorizerHandler } from '@/handlers/authorizer-handler';
 import { matchDocumentConverterFactory } from '@/converters/match-document-converter';
 import { teamDocumentConverterFactory } from '@/converters/team-document-converter';
 import { tournamentDocumentConverterFactory } from '@/converters/tournament-document-converter';
-import { teamDocumentServiceFactory } from '@/services/team-document-service';
-import { tournamentDocumentServiceFactory } from '@/services/tournament-document-service';
-import { matchDocumentServiceFactory } from '@/services/match-document-service';
 import { cognitoIdentityService } from '@/services/identity-service';
-import { betDocumentServiceFactory } from '@/services/bet-document-service';
 import { betDocumentConverterFactory } from '@/converters/bet-document-converter';
 import { standingDocumentConverterFactory } from './converters/standing-document-converter';
-import { standingDocumentServiceFactory } from './services/standing-document-service';
 import { infrastructureServiceFactory } from './services/infrastructure-service';
+import { databaseServiceFactory } from '@/services/database-service';
 
 const ajvValidator = new ajv({
   allErrors: true,
@@ -36,11 +32,7 @@ export const tournamentDocumentConverter = tournamentDocumentConverterFactory(uu
 export const betDocumentConverter = betDocumentConverterFactory();
 export const standingDocumentConverter = standingDocumentConverterFactory();
 
-export const teamDocumentService = teamDocumentServiceFactory(process.env.DYNAMO_TABLE, dynamoDbClient);
-export const tournamentDocumentService = tournamentDocumentServiceFactory(process.env.DYNAMO_TABLE, dynamoDbClient);
-export const matchDocumentService = matchDocumentServiceFactory(process.env.DYNAMO_TABLE, dynamoDbClient);
-export const betDocumentService = betDocumentServiceFactory(process.env.DYNAMO_TABLE, dynamoDbClient);
-export const standingDocumentService = standingDocumentServiceFactory(process.env.DYNAMO_TABLE, dynamoDbClient);
+export const databaseService = databaseServiceFactory(process.env.DYNAMO_TABLE, dynamoDbClient);
 
 export const validatorService = ajvValidatorService(ajvValidator);
 export const identityService = cognitoIdentityService(process.env.USER_POOL_ID, process.env.CLIENT_ID, cognito);

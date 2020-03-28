@@ -1,6 +1,6 @@
 import { IIdentityService, cognitoIdentityService } from '@/services/identity-service';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
-import { Mock, createMockService, awsResolvedValue } from '@/common';
+import { Mock, createMockService, awsResolvedValue } from '@/common/unit-testing';
 
 describe('Notification service', () => {
   let service: IIdentityService;

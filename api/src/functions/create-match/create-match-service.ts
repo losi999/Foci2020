@@ -1,9 +1,7 @@
 import { httpError, addMinutes } from '@/common';
-import { IMatchDocumentService } from '@/services/match-document-service';
-import { ITeamDocumentService } from '@/services/team-document-service';
-import { ITournamentDocumentService } from '@/services/tournament-document-service';
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { MatchRequest } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface ICreateMatchService {
   (ctx: {
@@ -12,9 +10,7 @@ export interface ICreateMatchService {
 }
 
 export const createMatchServiceFactory = (
-  matchDocumentService: IMatchDocumentService,
-  teamDocumentService: ITeamDocumentService,
-  tournamentDocumentService: ITournamentDocumentService,
+  databaseService: IDatabaseService,
   matchDocumentConverter: IMatchDocumentConverter
 ): ICreateMatchService => {
   return async ({ body }) => {
@@ -27,9 +23,9 @@ export const createMatchServiceFactory = (
     }
 
     const [homeTeam, awayTeam, tournament] = await Promise.all([
-      teamDocumentService.queryTeamById(body.homeTeamId),
-      teamDocumentService.queryTeamById(body.awayTeamId),
-      tournamentDocumentService.queryTournamentById(body.tournamentId)
+      databaseService.getTeamById(body.homeTeamId),
+      databaseService.getTeamById(body.awayTeamId),
+      databaseService.getTournamentById(body.tournamentId)
     ]).catch((error) => {
       console.error('Query related documents', error);
       throw httpError(500, 'Unable to query related document');
@@ -49,7 +45,7 @@ export const createMatchServiceFactory = (
 
     const document = matchDocumentConverter.create(body, homeTeam, awayTeam, tournament);
 
-    await matchDocumentService.saveMatch(document).catch((error) => {
+    await databaseService.saveMatch(document).catch((error) => {
       console.error('Save match', error);
       throw httpError(500, 'Error while saving match');
     });

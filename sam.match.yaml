@@ -32,7 +32,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       Name: !Sub Foci2020-${Env}-Match
-      StageName: Prod
+      StageName: match
       TracingEnabled: true
       Auth:
         Authorizers:
@@ -47,7 +47,7 @@ Resources:
   CreateMatch:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-CreateMatch
+      FunctionName: !Sub Foci2020-${Env}-Match-CreateMatch
       CodeUri: api/dist/create-match
       Role: !Ref LambdaRoleArn
       Events:
@@ -55,47 +55,15 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MatchApi
-            Path: /match/v1/matches
+            Path: /v1/matches
             Method: POST
-            Auth:
-              Authorizer: CognitoAuthorizer
-
-  PlaceBet:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-PlaceBet
-      CodeUri: api/dist/place-bet
-      Role: !Ref LambdaRoleArn
-      Events:
-        API:
-          Type: Api
-          Properties:
-            RestApiId: !Ref MatchApi
-            Path: /match/v1/matches/{matchId}/bets
-            Method: POST
-            Auth:
-              Authorizer: CognitoAuthorizer
-
-  ListBetsOfMatch:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub Foci2020-${Env}-ListBetsOfMatch
-      CodeUri: api/dist/list-bets-of-match
-      Role: !Ref LambdaRoleArn
-      Events:
-        API:
-          Type: Api
-          Properties:
-            RestApiId: !Ref MatchApi
-            Path: /match/v1/matches/{matchId}/bets
-            Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
 
   UpdateMatch:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateMatch
+      FunctionName: !Sub Foci2020-${Env}-Match-UpdateMatch
       CodeUri: api/dist/update-match
       Role: !Ref LambdaRoleArn
       Events:
@@ -103,7 +71,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MatchApi
-            Path: /match/v1/matches/{matchId}
+            Path: /v1/matches/{matchId}
             Method: PUT
             Auth:
               Authorizer: CognitoAuthorizer
@@ -111,7 +79,7 @@ Resources:
   SetFinalScoreOfMatch:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-SetFinalScoreOfMatch
+      FunctionName: !Sub Foci2020-${Env}-Match-SetFinalScoreOfMatch
       CodeUri: api/dist/set-final-score-of-match
       Role: !Ref LambdaRoleArn
       Events:
@@ -119,7 +87,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MatchApi
-            Path: /match/v1/matches/{matchId}
+            Path: /v1/matches/{matchId}
             Method: PATCH
             Auth:
               Authorizer: CognitoAuthorizer
@@ -127,7 +95,7 @@ Resources:
   ListMatches:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-ListMatches
+      FunctionName: !Sub Foci2020-${Env}-Match-ListMatches
       CodeUri: api/dist/list-matches
       Role: !Ref LambdaRoleArn
       Events:
@@ -135,7 +103,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MatchApi
-            Path: /match/v1/matches
+            Path: /v1/matches
             Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
@@ -143,7 +111,7 @@ Resources:
   GetMatch:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-GetMatch
+      FunctionName: !Sub Foci2020-${Env}-Match-GetMatch
       CodeUri: api/dist/get-match
       Role: !Ref LambdaRoleArn
       Events:
@@ -151,7 +119,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MatchApi
-            Path: /match/v1/matches/{matchId}
+            Path: /v1/matches/{matchId}
             Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
@@ -159,7 +127,7 @@ Resources:
   DeleteMatch:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-DeleteMatch
+      FunctionName: !Sub Foci2020-${Env}-Match-DeleteMatch
       CodeUri: api/dist/delete-match
       Role: !Ref LambdaRoleArn
       Events:
@@ -167,7 +135,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MatchApi
-            Path: /match/v1/matches/{matchId}
+            Path: /v1/matches/{matchId}
             Method: DELETE
             Auth:
               Authorizer: CognitoAuthorizer

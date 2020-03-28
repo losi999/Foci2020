@@ -14,8 +14,8 @@ describe('Tournament document converter', () => {
 
   describe('toResponse', () => {
     it('should convert document to response', () => {
-      const input = tournamentDocument(tournamentId);
-      const expectedResponse = tournamentResponse(tournamentId);
+      const input = tournamentDocument();
+      const expectedResponse = tournamentResponse();
 
       const result = converter.toResponse(input);
       expect(result).toEqual(expectedResponse);
@@ -24,8 +24,8 @@ describe('Tournament document converter', () => {
 
   describe('toResponseList', () => {
     it('should convert documents to responses', () => {
-      const input = tournamentDocument(tournamentId);
-      const expectedResponse = tournamentResponse(tournamentId);
+      const input = tournamentDocument();
+      const expectedResponse = tournamentResponse();
 
       const result = converter.toResponseList([input]);
       expect(result).toEqual([expectedResponse]);
@@ -38,7 +38,7 @@ describe('Tournament document converter', () => {
 
       mockUuid.mockReturnValue(tournamentId);
 
-      const expectedDocument = tournamentDocument(tournamentId);
+      const expectedDocument = tournamentDocument();
 
       const result = converter.create(body);
       expect(result).toEqual(expectedDocument);
@@ -49,7 +49,7 @@ describe('Tournament document converter', () => {
     it('should return a tournament document for update', () => {
       const body = tournamentRequest();
 
-      const expectedDocument = tournamentDocument(tournamentId);
+      const expectedDocument = tournamentDocument();
 
       const result = converter.update(tournamentId, body);
       expect(result).toEqual(expectedDocument);

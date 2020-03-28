@@ -1,9 +1,9 @@
 import { default as handler } from '@/functions/get-match/get-match-handler';
-import { apiRequestValidator, matchDocumentConverter, matchDocumentService, authorizer } from '@/dependencies';
+import { apiRequestValidator, matchDocumentConverter, databaseService, authorizer } from '@/dependencies';
 import { getMatchServiceFactory } from '@/functions/get-match/get-match-service';
-import { pathParameters } from '@/functions/get-match/get-match-schemas';
+import { default as pathParameters } from '@/schemas/match-id';
 
-const getMatchService = getMatchServiceFactory(matchDocumentService, matchDocumentConverter);
+const getMatchService = getMatchServiceFactory(databaseService, matchDocumentConverter);
 
 export default authorizer('admin')(apiRequestValidator({
   pathParameters

@@ -5,13 +5,13 @@ Parameters:
   AdminUserEmail:
     Type: String
 
-
 Resources:
   Database:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
+      TableName: !Sub Foci2020-${Env}-200316
       BillingMode: PAY_PER_REQUEST
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
@@ -20,63 +20,53 @@ Resources:
           AttributeType: S
         - AttributeName: documentType
           AttributeType: S
-        - AttributeName: tournamentId
-          AttributeType: S
-        - AttributeName: homeTeamId
-          AttributeType: S
-        - AttributeName: awayTeamId
-          AttributeType: S
-        - AttributeName: matchId
-          AttributeType: S
-        - AttributeName: userId
-          AttributeType: S
-        - AttributeName: tournamentId-userId
-          AttributeType: S          
         - AttributeName: orderingValue
           AttributeType: S
+        - AttributeName: matchId-documentType
+          AttributeType: S
+        - AttributeName: homeTeamId-documentType
+          AttributeType: S
+        - AttributeName: awayTeamId-documentType
+          AttributeType: S
+        - AttributeName: tournamentId-documentType
+          AttributeType: S
+        - AttributeName: tournamentId-userId-documentType
+          AttributeType: S          
       KeySchema:
         - AttributeName: documentType-id
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: indexByTournamentId
+        - IndexName: indexByTournamentIdDocumentType
           KeySchema:
-            - AttributeName: tournamentId
-              KeyType: HASH
-          Projection:
-            ProjectionType: INCLUDE
-            NonKeyAttributes:
-              - id
-        - IndexName: indexByAwayTeamId
-          KeySchema:
-            - AttributeName: awayTeamId
-              KeyType: HASH
-          Projection:
-            ProjectionType: INCLUDE
-            NonKeyAttributes:
-              - id
-        - IndexName: indexByHomeTeamId
-          KeySchema:
-            - AttributeName: homeTeamId
-              KeyType: HASH
-          Projection:
-            ProjectionType: INCLUDE
-            NonKeyAttributes:
-              - id
-        - IndexName: indexByMatchId
-          KeySchema:
-            - AttributeName: matchId
+            - AttributeName: tournamentId-documentType
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-        - IndexName: indexByUserId
+        - IndexName: indexByAwayTeamIdDocumentType
           KeySchema:
-            - AttributeName: userId
+            - AttributeName: awayTeamId-documentType
+              KeyType: HASH
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - id
+        - IndexName: indexByHomeTeamIdDocumentType
+          KeySchema:
+            - AttributeName: homeTeamId-documentType
+              KeyType: HASH
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - id
+        - IndexName: indexByMatchIdDocumentType
+          KeySchema:
+            - AttributeName: matchId-documentType
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-        - IndexName: indexByTournamentIdUserId
+        - IndexName: indexByTournamentIdUserIdDocumentType
           KeySchema:
-            - AttributeName: tournamentId-userId
+            - AttributeName: tournamentId-userId-documentType
               KeyType: HASH
           Projection:
             ProjectionType: ALL            

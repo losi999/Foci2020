@@ -51,7 +51,8 @@
       "**/*.{ts,tsx}",
       "!**/node_modules/**",
       "!src/**/*.index.ts",
-      "!src/dependencies.ts"
+      "!src/dependencies.ts",
+      "!src/common/unit-testing.ts"
     ],
     "coverageReporters": [
       "html"

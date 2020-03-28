@@ -32,7 +32,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       Name: !Sub Foci2020-${Env}-Tournament
-      StageName: Prod
+      StageName: tournament
       TracingEnabled: true
       Auth:
         Authorizers:
@@ -47,7 +47,7 @@ Resources:
   CreateTournament:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-CreateTournament
+      FunctionName: !Sub Foci2020-${Env}-Tournament-CreateTournament
       CodeUri: api/dist/create-tournament
       Role: !Ref LambdaRoleArn
       Events:
@@ -55,7 +55,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TournamentApi
-            Path: /tournament/v1/tournaments
+            Path: /v1/tournaments
             Method: POST
             Auth:
               Authorizer: CognitoAuthorizer
@@ -63,7 +63,7 @@ Resources:
   UpdateTournament:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-UpdateTournament
+      FunctionName: !Sub Foci2020-${Env}-Tournament-UpdateTournament
       CodeUri: api/dist/update-tournament
       Role: !Ref LambdaRoleArn
       Events:
@@ -71,7 +71,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TournamentApi
-            Path: /tournament/v1/tournaments/{tournamentId}
+            Path: /v1/tournaments/{tournamentId}
             Method: PUT
             Auth:
               Authorizer: CognitoAuthorizer
@@ -79,7 +79,7 @@ Resources:
   ListTournaments:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-ListTournaments
+      FunctionName: !Sub Foci2020-${Env}-Tournament-ListTournaments
       CodeUri: api/dist/list-tournaments
       Role: !Ref LambdaRoleArn
       Events:
@@ -87,7 +87,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TournamentApi
-            Path: /tournament/v1/tournaments
+            Path: /v1/tournaments
             Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
@@ -95,7 +95,7 @@ Resources:
   GetTournament:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-GetTournament
+      FunctionName: !Sub Foci2020-${Env}-Tournament-GetTournament
       CodeUri: api/dist/get-tournament
       Role: !Ref LambdaRoleArn
       Events:
@@ -103,7 +103,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TournamentApi
-            Path: /tournament/v1/tournaments/{tournamentId}
+            Path: /v1/tournaments/{tournamentId}
             Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
@@ -111,7 +111,7 @@ Resources:
   DeleteTournament:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-DeleteTournament
+      FunctionName: !Sub Foci2020-${Env}-Tournament-DeleteTournament
       CodeUri: api/dist/delete-tournament
       Role: !Ref LambdaRoleArn
       Events:
@@ -119,7 +119,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref TournamentApi
-            Path: /tournament/v1/tournaments/{tournamentId}
+            Path: /v1/tournaments/{tournamentId}
             Method: DELETE
             Auth:
               Authorizer: CognitoAuthorizer

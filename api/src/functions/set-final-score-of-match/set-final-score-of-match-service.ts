@@ -1,6 +1,6 @@
 import { MatchFinalScoreRequest } from '@/types/types';
-import { IMatchDocumentService } from '@/services/match-document-service';
 import { addMinutes, httpError } from '@/common';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface ISetFinalScoreOfMatchService {
   (ctx: {
@@ -9,9 +9,9 @@ export interface ISetFinalScoreOfMatchService {
   }): Promise<void>;
 }
 
-export const setFinalScoreOfMatchServiceFactory = (matchDocumentService: IMatchDocumentService): ISetFinalScoreOfMatchService =>
+export const setFinalScoreOfMatchServiceFactory = (databaseService: IDatabaseService): ISetFinalScoreOfMatchService =>
   async ({ matchId, finalScore }) => {
-    const match = await matchDocumentService.queryMatchById(matchId).catch((error) => {
+    const match = await databaseService.getMatchById(matchId).catch((error) => {
       console.error('Query match by id', error);
       throw httpError(500, 'Unable to query match by Id');
     });
@@ -19,7 +19,7 @@ export const setFinalScoreOfMatchServiceFactory = (matchDocumentService: IMatchD
       throw httpError(400, 'Final score cannot be set during the game');
     }
 
-    await matchDocumentService.updateMatch({
+    await databaseService.updateMatch({
       ...match,
       finalScore
     }).catch((error) => {

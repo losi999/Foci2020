@@ -1,7 +1,7 @@
 import { httpError } from '@/common';
-import { ITeamDocumentService } from '@/services/team-document-service';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { TeamRequest } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
 
 export interface ICreateTeamService {
   (ctx: {
@@ -10,12 +10,12 @@ export interface ICreateTeamService {
 }
 
 export const createTeamServiceFactory = (
-  teamDocumentService: ITeamDocumentService,
+  databaseService: IDatabaseService,
   teamDocumentConverter: ITeamDocumentConverter): ICreateTeamService => {
   return async ({ body }) => {
     const document = teamDocumentConverter.create(body);
 
-    await teamDocumentService.saveTeam(document).catch((error) => {
+    await databaseService.saveTeam(document).catch((error) => {
       console.error('Save team', error);
       throw httpError(500, 'Error while saving team');
     });

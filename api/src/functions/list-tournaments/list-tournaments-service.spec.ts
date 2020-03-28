@@ -1,64 +1,41 @@
 import { IListTournamentsService, listTournamentsServiceFactory } from '@/functions/list-tournaments/list-tournaments-service';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { ITournamentDocumentService } from '@/services/tournament-document-service';
-import { Mock, createMockService, validateError } from '@/common';
-import { TournamentDocument, TournamentResponse } from '@/types/types';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
+import { IDatabaseService } from '@/services/database-service';
+import { tournamentDocument, tournamentResponse } from '@/converters/test-data-factory';
 
 describe('List tournaments service', () => {
   let service: IListTournamentsService;
-  let mockTournamentDocumentService: Mock<ITournamentDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
 
   beforeEach(() => {
-    mockTournamentDocumentService = createMockService('queryTournaments');
+    mockDatabaseService = createMockService('listTournaments');
     mockTournamentDocumentConverter = createMockService('toResponseList');
 
-    service = listTournamentsServiceFactory(mockTournamentDocumentService.service, mockTournamentDocumentConverter.service);
+    service = listTournamentsServiceFactory(mockDatabaseService.service, mockTournamentDocumentConverter.service);
   });
 
   it('should return with list of tournaments', async () => {
-    const tournamentId1 = 'tournament1';
-    const tournamentId2 = 'tournament2';
-    const tournamentName1 = 'tournament1';
-    const tournamentName2 = 'tournament2';
-    const tournamentDocument1 = {
-      id: tournamentId1,
-      tournamentName: tournamentName1
-    } as TournamentDocument;
-    const tournamentDocument2 = {
-      id: tournamentId2,
-      tournamentName: tournamentName2
-    } as TournamentDocument;
+    const queriedDocuments = [tournamentDocument()];
+    mockDatabaseService.functions.listTournaments.mockResolvedValue(queriedDocuments);
 
-    const queriedDocuments: TournamentDocument[] = [
-      tournamentDocument1,
-      tournamentDocument2] as TournamentDocument[];
-    mockTournamentDocumentService.functions.queryTournaments.mockResolvedValue(queriedDocuments);
+    const response = [tournamentResponse()];
 
-    const tournamentResponse = [
-      {
-        tournamentId: tournamentId1,
-        tournamentName: tournamentName1
-      },
-      {
-        tournamentId: tournamentId2,
-        tournamentName: tournamentName2
-      }] as TournamentResponse[];
-
-    mockTournamentDocumentConverter.functions.toResponseList.mockReturnValueOnce(tournamentResponse);
+    mockTournamentDocumentConverter.functions.toResponseList.mockReturnValueOnce(response);
 
     const result = await service();
-    expect(result).toEqual(tournamentResponse);
-    expect(mockTournamentDocumentService.functions.queryTournaments).toHaveBeenCalledWith();
-    expect(mockTournamentDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
+    expect(result).toEqual(response);
+    expect(mockDatabaseService.functions.listTournaments).toHaveBeenCalledWith();
+    validateFunctionCall(mockTournamentDocumentConverter.functions.toResponseList, queriedDocuments);
   });
 
   it('should throw error if unable to query tournaments', async () => {
-    mockTournamentDocumentService.functions.queryTournaments.mockRejectedValue('This is a dynamo error');
+    mockDatabaseService.functions.listTournaments.mockRejectedValue('This is a dynamo error');
 
     await service().catch(validateError('Unable to query tournaments', 500));
-    expect(mockTournamentDocumentService.functions.queryTournaments).toHaveBeenCalledWith();
-    expect(mockTournamentDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.listTournaments).toHaveBeenCalledWith();
+    validateFunctionCall(mockTournamentDocumentConverter.functions.toResponseList);
     expect.assertions(4);
   });
 });

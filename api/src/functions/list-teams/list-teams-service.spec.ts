@@ -1,65 +1,41 @@
 import { IListTeamsService, listTeamsServiceFactory } from '@/functions/list-teams/list-teams-service';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { ITeamDocumentService } from '@/services/team-document-service';
-import { Mock, createMockService, validateError } from '@/common';
-import { TeamDocument, TeamResponse } from '@/types/types';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
+import { IDatabaseService } from '@/services/database-service';
+import { teamDocument, teamResponse } from '@/converters/test-data-factory';
 
 describe('List teams service', () => {
   let service: IListTeamsService;
-  let mockTeamDocumentService: Mock<ITeamDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockTeamDocumentConverter: Mock<ITeamDocumentConverter>;
 
   beforeEach(() => {
-    mockTeamDocumentService = createMockService('queryTeams');
+    mockDatabaseService = createMockService('listTeams');
     mockTeamDocumentConverter = createMockService('toResponseList');
 
-    service = listTeamsServiceFactory(mockTeamDocumentService.service, mockTeamDocumentConverter.service);
+    service = listTeamsServiceFactory(mockDatabaseService.service, mockTeamDocumentConverter.service);
   });
 
   it('should return with list of teams', async () => {
-    const teamId1 = 'team1';
-    const teamId2 = 'team2';
-    const teamName1 = 'team1';
-    const teamName2 = 'team2';
-    const teamDocument1 = {
-      id: teamId1,
-      teamName: teamName1
-    } as TeamDocument;
-    const teamDocument2 = {
-      id: teamId2,
-      teamName: teamName2
-    } as TeamDocument;
+    const queriedDocuments = [teamDocument()];
+    mockDatabaseService.functions.listTeams.mockResolvedValue(queriedDocuments);
 
-    const queriedDocuments: TeamDocument[] = [
-      teamDocument1,
-      teamDocument2] as TeamDocument[];
-    mockTeamDocumentService.functions.queryTeams.mockResolvedValue(queriedDocuments);
+    const response = [teamResponse()];
 
-    const teamResponse = [
-      {
-        teamId: teamId1,
-        teamName: teamName1
-      },
-      {
-        teamId: teamId2,
-        teamName: teamName2
-      }
-    ] as TeamResponse[];
-
-    mockTeamDocumentConverter.functions.toResponseList.mockReturnValue(teamResponse);
+    mockTeamDocumentConverter.functions.toResponseList.mockReturnValue(response);
 
     const result = await service();
-    expect(result).toEqual(teamResponse);
-    expect(mockTeamDocumentService.functions.queryTeams).toHaveBeenCalledWith();
-    expect(mockTeamDocumentConverter.functions.toResponseList).toHaveBeenCalledWith(queriedDocuments);
+    expect(result).toEqual(response);
+    expect(mockDatabaseService.functions.listTeams).toHaveBeenCalledWith();
+    validateFunctionCall(mockTeamDocumentConverter.functions.toResponseList, queriedDocuments);
   });
 
   it('should throw error if unable to query teams', async () => {
-    mockTeamDocumentService.functions.queryTeams.mockRejectedValue('This is a dynamo error');
+    mockDatabaseService.functions.listTeams.mockRejectedValue('This is a dynamo error');
 
     await service().catch(validateError('Unable to query teams', 500));
-    expect(mockTeamDocumentService.functions.queryTeams).toHaveBeenCalledWith();
-    expect(mockTeamDocumentConverter.functions.toResponseList).not.toHaveBeenCalled();
+    expect(mockDatabaseService.functions.listTeams).toHaveBeenCalledWith();
+    validateFunctionCall(mockTeamDocumentConverter.functions.toResponseList);
     expect.assertions(4);
   });
 });

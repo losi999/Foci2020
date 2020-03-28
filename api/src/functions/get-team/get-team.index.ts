@@ -1,9 +1,9 @@
 import { default as handler } from '@/functions/get-team/get-team-handler';
-import { apiRequestValidator, teamDocumentConverter, teamDocumentService, authorizer } from '@/dependencies';
+import { apiRequestValidator, teamDocumentConverter, databaseService, authorizer } from '@/dependencies';
 import { getTeamServiceFactory } from '@/functions/get-team/get-team-service';
-import { pathParameters } from '@/functions/get-team/get-team-schemas';
+import { default as pathParameters } from '@/schemas/team-id';
 
-const getTeamService = getTeamServiceFactory(teamDocumentService, teamDocumentConverter);
+const getTeamService = getTeamServiceFactory(databaseService, teamDocumentConverter);
 
 export default authorizer('admin')(apiRequestValidator({
   pathParameters

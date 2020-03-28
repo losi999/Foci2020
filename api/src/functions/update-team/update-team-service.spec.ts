@@ -1,77 +1,55 @@
 import { IUpdateTeamService, updateTeamServiceFactory } from '@/functions/update-team/update-team-service';
-import { ITeamDocumentService } from '@/services/team-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { TeamRequest, TeamDocument } from '@/types/types';
+import { IDatabaseService } from '@/services/database-service';
+import { teamRequest, teamDocument } from '@/converters/test-data-factory';
 
 describe('Update team service', () => {
   let service: IUpdateTeamService;
-  let mockTeamDocumentService: Mock<ITeamDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
   let mockTeamDocumentConverter: Mock<ITeamDocumentConverter>;
 
   beforeEach(() => {
-    mockTeamDocumentService = createMockService('updateTeam');
+    mockDatabaseService = createMockService('updateTeam');
     mockTeamDocumentConverter = createMockService('update');
 
-    service = updateTeamServiceFactory(mockTeamDocumentService.service, mockTeamDocumentConverter.service);
+    service = updateTeamServiceFactory(mockDatabaseService.service, mockTeamDocumentConverter.service);
   });
 
   it('should return with with undefined if team is updated successfully', async () => {
     const teamId = 'teamId';
-    const teamName = 'teamName';
-    const image = 'http://image.com/a.png';
-    const shortName = 'SHN';
-    const body: TeamRequest = {
-      teamName,
-      image,
-      shortName
-    };
+    const body = teamRequest();
 
-    const converted = {
-      image,
-      shortName,
-      teamName
-    } as TeamDocument;
+    const converted = teamDocument();
 
     mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
-    mockTeamDocumentService.functions.updateTeam.mockResolvedValue(undefined);
+    mockDatabaseService.functions.updateTeam.mockResolvedValue(undefined);
 
     const result = await service({
       teamId,
       body
     });
     expect(result).toBeUndefined();
-    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
-    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(converted);
+    validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
+    validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
     expect.assertions(3);
   });
 
   it('should throw error if unable to update team', async () => {
     const teamId = 'teamId';
-    const teamName = 'teamName';
-    const image = 'http://image.com/a.png';
-    const shortName = 'SHN';
-    const body: TeamRequest = {
-      teamName,
-      image,
-      shortName
-    };
+    const body = teamRequest();
 
-    const converted = {
-      image,
-      shortName,
-      teamName
-    } as TeamDocument;
+    const converted = teamDocument();
 
     mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
-    mockTeamDocumentService.functions.updateTeam.mockRejectedValue('This is a dynamo error');
+    mockDatabaseService.functions.updateTeam.mockRejectedValue('This is a dynamo error');
 
     await service({
       teamId,
       body
     }).catch(validateError('Error while updating team', 500));
-    expect(mockTeamDocumentConverter.functions.update).toHaveBeenCalledWith(teamId, body);
-    expect(mockTeamDocumentService.functions.updateTeam).toHaveBeenCalledWith(converted);
+    validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
+    validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
     expect.assertions(4);
   });
 });

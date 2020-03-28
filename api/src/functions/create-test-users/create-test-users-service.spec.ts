@@ -1,6 +1,6 @@
 import { ICreateTestUsersService, createTestUsersServiceFactory } from '@/functions/create-test-users/create-test-users-service';
 import { IIdentityService } from '@/services/identity-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError } from '@/common/unit-testing';
 
 describe('Create test users service', () => {
   let service: ICreateTestUsersService;
@@ -69,6 +69,7 @@ describe('Create test users service', () => {
       numberOfPlayers
     });
     expect(mockIdentityService.functions.register).toHaveBeenCalledTimes(numberOfAdmins + numberOfPlayers);
+    expect.assertions(1);
   });
 
   it('should throw error if register NOT throws "UsernameExistsException" error', async () => {
@@ -87,5 +88,6 @@ describe('Create test users service', () => {
       numberOfPlayers
     }).catch(validateError(message));
     expect(mockIdentityService.functions.register).toHaveBeenCalledTimes(numberOfAdmins + numberOfPlayers);
+    expect.assertions(2);
   });
 });

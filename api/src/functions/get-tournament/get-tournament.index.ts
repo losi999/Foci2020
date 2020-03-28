@@ -1,9 +1,9 @@
 import { default as handler } from '@/functions/get-tournament/get-tournament-handler';
-import { apiRequestValidator, tournamentDocumentConverter, tournamentDocumentService, authorizer } from '@/dependencies';
+import { apiRequestValidator, tournamentDocumentConverter, databaseService, authorizer } from '@/dependencies';
 import { getTournamentServiceFactory } from '@/functions/get-tournament/get-tournament-service';
-import { pathParameters } from '@/functions/get-tournament/get-tournament-schemas';
+import { default as pathParameters } from '@/schemas/tournament-id';
 
-const getTournamentService = getTournamentServiceFactory(tournamentDocumentService, tournamentDocumentConverter);
+const getTournamentService = getTournamentServiceFactory(databaseService, tournamentDocumentConverter);
 
 export default authorizer('admin')(apiRequestValidator({
   pathParameters

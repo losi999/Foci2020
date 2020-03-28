@@ -1,32 +1,32 @@
 import { IDeleteMatchService, deleteMatchServiceFactory } from '@/functions/delete-match/delete-match-service';
-import { IMatchDocumentService } from '@/services/match-document-service';
-import { Mock, createMockService, validateError } from '@/common';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
+import { IDatabaseService } from '@/services/database-service';
 
 describe('Delete match service', () => {
   let service: IDeleteMatchService;
-  let mockMatchDocumentService: Mock<IMatchDocumentService>;
+  let mockDatabaseService: Mock<IDatabaseService>;
 
   const matchId = 'matchId';
 
   beforeEach(() => {
-    mockMatchDocumentService = createMockService('deleteMatch');
+    mockDatabaseService = createMockService('deleteMatch');
 
-    service = deleteMatchServiceFactory(mockMatchDocumentService.service);
+    service = deleteMatchServiceFactory(mockDatabaseService.service);
   });
 
   it('should return with undefined', async () => {
-    mockMatchDocumentService.functions.deleteMatch.mockResolvedValue(undefined);
+    mockDatabaseService.functions.deleteMatch.mockResolvedValue(undefined);
 
     const result = await service({ matchId });
     expect(result).toBeUndefined();
-    expect(mockMatchDocumentService.functions.deleteMatch).toHaveBeenCalledWith(matchId);
+    validateFunctionCall(mockDatabaseService.functions.deleteMatch, matchId);
   });
 
   it('should throw error if unable to delete match', async () => {
-    mockMatchDocumentService.functions.deleteMatch.mockRejectedValue('This is a dynamo error');
+    mockDatabaseService.functions.deleteMatch.mockRejectedValue('This is a dynamo error');
 
     await service({ matchId }).catch(validateError('Unable to delete match', 500));
+    validateFunctionCall(mockDatabaseService.functions.deleteMatch, matchId);
     expect.assertions(3);
-    expect(mockMatchDocumentService.functions.deleteMatch).toHaveBeenCalledWith(matchId);
   });
 });

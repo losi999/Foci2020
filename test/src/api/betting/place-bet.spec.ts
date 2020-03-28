@@ -1,4 +1,4 @@
-describe('POST /match/v1/matches/{matchId}/bets', () => {
+describe('POST /betting/v1/matches/{matchId}/bets', () => {
   describe('called as an admin', () => {
     it.skip('should return unauthorized', () => {
 

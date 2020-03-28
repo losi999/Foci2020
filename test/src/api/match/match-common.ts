@@ -52,7 +52,7 @@ export const getMatch = (matchId: string, user: User) => {
     }));
 };
 
-export const getMatchList = (tournamentId: string, user: User) => {
+export const getMatchList = (user: User) => {
   return authenticate(user)
     .then(idToken => cy.request({
       method: 'GET',
@@ -61,9 +61,6 @@ export const getMatchList = (tournamentId: string, user: User) => {
         Authorization: idToken
       },
       failOnStatusCode: false,
-      qs: {
-        tournamentId
-      }
     }));
 };
 

@@ -1,6 +1,6 @@
 import { IStandingDocumentConverter, standingDocumentConverterFactory } from '@/converters/standing-document-converter';
 import { BetDocument, StandingDocument } from '@/types/types';
-import { betDocument } from './test-data-factory';
+import { betDocument, standingDocument, standingResponse } from '../common/test-data-factory';
 
 describe('Standing document converter', () => {
   let converter: IStandingDocumentConverter;
@@ -42,6 +42,16 @@ describe('Standing document converter', () => {
 
       const result = converter.create(bets);
       expect(result).toEqual(expectedDocument);
+    });
+  });
+
+  describe('toResponseList', () => {
+    it('should convert list of documents to list of responses', () => {
+      const input = standingDocument();
+      const expectedResponse = standingResponse();
+
+      const result = converter.toResponseList([input]);
+      expect(result).toEqual([expectedResponse]);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@/converters/team-document-converter';
-import { teamDocument, teamRequest, teamResponse } from '@/converters/test-data-factory';
+import { teamDocument, teamRequest, teamResponse } from '@/common/test-data-factory';
 
 describe('Team document converter', () => {
   let converter: ITeamDocumentConverter;

@@ -2,7 +2,7 @@ import { IGetTeamService, getTeamServiceFactory } from '@/functions/get-team/get
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { IDatabaseService } from '@/services/database-service';
-import { teamDocument, teamResponse } from '@/converters/test-data-factory';
+import { teamDocument, teamResponse } from '@/common/test-data-factory';
 
 describe('Get team service', () => {
   let service: IGetTeamService;

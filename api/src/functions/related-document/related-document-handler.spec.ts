@@ -3,7 +3,7 @@ import { DynamoDBStreamEvent, DynamoDBRecord } from 'aws-lambda';
 import { IRelatedDocumentService } from '@/functions/related-document/related-document-service';
 import { Mock, createMockService, validateFunctionCall } from '@/common/unit-testing';
 import { DynamoDB } from 'aws-sdk';
-import { tournamentDocument, teamDocument, betDocument, matchDocument } from '@/converters/test-data-factory';
+import { tournamentDocument, teamDocument, betDocument, matchDocument } from '@/common/test-data-factory';
 
 describe('Match related handler', () => {
   let apiHandler: ReturnType<typeof handler>;

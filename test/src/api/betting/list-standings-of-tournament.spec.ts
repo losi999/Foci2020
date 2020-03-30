@@ -1,4 +1,4 @@
-describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
+describe('GET /betting/v1/tournaments/{tournamentId}/standings', () => {
   describe('called as an admin', () => {
     it.skip('should return unauthorized', () => {
 
@@ -6,7 +6,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
   });
 
   describe('called as a player', () => {
-    it.skip('should get a list of matches', () => {
+    it.skip('should get the standings', () => {
 
     });
 

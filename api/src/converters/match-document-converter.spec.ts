@@ -1,5 +1,5 @@
 import { IMatchDocumentConverter, matchDocumentConverterFactory } from '@/converters/match-document-converter';
-import { matchDocument, matchResponse, matchRequest, teamDocument, tournamentDocument } from './test-data-factory';
+import { matchDocument, matchResponse, matchRequest, teamDocument, tournamentDocument } from '../common/test-data-factory';
 
 describe('Match document converter', () => {
   let converter: IMatchDocumentConverter;

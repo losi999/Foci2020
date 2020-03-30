@@ -1,6 +1,6 @@
 import { default as handler } from '@/functions/get-team/get-team-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { teamResponse } from '@/converters/test-data-factory';
+import { teamResponse } from '@/common/test-data-factory';
 
 describe('Get team handler', () => {
   let mockGetTeamService: jest.Mock;

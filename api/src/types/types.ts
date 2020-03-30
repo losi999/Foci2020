@@ -173,6 +173,12 @@ export type StandingDocument = StandingBase
   & IndexTournamentIdDocumentType
   & InternalDocumentProperties<'standing'>;
 
+export type StandingResponse = StandingBase
+  & BetBase
+  & Remove<TournamentId>
+  & Remove<IndexTournamentIdDocumentType>
+  & Remove<InternalDocumentProperties>;
+
 export type LoginRequest = {
   email: string;
   password: string;

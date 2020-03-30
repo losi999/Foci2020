@@ -4,7 +4,7 @@ import { IBetDocumentConverter } from '@/converters/bet-document-converter';
 import { advanceTo, clear } from 'jest-date-mock';
 import { addMinutes } from '@/common';
 import { IDatabaseService } from '@/services/database-service';
-import { matchDocument, betDocument, betResponse } from '@/converters/test-data-factory';
+import { matchDocument, betDocument, betResponse } from '@/common/test-data-factory';
 
 describe('List bets of match service', () => {
   let service: IListBetsOfMatchService;

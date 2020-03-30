@@ -1,5 +1,5 @@
 import { IBetDocumentConverter, betDocumentConverterFactory } from '@/converters/bet-document-converter';
-import { betRequest, betDocument, betResponse } from '@/converters/test-data-factory';
+import { betRequest, betDocument, betResponse } from '@/common/test-data-factory';
 import { BetDocument } from '@/types/types';
 
 describe('Bet document converter', () => {

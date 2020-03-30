@@ -1,9 +1,10 @@
-import { StandingDocument, BetDocument, BetResult, DocumentType } from '@/types/types';
+import { StandingDocument, BetDocument, BetResult, DocumentType, StandingResponse } from '@/types/types';
 import { betResultPoint } from '@/constants';
 import { concatenate } from '@/common';
 
 export interface IStandingDocumentConverter {
   create(bets: BetDocument[]): StandingDocument;
+  toResponseList(documents: StandingDocument[]): StandingResponse[];
 }
 
 const toFourDigit = (input: number) => String(input).padStart(4, '0');
@@ -47,7 +48,16 @@ export const standingDocumentConverterFactory = (): IStandingDocumentConverter =
           exactMatch
         }
       };
-    }
+    },
+    toResponseList: documents => documents.map(d => ({
+      ...d,
+      'documentType-id': undefined,
+      'tournamentId-documentType': undefined,
+      documentType: undefined,
+      id: undefined,
+      orderingValue: undefined,
+      tournamentId: undefined,
+    }))
   };
 
   return instance;

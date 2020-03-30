@@ -1,5 +1,5 @@
 import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@/converters/tournament-document-converter';
-import { tournamentResponse, tournamentDocument, tournamentRequest } from '@/converters/test-data-factory';
+import { tournamentResponse, tournamentDocument, tournamentRequest } from '@/common/test-data-factory';
 
 describe('Tournament document converter', () => {
   let converter: ITournamentDocumentConverter;

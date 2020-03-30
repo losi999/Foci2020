@@ -4,7 +4,7 @@ import { Mock, createMockService, validateError, validateFunctionCall } from '@/
 import { advanceTo, clear } from 'jest-date-mock';
 import { addMinutes } from '@/common';
 import { IDatabaseService } from '@/services/database-service';
-import { betRequest, matchDocument, betDocument } from '@/converters/test-data-factory';
+import { betRequest, matchDocument, betDocument } from '@/common/test-data-factory';
 
 describe('Place bet service', () => {
   let service: IPlaceBetService;

@@ -2,7 +2,7 @@ import { IDatabaseService, databaseServiceFactory } from '@/services/database-se
 import { Mock, createMockService, awsResolvedValue, validateFunctionCall } from '@/common/unit-testing';
 import { DynamoDB } from 'aws-sdk';
 import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/types';
-import { betDocument, matchDocument, standingDocument, teamDocument, tournamentDocument } from '@/converters/test-data-factory';
+import { betDocument, matchDocument, standingDocument, teamDocument, tournamentDocument } from '@/common/test-data-factory';
 
 describe('Database service', () => {
   let service: IDatabaseService;
@@ -367,11 +367,41 @@ describe('Database service', () => {
         TableName: tableName,
         IndexName: 'indexByTournamentIdDocumentType',
         KeyConditionExpression: '#tournamentIdDocumentType = :tournamentIdDocumentType',
+        ScanIndexForward: true,
         ExpressionAttributeNames: {
           '#tournamentIdDocumentType': 'tournamentId-documentType'
         },
         ExpressionAttributeValues: {
           ':tournamentIdDocumentType': `${tournamentId}#match`
+        }
+      });
+      validateFunctionCall(mockDynamoClient.functions.get);
+      validateFunctionCall(mockDynamoClient.functions.delete);
+      validateFunctionCall(mockDynamoClient.functions.put);
+      validateFunctionCall(mockDynamoClient.functions.update);
+      expect.assertions(6);
+    });
+  });
+
+  describe('queryStandingsByTournamentId', () => {
+    it('should call dynamo.query with correct parameters and return queried data', async () => {
+      const tournamentId = 'tournamentId';
+      const queriedItems = [standingDocument()];
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+
+      const result = await service.queryStandingsByTournamentId(tournamentId);
+      expect(result).toEqual(queriedItems);
+      validateFunctionCall(mockDynamoClient.functions.query, {
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: tableName,
+        IndexName: 'indexByTournamentIdDocumentType',
+        KeyConditionExpression: '#tournamentIdDocumentType = :tournamentIdDocumentType',
+        ScanIndexForward: false,
+        ExpressionAttributeNames: {
+          '#tournamentIdDocumentType': 'tournamentId-documentType'
+        },
+        ExpressionAttributeValues: {
+          ':tournamentIdDocumentType': `${tournamentId}#standing`
         }
       });
       validateFunctionCall(mockDynamoClient.functions.get);

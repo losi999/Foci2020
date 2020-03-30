@@ -4,7 +4,7 @@ import { Mock, createMockService, validateFunctionCall, validateError } from '@/
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { addMinutes } from '@/common';
 import { IDatabaseService } from '@/services/database-service';
-import { teamDocument, tournamentDocument, matchRequest, matchDocument } from '@/converters/test-data-factory';
+import { teamDocument, tournamentDocument, matchRequest, matchDocument } from '@/common/test-data-factory';
 
 describe('Create match service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;

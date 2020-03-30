@@ -2,7 +2,7 @@ import { IListTeamsService, listTeamsServiceFactory } from '@/functions/list-tea
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { IDatabaseService } from '@/services/database-service';
-import { teamDocument, teamResponse } from '@/converters/test-data-factory';
+import { teamDocument, teamResponse } from '@/common/test-data-factory';
 
 describe('List teams service', () => {
   let service: IListTeamsService;

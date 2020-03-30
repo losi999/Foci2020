@@ -2,7 +2,7 @@ import { IListTournamentsService, listTournamentsServiceFactory } from '@/functi
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { IDatabaseService } from '@/services/database-service';
-import { tournamentDocument, tournamentResponse } from '@/converters/test-data-factory';
+import { tournamentDocument, tournamentResponse } from '@/common/test-data-factory';
 
 describe('List tournaments service', () => {
   let service: IListTournamentsService;

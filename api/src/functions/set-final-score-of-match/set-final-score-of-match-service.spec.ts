@@ -4,7 +4,7 @@ import { MatchFinalScoreRequest } from '@/types/types';
 import { advanceTo, clear } from 'jest-date-mock';
 import { addMinutes } from '@/common';
 import { IDatabaseService } from '@/services/database-service';
-import { matchDocument } from '@/converters/test-data-factory';
+import { matchDocument } from '@/common/test-data-factory';
 
 describe('Set final score of match service', () => {
   let service: ISetFinalScoreOfMatchService;

@@ -2,7 +2,7 @@ import { IGetMatchService, getMatchServiceFactory } from '@/functions/get-match/
 import { IMatchDocumentConverter } from '@/converters/match-document-converter';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { IDatabaseService } from '@/services/database-service';
-import { matchDocument, matchResponse } from '@/converters/test-data-factory';
+import { matchDocument, matchResponse } from '@/common/test-data-factory';
 
 describe('Get match service', () => {
   let service: IGetMatchService;

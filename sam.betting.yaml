@@ -92,6 +92,22 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
  
+  ListStandingsOfTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Betting-ListStandingsOfTournament
+      CodeUri: api/dist/list-standings-of-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BettingApi
+            Path: /v1/tournaments/{tournamentId}/standings
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
 Outputs:
   BettingApi:
     Description: "Foci 2020 Betting API"

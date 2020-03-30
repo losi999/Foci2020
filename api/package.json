@@ -52,7 +52,8 @@
       "!**/node_modules/**",
       "!src/**/*.index.ts",
       "!src/dependencies.ts",
-      "!src/common/unit-testing.ts"
+      "!src/common/unit-testing.ts",
+      "!src/common/test-data-factory.ts"
     ],
     "coverageReporters": [
       "html"

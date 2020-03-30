@@ -11,7 +11,7 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      TableName: !Sub Foci2020-${Env}-200316
+      TableName: !Sub Foci2020-${Env}-200330
       BillingMode: PAY_PER_REQUEST
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
@@ -40,6 +40,8 @@ Resources:
           KeySchema:
             - AttributeName: tournamentId-documentType
               KeyType: HASH
+            - AttributeName: orderingValue
+              KeyType: RANGE              
           Projection:
             ProjectionType: ALL
         - IndexName: indexByAwayTeamIdDocumentType
@@ -62,12 +64,16 @@ Resources:
           KeySchema:
             - AttributeName: matchId-documentType
               KeyType: HASH
+            - AttributeName: orderingValue
+              KeyType: RANGE              
           Projection:
             ProjectionType: ALL
         - IndexName: indexByTournamentIdUserIdDocumentType
           KeySchema:
             - AttributeName: tournamentId-userId-documentType
               KeyType: HASH
+            - AttributeName: orderingValue
+              KeyType: RANGE              
           Projection:
             ProjectionType: ALL            
         - IndexName: indexByDocumentType

@@ -2,7 +2,7 @@ import { createTeamServiceFactory, ICreateTeamService } from '@/functions/create
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { ITeamDocumentConverter } from '@/converters/team-document-converter';
 import { IDatabaseService } from '@/services/database-service';
-import { teamRequest, teamDocument } from '@/converters/test-data-factory';
+import { teamRequest, teamDocument } from '@/common/test-data-factory';
 
 describe('Create team service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;

@@ -29,6 +29,7 @@ export interface IDatabaseService {
   queryBetsByMatchId(matchId: string): Promise<BetDocument[]>;
   queryBetsByTournamentIdUserId(tournamentId: string, userId: string): Promise<BetDocument[]>;
   queryMatchesByTournamentId(tournamentId: string): Promise<MatchDocument[]>;
+  queryStandingsByTournamentId(tournamentId: string): Promise<StandingDocument[]>;
   queryMatchKeysByHomeTeamId(teamId: string): Promise<IndexByHomeTeamIdDocument[]>;
   queryMatchKeysByAwayTeamId(teamId: string): Promise<IndexByAwayTeamIdDocument[]>;
   listMatches(): Promise<MatchDocument[]>;
@@ -113,12 +114,13 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
     }).promise()).Items as T[];
   };
 
-  const queryDocumentsByTournamentId = async <T extends Document>(tournamentId: string, documentType: T['documentType']) => {
+  const queryDocumentsByTournamentId = async <T extends Document>(tournamentId: string, documentType: T['documentType'], isAscending = true) => {
     return (await dynamoClient.query({
       ReturnConsumedCapacity: 'INDEXES',
       TableName: tableName,
       IndexName: 'indexByTournamentIdDocumentType',
       KeyConditionExpression: '#tournamentIdDocumentType = :tournamentIdDocumentType',
+      ScanIndexForward: isAscending,
       ExpressionAttributeNames: {
         '#tournamentIdDocumentType': 'tournamentId-documentType'
       },
@@ -167,6 +169,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
     queryBetsByMatchId: matchId => queryDocumentsByMatchId(matchId, 'bet'),
     queryBetsByTournamentIdUserId: (tournamentId, userId) => queryDocumentsByTournamentIdUserId(tournamentId, userId, 'bet'),
     queryMatchesByTournamentId: tournamentId => queryDocumentsByTournamentId(tournamentId, 'match'),
+    queryStandingsByTournamentId: tournamentId => queryDocumentsByTournamentId(tournamentId, 'standing', false),
     updateTournamentOfMatch: (matchId, tournament) => {
       return dynamoClient.update({
         ReturnConsumedCapacity: 'INDEXES',

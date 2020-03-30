@@ -1,6 +1,6 @@
 import { default as handler } from '@/functions/get-tournament/get-tournament-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { tournamentResponse } from '@/converters/test-data-factory';
+import { tournamentResponse } from '@/common/test-data-factory';
 
 describe('Get tournament handler', () => {
   let mockGetTournamentService: jest.Mock;

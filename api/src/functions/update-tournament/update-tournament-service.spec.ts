@@ -2,7 +2,7 @@ import { IUpdateTournamentService, updateTournamentServiceFactory } from '@/func
 import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
 import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
 import { IDatabaseService } from '@/services/database-service';
-import { tournamentDocument, tournamentRequest } from '@/converters/test-data-factory';
+import { tournamentDocument, tournamentRequest } from '@/common/test-data-factory';
 
 describe('Update tournament service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;

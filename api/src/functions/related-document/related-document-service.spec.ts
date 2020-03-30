@@ -4,7 +4,7 @@ import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/ty
 import { IBetDocumentConverter } from '@/converters/bet-document-converter';
 import { IStandingDocumentConverter } from '@/converters/standing-document-converter';
 import { IDatabaseService } from '@/services/database-service';
-import { matchDocument, teamDocument, tournamentDocument, betDocument, standingDocument } from '@/converters/test-data-factory';
+import { matchDocument, teamDocument, tournamentDocument, betDocument, standingDocument } from '@/common/test-data-factory';
 
 describe('Related document service', () => {
   let service: IRelatedDocumentService;

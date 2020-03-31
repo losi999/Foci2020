@@ -1,5 +1,11 @@
 export type UserType = 'admin' | 'player';
 export type Remove<T> = { [prop in keyof T]: undefined };
+export type RecursivePartial<T> = {
+  [P in keyof T]?:
+    T[P] extends (infer U)[] ? RecursivePartial<U>[] :
+    T[P] extends object ? RecursivePartial<T[P]> :
+    T[P];
+};
 export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';
 
 export type Document = TournamentDocument | TeamDocument | MatchDocument | BetDocument | StandingDocument;
@@ -80,6 +86,10 @@ type Score = {
   awayScore: number;
 };
 
+type Result = {
+  result: BetResult;
+};
+
 type MatchId = {
   matchId: string;
 };
@@ -144,9 +154,7 @@ export type BetDocument = Score
   & IndexMatchIdDocumentType
   & IndexByTournamentIdUserIdDocumentType
   & InternalDocumentProperties<'bet'>
-  & {
-    result?: BetResult;
-  };
+  & Partial<Result>;
 
 export type BetResponse = (Score | Remove<Score>)
   & BetBase
@@ -155,7 +163,7 @@ export type BetResponse = (Score | Remove<Score>)
   & Remove<IndexMatchIdDocumentType>
   & Remove<IndexByTournamentIdUserIdDocumentType>
   & Remove<InternalDocumentProperties>
-  & Remove<Pick<BetDocument, 'result'>>
+  & Remove<Result>
   & {
     point: number;
   };
@@ -178,6 +186,18 @@ export type StandingResponse = StandingBase
   & Remove<TournamentId>
   & Remove<IndexTournamentIdDocumentType>
   & Remove<InternalDocumentProperties>;
+
+export type CompareResponse = {
+  leftUserName: string
+  rightUserName: string;
+  matches: {
+    leftScore: Score & Result;
+    rightScore: Score & Result;
+    matchScore: Score;
+    homeFlag: string;
+    awayFlag: string;
+  }[];
+};
 
 export type LoginRequest = {
   email: string;

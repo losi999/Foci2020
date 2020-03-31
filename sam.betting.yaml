@@ -4,6 +4,8 @@ Description: "Foci 2020 Betting API"
 Parameters:
   LambdaRoleArn:
     Type: String
+  UserPoolId:
+    Type: String    
   Database:
     Type: String
   UserPoolArn:
@@ -26,6 +28,7 @@ Globals:
     Environment:
       Variables:
         DYNAMO_TABLE: !Ref Database
+        USER_POOL_ID: !Ref UserPoolId
 
 Resources:
   BettingApi:
@@ -104,6 +107,22 @@ Resources:
           Properties:
             RestApiId: !Ref BettingApi
             Path: /v1/tournaments/{tournamentId}/standings
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  CompareWithPlayer:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Betting-CompareWithPlayer
+      CodeUri: api/dist/compare-with-player
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BettingApi
+            Path: /v1/tournaments/{tournamentId}/compare/{userId}
             Method: GET
             Auth:
               Authorizer: CognitoAuthorizer

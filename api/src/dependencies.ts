@@ -13,6 +13,7 @@ import { betDocumentConverterFactory } from '@/converters/bet-document-converter
 import { standingDocumentConverterFactory } from './converters/standing-document-converter';
 import { infrastructureServiceFactory } from './services/infrastructure-service';
 import { databaseServiceFactory } from '@/services/database-service';
+import { compareDocumentConverterFactory } from '@/converters/compare-document-converter';
 
 const ajvValidator = new ajv({
   allErrors: true,
@@ -31,6 +32,7 @@ export const teamDocumentConverter = teamDocumentConverterFactory(uuid);
 export const tournamentDocumentConverter = tournamentDocumentConverterFactory(uuid);
 export const betDocumentConverter = betDocumentConverterFactory();
 export const standingDocumentConverter = standingDocumentConverterFactory();
+export const compareDocumentConverter = compareDocumentConverterFactory();
 
 export const databaseService = databaseServiceFactory(process.env.DYNAMO_TABLE, dynamoDbClient);
 

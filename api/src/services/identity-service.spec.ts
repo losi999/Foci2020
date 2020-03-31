@@ -9,7 +9,7 @@ describe('Notification service', () => {
   let mockCognito: Mock<CognitoIdentityServiceProvider>;
 
   beforeEach(() => {
-    mockCognito = createMockService('adminInitiateAuth', 'adminCreateUser', 'adminAddUserToGroup', 'adminSetUserPassword');
+    mockCognito = createMockService('adminInitiateAuth', 'adminCreateUser', 'adminAddUserToGroup', 'adminSetUserPassword', 'adminGetUser');
 
     service = cognitoIdentityService(userPoolId, clientId, mockCognito.service);
   });
@@ -77,6 +77,27 @@ describe('Notification service', () => {
           USERNAME: email,
           PASSWORD: password
         }
+      });
+    });
+  });
+
+  describe('getUserName', () => {
+    it('should call cognito operation with correct parameters and return "nickname" attribute', async () => {
+      const nickname = 'Nick Name';
+      const userId = 'userId';
+
+      mockCognito.functions.adminGetUser.mockReturnValue(awsResolvedValue({
+        UserAttributes: [{
+          Name: 'nickname',
+          Value: nickname
+        }]
+      }));
+
+      const result = await service.getUserName(userId);
+      expect(result).toEqual(nickname);
+      expect(mockCognito.functions.adminGetUser).toHaveBeenCalledWith({
+        UserPoolId: userPoolId,
+        Username: userId
       });
     });
   });

@@ -13,6 +13,8 @@ import {
   BetResponse,
   StandingDocument,
   StandingResponse,
+  CompareResponse,
+  RecursivePartial,
 } from '@/types/types';
 
 export const teamRequest = (req?: Partial<TeamRequest>): TeamRequest => ({
@@ -84,15 +86,21 @@ export const matchRequest = (req?: Partial<MatchRequest>): MatchRequest => ({
   ...req
 });
 
-export const matchDocument = (doc?: Partial<Pick<MatchDocument, keyof MatchRequest | 'id' | 'finalScore'>>): MatchDocument => {
-  const tournamentId = doc?.tournamentId ?? 'tournamentId';
-  const homeTeamId = doc?.homeTeamId ?? 'homeTeamId';
-  const awayTeamId = doc?.awayTeamId ?? 'awayTeamId';
+export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'group' | 'id' | 'finalScore' | 'homeTeam' | 'awayTeam' | 'tournament'>>): MatchDocument => {
+  const homeTeam = doc?.homeTeam ?? teamDocument({ id: 'homeTeamId' });
+  const awayTeam = doc?.awayTeam ?? teamDocument({ id: 'awayTeamId' });
+  const tournament = doc?.tournament ?? tournamentDocument({ id: 'tournamentId' });
+  const tournamentId = tournament.id;
+  const homeTeamId = homeTeam.id;
+  const awayTeamId = awayTeam.id;
   const id = doc?.id ?? 'matchId';
   return {
     awayTeamId,
     homeTeamId,
     tournamentId,
+    homeTeam,
+    awayTeam,
+    tournament,
     id,
     group: 'Group',
     startTime: 'startTime',
@@ -102,9 +110,6 @@ export const matchDocument = (doc?: Partial<Pick<MatchDocument, keyof MatchReque
     'awayTeamId-documentType': `${awayTeamId}#match`,
     documentType: 'match',
     orderingValue: 'startTime',
-    homeTeam: teamDocument({ id: homeTeamId }),
-    awayTeam: teamDocument({ id: awayTeamId }),
-    tournament: tournamentDocument({ id: tournamentId }),
     ...doc
   };
 };
@@ -233,6 +238,18 @@ export const standingResponse = (res?: Partial<Pick<StandingResponse, 'userId' |
     id: undefined,
     orderingValue: undefined,
     tournamentId: undefined,
+    ...res
+  };
+};
+
+export const compareResponse = (res?: RecursivePartial<CompareResponse>): CompareResponse => {
+  const leftUserName = res?.leftUserName ?? 'leftUserName';
+  const rightUserName = res?.rightUserName ?? 'rightUserName';
+  const matches = res?.matches ?? [] as any;
+  return {
+    leftUserName,
+    rightUserName,
+    matches,
     ...res
   };
 };

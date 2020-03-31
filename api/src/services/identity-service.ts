@@ -2,6 +2,7 @@ import { CognitoIdentityServiceProvider } from 'aws-sdk';
 import { RegistrationRequest, LoginRequest, UserType } from '@/types/types';
 
 export interface IIdentityService {
+  getUserName(userId: string): Promise<string>;
   register(body: RegistrationRequest, userGroup: UserType): Promise<any>;
   login(body: LoginRequest): Promise<CognitoIdentityServiceProvider.AdminInitiateAuthResponse>;
 }
@@ -10,7 +11,13 @@ export const cognitoIdentityService = (
   userPoolId: string,
   clientId: string,
   cognito: CognitoIdentityServiceProvider): IIdentityService => {
-  return {
+  const instance: IIdentityService = {
+    getUserName: async (userId) => {
+      return (await cognito.adminGetUser({
+        UserPoolId: userPoolId,
+        Username: userId
+      }).promise()).UserAttributes.find(attr => attr.Name === 'nickname').Value;
+    },
     register: async (body, userGroup) => {
       await cognito.adminCreateUser({
         UserPoolId: userPoolId,
@@ -52,4 +59,6 @@ export const cognitoIdentityService = (
       }).promise();
     }
   };
+
+  return instance;
 };

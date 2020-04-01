@@ -71,6 +71,7 @@ Resources:
       TemplateURL: sam.betting.yaml
       Parameters:
         LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        UserPoolId: !GetAtt Data.Outputs.UserPoolId
         Database: !GetAtt Data.Outputs.Database
         UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
         Env: !Ref Env

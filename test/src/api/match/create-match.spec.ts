@@ -307,8 +307,15 @@ describe('POST /match/v1/matches', () => {
             });
         });
 
-        it.skip('is not date-time', () => {
-
+        it('is not date-time', () => {
+          createMatch({
+            ...match,
+            startTime: 'not-a-date-time'
+          }, 'admin1')
+            .should((response) => {
+              expect(response.status).to.equal(400);
+              expect(response.body.body).to.contain('startTime').to.contain('format').to.contain('date-time');
+            });
         });
 
         it('is less than 5 minutes from now', () => {

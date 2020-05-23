@@ -18,6 +18,9 @@ export const updateTeamServiceFactory = (
 
     await databaseService.updateTeam(document).catch((error) => {
       console.error('Update team', error);
+      if (error.code === 'ConditionalCheckFailedException') {
+        throw httpError(404, 'No team found');
+      }
       throw httpError(500, 'Error while updating team');
     });
   };

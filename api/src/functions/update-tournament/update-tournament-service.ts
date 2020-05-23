@@ -19,6 +19,9 @@ export const updateTournamentServiceFactory = (
 
     await databaseService.updateTournament(document).catch((error) => {
       console.error('Update tournament', error);
+      if (error.code === 'ConditionalCheckFailedException') {
+        throw httpError(404, 'No tournament found');
+      }
       throw httpError(500, 'Error while updating tournament');
     });
   };

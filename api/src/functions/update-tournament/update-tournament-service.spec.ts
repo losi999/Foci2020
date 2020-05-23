@@ -35,22 +35,43 @@ describe('Update tournament service', () => {
     expect.assertions(3);
   });
 
-  it('should throw error if unable to update tournament', async () => {
-    const tournamentId = 'tournamentId';
-    const body = tournamentRequest();
+  describe('should throw error', () => {
+    it('if no tournament found', async () => {
+      const tournamentId = 'tournamentId';
+      const body = tournamentRequest();
 
-    const converted = tournamentDocument();
+      const converted = tournamentDocument();
 
-    mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
-    mockDatabaseService.functions.updateTournament.mockRejectedValue('This is a dynamo error');
+      mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
+      mockDatabaseService.functions.updateTournament.mockRejectedValue({ code: 'ConditionalCheckFailedException' });
 
-    await service({
-      tournamentId,
-      body
-    }).catch(validateError('Error while updating tournament', 500));
+      await service({
+        tournamentId,
+        body
+      }).catch(validateError('No tournament found', 404));
 
-    validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body);
-    validateFunctionCall(mockDatabaseService.functions.updateTournament, converted);
-    expect.assertions(4);
+      validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body);
+      validateFunctionCall(mockDatabaseService.functions.updateTournament, converted);
+      expect.assertions(4);
+    });
+
+    it('if unable to update tournament', async () => {
+      const tournamentId = 'tournamentId';
+      const body = tournamentRequest();
+
+      const converted = tournamentDocument();
+
+      mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
+      mockDatabaseService.functions.updateTournament.mockRejectedValue('This is a dynamo error');
+
+      await service({
+        tournamentId,
+        body
+      }).catch(validateError('Error while updating tournament', 500));
+
+      validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body);
+      validateFunctionCall(mockDatabaseService.functions.updateTournament, converted);
+      expect.assertions(4);
+    });
   });
 });

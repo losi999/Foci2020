@@ -14,9 +14,19 @@ describe('Team schema', () => {
     };
   });
 
-  it('should accept valid body', () => {
-    const result = validatorService.validate(data, schema);
-    expect(result).toBeUndefined();
+  describe('should accept', () => {
+    it('valid body', () => {
+      const result = validatorService.validate(data, schema);
+      expect(result).toBeUndefined();
+    });
+
+    describe('if data.image', () => {
+      it('is missing', () => {
+        data.image = undefined;
+        const result = validatorService.validate(data, schema);
+        expect(result).toBeUndefined();
+      });
+    });
   });
 
   describe('should deny', () => {
@@ -49,12 +59,6 @@ describe('Team schema', () => {
     });
 
     describe('if data.image', () => {
-      it('is missing', () => {
-        data.image = undefined;
-        const result = validatorService.validate(data, schema);
-        validateSchemaRequired(result, 'image');
-      });
-
       it('is not string', () => {
         (data.image as any) = 2;
         const result = validatorService.validate(data, schema);

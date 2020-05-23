@@ -35,21 +35,41 @@ describe('Update team service', () => {
     expect.assertions(3);
   });
 
-  it('should throw error if unable to update team', async () => {
-    const teamId = 'teamId';
-    const body = teamRequest();
+  describe('should throw error', () => {
+    it('if no team found', async () => {
+      const teamId = 'teamId';
+      const body = teamRequest();
 
-    const converted = teamDocument();
+      const converted = teamDocument();
 
-    mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
-    mockDatabaseService.functions.updateTeam.mockRejectedValue('This is a dynamo error');
+      mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
+      mockDatabaseService.functions.updateTeam.mockRejectedValue({ code: 'ConditionalCheckFailedException' });
 
-    await service({
-      teamId,
-      body
-    }).catch(validateError('Error while updating team', 500));
-    validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
-    validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
-    expect.assertions(4);
+      await service({
+        teamId,
+        body
+      }).catch(validateError('No team found', 404));
+      validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
+      validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
+      expect.assertions(4);
+    });
+
+    it('if unable to update team', async () => {
+      const teamId = 'teamId';
+      const body = teamRequest();
+
+      const converted = teamDocument();
+
+      mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
+      mockDatabaseService.functions.updateTeam.mockRejectedValue('This is a dynamo error');
+
+      await service({
+        teamId,
+        body
+      }).catch(validateError('Error while updating team', 500));
+      validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
+      validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
+      expect.assertions(4);
+    });
   });
 });

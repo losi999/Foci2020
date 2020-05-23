@@ -161,6 +161,36 @@ describe('Update match service', () => {
       expect.assertions(7);
     });
 
+    it('if no match found', async () => {
+      const queriedHomeTeam = teamDocument({ id: 'homeTeamId', });
+      const queriedAwayTeam = teamDocument({ id: 'awayTeamId', });
+      const queriedTournament = tournamentDocument();
+
+      const convertedMatch = matchDocument();
+
+      const body = matchRequest({
+        startTime: addMinutes(5.1).toISOString()
+      });
+
+      mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
+      mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
+      mockDatabaseService.functions.getTournamentById.mockResolvedValue(queriedTournament);
+      mockMatchDocumentConverter.functions.update.mockReturnValue(convertedMatch);
+      mockDatabaseService.functions.updateMatch.mockRejectedValue({ code: 'ConditionalCheckFailedException' });
+
+      await service({
+        body,
+        matchId
+      }).catch(validateError('No match found', 404));
+
+      expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
+      expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
+      validateFunctionCall(mockDatabaseService.functions.getTournamentById, body.tournamentId);
+      validateFunctionCall(mockMatchDocumentConverter.functions.update, matchId, body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
+      validateFunctionCall(mockDatabaseService.functions.updateMatch, convertedMatch);
+      expect.assertions(7);
+    });
+
     it('if unable to update match', async () => {
       const queriedHomeTeam = teamDocument({ id: 'homeTeamId', });
       const queriedAwayTeam = teamDocument({ id: 'awayTeamId', });

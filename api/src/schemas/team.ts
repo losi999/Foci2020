@@ -3,7 +3,7 @@ import { JSONSchema7 } from 'json-schema';
 const schema: JSONSchema7 = {
   type: 'object',
   additionalProperties: false,
-  required: ['teamName', 'image', 'shortName'],
+  required: ['teamName', 'shortName'],
   properties: {
     teamName: {
       type: 'string',

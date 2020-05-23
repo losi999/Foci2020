@@ -1,0 +1,9 @@
+{
+    "integrationFolder": "./src/api",
+    "testFiles": "**/*.{feature,features}",
+    "supportFile": "src/support",
+    "baseUrl": "https://d2tm4opeg4njny.cloudfront.net",
+    "pluginsFile": "src/plugins",
+    "viewportWidth": 0,
+    "viewportHeight": 0
+}

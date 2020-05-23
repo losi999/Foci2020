@@ -1,0 +1,32 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es2017",
+    "lib": [
+      "es2017",
+      "es2019",
+      "DOM"
+    ],
+    "types": [
+      "cypress",
+      "node"
+    ],
+    "noImplicitAny": true,
+    "sourceMap": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "outDir": "output",
+    "rootDir": "../",
+    "baseUrl": ".",
+    "paths": {
+      "api/*": [
+        "../api/src/*"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}

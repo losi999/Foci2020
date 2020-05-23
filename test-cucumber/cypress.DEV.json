@@ -1,0 +1,6 @@
+{
+    "integrationFolder": "./src/api",
+    "testFiles": "**/*.{feature,features}",
+    "baseUrl": "https://d2acwaw2vg2h1u.cloudfront.net",
+    "pluginsFile": "src/plugins"
+}

@@ -13,6 +13,11 @@
 			"**/.DS_Store": true,
 			"**/node_modules": true,
 			"**/coverage": true,
-		}
-	}
+		},
+		"cucumberautocomplete.steps": [
+			"test-cucumber/src/api/**/*.ts"
+		],
+		"cucumberautocomplete.syncfeatures": "test-cucumber/src/api/**/*.feature",
+		"cucumberautocomplete.strictGherkinCompletion": true
+	},
 }

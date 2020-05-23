@@ -15,9 +15,9 @@ Feature: Update a tournament (PUT /tournament/v1/tournaments/{tournamentId})
     Then It returns forbidden error
 
   Scenario: Admins can update a tournament
-    Given I log in as "admin1"
+    Given There is a tournament already created
+    And I log in as "admin1"
     And I have a tournament request prepared
-    And There is a tournament already created
     When I update a tournament
     Then It returns ok response
     And Saved tournament is the same that I sent
@@ -28,19 +28,19 @@ Feature: Update a tournament (PUT /tournament/v1/tournaments/{tournamentId})
     Given I log in as "admin1"
     And I have a tournament request prepared
     And I set "tournamentId" to a random UUID
-    And I remove a required property: "tournamentName"
+    And I remove "tournamentName" property from "tournament"
     When I update a tournament
     Then It returns bad request error
-    And It tells me about "tournamentName" property is missing from "body"
+    And It tells me that "tournamentName" property is missing from "body"
 
   Scenario: A tournament's name must be a text
     Given I log in as "admin1"
     And I have a tournament request prepared
     And I set "tournamentId" to a random UUID
-    And I change a string property to a number: "tournamentName"
+    And I change "tournamentName" property value to 123 in "tournament"
     When I update a tournament
     Then It returns bad request error
-    And It tells me about "tournamentName" property is not "string" type in "body"
+    And It tells me that "tournamentName" property is not "string" type in "body"
 
   Scenario: A tournament's Id is a UUID
     Given I log in as "admin1"
@@ -48,7 +48,7 @@ Feature: Update a tournament (PUT /tournament/v1/tournaments/{tournamentId})
     And I set "tournamentId" to a non-UUID value
     When I update a tournament
     Then It returns bad request error
-    And It tells me about "tournamentId" property is not "uuid" format in "pathParameters"
+    And It tells me that "tournamentId" property is not "uuid" format in "pathParameters"
 
   Scenario: Updating non existing tournament results in error
     Given I log in as "admin1"

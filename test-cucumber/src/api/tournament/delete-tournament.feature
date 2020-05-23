@@ -23,6 +23,6 @@ Feature: Delete a tournament by Id (DELETE /tournament/v1/tournaments/{tournamen
     And I set "tournamentId" to a non-UUID value
     When I delete a tournament
     Then It returns bad request error
-    And It tells me about "tournamentId" property is not "uuid" format in "pathParameters"
+    And It tells me that "tournamentId" property is not "uuid" format in "pathParameters"
 
   Scenario: Any match of deleted tournament is also deleted

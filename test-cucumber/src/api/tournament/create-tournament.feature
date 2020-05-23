@@ -23,15 +23,15 @@ Feature: Create a tournament (POST /tournament/v1/tournaments)
   Scenario: A tournament's name must be set
     Given I log in as "admin1"
     And I have a tournament request prepared
-    And I remove a required property: "tournamentName"
+    And I remove "tournamentName" property from "tournament"
     When I create a tournament
     Then It returns bad request error
-    And It tells me about "tournamentName" property is missing from "body"
+    And It tells me that "tournamentName" property is missing from "body"
 
   Scenario: A tournament's name must be a text
     Given I log in as "admin1"
     And I have a tournament request prepared
-    And I change a string property to a number: "tournamentName"
+    And I change "tournamentName" property value to 123 in "tournament"
     When I create a tournament
     Then It returns bad request error
-    And It tells me about "tournamentName" property is not "string" type in "body"
+    And It tells me that "tournamentName" property is not "string" type in "body"

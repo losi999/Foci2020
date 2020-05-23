@@ -17,20 +17,6 @@ Given('I have a tournament request prepared', () => {
   }).as('tournament');
 });
 
-Given('I remove a required property: {string}', (propertyName: keyof TournamentRequest) => {
-  cy.get<TournamentRequest>('@tournament').then((tournament) => {
-    tournament[propertyName] = undefined;
-    return cy.wrap(tournament).as('tournament');
-  });
-});
-
-Given('I change a string property to a number: {string}', (propertyName: keyof TournamentRequest) => {
-  cy.get<TournamentRequest>('@tournament').then((tournament) => {
-    (tournament[propertyName] as any) = 1;
-    return cy.wrap(tournament).as('tournament');
-  });
-});
-
 When('I request a tournament by tournamentId', () => {
   cy.getAll('@tournamentId', '@idToken').spread((tournamentId: string, idToken: string) => {
     return getTournament(tournamentId, idToken);
@@ -70,24 +56,6 @@ Then('Saved tournament is the same that I sent', () => {
     getTournament(tournamentId, idToken).its('body').should((body: TournamentResponse) => {
       validateTournament(body, tournamentId, tournament);
     });
-  });
-});
-
-Then('It tells me about {string} property is missing from {string}', (propertyName: string, requestPart: string) => {
-  cy.get<Cypress.Response>('@request').its('body').its(requestPart).should((data) => {
-    expect(data).to.contain(propertyName).to.contain('required');
-  });
-});
-
-Then('It tells me about {string} property is not {string} type in {string}', (propertyName: string, propertyType: string, requestPart: string) => {
-  cy.get<Cypress.Response>('@request').its('body').its(requestPart).should((data) => {
-    expect(data).to.contain(propertyName).to.contain(propertyType);
-  });
-});
-
-Then('It tells me about {string} property is not {string} format in {string}', (propertyName: string, propertyformat: string, requestPart: string) => {
-  cy.get<Cypress.Response>('@request').its('body').its(requestPart).should((data) => {
-    expect(data).to.contain(propertyName).to.contain(propertyformat);
   });
 });
 

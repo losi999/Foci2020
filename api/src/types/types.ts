@@ -2,9 +2,9 @@ export type UserType = 'admin' | 'player';
 export type Remove<T> = { [prop in keyof T]: undefined };
 export type RecursivePartial<T> = {
   [P in keyof T]?:
-    T[P] extends (infer U)[] ? RecursivePartial<U>[] :
-    T[P] extends object ? RecursivePartial<T[P]> :
-    T[P];
+  T[P] extends (infer U)[] ? RecursivePartial<U>[] :
+  T[P] extends object ? RecursivePartial<T[P]> :
+  T[P];
 };
 export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';
 
@@ -60,7 +60,7 @@ export type TournamentResponse = TournamentBase
 type TeamBase = {
   teamName: string
   shortName: string;
-  image: string;
+  image?: string;
 };
 
 type TeamId = {

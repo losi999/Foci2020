@@ -18,19 +18,19 @@ Given('I have a tournament request prepared', () => {
 });
 
 When('I request a tournament by tournamentId', () => {
-  cy.getAll('@tournamentId', '@idToken').spread((tournamentId: string, idToken: string) => {
+  cy.getAs('@tournamentId', '@idToken').spread((tournamentId: string, idToken: string) => {
     return getTournament(tournamentId, idToken);
   }).as('request');
 });
 
 When('I create a tournament', () => {
-  cy.getAll('@tournament', '@idToken').spread((tournament: TournamentRequest, idToken: string) => {
+  cy.getAs('@tournament', '@idToken').spread((tournament: TournamentRequest, idToken: string) => {
     return createTournament(tournament, idToken);
   }).as('request');
 });
 
 When('I delete a tournament', () => {
-  cy.getAll('@tournamentId', '@idToken').spread((tournamentId: string, idToken: string) => {
+  cy.getAs('@tournamentId', '@idToken').spread((tournamentId: string, idToken: string) => {
     return deleteTournament(tournamentId, idToken);
   }).as('request');
 });
@@ -42,7 +42,7 @@ When('I list tournaments', () => {
 });
 
 When('I update a tournament', () => {
-  cy.getAll('@tournamentId', '@idToken', '@tournament').spread((tournamentId: string, idToken: string, tournament: TournamentRequest) => {
+  cy.getAs('@tournamentId', '@idToken', '@tournament').spread((tournamentId: string, idToken: string, tournament: TournamentRequest) => {
     return updateTournament(tournamentId, tournament, idToken);
   }).as('request');
 });
@@ -52,7 +52,7 @@ Then('It returns created tournament id', () => {
 });
 
 Then('Saved tournament is the same that I sent', () => {
-  cy.getAll('@tournamentId', '@tournament', '@idToken').spread((tournamentId: string, tournament: TournamentRequest, idToken: string) => {
+  cy.getAs('@tournamentId', '@tournament', '@idToken').spread((tournamentId: string, tournament: TournamentRequest, idToken: string) => {
     getTournament(tournamentId, idToken).its('body').should((body: TournamentResponse) => {
       validateTournament(body, tournamentId, tournament);
     });

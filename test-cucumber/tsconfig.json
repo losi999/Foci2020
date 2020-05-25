@@ -18,7 +18,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "outDir": "output",
-    "rootDir": "../",
     "baseUrl": ".",
     "paths": {
       "api/*": [

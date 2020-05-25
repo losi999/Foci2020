@@ -6,3 +6,8 @@ export const usernames: { [name in User]: string } = {
   player2: 'losonczil+player2@gmail.com',
   player3: 'losonczil+player3@gmail.com'
 };
+
+export const idTokenAlias = 'idToken';
+export const requestAlias = 'request';
+export const toSend = 'ToSend';
+export const existing = 'existing';

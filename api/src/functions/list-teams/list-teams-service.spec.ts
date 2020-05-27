@@ -1,8 +1,8 @@
-import { IListTeamsService, listTeamsServiceFactory } from '@/functions/list-teams/list-teams-service';
-import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
-import { teamDocument, teamResponse } from '@/common/test-data-factory';
+import { IListTeamsService, listTeamsServiceFactory } from '@foci2020/api/functions/list-teams/list-teams-service';
+import { ITeamDocumentConverter } from '@foci2020/shared/converters/team-document-converter';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { teamDocument, teamResponse } from '@foci2020/shared/common/test-data-factory';
 
 describe('List teams service', () => {
   let service: IListTeamsService;

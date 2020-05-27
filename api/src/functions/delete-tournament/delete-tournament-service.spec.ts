@@ -1,6 +1,6 @@
-import { IDeleteTournamentService, deleteTournamentServiceFactory } from '@/functions/delete-tournament/delete-tournament-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
+import { IDeleteTournamentService, deleteTournamentServiceFactory } from '@foci2020/api/functions/delete-tournament/delete-tournament-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
 
 describe('Delete tournament service', () => {
   let service: IDeleteTournamentService;

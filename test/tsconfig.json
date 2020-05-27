@@ -6,7 +6,8 @@
     "target": "es2017",
     "lib": [
       "es2017",
-      "es2019"
+      "es2019",
+      "dom"
     ],
     "types": ["cypress"],
     "noImplicitAny": true,
@@ -14,12 +15,14 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "outDir": "output",
-    "rootDir": "../",
     "baseUrl": ".",
     "paths": {
-        "api/*": [
-          "../api/src/*"
-        ]
+      "@foci2020/test/*": [
+        "src/*"
+      ],
+      "@foci2020/shared/*": [
+        "../shared/src/*"
+      ]
     }
   },
   "include": [

@@ -1,6 +1,6 @@
-import { IGetTeamService } from '@/functions/get-team/get-team-service';
+import { IGetTeamService } from '@foci2020/api/functions/get-team/get-team-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { TeamResponse } from '@/types/types';
+import { TeamResponse } from '@foci2020/shared/types/responses';
 
 export default (getTeam: IGetTeamService): APIGatewayProxyHandler => {
   return async (event) => {

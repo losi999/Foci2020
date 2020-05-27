@@ -1,6 +1,6 @@
-import { MatchFinalScoreRequest } from '@/types/types';
-import { addMinutes, httpError } from '@/common';
-import { IDatabaseService } from '@/services/database-service';
+import { addMinutes, httpError } from '@foci2020/shared/common/utils';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { MatchFinalScoreRequest } from '@foci2020/shared/types/requests';
 
 export interface ISetFinalScoreOfMatchService {
   (ctx: {

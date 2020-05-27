@@ -1,6 +1,6 @@
-import { default as handler } from '@/functions/get-match/get-match-handler';
+import { default as handler } from '@foci2020/api/functions/get-match/get-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { matchResponse } from '@/common/test-data-factory';
+import { matchResponse } from '@foci2020/shared/common/test-data-factory';
 
 describe('Get match handler', () => {
   let mockGetMatchService: jest.Mock;

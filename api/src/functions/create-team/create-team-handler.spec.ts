@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/create-team/create-team-handler';
+import { default as handler } from '@foci2020/api/functions/create-team/create-team-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Create team handler', () => {

@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { IUpdateTournamentService } from '@/functions/update-tournament/update-tournament-service';
+import { IUpdateTournamentService } from '@foci2020/api/functions/update-tournament/update-tournament-service';
 
 export default (updateTournament: IUpdateTournamentService): APIGatewayProxyHandler => {
   return async (event) => {

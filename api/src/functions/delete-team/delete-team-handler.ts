@@ -1,4 +1,4 @@
-import { IDeleteTeamService } from '@/functions/delete-team/delete-team-service';
+import { IDeleteTeamService } from '@foci2020/api/functions/delete-team/delete-team-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
 
 export default (deleteTeam: IDeleteTeamService): APIGatewayProxyHandler => {

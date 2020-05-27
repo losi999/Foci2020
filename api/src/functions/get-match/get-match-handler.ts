@@ -1,6 +1,6 @@
-import { IGetMatchService } from '@/functions/get-match/get-match-service';
+import { IGetMatchService } from '@foci2020/api/functions/get-match/get-match-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { MatchResponse } from '@/types/types';
+import { MatchResponse } from '@foci2020/shared/types/responses';
 
 export default (getMatch: IGetMatchService): APIGatewayProxyHandler => {
   return async (event) => {

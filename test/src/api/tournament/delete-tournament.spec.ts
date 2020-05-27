@@ -1,9 +1,9 @@
-import { createTournament, deleteTournament, getTournament } from './tournament-common';
-import { deleteMatch, createMatch, getMatch } from '../match/match-common';
-import { deleteTeam, createTeam } from '../team/team-common';
-import { addMinutes } from 'api/common';
-import { TournamentRequest, TeamRequest } from 'api/types/types';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
+import { TournamentRequest, TeamRequest } from '@foci2020/shared/types/requests';
+import { deleteMatch, createMatch, getMatch } from '@foci2020/test/api/match/match-common';
+import { deleteTeam, createTeam_ } from '@foci2020/test/api/team/team-common';
+import { deleteTournament, createTournament, getTournament } from '@foci2020/test/api/tournament/tournament-common';
+import { addMinutes } from '@foci2020/shared/common/utils';
 
 describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
@@ -76,14 +76,14 @@ describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
       let tournamentId: string;
 
       beforeEach(() => {
-        createTeam(homeTeam, 'admin1')
+        createTeam_(homeTeam, 'admin1')
           .its('body')
           .its('teamId')
           .then((id) => {
             homeTeamId = id;
             createdTeamIds.push(id);
             expect(id).to.be.a('string');
-            return createTeam(awayTeam, 'admin1');
+            return createTeam_(awayTeam, 'admin1');
           })
           .its('body')
           .its('teamId')

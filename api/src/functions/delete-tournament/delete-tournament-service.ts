@@ -1,5 +1,5 @@
-import { httpError } from '@/common';
-import { IDatabaseService } from '@/services/database-service';
+import { httpError } from '@foci2020/shared/common/utils';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
 
 export interface IDeleteTournamentService {
   (ctx: {

@@ -1,4 +1,4 @@
-import { default as handler } from '@/handlers/authorizer-handler';
+import { default as handler } from '@foci2020/api/handlers/authorizer-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Authorizer handler', () => {

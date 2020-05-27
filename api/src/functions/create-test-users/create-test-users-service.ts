@@ -1,5 +1,5 @@
-import { IIdentityService } from '@/services/identity-service';
-import { UserType } from '@/types/types';
+import { IIdentityService } from '@foci2020/shared/services/identity-service';
+import { UserType } from '@foci2020/shared/types/common';
 
 export interface ICreateTestUsersService {
   (ctx: {

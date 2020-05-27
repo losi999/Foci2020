@@ -1,7 +1,7 @@
 import { DynamoDBStreamHandler } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
-import { Document } from '@/types/types';
-import { IRelatedDocumentService } from '@/functions/related-document/related-document-service';
+import { IRelatedDocumentService } from '@foci2020/api/functions/related-document/related-document-service';
+import { Document } from '@foci2020/shared/types/documents';
 
 export default (relatedDocument: IRelatedDocumentService): DynamoDBStreamHandler =>
   async (event) => {

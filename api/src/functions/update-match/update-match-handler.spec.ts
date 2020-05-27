@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/update-match/update-match-handler';
+import { default as handler } from '@foci2020/api/functions/update-match/update-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Update match handler', () => {

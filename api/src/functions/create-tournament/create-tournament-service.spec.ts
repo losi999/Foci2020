@@ -1,8 +1,8 @@
-import { createTournamentServiceFactory, ICreateTournamentService } from '@/functions/create-tournament/create-tournament-service';
-import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
-import { tournamentRequest, tournamentDocument } from '@/common/test-data-factory';
+import { createTournamentServiceFactory, ICreateTournamentService } from '@foci2020/api/functions/create-tournament/create-tournament-service';
+import { ITournamentDocumentConverter } from '@foci2020/shared/converters/tournament-document-converter';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { tournamentRequest, tournamentDocument } from '@foci2020/shared/common/test-data-factory';
 
 describe('Create tournament service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;

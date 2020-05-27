@@ -1,6 +1,9 @@
-import { createTeam, getTeam, deleteTeam, validateTeam } from './team-common';
-import uuid from 'uuid';
-import { TeamRequest, TeamResponse } from 'api/types/types';
+import { v4 as uuid } from 'uuid';
+import { TeamRequest } from '@foci2020/shared/types/requests';
+import { deleteTeam, getTeam_, createTeam_, validateTeam_, getTeam } from '@foci2020/test/api/team/team-common';
+import { TeamResponse } from '@foci2020/shared/types/responses';
+import { expectUnauthorized, expectForbidden, expectBadRequest, expectWrongPropertyFormat, expectNotFound } from '@foci2020/test/api/common-expects';
+import { authenticate } from '@foci2020/test/api/auth/auth-common';
 
 describe('GET /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
@@ -19,49 +22,56 @@ describe('GET /team/v1/teams/{teamId}', () => {
     createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
   });
 
+  describe('called as anonymous', () => {
+    it('should return unauthorized', () => {
+      getTeam(uuid())(undefined)
+        .its('status')
+        .should(expectUnauthorized);
+    });
+  });
+
   describe('called as a player', () => {
     it('should return unauthorized', () => {
-      getTeam(uuid(), 'player1')
+      authenticate('player1')
+        .then(getTeam(uuid()))
         .its('status')
-        .should((status) => {
-          expect(status).to.equal(403);
-        });
+        .should(expectForbidden);
     });
   });
 
   describe('called as an admin', () => {
-    it('should get team by id', () => {
+    it.skip('should get team by id', () => {
       let teamId: string;
 
-      createTeam(team, 'admin1')
+      createTeam_(team, 'admin1')
         .its('body')
         .its('teamId')
         .then((id) => {
           createdTeamIds.push(id);
           teamId = id;
           expect(id).to.be.a('string');
-          return getTeam(teamId, 'admin1');
+          return getTeam_(teamId, 'admin1');
         })
         .its('body')
         .should((body: TeamResponse) => {
-          validateTeam(body, teamId, team);
+          validateTeam_(body, teamId, team);
         });
     });
 
     describe('should return error if teamId', () => {
       it('is not uuid', () => {
-        getTeam(`${uuid()}-not-valid`, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.pathParameters).to.contain('teamId').to.contain('format').to.contain('uuid');
-          });
+        authenticate('admin1')
+          .then(getTeam(`${uuid()}-not-valid`))
+          .as('response');
+        cy.getAs<Cypress.Response>('@response').its('status').should(expectBadRequest);
+        cy.getAs<Cypress.Response>('@response').its('body').should(expectWrongPropertyFormat('teamId', 'uuid', 'pathParameters'));
       });
 
       it('does not belong to any team', () => {
-        getTeam(uuid(), 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(404);
-          });
+        authenticate('admin1')
+          .then(getTeam(uuid()))
+          .its('status')
+          .should(expectNotFound);
       });
     });
   });

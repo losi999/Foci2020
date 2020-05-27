@@ -1,6 +1,6 @@
-import { ICompareWithPlayerService } from '@/functions/compare-with-player/compare-with-player-service';
+import { ICompareWithPlayerService } from '@foci2020/api/functions/compare-with-player/compare-with-player-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { CompareResponse } from '@/types/types';
+import { CompareResponse } from '@foci2020/shared/types/responses';
 
 export default (compareWithPlayer: ICompareWithPlayerService): APIGatewayProxyHandler =>
   async (event) => {

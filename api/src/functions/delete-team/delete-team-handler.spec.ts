@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/delete-team/delete-team-handler';
+import { default as handler } from '@foci2020/api/functions/delete-team/delete-team-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Delete team handler', () => {

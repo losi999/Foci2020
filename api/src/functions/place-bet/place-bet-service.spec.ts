@@ -1,10 +1,10 @@
-import { IPlaceBetService, placeBetServiceFactory } from '@/functions/place-bet/place-bet-service';
-import { IBetDocumentConverter } from '@/converters/bet-document-converter';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
+import { IPlaceBetService, placeBetServiceFactory } from '@foci2020/api/functions/place-bet/place-bet-service';
+import { IBetDocumentConverter } from '@foci2020/shared/converters/bet-document-converter';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
 import { advanceTo, clear } from 'jest-date-mock';
-import { addMinutes } from '@/common';
-import { IDatabaseService } from '@/services/database-service';
-import { betRequest, matchDocument, betDocument } from '@/common/test-data-factory';
+import { addMinutes } from '@foci2020/shared/common/utils';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { betRequest, matchDocument, betDocument } from '@foci2020/shared/common/test-data-factory';
 
 describe('Place bet service', () => {
   let service: IPlaceBetService;

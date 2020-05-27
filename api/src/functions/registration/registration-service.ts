@@ -1,6 +1,6 @@
-import { IIdentityService } from '@/services/identity-service';
-import { httpError } from '@/common';
-import { RegistrationRequest } from '@/types/types';
+import { IIdentityService } from '@foci2020/shared/services/identity-service';
+import { httpError } from '@foci2020/shared/common/utils';
+import { RegistrationRequest } from '@foci2020/shared/types/requests';
 
 export interface IRegistrationService {
   (ctx: {

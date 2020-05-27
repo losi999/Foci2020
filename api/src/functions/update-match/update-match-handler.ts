@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { IUpdateMatchService } from '@/functions/update-match/update-match-service';
+import { IUpdateMatchService } from '@foci2020/api/functions/update-match/update-match-service';
 
 export default (updateMatch: IUpdateMatchService): APIGatewayProxyHandler => {
   return async (event) => {

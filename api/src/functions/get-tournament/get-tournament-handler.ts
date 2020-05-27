@@ -1,6 +1,6 @@
-import { IGetTournamentService } from '@/functions/get-tournament/get-tournament-service';
+import { IGetTournamentService } from '@foci2020/api/functions/get-tournament/get-tournament-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { TournamentResponse } from '@/types/types';
+import { TournamentResponse } from '@foci2020/shared/types/responses';
 
 export default (getTournament: IGetTournamentService): APIGatewayProxyHandler => {
   return async (event) => {

@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { ISetFinalScoreOfMatchService } from '@/functions/set-final-score-of-match/set-final-score-of-match-service';
+import { ISetFinalScoreOfMatchService } from '@foci2020/api/functions/set-final-score-of-match/set-final-score-of-match-service';
 
 export default (setFinalScore: ISetFinalScoreOfMatchService): APIGatewayProxyHandler =>
   async (event) => {

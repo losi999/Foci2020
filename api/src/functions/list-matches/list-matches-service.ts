@@ -1,7 +1,7 @@
-import { httpError } from '@/common';
-import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { MatchResponse } from '@/types/types';
-import { IDatabaseService } from '@/services/database-service';
+import { httpError } from '@foci2020/shared/common/utils';
+import { IMatchDocumentConverter } from '@foci2020/shared/converters/match-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { MatchResponse } from '@foci2020/shared/types/responses';
 
 export interface IListMatchesService {
   (): Promise<MatchResponse[]>;

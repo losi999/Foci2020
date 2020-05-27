@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { IListStandingsOfTournament } from '@/functions/list-standings-of-tournament/list-standings-of-tournament-service';
-import { StandingResponse } from '@/types/types';
+import { IListStandingsOfTournament } from '@foci2020/api/functions/list-standings-of-tournament/list-standings-of-tournament-service';
+import { StandingResponse } from '@foci2020/shared/types/responses';
 
 export default (listStandingsOfTournament: IListStandingsOfTournament): APIGatewayProxyHandler =>
   async (event) => {

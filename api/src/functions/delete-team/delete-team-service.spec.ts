@@ -1,6 +1,6 @@
-import { IDeleteTeamService, deleteTeamServiceFactory } from '@/functions/delete-team/delete-team-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
+import { IDeleteTeamService, deleteTeamServiceFactory } from '@foci2020/api/functions/delete-team/delete-team-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
 
 describe('Delete team service', () => {
   let service: IDeleteTeamService;

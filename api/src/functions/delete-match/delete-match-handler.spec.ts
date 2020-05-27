@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/delete-match/delete-match-handler';
+import { default as handler } from '@foci2020/api/functions/delete-match/delete-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Delete match handler', () => {

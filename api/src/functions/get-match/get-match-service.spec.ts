@@ -1,8 +1,8 @@
-import { IGetMatchService, getMatchServiceFactory } from '@/functions/get-match/get-match-service';
-import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
-import { matchDocument, matchResponse } from '@/common/test-data-factory';
+import { IGetMatchService, getMatchServiceFactory } from '@foci2020/api/functions/get-match/get-match-service';
+import { IMatchDocumentConverter } from '@foci2020/shared/converters/match-document-converter';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { matchDocument, matchResponse } from '@foci2020/shared/common/test-data-factory';
 
 describe('Get match service', () => {
   let service: IGetMatchService;

@@ -1,8 +1,8 @@
-import { IGetTournamentService, getTournamentServiceFactory } from '@/functions/get-tournament/get-tournament-service';
-import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
-import { tournamentResponse, tournamentDocument } from '@/common/test-data-factory';
+import { IGetTournamentService, getTournamentServiceFactory } from '@foci2020/api/functions/get-tournament/get-tournament-service';
+import { ITournamentDocumentConverter } from '@foci2020/shared/converters/tournament-document-converter';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { tournamentResponse, tournamentDocument } from '@foci2020/shared/common/test-data-factory';
 
 describe('Get tournament service', () => {
   let service: IGetTournamentService;

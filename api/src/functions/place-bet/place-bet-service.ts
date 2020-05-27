@@ -1,7 +1,7 @@
-import { BetRequest } from '@/types/types';
-import { addMinutes, httpError } from '@/common';
-import { IBetDocumentConverter } from '@/converters/bet-document-converter';
-import { IDatabaseService } from '@/services/database-service';
+import { addMinutes, httpError } from '@foci2020/shared/common/utils';
+import { IBetDocumentConverter } from '@foci2020/shared/converters/bet-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { BetRequest } from '@foci2020/shared/types/requests';
 
 export interface IPlaceBetService {
   (ctx: {

@@ -1,8 +1,8 @@
-import { default as handler } from '@/functions/set-final-score-of-match/set-final-score-of-match-handler';
-import { apiRequestValidator, databaseService, authorizer } from '@/dependencies';
-import { default as body } from '@/schemas/match-score';
-import { default as pathParameters } from '@/schemas/match-id';
-import { setFinalScoreOfMatchServiceFactory } from '@/functions/set-final-score-of-match/set-final-score-of-match-service';
+import { default as handler } from '@foci2020/api/functions/set-final-score-of-match/set-final-score-of-match-handler';
+import { apiRequestValidator, authorizer, databaseService } from '@foci2020/api/dependencies';
+import { default as body } from '@foci2020/shared/schemas/match-score';
+import { default as pathParameters } from '@foci2020/shared/schemas/match-id';
+import { setFinalScoreOfMatchServiceFactory } from '@foci2020/api/functions/set-final-score-of-match/set-final-score-of-match-service';
 
 const setFinalScoreOfMatchService = setFinalScoreOfMatchServiceFactory(databaseService);
 

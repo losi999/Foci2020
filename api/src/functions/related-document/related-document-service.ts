@@ -1,7 +1,7 @@
-import { TeamDocument, TournamentDocument, MatchDocument, BetDocument } from '@/types/types';
-import { IBetDocumentConverter } from '@/converters/bet-document-converter';
-import { IStandingDocumentConverter } from '@/converters/standing-document-converter';
-import { IDatabaseService } from '@/services/database-service';
+import { IBetDocumentConverter } from '@foci2020/shared/converters/bet-document-converter';
+import { IStandingDocumentConverter } from '@foci2020/shared/converters/standing-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { TeamDocument, TournamentDocument, MatchDocument, BetDocument } from '@foci2020/shared/types/documents';
 
 export interface IRelatedDocumentService {
   teamDeleted(teamId: string): Promise<void>;

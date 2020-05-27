@@ -1,4 +1,4 @@
-import { IInfrastructureService } from '@/services/infrastructure-service';
+import { IInfrastructureService } from '@foci2020/shared/services/infrastructure-service';
 
 export interface IPostDeployService {
   (ctx: {

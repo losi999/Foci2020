@@ -1,9 +1,9 @@
-import { createTeam, deleteTeam, getTeam } from './team-common';
-import { createTournament, deleteTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/common';
-import { createMatch, getMatch, deleteMatch } from '../match/match-common';
-import { TeamRequest, TournamentRequest } from 'api/types/types';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
+import { TeamRequest, TournamentRequest } from '@foci2020/shared/types/requests';
+import { deleteMatch, createMatch, getMatch } from '@foci2020/test/api/match/match-common';
+import { deleteTeam, createTeam_, getTeam_ } from '@foci2020/test/api/team/team-common';
+import { deleteTournament, createTournament } from '@foci2020/test/api/tournament/tournament-common';
+import { addMinutes } from '@foci2020/shared/common/utils';
 
 describe('DELETE /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
@@ -42,7 +42,7 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
     it('should delete team', () => {
       let teamId: string;
 
-      createTeam(team, 'admin1')
+      createTeam_(team, 'admin1')
         .its('body')
         .its('teamId')
         .then((id) => {
@@ -53,7 +53,7 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
         .its('status')
         .then((status) => {
           expect(status).to.equal(200);
-          return getTeam(teamId, 'admin1');
+          return getTeam_(teamId, 'admin1');
         })
         .its('status')
         .should((status) => {
@@ -76,14 +76,14 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
       let tournamentId: string;
 
       beforeEach(() => {
-        createTeam(team, 'admin1')
+        createTeam_(team, 'admin1')
           .its('body')
           .its('teamId')
           .then((id) => {
             teamId = id;
             createdTeamIds.push(id);
             expect(id).to.be.a('string');
-            return createTeam(teamToDelete, 'admin1');
+            return createTeam_(teamToDelete, 'admin1');
           })
           .its('body')
           .its('teamId')
@@ -120,7 +120,7 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
           .its('status')
           .then((status) => {
             expect(status).to.equal(200);
-            return getTeam(teamToDeleteId, 'admin1');
+            return getTeam_(teamToDeleteId, 'admin1');
           })
           .its('status')
           .then((status) => {
@@ -152,7 +152,7 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
           .its('status')
           .then((status) => {
             expect(status).to.equal(200);
-            return getTeam(teamToDeleteId, 'admin1');
+            return getTeam_(teamToDeleteId, 'admin1');
           })
           .its('status')
           .then((status) => {

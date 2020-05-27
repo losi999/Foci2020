@@ -1,8 +1,23 @@
-import { TeamRequest, TeamResponse } from 'api/types/types';
-import { User } from '../constants';
-import { authenticate } from '../auth/auth-common';
+import { TeamRequest } from '@foci2020/shared/types/requests';
+import { User } from '@foci2020/test/api/constants';
+import { authenticate } from '@foci2020/test/api/auth/auth-common';
+import { TeamResponse } from '@foci2020/shared/types/responses';
+import { TeamDocument } from '@foci2020/shared/types/documents';
 
-export const createTeam = (team: TeamRequest, user: User) => {
+export const createTeam = (team: TeamRequest) =>
+  (idToken: string) => {
+    return cy.request({
+      body: team,
+      method: 'POST',
+      url: '/team/v1/teams',
+      headers: {
+        Authorization: idToken
+      },
+      failOnStatusCode: false
+    });
+  };
+
+export const createTeam_ = (team: TeamRequest, user: User) => {
   return authenticate(user)
     .then(idToken => cy.request({
       body: team,
@@ -40,7 +55,19 @@ export const deleteTeam = (teamId: string, user: User) => {
     }));
 };
 
-export const getTeam = (teamId: string, user: User) => {
+export const getTeam = (teamId: string) =>
+  (idToken: string) => {
+    return cy.request({
+      method: 'GET',
+      url: `/team/v1/teams/${teamId}`,
+      headers: {
+        Authorization: idToken
+      },
+      failOnStatusCode: false
+    });
+  };
+
+export const getTeam_ = (teamId: string, user: User) => {
   return authenticate(user)
     .then(idToken => cy.request({
       method: 'GET',
@@ -64,8 +91,15 @@ export const getTeamList = (user: User) => {
     }));
 };
 
-export const validateTeam = (body: TeamResponse, teamId: string, team: TeamRequest) => {
-  expect(body.teamId).to.equal(teamId);
+export const validateTeam = (team: TeamRequest) => ([teamId, document]: [string, TeamDocument]) => {
+  expect(document.id).to.equal(teamId);
+  expect(document.teamName).to.equal(team.teamName);
+  expect(document.image).to.equal(team.image);
+  expect(document.shortName).to.equal(team.shortName);
+};
+
+export const validateTeam_ = (body: TeamResponse | TeamDocument, teamId: string, team: TeamRequest) => {
+  expect(body.id).to.equal(teamId);
   expect(body.teamName).to.equal(team.teamName);
   expect(body.image).to.equal(team.image);
   expect(body.shortName).to.equal(team.shortName);

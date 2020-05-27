@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/create-match/create-match-handler';
+import { default as handler } from '@foci2020/api/functions/create-match/create-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Create match handler', () => {

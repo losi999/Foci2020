@@ -1,7 +1,7 @@
-import { httpError } from '@/common';
-import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { TeamRequest } from '@/types/types';
-import { IDatabaseService } from '@/services/database-service';
+import { httpError } from '@foci2020/shared/common/utils';
+import { ITeamDocumentConverter } from '@foci2020/shared/converters/team-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { TeamRequest } from '@foci2020/shared/types/requests';
 
 export interface IUpdateTeamService {
   (ctx: {

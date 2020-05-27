@@ -1,6 +1,7 @@
-import { TournamentRequest, TournamentResponse } from 'api/types/types';
-import { deleteTournament, createTournament, getTournament, validateTournament } from './tournament-common';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
+import { TournamentRequest } from '@foci2020/shared/types/requests';
+import { deleteTournament, getTournament, createTournament, validateTournament } from '@foci2020/test/api/tournament/tournament-common';
+import { TournamentResponse } from '@foci2020/shared/types/responses';
 
 describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {

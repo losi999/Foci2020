@@ -1,4 +1,4 @@
-import { IDeleteTournamentService } from '@/functions/delete-tournament/delete-tournament-service';
+import { IDeleteTournamentService } from '@foci2020/api/functions/delete-tournament/delete-tournament-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
 
 export default (deleteTournament: IDeleteTournamentService): APIGatewayProxyHandler => {

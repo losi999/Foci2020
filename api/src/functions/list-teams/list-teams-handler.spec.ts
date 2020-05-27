@@ -1,6 +1,6 @@
-import { default as handler } from '@/functions/list-teams/list-teams-handler';
+import { default as handler } from '@foci2020/api/functions/list-teams/list-teams-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { teamResponse } from '@/common/test-data-factory';
+import { teamResponse } from '@foci2020/shared/common/test-data-factory';
 
 describe('List teams handler', () => {
   let mockListTeamsService: jest.Mock;

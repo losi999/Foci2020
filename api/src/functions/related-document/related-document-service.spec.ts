@@ -1,10 +1,10 @@
-import { IRelatedDocumentService, relatedDocumentServiceFactory } from '@/functions/related-document/related-document-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@/types/types';
-import { IBetDocumentConverter } from '@/converters/bet-document-converter';
-import { IStandingDocumentConverter } from '@/converters/standing-document-converter';
-import { IDatabaseService } from '@/services/database-service';
-import { matchDocument, teamDocument, tournamentDocument, betDocument, standingDocument } from '@/common/test-data-factory';
+import { IRelatedDocumentService, relatedDocumentServiceFactory } from '@foci2020/api/functions/related-document/related-document-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IBetDocumentConverter } from '@foci2020/shared/converters/bet-document-converter';
+import { IStandingDocumentConverter } from '@foci2020/shared/converters/standing-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { matchDocument, teamDocument, tournamentDocument, betDocument, standingDocument } from '@foci2020/shared/common/test-data-factory';
+import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@foci2020/shared/types/documents';
 
 describe('Related document service', () => {
   let service: IRelatedDocumentService;

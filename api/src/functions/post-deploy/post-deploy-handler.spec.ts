@@ -1,5 +1,5 @@
-import { default as handler } from '@/functions/post-deploy/post-deploy-handler';
-import { validateError } from '@/common/unit-testing';
+import { default as handler } from '@foci2020/api/functions/post-deploy/post-deploy-handler';
+import { validateError } from '@foci2020/shared/common/unit-testing';
 
 describe('Post deploy handler', () => {
   let handlerFuntion: ReturnType<typeof handler>;

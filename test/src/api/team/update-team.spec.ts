@@ -1,8 +1,9 @@
-import { TeamRequest, TeamResponse, MatchResponse, TournamentRequest } from 'api/types/types';
-import { deleteMatch, createMatch, getMatch } from '../match/match-common';
-import { deleteTeam, createTeam, updateTeam, getTeam, validateTeam } from './team-common';
-import { deleteTournament, createTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/common';
+import { TeamRequest, TournamentRequest } from '@foci2020/shared/types/requests';
+import { deleteMatch, createMatch, getMatch } from '@foci2020/test/api/match/match-common';
+import { deleteTeam, createTeam_, updateTeam, getTeam_, validateTeam_ } from '@foci2020/test/api/team/team-common';
+import { deleteTournament, createTournament } from '@foci2020/test/api/tournament/tournament-common';
+import { TeamResponse, MatchResponse } from '@foci2020/shared/types/responses';
+import { addMinutes } from '@foci2020/shared/common/utils';
 
 describe('PUT /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
@@ -36,7 +37,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
   let teamId: string;
 
   before(() => {
-    createTeam(teamToUpdate, 'admin1')
+    createTeam_(teamToUpdate, 'admin1')
       .its('body')
       .its('teamId')
       .then((id) => {
@@ -62,11 +63,11 @@ describe('PUT /team/v1/teams/{teamId}', () => {
         .its('status')
         .then((status) => {
           expect(status).to.equal(200);
-          return getTeam(teamId, 'admin1');
+          return getTeam_(teamId, 'admin1');
         })
         .its('body')
         .should((body: TeamResponse) => {
-          validateTeam(body, teamId, team);
+          validateTeam_(body, teamId, team);
         });
     });
 
@@ -91,7 +92,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       };
 
       beforeEach(() => {
-        createTeam(fixTeam, 'admin1')
+        createTeam_(fixTeam, 'admin1')
           .its('body')
           .its('teamId')
           .then((id) => {
@@ -138,7 +139,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           })
           .its('body')
           .should((body: MatchResponse) => {
-            validateTeam(body.homeTeam, teamId, updatedTeam);
+            validateTeam_(body.homeTeam, teamId, updatedTeam);
           });
       });
 
@@ -171,7 +172,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           })
           .its('body')
           .should((body: MatchResponse) => {
-            validateTeam(body.awayTeam, teamId, updatedTeam);
+            validateTeam_(body.awayTeam, teamId, updatedTeam);
           });
       });
     });

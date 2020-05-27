@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { IPlaceBetService } from '@/functions/place-bet/place-bet-service';
+import { IPlaceBetService } from '@foci2020/api/functions/place-bet/place-bet-service';
 
 export default (placeBet: IPlaceBetService): APIGatewayProxyHandler =>
   async (event) => {

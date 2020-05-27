@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/registration/registration-handler';
+import { default as handler } from '@foci2020/api/functions/registration/registration-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Login handler', () => {

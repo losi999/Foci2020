@@ -1,7 +1,7 @@
-import { default as handler } from '@/functions/create-match/create-match-handler';
-import { apiRequestValidator, matchDocumentConverter, authorizer, databaseService } from '@/dependencies';
-import { default as body } from '@/schemas/match';
-import { createMatchServiceFactory } from '@/functions/create-match/create-match-service';
+import { default as handler } from '@foci2020/api/functions/create-match/create-match-handler';
+import { apiRequestValidator, authorizer, databaseService, matchDocumentConverter } from '@foci2020/api/dependencies';
+import { default as body } from '@foci2020/shared/schemas/match';
+import { createMatchServiceFactory } from '@foci2020/api/functions/create-match/create-match-service';
 
 const createMatchService = createMatchServiceFactory(databaseService, matchDocumentConverter);
 

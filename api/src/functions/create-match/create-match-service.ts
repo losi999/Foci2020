@@ -1,7 +1,7 @@
-import { httpError, addMinutes } from '@/common';
-import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { MatchRequest } from '@/types/types';
-import { IDatabaseService } from '@/services/database-service';
+import { httpError, addMinutes } from '@foci2020/shared/common/utils';
+import { IMatchDocumentConverter } from '@foci2020/shared/converters/match-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { MatchRequest } from '@foci2020/shared/types/requests';
 
 export interface ICreateMatchService {
   (ctx: {

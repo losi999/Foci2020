@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { ICreateMatchService } from '@/functions/create-match/create-match-service';
+import { ICreateMatchService } from '@foci2020/api/functions/create-match/create-match-service';
 
 export default (createMatch: ICreateMatchService): APIGatewayProxyHandler => {
   return async (event) => {

@@ -1,7 +1,8 @@
-import { ILoginService, loginServiceFactory } from '@/functions/login/login-service';
-import { IIdentityService } from '@/services/identity-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { LoginRequest, LoginResponse } from '@/types/types';
+import { ILoginService, loginServiceFactory } from '@foci2020/api/functions/login/login-service';
+import { IIdentityService } from '@foci2020/shared/services/identity-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { LoginResponse } from '@foci2020/shared/types/responses';
+import { LoginRequest } from '@foci2020/shared/types/requests';
 
 describe('Login service', () => {
   let service: ILoginService;

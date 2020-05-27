@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { IUpdateTeamService } from '@/functions/update-team/update-team-service';
+import { IUpdateTeamService } from '@foci2020/api/functions/update-team/update-team-service';
 
 export default (updateTeam: IUpdateTeamService): APIGatewayProxyHandler => {
   return async (event) => {

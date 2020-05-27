@@ -1,9 +1,10 @@
-import { addMinutes } from 'api/common';
-import { createTeam, deleteTeam, validateTeam } from '../team/team-common';
-import { createTournament, deleteTournament, validateTournament } from '../tournament/tournament-common';
-import { deleteMatch, createMatch, getMatch, validateMatch } from './match-common';
-import uuid from 'uuid';
-import { TeamRequest, TournamentRequest, MatchRequest, MatchResponse } from 'api/types/types';
+import { TeamRequest, TournamentRequest, MatchRequest } from '@foci2020/shared/types/requests';
+import { createTeam_, deleteTeam, validateTeam_ } from '@foci2020/test/api/team/team-common';
+import { createTournament, deleteTournament, validateTournament } from '@foci2020/test/api/tournament/tournament-common';
+import { deleteMatch, createMatch, getMatch, validateMatch } from '@foci2020/test/api/match/match-common';
+import { v4 as uuid } from 'uuid';
+import { addMinutes } from '@foci2020/shared/common/utils';
+import { MatchResponse } from '@foci2020/shared/types/responses';
 
 describe('POST /match/v1/matches', () => {
   const homeTeam: TeamRequest = {
@@ -38,14 +39,14 @@ describe('POST /match/v1/matches', () => {
   let match: MatchRequest;
 
   before(() => {
-    createTeam(homeTeam, 'admin1')
+    createTeam_(homeTeam, 'admin1')
       .its('body')
       .its('teamId')
       .then((id) => {
         homeTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTeam(awayTeam, 'admin1');
+        return createTeam_(awayTeam, 'admin1');
       })
       .its('body')
       .its('teamId')
@@ -104,8 +105,8 @@ describe('POST /match/v1/matches', () => {
         .its('body')
         .should((body: MatchResponse) => {
           validateMatch(body, matchId, match);
-          validateTeam(body.homeTeam, homeTeamId, homeTeam);
-          validateTeam(body.awayTeam, awayTeamId, awayTeam);
+          validateTeam_(body.homeTeam, homeTeamId, homeTeam);
+          validateTeam_(body.awayTeam, awayTeamId, awayTeam);
           validateTournament(body.tournament, tournamentId, tournament);
         });
     });

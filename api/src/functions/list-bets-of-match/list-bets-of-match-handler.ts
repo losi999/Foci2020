@@ -1,6 +1,6 @@
-import { IListBetsOfMatchService } from '@/functions/list-bets-of-match/list-bets-of-match-service';
+import { IListBetsOfMatchService } from '@foci2020/api/functions/list-bets-of-match/list-bets-of-match-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { BetResponse } from '@/types/types';
+import { BetResponse } from '@foci2020/shared/types/responses';
 
 export default (listBetsOfMatch: IListBetsOfMatchService): APIGatewayProxyHandler =>
   async (event) => {

@@ -1,5 +1,6 @@
-import { deleteTeam, createTeam, getTeamList, validateTeam } from './team-common';
-import { TeamRequest, TeamResponse } from 'api/types/types';
+import { TeamRequest } from '@foci2020/shared/types/requests';
+import { deleteTeam, getTeamList, createTeam_, validateTeam_ } from '@foci2020/test/api/team/team-common';
+import { TeamResponse } from '@foci2020/shared/types/responses';
 
 describe('GET /team/v1/teams', () => {
   const team1: TeamRequest = {
@@ -39,13 +40,13 @@ describe('GET /team/v1/teams', () => {
       let teamId1: string;
       let teamId2: string;
 
-      createTeam(team1, 'admin1')
+      createTeam_(team1, 'admin1')
         .its('body')
         .its('teamId')
         .then((id) => {
           teamId1 = id;
           createdTeamIds.push(id);
-          return createTeam(team2, 'admin1');
+          return createTeam_(team2, 'admin1');
         })
         .its('body')
         .its('teamId')
@@ -56,8 +57,8 @@ describe('GET /team/v1/teams', () => {
         })
         .its('body')
         .should((teams: TeamResponse[]) => {
-          validateTeam(teams.find(t => t.teamId === teamId1), teamId1, team1);
-          validateTeam(teams.find(t => t.teamId === teamId2), teamId2, team2);
+          validateTeam_(teams.find(t => t.teamId === teamId1), teamId1, team1);
+          validateTeam_(teams.find(t => t.teamId === teamId2), teamId2, team2);
         });
     });
   });

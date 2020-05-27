@@ -1,10 +1,10 @@
-import { ISetFinalScoreOfMatchService, setFinalScoreOfMatchServiceFactory } from '@/functions/set-final-score-of-match/set-final-score-of-match-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { MatchFinalScoreRequest } from '@/types/types';
+import { ISetFinalScoreOfMatchService, setFinalScoreOfMatchServiceFactory } from '@foci2020/api/functions/set-final-score-of-match/set-final-score-of-match-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
 import { advanceTo, clear } from 'jest-date-mock';
-import { addMinutes } from '@/common';
-import { IDatabaseService } from '@/services/database-service';
-import { matchDocument } from '@/common/test-data-factory';
+import { addMinutes } from '@foci2020/shared/common/utils';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { matchDocument } from '@foci2020/shared/common/test-data-factory';
+import { MatchFinalScoreRequest } from '@foci2020/shared/types/requests';
 
 describe('Set final score of match service', () => {
   let service: ISetFinalScoreOfMatchService;

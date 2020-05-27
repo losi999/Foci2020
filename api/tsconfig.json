@@ -14,11 +14,13 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "outDir": "output",
-    "rootDir": "../",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
+      "@foci2020/api/*": [
         "src/*"
+      ],
+      "@foci2020/shared/*": [
+        "../shared/src/*"
       ]
     }
   },

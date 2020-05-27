@@ -1,10 +1,10 @@
-import { updateMatchServiceFactory, IUpdateMatchService } from '@/functions/update-match/update-match-service';
+import { updateMatchServiceFactory, IUpdateMatchService } from '@foci2020/api/functions/update-match/update-match-service';
 import { advanceTo, clear } from 'jest-date-mock';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { addMinutes } from '@/common';
-import { IDatabaseService } from '@/services/database-service';
-import { teamDocument, tournamentDocument, matchDocument, matchRequest } from '@/common/test-data-factory';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IMatchDocumentConverter } from '@foci2020/shared/converters/match-document-converter';
+import { addMinutes } from '@foci2020/shared/common/utils';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { teamDocument, tournamentDocument, matchDocument, matchRequest } from '@foci2020/shared/common/test-data-factory';
 
 describe('Update match service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;

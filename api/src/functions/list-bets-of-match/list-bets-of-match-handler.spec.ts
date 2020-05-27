@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/list-bets-of-match/list-bets-of-match-handler';
+import { default as handler } from '@foci2020/api/functions/list-bets-of-match/list-bets-of-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Place bet handler', () => {

@@ -1,6 +1,6 @@
-import { default as handler } from '@/functions/set-final-score-of-match/set-final-score-of-match-handler';
+import { default as handler } from '@foci2020/api/functions/set-final-score-of-match/set-final-score-of-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { MatchFinalScoreRequest } from '@/types/types';
+import { MatchFinalScoreRequest } from '@foci2020/shared/types/requests';
 
 describe('Set final score of match handler', () => {
   let apiHandler: ReturnType<typeof handler>;

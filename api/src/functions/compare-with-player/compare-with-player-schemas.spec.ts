@@ -1,6 +1,6 @@
-import { pathParameters } from '@/functions/compare-with-player/compare-with-player-schemas';
-import { validatorService } from '@/dependencies';
-import { validateSchemaAdditionalProperties, validateSchemaRequired } from '@/common/unit-testing';
+import { pathParameters } from '@foci2020/api/functions/compare-with-player/compare-with-player-schemas';
+import { validateSchemaAdditionalProperties, validateSchemaRequired } from '@foci2020/shared/common/unit-testing';
+import { validatorService } from '@foci2020/api/dependencies';
 
 describe('UserId pathParameters', () => {
   let data: {

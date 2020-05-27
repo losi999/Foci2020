@@ -1,7 +1,7 @@
-import { apiRequestValidator, identityService } from '@/dependencies';
-import { default as handler } from '@/functions/login/login-handler';
-import { loginServiceFactory } from '@/functions/login/login-service';
-import { default as body } from '@/schemas/login';
+import { apiRequestValidator, identityService } from '@foci2020/api/dependencies';
+import { default as handler } from '@foci2020/api/functions/login/login-handler';
+import { loginServiceFactory } from '@foci2020/api/functions/login/login-service';
+import { default as body } from '@foci2020/shared/schemas/login';
 
 const loginService = loginServiceFactory(identityService);
 

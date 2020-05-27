@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { ICreateTournamentService } from '@/functions/create-tournament/create-tournament-service';
+import { ICreateTournamentService } from '@foci2020/api/functions/create-tournament/create-tournament-service';
 
 export default (createTournament: ICreateTournamentService): APIGatewayProxyHandler => {
   return async (event) => {

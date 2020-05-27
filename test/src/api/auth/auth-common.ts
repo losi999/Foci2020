@@ -1,5 +1,5 @@
-import { LoginRequest } from 'api/types/types';
-import { User, usernames } from '../constants';
+import { LoginRequest } from '@foci2020/shared/types/requests';
+import { User, usernames } from '@foci2020/test/api/constants';
 
 export const authenticate = (user: User) => {
   const body: LoginRequest = {

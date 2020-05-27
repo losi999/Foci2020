@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { ICreateTeamService } from '@/functions/create-team/create-team-service';
+import { ICreateTeamService } from '@foci2020/api/functions/create-team/create-team-service';
 
 export default (createTeam: ICreateTeamService): APIGatewayProxyHandler => {
   return async (event) => {

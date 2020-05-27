@@ -1,7 +1,7 @@
-import { default as handler } from '@/functions/list-standings-of-tournament/list-standings-of-tournament-handler';
-import { apiRequestValidator, databaseService, authorizer, standingDocumentConverter } from '@/dependencies';
-import { default as pathParameters } from '@/schemas/tournament-id';
-import { listStandingsOfTournamentFactory } from '@/functions/list-standings-of-tournament/list-standings-of-tournament-service';
+import { default as handler } from '@foci2020/api/functions/list-standings-of-tournament/list-standings-of-tournament-handler';
+import { apiRequestValidator,  authorizer, databaseService, standingDocumentConverter, } from '@foci2020/api/dependencies';
+import { default as pathParameters } from '@foci2020/shared/schemas/tournament-id';
+import { listStandingsOfTournamentFactory } from '@foci2020/api/functions/list-standings-of-tournament/list-standings-of-tournament-service';
 
 const listStandingsOfTournamentService = listStandingsOfTournamentFactory(databaseService, standingDocumentConverter);
 

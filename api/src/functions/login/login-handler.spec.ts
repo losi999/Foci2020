@@ -1,6 +1,6 @@
-import { default as handler } from '@/functions/login/login-handler';
+import { default as handler } from '@foci2020/api/functions/login/login-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { LoginResponse } from '@/types/types';
+import { LoginResponse } from '@foci2020/shared/types/responses';
 
 describe('Login handler', () => {
   let mockLoginService: jest.Mock;

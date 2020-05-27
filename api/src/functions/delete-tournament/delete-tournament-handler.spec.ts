@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/delete-tournament/delete-tournament-handler';
+import { default as handler } from '@foci2020/api/functions/delete-tournament/delete-tournament-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Delete tournament handler', () => {

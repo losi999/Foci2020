@@ -1,7 +1,7 @@
-import { httpError } from '@/common';
-import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { TournamentRequest } from '@/types/types';
-import { IDatabaseService } from '@/services/database-service';
+import { httpError } from '@foci2020/shared/common/utils';
+import { ITournamentDocumentConverter } from '@foci2020/shared/converters/tournament-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { TournamentRequest } from '@foci2020/shared/types/requests';
 
 export interface IUpdateTournamentService {
   (ctx: {

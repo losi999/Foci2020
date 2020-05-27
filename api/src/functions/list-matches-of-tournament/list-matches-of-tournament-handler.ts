@@ -1,6 +1,6 @@
-import { IListMatchesOfTournamentService } from '@/functions/list-matches-of-tournament/list-matches-of-tournament-service';
+import { IListMatchesOfTournamentService } from '@foci2020/api/functions/list-matches-of-tournament/list-matches-of-tournament-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { MatchResponse } from '@/types/types';
+import { MatchResponse } from '@foci2020/shared/types/responses';
 
 export default (listMatchesOfTournament: IListMatchesOfTournamentService): APIGatewayProxyHandler => {
   return async (event) => {

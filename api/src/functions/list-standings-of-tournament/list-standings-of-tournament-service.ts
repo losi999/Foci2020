@@ -1,7 +1,7 @@
-import { StandingResponse } from '@/types/types';
-import { IDatabaseService } from '@/services/database-service';
-import { httpError } from '@/common';
-import { IStandingDocumentConverter } from '@/converters/standing-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { httpError } from '@foci2020/shared/common/utils';
+import { IStandingDocumentConverter } from '@foci2020/shared/converters/standing-document-converter';
+import { StandingResponse } from '@foci2020/shared/types/responses';
 
 export interface IListStandingsOfTournament {
   (ctx: {

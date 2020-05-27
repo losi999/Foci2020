@@ -1,6 +1,7 @@
-import { MatchRequest, MatchResponse } from 'api/types/types';
-import { User } from '../constants';
-import { authenticate } from '../auth/auth-common';
+import { User } from '@foci2020/test/api/constants';
+import { authenticate } from '@foci2020/test/api/auth/auth-common';
+import { MatchRequest } from '@foci2020/shared/types/requests';
+import { MatchResponse } from '@foci2020/shared/types/responses';
 
 export const createMatch = (match: MatchRequest, user: User) => {
   return authenticate(user)

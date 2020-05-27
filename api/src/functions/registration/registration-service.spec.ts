@@ -1,7 +1,7 @@
-import { IRegistrationService, registrationServiceFactory } from '@/functions/registration/registration-service';
-import { IIdentityService } from '@/services/identity-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { RegistrationRequest } from '@/types/types';
+import { IRegistrationService, registrationServiceFactory } from '@foci2020/api/functions/registration/registration-service';
+import { IIdentityService } from '@foci2020/shared/services/identity-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { RegistrationRequest } from '@foci2020/shared/types/requests';
 
 describe('Registration service', () => {
   let service: IRegistrationService;

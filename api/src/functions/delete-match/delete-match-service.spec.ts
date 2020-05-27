@@ -1,6 +1,6 @@
-import { IDeleteMatchService, deleteMatchServiceFactory } from '@/functions/delete-match/delete-match-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
+import { IDeleteMatchService, deleteMatchServiceFactory } from '@foci2020/api/functions/delete-match/delete-match-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
 
 describe('Delete match service', () => {
   let service: IDeleteMatchService;

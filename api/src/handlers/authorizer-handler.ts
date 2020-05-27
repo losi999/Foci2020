@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { UserType } from '@/types/types';
+import { UserType } from '@foci2020/shared/types/common';
 
 export default () =>
   (...userTypes: UserType[]) =>

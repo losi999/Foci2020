@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/update-team/update-team-handler';
+import { default as handler } from '@foci2020/api/functions/update-team/update-team-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Update team handler', () => {

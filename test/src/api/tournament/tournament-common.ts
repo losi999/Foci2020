@@ -1,6 +1,7 @@
-import { TournamentRequest, TournamentResponse } from 'api/types/types';
-import { User } from '../constants';
-import { authenticate } from '../auth/auth-common';
+import { TournamentRequest } from '@foci2020/shared/types/requests';
+import { User } from '@foci2020/test/api/constants';
+import { authenticate } from '@foci2020/test/api/auth/auth-common';
+import { TournamentResponse } from '@foci2020/shared/types/responses';
 
 export const createTournament = (tournament: TournamentRequest, user: User) => {
   return authenticate(user)

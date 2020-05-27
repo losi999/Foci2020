@@ -1,8 +1,9 @@
-import { TeamRequest, TournamentRequest, MatchRequest, MatchResponse } from 'api/types/types';
-import { createTeam, deleteTeam, validateTeam } from '../team/team-common';
-import { createTournament, deleteTournament, validateTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/common';
-import { deleteMatch, createMatch, getMatchList, validateMatch } from './match-common';
+import { TeamRequest, TournamentRequest, MatchRequest } from '@foci2020/shared/types/requests';
+import { MatchResponse } from '@foci2020/shared/types/responses';
+import { createTeam_, deleteTeam, validateTeam_ } from '@foci2020/test/api/team/team-common';
+import { createTournament, deleteTournament, validateTournament } from '@foci2020/test/api/tournament/tournament-common';
+import { deleteMatch, getMatchList, createMatch, validateMatch } from '@foci2020/test/api/match/match-common';
+import { addMinutes } from '@foci2020/shared/common/utils';
 
 describe('GET /match/v1/matches', () => {
   const homeTeam: TeamRequest = {
@@ -38,14 +39,14 @@ describe('GET /match/v1/matches', () => {
   let match2: MatchRequest;
 
   before(() => {
-    createTeam(homeTeam, 'admin1')
+    createTeam_(homeTeam, 'admin1')
       .its('body')
       .its('teamId')
       .then((id) => {
         homeTeamId = id;
         createdTeamIds.push(id);
         expect(id).to.be.a('string');
-        return createTeam(awayTeam, 'admin1');
+        return createTeam_(awayTeam, 'admin1');
       })
       .its('body')
       .its('teamId')
@@ -121,14 +122,14 @@ describe('GET /match/v1/matches', () => {
         .should((matches: MatchResponse[]) => {
           const matchResponse1 = matches.find(m => m.matchId === matchId1);
           validateMatch(matchResponse1, matchId1, match1);
-          validateTeam(matchResponse1.homeTeam, homeTeamId, homeTeam);
-          validateTeam(matchResponse1.awayTeam, awayTeamId, awayTeam);
+          validateTeam_(matchResponse1.homeTeam, homeTeamId, homeTeam);
+          validateTeam_(matchResponse1.awayTeam, awayTeamId, awayTeam);
           validateTournament(matchResponse1.tournament, tournamentId, tournament);
 
           const matchResponse2 = matches.find(m => m.matchId === matchId2);
           validateMatch(matchResponse2, matchId2, match2);
-          validateTeam(matchResponse2.homeTeam, awayTeamId, awayTeam);
-          validateTeam(matchResponse2.awayTeam, homeTeamId, homeTeam);
+          validateTeam_(matchResponse2.homeTeam, awayTeamId, awayTeam);
+          validateTeam_(matchResponse2.awayTeam, homeTeamId, homeTeam);
           validateTournament(matchResponse2.tournament, tournamentId, tournament);
         });
     });

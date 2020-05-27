@@ -1,5 +1,5 @@
 import { Handler } from 'aws-lambda';
-import { ICreateTestUsersService } from '@/functions/create-test-users/create-test-users-service';
+import { ICreateTestUsersService } from '@foci2020/api/functions/create-test-users/create-test-users-service';
 
 export default (createTestUsers: ICreateTestUsersService): Handler =>
   async () => {

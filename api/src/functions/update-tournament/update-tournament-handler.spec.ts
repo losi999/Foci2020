@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/update-tournament/update-tournament-handler';
+import { default as handler } from '@foci2020/api/functions/update-tournament/update-tournament-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Update tournament handler', () => {

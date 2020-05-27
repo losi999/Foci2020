@@ -1,4 +1,4 @@
-import { IDeleteMatchService } from '@/functions/delete-match/delete-match-service';
+import { IDeleteMatchService } from '@foci2020/api/functions/delete-match/delete-match-service';
 import { APIGatewayProxyHandler } from 'aws-lambda';
 
 export default (deleteMatch: IDeleteMatchService): APIGatewayProxyHandler => {

@@ -1,7 +1,7 @@
-import { BetResponse } from '@/types/types';
-import { IBetDocumentConverter } from '@/converters/bet-document-converter';
-import { httpError, addMinutes } from '@/common';
-import { IDatabaseService } from '@/services/database-service';
+import { IBetDocumentConverter } from '@foci2020/shared/converters/bet-document-converter';
+import { httpError, addMinutes } from '@foci2020/shared/common/utils';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { BetResponse } from '@foci2020/shared/types/responses';
 
 export interface IListBetsOfMatchService {
   (ctx: {

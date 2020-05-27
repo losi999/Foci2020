@@ -1,7 +1,4 @@
 import { TeamRequest } from '@foci2020/shared/types/requests';
-import { createTeam, validateTeam } from '@foci2020/test/api/team/team-common';
-import { expectUnauthorized, expectForbidden, expectBadRequest, expectRequiredProperty, expectWrongPropertyType, expectWrongPropertyFormat, expectTooShortProperty, expectTooLongProperty } from '@foci2020/test/api/common-expects';
-import { authenticate } from '@foci2020/test/api/auth/auth-common';
 
 describe('POST /team/v1/teams', () => {
   const team: TeamRequest = {
@@ -12,29 +9,27 @@ describe('POST /team/v1/teams', () => {
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
-      createTeam(team)(undefined)
-        .its('status')
-        .should(expectUnauthorized);
+      cy.unauthenticate()
+        .requestCreateTeam(team)
+        .expectUnauthorizedResponse();
     });
   });
 
   describe('called as a player', () => {
     it('should return forbidden', () => {
-      authenticate('player1')
-        .then(createTeam(team))
-        .its('status')
-        .should(expectForbidden);
+      cy.authenticate('player1')
+        .requestCreateTeam(team)
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as an admin', () => {
-    it.only('should create a team', () => {
+    it('should create a team', () => {
       cy.authenticate('admin1')
         .requestCreateTeam(team)
         .expectOkResponse()
-        .expectTeamIdResponse()
-        .getTeamDocument()
-        .validateTeam(team);
+        .expectTeamResponse()
+        .validateTeamDocument(team);
     });
 
     it('should create a team without image', () => {
@@ -42,98 +37,97 @@ describe('POST /team/v1/teams', () => {
         ...team,
         image: undefined
       };
-      authenticate('admin1')
-        .then(createTeam(request))
-        .its('body')
-        .its('teamId')
-        .getTeam()
-        .should(validateTeam(request));
+      cy.authenticate('admin1')
+        .requestCreateTeam(request)
+        .expectOkResponse()
+        .expectTeamResponse()
+        .validateTeamDocument(request);
     });
 
     describe('should return error', () => {
       describe('if teamName', () => {
         it('is missing from body', () => {
-          authenticate('admin1')
-            .then(createTeam({
+          cy.authenticate('admin1')
+            .requestCreateTeam({
               ...team,
               teamName: undefined
-            })).as('response');
-          cy.getAs<Cypress.Response>('@response').its('status').should(expectBadRequest);
-          cy.getAs<Cypress.Response>('@response').its('body').should(expectRequiredProperty('teamName', 'body'));
+            })
+            .expectBadRequestResponse()
+            .expectRequiredProperty('teamName', 'body');
         });
 
         it('is not string', () => {
-          authenticate('admin1')
-            .then(createTeam({
+          cy.authenticate('admin1')
+            .requestCreateTeam({
               ...team,
               teamName: 1 as any
-            })).as('response');
-          cy.getAs<Cypress.Response>('@response').its('status').should(expectBadRequest);
-          cy.getAs<Cypress.Response>('@response').its('body').should(expectWrongPropertyType('teamName', 'string', 'body'));
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('teamName', 'string', 'body');
         });
       });
 
       describe('if image', () => {
         it('is not string', () => {
-          authenticate('admin1')
-            .then(createTeam({
+          cy.authenticate('admin1')
+            .requestCreateTeam({
               ...team,
               image: 1 as any
-            })).as('response');
-          cy.getAs<Cypress.Response>('@response').its('status').should(expectBadRequest);
-          cy.getAs<Cypress.Response>('@response').its('body').should(expectWrongPropertyType('image', 'string', 'body'));
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('image', 'string', 'body');
         });
 
         it('is not an URI', () => {
-          authenticate('admin1')
-            .then(createTeam({
+          cy.authenticate('admin1')
+            .requestCreateTeam({
               ...team,
               image: 'not.an.uri'
-            })).as('response');
-          cy.getAs<Cypress.Response>('@response').its('status').should(expectBadRequest);
-          cy.getAs<Cypress.Response>('@response').its('body').should(expectWrongPropertyFormat('image', 'uri', 'body'));
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('image', 'uri', 'body');
         });
       });
 
       describe('if shortName', () => {
         it('is missing from body', () => {
-          authenticate('admin1')
-            .then(createTeam({
+          cy.authenticate('admin1')
+            .requestCreateTeam({
               ...team,
               shortName: undefined
-            })).as('response');
-          cy.getAs<Cypress.Response>('@response').its('status').should(expectBadRequest);
-          cy.getAs<Cypress.Response>('@response').its('body').should(expectRequiredProperty('shortName', 'body'));
+            })
+            .expectBadRequestResponse()
+            .expectRequiredProperty('shortName', 'body');
         });
 
         it('is not string', () => {
-          authenticate('admin1')
-            .then(createTeam({
+          cy.authenticate('admin1')
+            .requestCreateTeam({
               ...team,
               shortName: 1 as any
-            })).as('response');
-          cy.getAs<Cypress.Response>('@response').its('status').should(expectBadRequest);
-          cy.getAs<Cypress.Response>('@response').its('body').should(expectWrongPropertyType('shortName', 'string', 'body'));
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('shortName', 'string', 'body');
         });
 
         it('is shorter than 3 characters', () => {
-          authenticate('admin1')
-            .then(createTeam({
+          cy.authenticate('admin1')
+            .requestCreateTeam({
               ...team,
               shortName: 'AB'
-            })).as('response');
-          cy.getAs<Cypress.Response>('@response').its('status').should(expectBadRequest);
-          cy.getAs<Cypress.Response>('@response').its('body').should(expectTooShortProperty('shortName', 3, 'body'));
+            })
+            .expectBadRequestResponse()
+            .expectTooShortProperty('shortName', 3, 'body');
         });
 
         it('is longer than 3 characters', () => {
-          authenticate('admin1')
-            .then(createTeam({
+          cy.authenticate('admin1')
+            .requestCreateTeam({
               ...team,
               shortName: 'ABCD'
-            })).as('response');
-          cy.getAs<Cypress.Response>('@response').its('status').should(expectBadRequest);
-          cy.getAs<Cypress.Response>('@response').its('body').should(expectTooLongProperty('shortName', 3, 'body'));
+            })
+            .expectBadRequestResponse()
+            .expectTooLongProperty('shortName', 3, 'body');
         });
       });
     });

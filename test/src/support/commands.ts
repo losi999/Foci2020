@@ -1,113 +1,181 @@
-import { DynamoDB } from 'aws-sdk';
-import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
-import { databaseServiceFactory } from '@foci2020/shared/services/database-service';
-import { TeamRequest, LoginRequest } from '@foci2020/shared/types/requests';
-import { User, usernames } from '@foci2020/test/api/constants';
+import { getAs } from '@foci2020/test/api/common-commands';
+import { authenticate, unauthenticate } from '@foci2020/test/api/auth/auth-commands';
+import {
+  requestCreateTeam,
+  expectTeamResponse,
+  validateTeamDocument,
+  requestUpdateTeam,
+  requestDeleteTeam,
+  requestGetTeam,
+  requestGetTeamList,
+  saveTeamDocument,
+  validateTeamResponse,
+  validateTeamDeleted
+} from '@foci2020/test/api/team/team-commands';
+import {
+  expectOkResponse,
+  expectBadRequestResponse,
+  expectRequiredProperty,
+  expectWrongPropertyType,
+  expectWrongPropertyFormat,
+  expectTooShortProperty,
+  expectTooLongProperty,
+  expectUnauthorizedResponse,
+  expectForbiddenResponse,
+  expectNotFoundResponse,
+  expectMessage
+} from '@foci2020/test/api/expect-commands';
+import {
+  saveTournamentDocument,
+  requestGetTournament,
+  requestCreateTournament,
+  requestUpdateTournament,
+  requestDeleteTournament,
+  requestGetTournamentList,
+  expectTournamentResponse,
+  validateTournamentDocument,
+  validateTournamentResponse,
+  validateTournamentDeleted
+} from '@foci2020/test/api/tournament/tournament-commands';
+import {
+  requestCreateMatch,
+  expectMatchResponse,
+  validateMatchDocument,
+  requestUpdateMatch,
+  requestDeleteMatch,
+  requestGetMatch,
+  requestGetMatchList,
+  saveMatchDocument,
+  validateMatchResponse,
+  validateMatchDeleted
+} from '@foci2020/test/api/match/match-commands';
 
 declare global {
   namespace Cypress {
     interface Chainable {
       getAs<T>(alias: string): Chainable<T>;
       getAs(...aliases: string[]): Chainable<any[]>;
-      getTeam(): Chainable<[string, TeamDocument]>;
-      requestCreateTeam(team: TeamRequest): Chainable<Response>;
-      getTeamDocument(): Chainable<[string, TeamDocument]>;
-      expectOkResponse(): Chainable<Response>;
-      expectTeamIdResponse(): Chainable<string>;
-      validateTeam(request: TeamRequest): Chainable<void>;
-      authenticate(user: User): Chainable<string>;
+      authenticate: CommandFunction<typeof authenticate>;
+      unauthenticate: CommandFunction<typeof unauthenticate>;
+
+      saveTeamDocument: CommandFunction<typeof saveTeamDocument>;
+      saveTournamentDocument: CommandFunction<typeof saveTournamentDocument>;
+    }
+
+    interface ChainableRequest extends Chainable {
+      requestGetTeam: CommandFunctionWithPreviousSubject<typeof requestGetTeam>;
+      requestCreateTeam: CommandFunctionWithPreviousSubject<typeof requestCreateTeam>;
+      requestUpdateTeam: CommandFunctionWithPreviousSubject<typeof requestUpdateTeam>;
+      requestDeleteTeam: CommandFunctionWithPreviousSubject<typeof requestDeleteTeam>;
+      requestGetTeamList: CommandFunctionWithPreviousSubject<typeof requestGetTeamList>;
+
+      requestGetTournament: CommandFunctionWithPreviousSubject<typeof requestGetTournament>;
+      requestCreateTournament: CommandFunctionWithPreviousSubject<typeof requestCreateTournament>;
+      requestUpdateTournament: CommandFunctionWithPreviousSubject<typeof requestUpdateTournament>;
+      requestDeleteTournament: CommandFunctionWithPreviousSubject<typeof requestDeleteTournament>;
+      requestGetTournamentList: CommandFunctionWithPreviousSubject<typeof requestGetTournamentList>;
+
+      requestGetMatch: CommandFunctionWithPreviousSubject<typeof requestGetMatch>;
+      requestCreateMatch: CommandFunctionWithPreviousSubject<typeof requestCreateMatch>;
+      requestUpdateMatch: CommandFunctionWithPreviousSubject<typeof requestUpdateMatch>;
+      requestDeleteMatch: CommandFunctionWithPreviousSubject<typeof requestDeleteMatch>;
+      requestGetMatchList: CommandFunctionWithPreviousSubject<typeof requestGetMatchList>;
+    }
+
+    interface ChainableResponse extends Chainable {
+      expectOkResponse: CommandFunctionWithPreviousSubject<typeof expectOkResponse>;
+      expectBadRequestResponse: CommandFunctionWithPreviousSubject<typeof expectBadRequestResponse>;
+      expectUnauthorizedResponse: CommandFunctionWithPreviousSubject<typeof expectUnauthorizedResponse>;
+      expectForbiddenResponse: CommandFunctionWithPreviousSubject<typeof expectForbiddenResponse>;
+      expectNotFoundResponse: CommandFunctionWithPreviousSubject<typeof expectNotFoundResponse>;
+    }
+
+    interface ChainableResponseBody extends Chainable {
+      expectRequiredProperty: CommandFunctionWithPreviousSubject<typeof expectRequiredProperty>;
+      expectWrongPropertyType: CommandFunctionWithPreviousSubject<typeof expectWrongPropertyType>;
+      expectWrongPropertyFormat: CommandFunctionWithPreviousSubject<typeof expectWrongPropertyFormat>;
+      expectTooShortProperty: CommandFunctionWithPreviousSubject<typeof expectTooShortProperty>;
+      expectTooLongProperty: CommandFunctionWithPreviousSubject<typeof expectTooLongProperty>;
+      expectMessage: CommandFunctionWithPreviousSubject<typeof expectMessage>;
+
+      expectTeamResponse: CommandFunctionWithPreviousSubject<typeof expectTeamResponse>;
+      validateTeamDocument: CommandFunctionWithPreviousSubject<typeof validateTeamDocument>;
+      validateTeamResponse: CommandFunctionWithPreviousSubject<typeof validateTeamResponse>;
+      validateTeamDeleted: CommandFunction<typeof validateTeamDeleted>;
+
+      expectTournamentResponse: CommandFunctionWithPreviousSubject<typeof expectTournamentResponse>;
+      validateTournamentDocument: CommandFunctionWithPreviousSubject<typeof validateTournamentDocument>;
+      validateTournamentResponse: CommandFunctionWithPreviousSubject<typeof validateTournamentResponse>;
+      validateTournamentDeleted: CommandFunction<typeof validateTournamentDeleted>;
+
+      expectMatchResponse: CommandFunctionWithPreviousSubject<typeof expectMatchResponse>;
+      validateMatchDocument: CommandFunctionWithPreviousSubject<typeof validateMatchDocument>;
+      validateMatchResponse: CommandFunctionWithPreviousSubject<typeof validateMatchResponse>;
+      validateMatchDeleted: CommandFunction<typeof validateMatchDeleted>;
     }
   }
 }
 
-const documentClient = new DynamoDB.DocumentClient({
-  region: Cypress.env('AWS_DEFAULT_REGION'),
-  accessKeyId: Cypress.env('AWS_ACCESS_KEY_ID'),
-  secretAccessKey: Cypress.env('AWS_SECRET_ACCESS_KEY'),
-});
-
-const databaseService = databaseServiceFactory(Cypress.env('DYNAMO_TABLE'), documentClient);
-
-const authenticate = (user: User) => {
-  const body: LoginRequest = {
-    email: usernames[user],
-    password: Cypress.env('PASSWORD')
-  };
-  return cy.log(`Logging in as ${user}`).request({
-    body,
-    method: 'POST',
-    url: 'user/v1/login',
-    failOnStatusCode: false
-  }).its('body').its('idToken');
-};
-
-const requestCreateTeam = (idToken: string, team: TeamRequest) => {
-  return cy.request({
-    body: team,
-    method: 'POST',
-    url: '/team/v1/teams',
-    headers: {
-      Authorization: idToken
-    },
-    failOnStatusCode: false
-  });
-};
-
-const getTeamDocument = async (teamId: string): Promise<[string, TeamDocument]> => {
-  const document = await databaseService.getTeamById(teamId);
-  return [teamId, document];
-};
-
-const expectOkResponse = (response: Cypress.Response): Cypress.Response => {
-  expect(response.status).to.equal(200);
-  return response;
-};
-
-const expectTeamIdResponse = (response: Cypress.Response): string => {
-  // check if uuid
-  expect(response.body.teamId).not.to.be.undefined;
-  return response.body.teamId;
-};
-
-const validateTeam = ([teamId, document]: [string, TeamDocument], request: TeamRequest) => {
-  expect(document.id).to.equal(teamId);
-  expect(document.teamName).to.equal(request.teamName);
-  expect(document.image).to.equal(request.image);
-  expect(document.shortName).to.equal(request.shortName);
-};
-
-export const getTeam = async (teamId: string): Promise<[string, TeamDocument]> => {
-  const document = await databaseService.getTeamById(teamId);
-  return [teamId, document];
-};
-
-export const getTournament = (tournamentId: string): Promise<TournamentDocument> => databaseService.getTournamentById(tournamentId);
-export const getMatch = (matchId: string): Promise<MatchDocument> => databaseService.getMatchById(matchId);
-
-export const getAs = (...aliases: string[]): any => {
-  if (aliases.length === 1) {
-    const alias = aliases[0];
-    return cy.get(alias.startsWith('@') ? alias : `@${alias}`);
-  }
-  const promise = cy.wrap([], { log: false });
-
-  for (const alias of aliases) {
-    promise.then((arr) => {
-      return cy.get(alias.startsWith('@') ? alias : `@${alias}`).then((got) => {
-        return cy.wrap([...arr, got], { log: false });
-      });
-    });
-  }
-
-  return promise;
-};
+type CommandReturn<T> = T extends Promise<infer U> ? Cypress.Chainable<U> : T extends Cypress.Chainable<any> ? T : Cypress.Chainable<T>;
+type RemoveFirstFromTuple<T extends any[]> = T['length'] extends 0 ? undefined : (((...b: T) => any) extends (a: any, ...b: infer I) => any ? I : []);
+type CommandFunctionWithPreviousSubject<T extends (...args: any) => any> = (...args: RemoveFirstFromTuple<Parameters<T>>) => CommandReturn<ReturnType<T>>;
+type CommandFunction<T extends (...args: any) => any> = (...args: Parameters<T>) => CommandReturn<ReturnType<T>>;
 
 Cypress.Commands.add('getAs', getAs);
-Cypress.Commands.add('getTeam', { prevSubject: true }, getTeam);
-
 Cypress.Commands.add('authenticate', authenticate);
+Cypress.Commands.add('unauthenticate', unauthenticate);
+
 Cypress.Commands.add('requestCreateTeam', { prevSubject: true }, requestCreateTeam);
-Cypress.Commands.add('getTeamDocument', { prevSubject: true }, getTeamDocument);
+Cypress.Commands.add('requestUpdateTeam', { prevSubject: true }, requestUpdateTeam);
+Cypress.Commands.add('requestDeleteTeam', { prevSubject: true }, requestDeleteTeam);
+Cypress.Commands.add('requestGetTeam', { prevSubject: true }, requestGetTeam);
+Cypress.Commands.add('requestGetTeamList', { prevSubject: true }, requestGetTeamList);
+
+Cypress.Commands.add('saveTeamDocument', saveTeamDocument);
+
+Cypress.Commands.add('validateTeamDocument', { prevSubject: true }, validateTeamDocument);
+Cypress.Commands.add('validateTeamResponse', { prevSubject: true }, validateTeamResponse);
+Cypress.Commands.add('validateTeamDeleted', validateTeamDeleted);
+
+Cypress.Commands.add('expectTeamResponse', { prevSubject: true }, expectTeamResponse);
+
+Cypress.Commands.add('requestCreateTournament', { prevSubject: true }, requestCreateTournament);
+Cypress.Commands.add('requestUpdateTournament', { prevSubject: true }, requestUpdateTournament);
+Cypress.Commands.add('requestDeleteTournament', { prevSubject: true }, requestDeleteTournament);
+Cypress.Commands.add('requestGetTournament', { prevSubject: true }, requestGetTournament);
+Cypress.Commands.add('requestGetTournamentList', { prevSubject: true }, requestGetTournamentList);
+
+Cypress.Commands.add('saveTournamentDocument', saveTournamentDocument);
+
+Cypress.Commands.add('validateTournamentDocument', { prevSubject: true }, validateTournamentDocument);
+Cypress.Commands.add('validateTournamentResponse', { prevSubject: true }, validateTournamentResponse);
+Cypress.Commands.add('validateTournamentDeleted', validateTournamentDeleted);
+
+Cypress.Commands.add('expectTournamentResponse', { prevSubject: true }, expectTournamentResponse);
+
+Cypress.Commands.add('requestCreateMatch', { prevSubject: true }, requestCreateMatch);
+Cypress.Commands.add('requestUpdateMatch', { prevSubject: true }, requestUpdateMatch);
+Cypress.Commands.add('requestDeleteMatch', { prevSubject: true }, requestDeleteMatch);
+Cypress.Commands.add('requestGetMatch', { prevSubject: true }, requestGetMatch);
+Cypress.Commands.add('requestGetMatchList', { prevSubject: true }, requestGetMatchList);
+
+Cypress.Commands.add('saveMatchDocument', saveMatchDocument);
+
+Cypress.Commands.add('validateMatchDocument', { prevSubject: true }, validateMatchDocument);
+Cypress.Commands.add('validateMatchResponse', { prevSubject: true }, validateMatchResponse);
+Cypress.Commands.add('validateMatchDeleted', validateMatchDeleted);
+
+Cypress.Commands.add('expectMatchResponse', { prevSubject: true }, expectMatchResponse);
+
 Cypress.Commands.add('expectOkResponse', { prevSubject: true }, expectOkResponse);
-Cypress.Commands.add('expectTeamIdResponse', { prevSubject: true }, expectTeamIdResponse);
-Cypress.Commands.add('validateTeam', { prevSubject: true }, validateTeam);
+Cypress.Commands.add('expectBadRequestResponse', { prevSubject: true }, expectBadRequestResponse);
+Cypress.Commands.add('expectUnauthorizedResponse', { prevSubject: true }, expectUnauthorizedResponse);
+Cypress.Commands.add('expectForbiddenResponse', { prevSubject: true }, expectForbiddenResponse);
+Cypress.Commands.add('expectNotFoundResponse', { prevSubject: true }, expectNotFoundResponse);
+
+Cypress.Commands.add('expectRequiredProperty', { prevSubject: true }, expectRequiredProperty);
+Cypress.Commands.add('expectWrongPropertyType', { prevSubject: true }, expectWrongPropertyType);
+Cypress.Commands.add('expectWrongPropertyFormat', { prevSubject: true }, expectWrongPropertyFormat);
+Cypress.Commands.add('expectTooShortProperty', { prevSubject: true }, expectTooShortProperty);
+Cypress.Commands.add('expectTooLongProperty', { prevSubject: true }, expectTooLongProperty);
+Cypress.Commands.add('expectMessage', { prevSubject: true }, expectMessage);

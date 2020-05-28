@@ -15,6 +15,11 @@ export const setFinalScoreOfMatchServiceFactory = (databaseService: IDatabaseSer
       console.error('Query match by id', error);
       throw httpError(500, 'Unable to query match by Id');
     });
+
+    if (!match) {
+      throw httpError(404, 'No match found');
+    }
+
     if (new Date() < addMinutes(105, new Date(match.startTime))) {
       throw httpError(400, 'Final score cannot be set during the game');
     }

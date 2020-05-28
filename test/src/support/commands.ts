@@ -23,7 +23,9 @@ import {
   expectUnauthorizedResponse,
   expectForbiddenResponse,
   expectNotFoundResponse,
-  expectMessage
+  expectMessage,
+  expectTooSmallNumberProperty,
+  expectTooLargeNumberProperty
 } from '@foci2020/test/api/expect-commands';
 import {
   saveTournamentDocument,
@@ -47,7 +49,12 @@ import {
   requestGetMatchList,
   saveMatchDocument,
   validateMatchResponse,
-  validateMatchDeleted
+  validateMatchDeleted,
+  requestSetFinalScoreOfMatch,
+  validateMatchFinalScore,
+  validateUpdatedHomeTeam,
+  validateUpdatedAwayTeam,
+  validateUpdatedTournament
 } from '@foci2020/test/api/match/match-commands';
 
 declare global {
@@ -60,6 +67,15 @@ declare global {
 
       saveTeamDocument: CommandFunction<typeof saveTeamDocument>;
       saveTournamentDocument: CommandFunction<typeof saveTournamentDocument>;
+      saveMatchDocument: CommandFunction<typeof saveMatchDocument>;
+
+      validateTeamDeleted: CommandFunction<typeof validateTeamDeleted>;
+      validateTournamentDeleted: CommandFunction<typeof validateTournamentDeleted>;
+      validateMatchDeleted: CommandFunction<typeof validateMatchDeleted>;
+      validateMatchFinalScore: CommandFunction<typeof validateMatchFinalScore>;
+      validateUpdatedHomeTeam: CommandFunction<typeof validateUpdatedHomeTeam>;
+      validateUpdatedAwayTeam: CommandFunction<typeof validateUpdatedAwayTeam>;
+      validateUpdatedTournament: CommandFunction<typeof validateUpdatedTournament>;
     }
 
     interface ChainableRequest extends Chainable {
@@ -80,6 +96,7 @@ declare global {
       requestUpdateMatch: CommandFunctionWithPreviousSubject<typeof requestUpdateMatch>;
       requestDeleteMatch: CommandFunctionWithPreviousSubject<typeof requestDeleteMatch>;
       requestGetMatchList: CommandFunctionWithPreviousSubject<typeof requestGetMatchList>;
+      requestSetFinalScoreOfMatch: CommandFunctionWithPreviousSubject<typeof requestSetFinalScoreOfMatch>;
     }
 
     interface ChainableResponse extends Chainable {
@@ -96,22 +113,21 @@ declare global {
       expectWrongPropertyFormat: CommandFunctionWithPreviousSubject<typeof expectWrongPropertyFormat>;
       expectTooShortProperty: CommandFunctionWithPreviousSubject<typeof expectTooShortProperty>;
       expectTooLongProperty: CommandFunctionWithPreviousSubject<typeof expectTooLongProperty>;
+      expectTooSmallNumberProperty: CommandFunctionWithPreviousSubject<typeof expectTooSmallNumberProperty>;
+      expectTooLargeNumberProperty: CommandFunctionWithPreviousSubject<typeof expectTooLargeNumberProperty>;
       expectMessage: CommandFunctionWithPreviousSubject<typeof expectMessage>;
 
       expectTeamResponse: CommandFunctionWithPreviousSubject<typeof expectTeamResponse>;
       validateTeamDocument: CommandFunctionWithPreviousSubject<typeof validateTeamDocument>;
       validateTeamResponse: CommandFunctionWithPreviousSubject<typeof validateTeamResponse>;
-      validateTeamDeleted: CommandFunction<typeof validateTeamDeleted>;
 
       expectTournamentResponse: CommandFunctionWithPreviousSubject<typeof expectTournamentResponse>;
       validateTournamentDocument: CommandFunctionWithPreviousSubject<typeof validateTournamentDocument>;
       validateTournamentResponse: CommandFunctionWithPreviousSubject<typeof validateTournamentResponse>;
-      validateTournamentDeleted: CommandFunction<typeof validateTournamentDeleted>;
 
       expectMatchResponse: CommandFunctionWithPreviousSubject<typeof expectMatchResponse>;
       validateMatchDocument: CommandFunctionWithPreviousSubject<typeof validateMatchDocument>;
       validateMatchResponse: CommandFunctionWithPreviousSubject<typeof validateMatchResponse>;
-      validateMatchDeleted: CommandFunction<typeof validateMatchDeleted>;
     }
   }
 }
@@ -144,6 +160,7 @@ Cypress.Commands.add('requestUpdateTournament', { prevSubject: true }, requestUp
 Cypress.Commands.add('requestDeleteTournament', { prevSubject: true }, requestDeleteTournament);
 Cypress.Commands.add('requestGetTournament', { prevSubject: true }, requestGetTournament);
 Cypress.Commands.add('requestGetTournamentList', { prevSubject: true }, requestGetTournamentList);
+Cypress.Commands.add('requestSetFinalScoreOfMatch', { prevSubject: true }, requestSetFinalScoreOfMatch);
 
 Cypress.Commands.add('saveTournamentDocument', saveTournamentDocument);
 
@@ -162,6 +179,10 @@ Cypress.Commands.add('requestGetMatchList', { prevSubject: true }, requestGetMat
 Cypress.Commands.add('saveMatchDocument', saveMatchDocument);
 
 Cypress.Commands.add('validateMatchDocument', { prevSubject: true }, validateMatchDocument);
+Cypress.Commands.add('validateMatchFinalScore', validateMatchFinalScore);
+Cypress.Commands.add('validateUpdatedHomeTeam', validateUpdatedHomeTeam);
+Cypress.Commands.add('validateUpdatedAwayTeam', validateUpdatedAwayTeam);
+Cypress.Commands.add('validateUpdatedTournament', validateUpdatedTournament);
 Cypress.Commands.add('validateMatchResponse', { prevSubject: true }, validateMatchResponse);
 Cypress.Commands.add('validateMatchDeleted', validateMatchDeleted);
 
@@ -178,4 +199,6 @@ Cypress.Commands.add('expectWrongPropertyType', { prevSubject: true }, expectWro
 Cypress.Commands.add('expectWrongPropertyFormat', { prevSubject: true }, expectWrongPropertyFormat);
 Cypress.Commands.add('expectTooShortProperty', { prevSubject: true }, expectTooShortProperty);
 Cypress.Commands.add('expectTooLongProperty', { prevSubject: true }, expectTooLongProperty);
+Cypress.Commands.add('expectTooSmallNumberProperty', { prevSubject: true }, expectTooSmallNumberProperty);
+Cypress.Commands.add('expectTooLargeNumberProperty', { prevSubject: true }, expectTooLargeNumberProperty);
 Cypress.Commands.add('expectMessage', { prevSubject: true }, expectMessage);

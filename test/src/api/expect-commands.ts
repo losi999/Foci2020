@@ -46,3 +46,11 @@ export const expectTooShortProperty = (body: any, propertyName: string, minLengt
 export const expectTooLongProperty = (body: any, propertyName: string, maxLength: number, requestPart: string) => {
   expect(body[requestPart]).to.contain(propertyName).to.contain('longer').to.contain(maxLength);
 };
+
+export const expectTooSmallNumberProperty = (body: any, propertyName: string, minimum: number, requestPart: string) => {
+  expect(body[requestPart]).to.contain(propertyName).to.contain('>=').to.contain(minimum);
+};
+
+export const expectTooLargeNumberProperty = (body: any, propertyName: string, maximum: number, requestPart: string) => {
+  expect(body[requestPart]).to.contain(propertyName).to.contain('<=').to.contain(maximum);
+};

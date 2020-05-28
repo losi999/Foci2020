@@ -1,6 +1,12 @@
 describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
-  describe('called as an admin', () => {
+  describe('called as anonymous', () => {
     it.skip('should return unauthorized', () => {
+
+    });
+  });
+
+  describe('called as an admin', () => {
+    it.skip('should return forbidden', () => {
 
     });
   });

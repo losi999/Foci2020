@@ -1,112 +1,82 @@
-import { TeamRequest, TournamentRequest, MatchRequest } from '@foci2020/shared/types/requests';
-import { MatchResponse } from '@foci2020/shared/types/responses';
 import { addMinutes } from '@foci2020/shared/common/utils';
+import { v4 as uuid } from 'uuid';
+import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@foci2020/shared/converters/team-document-converter';
+import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@foci2020/shared/converters/tournament-document-converter';
+import { IMatchDocumentConverter, matchDocumentConverterFactory } from '@foci2020/shared/converters/match-document-converter';
+import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
 
 describe('GET /match/v1/matches', () => {
-  const homeTeam: TeamRequest = {
-    teamName: 'Magyarország',
-    image: 'http://image.com/hun.png',
-    shortName: 'HUN',
-  };
-
-  const awayTeam: TeamRequest = {
-    teamName: 'Anglia',
-    image: 'http://image.com/eng.png',
-    shortName: 'ENG',
-  };
-
-  const tournament: TournamentRequest = {
-    tournamentName: 'EB 2020'
-  };
+  let teamConverter: ITeamDocumentConverter;
+  let tournamentConverter: ITournamentDocumentConverter;
+  let matchConverter: IMatchDocumentConverter;
 
   before(() => {
-    // createTeam_(homeTeam, 'admin1')
-    //   .its('body')
-    //   .its('teamId')
-    //   .then((id) => {
-    //     homeTeamId = id;
-    //     createdTeamIds.push(id);
-    //     expect(id).to.be.a('string');
-    //     return createTeam_(awayTeam, 'admin1');
-    //   })
-    //   .its('body')
-    //   .its('teamId')
-    //   .then((id) => {
-    //     awayTeamId = id;
-    //     createdTeamIds.push(id);
-    //     expect(id).to.be.a('string');
-    //     return createTournament(tournament, 'admin1');
-    //   })
-    //   .its('body')
-    //   .its('tournamentId')
-    //   .then((id) => {
-    //     tournamentId = id;
-    //     createdTournamentIds.push(id);
-    //     expect(id).to.be.a('string');
+    teamConverter = teamDocumentConverterFactory(uuid);
+    tournamentConverter = tournamentDocumentConverterFactory(uuid);
+    matchConverter = matchDocumentConverterFactory(uuid);
+  });
 
-    //     match1 = {
-    //       homeTeamId,
-    //       awayTeamId,
-    //       tournamentId,
-    //       group: 'A csoport',
-    //       startTime: addMinutes(10).toISOString()
-    //     };
+  let homeTeamDocument: TeamDocument;
+  let awayTeamDocument: TeamDocument;
+  let tournamentDocument: TournamentDocument;
+  let matchDocument1: MatchDocument;
+  let matchDocument2: MatchDocument;
 
-    //     match2 = {
-    //       tournamentId,
-    //       homeTeamId: awayTeamId,
-    //       awayTeamId: homeTeamId,
-    //       group: 'B csoport',
-    //       startTime: addMinutes(25).toISOString()
-    //     };
-    //   });
+  before(() => {
+    homeTeamDocument = teamConverter.create({
+      teamName: 'Magyarország',
+      image: 'http://image.com/hun.png',
+      shortName: 'HUN',
+    });
+    awayTeamDocument = teamConverter.create({
+      teamName: 'Anglia',
+      image: 'http://image.com/eng.png',
+      shortName: 'ENG',
+    });
+    tournamentDocument = tournamentConverter.create({
+      tournamentName: 'EB 2020'
+    });
+    matchDocument1 = matchConverter.create({
+      homeTeamId: homeTeamDocument.id,
+      awayTeamId: awayTeamDocument.id,
+      tournamentId: tournamentDocument.id,
+      group: 'A csoport',
+      startTime: addMinutes(10).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+
+    matchDocument2 = matchConverter.create({
+      homeTeamId: awayTeamDocument.id,
+      awayTeamId: homeTeamDocument.id,
+      tournamentId: tournamentDocument.id,
+      group: 'B csoport',
+      startTime: addMinutes(10).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+  });
+
+  describe('called as anonymous', () => {
+    it('should return unauthorized', () => {
+      cy.unauthenticate()
+        .requestGetMatchList()
+        .expectUnauthorizedResponse();
+    });
   });
 
   describe('called as a player', () => {
-    it.skip('should return unauthorized', () => {
-      // getMatchList('player1')
-      //   .its('status')
-      //   .should((status) => {
-      //     expect(status).to.equal(403);
-      //   });
+    it('should return forbidden', () => {
+      cy.authenticate('player1')
+        .requestGetMatchList()
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as an admin', () => {
-    it.skip('should get a list of matches', () => {
-      // let matchId1: string;
-      // let matchId2: string;
-
-      // createMatch(match1, 'admin1')
-      //   .its('body')
-      //   .its('matchId')
-      //   .then((id) => {
-      //     matchId1 = id;
-      //     createdMatchIds.push(id);
-      //     expect(id).to.be.a('string');
-      //     return createMatch(match2, 'admin1');
-      //   }).its('body')
-      //   .its('matchId')
-      //   .then((id) => {
-      //     matchId2 = id;
-      //     createdMatchIds.push(id);
-      //     expect(id).to.be.a('string');
-      //     return getMatchList('admin1');
-      //   })
-      //   .its('body')
-      //   .should((matches: MatchResponse[]) => {
-      //     const matchResponse1 = matches.find(m => m.matchId === matchId1);
-      //     validateMatch(matchResponse1, matchId1, match1);
-      //     validateTeam_(matchResponse1.homeTeam, homeTeamId, homeTeam);
-      //     validateTeam_(matchResponse1.awayTeam, awayTeamId, awayTeam);
-      //     validateTournament(matchResponse1.tournament, tournamentId, tournament);
-
-      //     const matchResponse2 = matches.find(m => m.matchId === matchId2);
-      //     validateMatch(matchResponse2, matchId2, match2);
-      //     validateTeam_(matchResponse2.homeTeam, awayTeamId, awayTeam);
-      //     validateTeam_(matchResponse2.awayTeam, homeTeamId, homeTeam);
-      //     validateTournament(matchResponse2.tournament, tournamentId, tournament);
-      //   });
+    it('should get a list of matches', () => {
+      cy.saveMatchDocument(matchDocument1)
+        .saveMatchDocument(matchDocument2)
+        .authenticate('admin1')
+        .requestGetMatchList()
+        .expectOkResponse()
+        .expectMatchResponse();
     });
   });
 });

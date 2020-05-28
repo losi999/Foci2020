@@ -1,11 +1,15 @@
 import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@foci2020/shared/converters/tournament-document-converter';
 import { v4 as uuid } from 'uuid';
 import { TournamentRequest } from '@foci2020/shared/types/requests';
+import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@foci2020/shared/converters/team-document-converter';
+import { IMatchDocumentConverter, matchDocumentConverterFactory } from '@foci2020/shared/converters/match-document-converter';
+import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
+import { addMinutes } from '@foci2020/shared/common/utils';
 
 describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
-  let converter: ITournamentDocumentConverter;
+  let tournamentConverter: ITournamentDocumentConverter;
   before(() => {
-    converter = tournamentDocumentConverterFactory(uuid);
+    tournamentConverter = tournamentDocumentConverterFactory(uuid);
   });
 
   const tournament: TournamentRequest = {
@@ -34,7 +38,7 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
 
   describe('called as an admin', () => {
     it('should update a tournament', () => {
-      const document = converter.create(tournament);
+      const document = tournamentConverter.create(tournament);
       cy.saveTournamentDocument(document)
         .authenticate('admin1')
         .requestUpdateTournament(document.id, tournamentToUpdate)
@@ -43,8 +47,49 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
     });
 
     describe('related matches', () => {
-      it.skip('should be updated if tournament is updated', () => {
+      let teamConverter: ITeamDocumentConverter;
+      let matchConverter: IMatchDocumentConverter;
 
+      let homeTeamDocument: TeamDocument;
+      let awayTeamDocument: TeamDocument;
+      let tournamentDocument: TournamentDocument;
+      let matchDocument: MatchDocument;
+
+      before(() => {
+        teamConverter = teamDocumentConverterFactory(uuid);
+        matchConverter = matchDocumentConverterFactory(uuid);
+
+        homeTeamDocument = teamConverter.create({
+          teamName: 'Magyarország',
+          image: 'http://image.com/hun.png',
+          shortName: 'HUN',
+        });
+        awayTeamDocument = teamConverter.create({
+          teamName: 'Anglia',
+          image: 'http://image.com/eng.png',
+          shortName: 'ENG',
+        });
+        tournamentDocument = tournamentConverter.create(tournament);
+        matchDocument = matchConverter.create({
+          homeTeamId: homeTeamDocument.id,
+          awayTeamId: awayTeamDocument.id,
+          tournamentId: tournamentDocument.id,
+          group: 'A csoport',
+          startTime: addMinutes(10).toISOString()
+        }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+
+        cy.saveTeamDocument(homeTeamDocument)
+          .saveTeamDocument(awayTeamDocument)
+          .saveTournamentDocument(tournamentDocument)
+          .saveMatchDocument(matchDocument);
+      });
+
+      it('should be updated if tournament is updated', () => {
+        cy.authenticate('admin1')
+          .requestUpdateTournament(tournamentDocument.id, tournamentToUpdate)
+          .expectOkResponse()
+          .wait(2000)
+          .validateUpdatedTournament(tournamentToUpdate, matchDocument, homeTeamDocument, awayTeamDocument, tournamentDocument, matchDocument.id);
       });
     });
 

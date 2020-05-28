@@ -1,6 +1,12 @@
 describe('POST /betting/v1/matches/{matchId}/bets', () => {
-  describe('called as an admin', () => {
+  describe('called as anonymous', () => {
     it.skip('should return unauthorized', () => {
+
+    });
+  });
+
+  describe('called as an admin', () => {
+    it.skip('should return forbidden', () => {
 
     });
   });

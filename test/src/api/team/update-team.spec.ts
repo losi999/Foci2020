@@ -1,11 +1,15 @@
 import { TeamRequest } from '@foci2020/shared/types/requests';
 import { v4 as uuid } from 'uuid';
 import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@foci2020/shared/converters/team-document-converter';
+import { IMatchDocumentConverter, matchDocumentConverterFactory } from '@foci2020/shared/converters/match-document-converter';
+import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@foci2020/shared/converters/tournament-document-converter';
+import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
+import { addMinutes } from '@foci2020/shared/common/utils';
 
 describe('PUT /team/v1/teams/{teamId}', () => {
-  let converter: ITeamDocumentConverter;
+  let teamConverter: ITeamDocumentConverter;
   before(() => {
-    converter = teamDocumentConverterFactory(uuid);
+    teamConverter = teamDocumentConverterFactory(uuid);
   });
   const team: TeamRequest = {
     teamName: 'Magyarország',
@@ -37,7 +41,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
 
   describe('called as an admin', () => {
     it('should update a team', () => {
-      const document = converter.create(team);
+      const document = teamConverter.create(team);
       cy.saveTeamDocument(document)
         .authenticate('admin1')
         .requestUpdateTeam(document.id, teamToUpdate)
@@ -51,7 +55,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
         image: undefined
       };
 
-      const document = converter.create(team);
+      const document = teamConverter.create(team);
       cy.saveTeamDocument(document)
         .authenticate('admin1')
         .requestUpdateTeam(document.id, request)
@@ -60,12 +64,60 @@ describe('PUT /team/v1/teams/{teamId}', () => {
     });
 
     describe('related matches', () => {
-      it.skip('should be updated if home team is updated', () => {
+      let matchConverter: IMatchDocumentConverter;
+      let tournamentConverter: ITournamentDocumentConverter;
 
+      let homeTeamDocument: TeamDocument;
+      let awayTeamDocument: TeamDocument;
+      let tournamentDocument: TournamentDocument;
+      let matchDocument: MatchDocument;
+
+      beforeEach(() => {
+        matchConverter = matchDocumentConverterFactory(uuid);
+        tournamentConverter = tournamentDocumentConverterFactory(uuid);
+
+        homeTeamDocument = teamConverter.create({
+          teamName: 'Magyarország',
+          image: 'http://image.com/hun.png',
+          shortName: 'HUN',
+        });
+        awayTeamDocument = teamConverter.create({
+          teamName: 'Anglia',
+          image: 'http://image.com/eng.png',
+          shortName: 'ENG',
+        });
+        tournamentDocument = tournamentConverter.create({
+          tournamentName: 'EB 2020'
+        });
+
+        matchDocument = matchConverter.create({
+          homeTeamId: homeTeamDocument.id,
+          awayTeamId: awayTeamDocument.id,
+          tournamentId: tournamentDocument.id,
+          group: 'A csoport',
+          startTime: addMinutes(10).toISOString()
+        }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+
+        cy.saveTeamDocument(homeTeamDocument)
+          .saveTeamDocument(awayTeamDocument)
+          .saveTournamentDocument(tournamentDocument)
+          .saveMatchDocument(matchDocument);
       });
 
-      it.skip('should be updated if away team is updated', () => {
+      it('should be updated if home team is updated', () => {
+        cy.authenticate('admin1')
+          .requestUpdateTeam(homeTeamDocument.id, teamToUpdate)
+          .expectOkResponse()
+          .wait(2000)
+          .validateUpdatedHomeTeam(teamToUpdate, matchDocument, homeTeamDocument, awayTeamDocument, tournamentDocument, matchDocument.id);
+      });
 
+      it('should be updated if away team is updated', () => {
+        cy.authenticate('admin1')
+          .requestUpdateTeam(awayTeamDocument.id, teamToUpdate)
+          .expectOkResponse()
+          .wait(2000)
+          .validateUpdatedAwayTeam(teamToUpdate, matchDocument, homeTeamDocument, awayTeamDocument, tournamentDocument, matchDocument.id);
       });
     });
 

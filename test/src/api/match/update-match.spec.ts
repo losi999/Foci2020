@@ -1,340 +1,332 @@
 import { v4 as uuid } from 'uuid';
-import { TeamRequest, TournamentRequest, MatchRequest } from '@foci2020/shared/types/requests';
+import { MatchRequest } from '@foci2020/shared/types/requests';
 import { addMinutes } from '@foci2020/shared/common/utils';
-import { MatchResponse } from '@foci2020/shared/types/responses';
+import { matchDocumentConverterFactory, IMatchDocumentConverter } from '@foci2020/shared/converters/match-document-converter';
+import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@foci2020/shared/converters/team-document-converter';
+import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@foci2020/shared/converters/tournament-document-converter';
+import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
 
 describe('PUT /match/v1/matches/{matchId}', () => {
-  const homeTeam: TeamRequest = {
-    teamName: 'Magyarország',
-    image: 'http://image.com/hun.png',
-    shortName: 'HUN',
-  };
-
-  const awayTeam: TeamRequest = {
-    teamName: 'Anglia',
-    image: 'http://image.com/eng.png',
-    shortName: 'ENG',
-  };
-
-  const tournament: TournamentRequest = {
-    tournamentName: 'EB 2020'
-  };
-
-  const oldTournament: TournamentRequest = {
-    tournamentName: 'VB 2022'
-  };
+  let teamConverter: ITeamDocumentConverter;
+  let tournamentConverter: ITournamentDocumentConverter;
+  let matchConverter: IMatchDocumentConverter;
 
   before(() => {
-    // createTeam_(homeTeam, 'admin1')
-    //   .its('body')
-    //   .its('teamId')
-    //   .then((id) => {
-    //     homeTeamId = id;
-    //     createdTeamIds.push(id);
-    //     expect(id).to.be.a('string');
-    //     return createTeam_(awayTeam, 'admin1');
-    //   })
-    //   .its('body')
-    //   .its('teamId')
-    //   .then((id) => {
-    //     awayTeamId = id;
-    //     createdTeamIds.push(id);
-    //     expect(id).to.be.a('string');
-    //     return createTournament(tournament, 'admin1');
-    //   })
-    //   .its('body')
-    //   .its('tournamentId')
-    //   .then((id) => {
-    //     tournamentId = id;
-    //     createdTournamentIds.push(id);
-    //     expect(id).to.be.a('string');
-    //     return createTournament(oldTournament, 'admin1');
-    //   })
-    //   .its('body')
-    //   .its('tournamentId')
-    //   .then((id) => {
-    //     oldTournamentId = id;
-    //     createdTournamentIds.push(id);
-    //     expect(id).to.be.a('string');
-    //     match = {
-    //       homeTeamId,
-    //       awayTeamId,
-    //       tournamentId,
-    //       group: 'A csoport',
-    //       startTime: addMinutes(10).toISOString()
-    //     };
-    //   });
+    teamConverter = teamDocumentConverterFactory(uuid);
+    tournamentConverter = tournamentDocumentConverterFactory(uuid);
+    matchConverter = matchDocumentConverterFactory(uuid);
   });
 
+  let homeTeamDocument: TeamDocument;
+  let awayTeamDocument: TeamDocument;
+  let tournamentDocument1: TournamentDocument;
+  let tournamentDocument2: TournamentDocument;
+  let matchDocument: MatchDocument;
+  let updatedMatch: MatchRequest;
+
   before(() => {
-    // createMatch({
-    //   homeTeamId: awayTeamId,
-    //   awayTeamId: homeTeamId,
-    //   group: 'to update',
-    //   startTime: addMinutes(20).toISOString(),
-    //   tournamentId: oldTournamentId,
-    // }, 'admin1')
-    //   .its('body')
-    //   .its('matchId')
-    //   .then((id) => {
-    //     matchId = id;
-    //     createdMatchIds.push(id);
-    //     expect(id).to.be.a('string');
-    //   });
+    homeTeamDocument = teamConverter.create({
+      teamName: 'Magyarország',
+      image: 'http://image.com/hun.png',
+      shortName: 'HUN',
+    });
+    awayTeamDocument = teamConverter.create({
+      teamName: 'Anglia',
+      image: 'http://image.com/eng.png',
+      shortName: 'ENG',
+    });
+    tournamentDocument1 = tournamentConverter.create({
+      tournamentName: 'EB 2020'
+    });
+    tournamentDocument2 = tournamentConverter.create({
+      tournamentName: 'VB 2022'
+    });
+    matchDocument = matchConverter.create({
+      homeTeamId: homeTeamDocument.id,
+      awayTeamId: awayTeamDocument.id,
+      tournamentId: tournamentDocument1.id,
+      group: 'A csoport',
+      startTime: addMinutes(10).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument1);
+
+    cy.saveTeamDocument(homeTeamDocument)
+      .saveTeamDocument(awayTeamDocument)
+      .saveTournamentDocument(tournamentDocument1)
+      .saveTournamentDocument(tournamentDocument2)
+      .saveMatchDocument(matchDocument);
+
+    updatedMatch = {
+      homeTeamId: awayTeamDocument.id,
+      awayTeamId: homeTeamDocument.id,
+      tournamentId: tournamentDocument2.id,
+      group: 'B csoport',
+      startTime: addMinutes(15).toISOString()
+    };
+  });
+
+  describe('called as anonymous', () => {
+    it('should return unauthorized', () => {
+      cy.unauthenticate()
+        .requestUpdateMatch(matchDocument.id, updatedMatch)
+        .expectUnauthorizedResponse();
+    });
   });
 
   describe('called as a player', () => {
-    it.skip('should return unauthorized', () => {
-      // updateMatch(matchId, match, 'player1')
-      //   .its('status')
-      //   .should((status) => {
-      //     expect(status).to.equal(403);
-      //   });
+    it('should return forbidden', () => {
+      cy.authenticate('player1')
+        .requestUpdateMatch(matchDocument.id, updatedMatch)
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as an admin', () => {
-    it.skip('should update a match', () => {
-      // updateMatch(matchId, match, 'admin1')
-      //   .its('status')
-      //   .then((status) => {
-      //     expect(status).to.equal(200);
-      //     return getMatch(matchId, 'admin1');
-      //   })
-      //   .its('body')
-      //   .should((body: MatchResponse) => {
-      //     validateMatch(body, matchId, match);
-      //     validateTeam_(body.homeTeam, homeTeamId, homeTeam);
-      //     validateTeam_(body.awayTeam, awayTeamId, awayTeam);
-      //     validateTournament(body.tournament, tournamentId, tournament);
-      //   });
+    it('should update a match', () => {
+      cy.authenticate('admin1')
+        .requestUpdateMatch(matchDocument.id, updatedMatch)
+        .expectOkResponse()
+        .validateMatchDocument(updatedMatch, awayTeamDocument, homeTeamDocument, tournamentDocument2, matchDocument.id);
     });
 
     describe('should return error', () => {
       describe('if homeTeamId', () => {
-        it.skip('is missing from body', () => {
-          //   updateMatch(matchId, {
-          //     ...match,
-          //     homeTeamId: undefined
-          //   }, 'admin1')
-          //     .should((response) => {
-          //       expect(response.status).to.equal(400);
-          //       expect(response.body.body).to.contain('homeTeamId').to.contain('required');
-          //  });
+        it('is missing from body', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              homeTeamId: undefined
+            })
+            .expectBadRequestResponse()
+            .expectRequiredProperty('homeTeamId', 'body');
         });
 
-        it.skip('is not string', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   homeTeamId: 1 as any
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('homeTeamId').to.contain('string');
-          //   });
+        it('is not string', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              homeTeamId: 1 as any
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('homeTeamId', 'string', 'body');
         });
 
-        it.skip('is not uuid', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   homeTeamId: `${uuid()}-not-valid`
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('homeTeamId').to.contain('format').to.contain('uuid');
-          //   });
+        it('is not uuid', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              homeTeamId: `${uuid()}-not-valid`
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('homeTeamId', 'uuid', 'body');
         });
 
-        it.skip('does not belong to any team', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   homeTeamId: uuid()
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body).to.equal('Home team not found');
-          //   });
+        it('does not belong to any team', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              homeTeamId: uuid()
+            })
+            .expectBadRequestResponse()
+            .expectMessage('Home team not found');
         });
       });
 
       describe('if awayTeamId', () => {
-        it.skip('is missing from body', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   awayTeamId: undefined,
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('awayTeamId').to.contain('required');
-          //   });
+        it('is missing from body', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              awayTeamId: undefined
+            })
+            .expectBadRequestResponse()
+            .expectRequiredProperty('awayTeamId', 'body');
         });
 
-        it.skip('is not string', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   awayTeamId: 1 as any
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('awayTeamId').to.contain('string');
-          //   });
+        it('is not string', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              awayTeamId: 1 as any
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('awayTeamId', 'string', 'body');
         });
 
-        it.skip('is not uuid', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   awayTeamId: `${uuid()}-not-valid`
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('awayTeamId').to.contain('format').to.contain('uuid');
-          //   });
+        it('is not uuid', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              awayTeamId: `${uuid()}-not-valid`
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('awayTeamId', 'uuid', 'body');
         });
 
-        it.skip('does not belong to any team', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   awayTeamId: uuid()
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body).to.equal('Away team not found');
-          //   });
+        it('does not belong to any team', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              awayTeamId: uuid()
+            })
+            .expectBadRequestResponse()
+            .expectMessage('Away team not found');
         });
 
-        it.skip('is the same as homeTeamId', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   awayTeamId: homeTeamId
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body).to.equal('Home and away teams cannot be the same');
-          //   });
+        it('is the same as homeTeamId', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              awayTeamId: awayTeamDocument.id
+            })
+            .expectBadRequestResponse()
+            .expectMessage('Home and away teams cannot be the same');
         });
       });
 
       describe('if tournamentId', () => {
-        it.skip('is missing from body', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   tournamentId: undefined
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('tournamentId').to.contain('required');
-          //   });
+        it('is missing from body', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              tournamentId: undefined
+            })
+            .expectBadRequestResponse()
+            .expectRequiredProperty('tournamentId', 'body');
         });
 
-        it.skip('is not string', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   tournamentId: 1 as any
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('tournamentId').to.contain('string');
-          //   });
+        it('is not string', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              tournamentId: 1 as any
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('tournamentId', 'string', 'body');
         });
 
-        it.skip('is not uuid', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   tournamentId: `${uuid()}-not-valid`
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('tournamentId').to.contain('format').to.contain('uuid');
-          //   });
+        it('is not uuid', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              tournamentId: `${uuid()}-not-valid`
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('tournamentId', 'uuid', 'body');
         });
 
-        it.skip('does not belong to any tournament', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   tournamentId: uuid()
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body).to.equal('Tournament not found');
-          //   });
+        it('does not belong to any tournament', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              tournamentId: uuid()
+            })
+            .expectBadRequestResponse()
+            .expectMessage('Tournament not found');
         });
       });
 
       describe('if group', () => {
-        it.skip('is missing from body', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   group: undefined
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('group').to.contain('required');
-          //   });
+        it('is missing from body', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              group: undefined
+            })
+            .expectBadRequestResponse()
+            .expectRequiredProperty('group', 'body');
         });
 
-        it.skip('is not string', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   group: 1 as any
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('group').to.contain('string');
-          //   });
+        it('is not string', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              group: 1 as any
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('group', 'string', 'body');
         });
       });
 
       describe('if startTime', () => {
-        it.skip('is missing from body', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   startTime: undefined
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('startTime').to.contain('required');
-          //   });
+        it('is missing from body', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              startTime: undefined
+            })
+            .expectBadRequestResponse()
+            .expectRequiredProperty('startTime', 'body');
         });
 
-        it.skip('is not string', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   startTime: 1 as any
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body.body).to.contain('startTime').to.contain('string');
-          //   });
+        it('is not string', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              startTime: 1 as any
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('startTime', 'string', 'body');
         });
 
-        it.skip('is less than 5 minutes from now', () => {
-          // updateMatch(matchId, {
-          //   ...match,
-          //   startTime: addMinutes(4.9).toISOString()
-          // }, 'admin1')
-          //   .should((response) => {
-          //     expect(response.status).to.equal(400);
-          //     expect(response.body).to.equal('Start time has to be at least 5 minutes from now');
-          //   });
+        it('is not date-time', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              startTime: 'not-a-date'
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('startTime', 'date-time', 'body');
+        });
+
+        it('is less than 5 minutes from now', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              startTime: addMinutes(4.9).toISOString()
+            })
+            .expectBadRequestResponse()
+            .expectMessage('Start time has to be at least 5 minutes from now');
         });
       });
 
       describe('if matchId', () => {
-        it.skip('is not uuid', () => {
-
+        it('is not uuid', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(`${uuid()}-not-valid`, updatedMatch)
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('matchId', 'uuid', 'pathParameters');
         });
 
-        it.skip('does not belong to any match', () => {
-
+        it('does not belong to any match', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(uuid(), updatedMatch)
+            .expectNotFoundResponse();
         });
       });
 
       describe('if finalScore', () => {
-        it.skip('is already set for a match', () => {
+        it('is already set for a match', () => {
+          const finishedMatch = matchConverter.create({
+            homeTeamId: homeTeamDocument.id,
+            awayTeamId: awayTeamDocument.id,
+            tournamentId: tournamentDocument1.id,
+            group: 'A csoport',
+            startTime: addMinutes(10).toISOString()
+          }, homeTeamDocument, awayTeamDocument, tournamentDocument1);
 
+          cy.saveMatchDocument({
+            ...finishedMatch,
+            finalScore: {
+              homeScore: 1,
+              awayScore: 2
+            }
+          })
+            .authenticate('admin1')
+            .requestUpdateMatch(finishedMatch.id, updatedMatch)
+            .expectBadRequestResponse()
+            .expectMessage('Final score is already set for this match');
         });
       });
     });
   });
-
 });

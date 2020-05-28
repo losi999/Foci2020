@@ -23,6 +23,16 @@ export const updateMatchServiceFactory = (
       throw httpError(400, 'Home and away teams cannot be the same');
     }
 
+    const oldDocument = await databaseService.getMatchById(matchId);
+
+    if (!oldDocument) {
+      throw httpError(404, 'No match found');
+    }
+
+    if (oldDocument.finalScore) {
+      throw httpError(400, 'Final score is already set for this match');
+    }
+
     const [homeTeam, awayTeam, tournament] = await Promise.all([
       databaseService.getTeamById(body.homeTeamId),
       databaseService.getTeamById(body.awayTeamId),
@@ -48,9 +58,6 @@ export const updateMatchServiceFactory = (
 
     await databaseService.updateMatch(document).catch((error) => {
       console.error('Update match', error);
-      if (error.code === 'ConditionalCheckFailedException') {
-        throw httpError(404, 'No match found');
-      }
       throw httpError(500, 'Error while updating match');
     });
   };

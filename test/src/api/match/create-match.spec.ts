@@ -14,30 +14,24 @@ describe('POST /match/v1/matches', () => {
     tournamentConverter = tournamentDocumentConverterFactory(uuid);
   });
 
-  const homeTeam: TeamRequest = {
-    teamName: 'Magyarország',
-    image: 'http://image.com/hun.png',
-    shortName: 'HUN',
-  };
-
-  const awayTeam: TeamRequest = {
-    teamName: 'Anglia',
-    image: 'http://image.com/eng.png',
-    shortName: 'ENG',
-  };
-
-  const tournament: TournamentRequest = {
-    tournamentName: 'EB 2020'
-  };
-
   let homeTeamDocument: TeamDocument;
   let awayTeamDocument: TeamDocument;
   let tournamentDocument: TournamentDocument;
   let match: MatchRequest;
   before(() => {
-    homeTeamDocument = teamConverter.create(homeTeam);
-    awayTeamDocument = teamConverter.create(awayTeam);
-    tournamentDocument = tournamentConverter.create(tournament);
+    homeTeamDocument = teamConverter.create({
+      teamName: 'Magyarország',
+      image: 'http://image.com/hun.png',
+      shortName: 'HUN',
+    });
+    awayTeamDocument = teamConverter.create({
+      teamName: 'Anglia',
+      image: 'http://image.com/eng.png',
+      shortName: 'ENG',
+    });
+    tournamentDocument = tournamentConverter.create({
+      tournamentName: 'EB 2020'
+    });
     match = {
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
@@ -51,7 +45,7 @@ describe('POST /match/v1/matches', () => {
   });
 
   describe('called as anonymous', () => {
-    it('should return unauthorized', () => {
+    it.only('should return unauthorized', () => {
       cy.unauthenticate()
         .requestCreateMatch(match)
         .expectUnauthorizedResponse();
@@ -59,7 +53,7 @@ describe('POST /match/v1/matches', () => {
   });
 
   describe('called as a player', () => {
-    it('should return forbidden', () => {
+    it.only('should return forbidden', () => {
       cy.authenticate('player1')
         .requestCreateMatch(match)
         .expectForbiddenResponse();

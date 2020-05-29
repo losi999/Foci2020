@@ -1,18 +1,10 @@
-import { DynamoDB } from 'aws-sdk';
-import { databaseServiceFactory } from '@foci2020/shared/services/database-service';
 import { MatchRequest, MatchFinalScoreRequest, TeamRequest, TournamentRequest } from '@foci2020/shared/types/requests';
 import { MatchDocument, TeamDocument, TournamentDocument } from '@foci2020/shared/types/documents';
 import { MatchResponse } from '@foci2020/shared/types/responses';
+import { CommandFunction, CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
+import { databaseService } from '@foci2020/test/api/dependencies';
 
-const documentClient = new DynamoDB.DocumentClient({
-  region: Cypress.env('AWS_DEFAULT_REGION'),
-  accessKeyId: Cypress.env('AWS_ACCESS_KEY_ID'),
-  secretAccessKey: Cypress.env('AWS_SECRET_ACCESS_KEY'),
-});
-
-const databaseService = databaseServiceFactory(Cypress.env('DYNAMO_TABLE'), documentClient);
-
-export const requestCreateMatch = (idToken: string, match: MatchRequest) => {
+const requestCreateMatch = (idToken: string, match: MatchRequest) => {
   return cy.request({
     body: match,
     method: 'POST',
@@ -24,7 +16,7 @@ export const requestCreateMatch = (idToken: string, match: MatchRequest) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const requestUpdateMatch = (idToken: string, matchId: string, match: MatchRequest) => {
+const requestUpdateMatch = (idToken: string, matchId: string, match: MatchRequest) => {
   return cy.request({
     body: match,
     method: 'PUT',
@@ -36,7 +28,7 @@ export const requestUpdateMatch = (idToken: string, matchId: string, match: Matc
   }) as Cypress.ChainableResponse;
 };
 
-export const requestDeleteMatch = (idToken: string, matchId: string) => {
+const requestDeleteMatch = (idToken: string, matchId: string) => {
   return cy.request({
     method: 'DELETE',
     url: `/match/v1/matches/${matchId}`,
@@ -47,7 +39,7 @@ export const requestDeleteMatch = (idToken: string, matchId: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const requestGetMatch = (idToken: string, matchId: string) => {
+const requestGetMatch = (idToken: string, matchId: string) => {
   return cy.request({
     method: 'GET',
     url: `/match/v1/matches/${matchId}`,
@@ -58,7 +50,7 @@ export const requestGetMatch = (idToken: string, matchId: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const requestGetMatchList = (idToken: string) => {
+const requestGetMatchList = (idToken: string) => {
   return cy.request({
     method: 'GET',
     url: '/match/v1/matches',
@@ -69,7 +61,7 @@ export const requestGetMatchList = (idToken: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const requestSetFinalScoreOfMatch = (idToken: string, matchId: string, score: MatchFinalScoreRequest) => {
+const requestSetFinalScoreOfMatch = (idToken: string, matchId: string, score: MatchFinalScoreRequest) => {
   return cy.request({
     body: score,
     method: 'PATCH',
@@ -81,15 +73,15 @@ export const requestSetFinalScoreOfMatch = (idToken: string, matchId: string, sc
   }) as Cypress.ChainableResponse;
 };
 
-export const saveMatchDocument = (document: MatchDocument): void => {
+const saveMatchDocument = (document: MatchDocument): void => {
   cy.log('Save match document', document).wrap(databaseService.saveMatch(document), { log: false });
 };
 
-export const expectMatchResponse = (body: MatchResponse) => {
+const expectMatchResponse = (body: MatchResponse) => {
   return cy.log('TODO schema validation').wrap(body) as Cypress.ChainableResponseBody;
 };
 
-export const validateMatchDocument = (response: MatchResponse,
+const validateMatchDocument = (response: MatchResponse,
   match: MatchRequest,
   homeTeam: TeamDocument,
   awayTeam: TeamDocument,
@@ -115,7 +107,7 @@ export const validateMatchDocument = (response: MatchResponse,
     });
 };
 
-export const validateUpdatedHomeTeam = (
+const validateUpdatedHomeTeam = (
   updated: TeamRequest,
   match: MatchDocument,
   homeTeam: TeamDocument,
@@ -141,7 +133,7 @@ export const validateUpdatedHomeTeam = (
     });
 };
 
-export const validateUpdatedAwayTeam = (updated: TeamRequest,
+const validateUpdatedAwayTeam = (updated: TeamRequest,
   match: MatchDocument,
   homeTeam: TeamDocument,
   awayTeam: TeamDocument,
@@ -166,7 +158,7 @@ export const validateUpdatedAwayTeam = (updated: TeamRequest,
     });
 };
 
-export const validateUpdatedTournament = (updated: TournamentRequest,
+const validateUpdatedTournament = (updated: TournamentRequest,
   match: MatchDocument,
   homeTeam: TeamDocument,
   awayTeam: TeamDocument,
@@ -191,7 +183,7 @@ export const validateUpdatedTournament = (updated: TournamentRequest,
     });
 };
 
-export const validateMatchFinalScore = (finalScore: MatchFinalScoreRequest,
+const validateMatchFinalScore = (finalScore: MatchFinalScoreRequest,
   match: MatchDocument,
   homeTeam: TeamDocument,
   awayTeam: TeamDocument,
@@ -218,7 +210,7 @@ export const validateMatchFinalScore = (finalScore: MatchFinalScoreRequest,
     });
 };
 
-export const validateMatchResponse = (response: MatchResponse, document: MatchDocument, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument) => {
+const validateMatchResponse = (response: MatchResponse, document: MatchDocument, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument) => {
   expect(response.matchId).to.equal(document.id);
   expect(response.group).to.equal(document.group);
   expect(response.startTime).to.equal(document.startTime);
@@ -234,10 +226,59 @@ export const validateMatchResponse = (response: MatchResponse, document: MatchDo
   expect(response.tournament.tournamentName).to.equal(tournament.tournamentName);
 };
 
-export const validateMatchDeleted = (matchId: string) => {
+const validateMatchDeleted = (matchId: string) => {
   cy.log('Get match document', matchId)
     .wrap(databaseService.getMatchById(matchId))
     .should((document) => {
       expect(document).to.be.undefined;
     });
 };
+
+export const setMatchCommands = () => {
+  Cypress.Commands.add('requestSetFinalScoreOfMatch', { prevSubject: true }, requestSetFinalScoreOfMatch);
+  Cypress.Commands.add('requestCreateMatch', { prevSubject: true }, requestCreateMatch);
+  Cypress.Commands.add('requestUpdateMatch', { prevSubject: true }, requestUpdateMatch);
+  Cypress.Commands.add('requestDeleteMatch', { prevSubject: true }, requestDeleteMatch);
+  Cypress.Commands.add('requestGetMatch', { prevSubject: true }, requestGetMatch);
+  Cypress.Commands.add('requestGetMatchList', { prevSubject: true }, requestGetMatchList);
+
+  Cypress.Commands.add('saveMatchDocument', saveMatchDocument);
+
+  Cypress.Commands.add('validateMatchDocument', { prevSubject: true }, validateMatchDocument);
+  Cypress.Commands.add('validateMatchFinalScore', validateMatchFinalScore);
+  Cypress.Commands.add('validateUpdatedHomeTeam', validateUpdatedHomeTeam);
+  Cypress.Commands.add('validateUpdatedAwayTeam', validateUpdatedAwayTeam);
+  Cypress.Commands.add('validateUpdatedTournament', validateUpdatedTournament);
+  Cypress.Commands.add('validateMatchResponse', { prevSubject: true }, validateMatchResponse);
+  Cypress.Commands.add('validateMatchDeleted', validateMatchDeleted);
+
+  Cypress.Commands.add('expectMatchResponse', { prevSubject: true }, expectMatchResponse);
+};
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      saveMatchDocument: CommandFunction<typeof saveMatchDocument>;
+      validateMatchDeleted: CommandFunction<typeof validateMatchDeleted>;
+      validateMatchFinalScore: CommandFunction<typeof validateMatchFinalScore>;
+      validateUpdatedHomeTeam: CommandFunction<typeof validateUpdatedHomeTeam>;
+      validateUpdatedAwayTeam: CommandFunction<typeof validateUpdatedAwayTeam>;
+      validateUpdatedTournament: CommandFunction<typeof validateUpdatedTournament>;
+    }
+
+    interface ChainableRequest extends Chainable {
+      requestGetMatch: CommandFunctionWithPreviousSubject<typeof requestGetMatch>;
+      requestCreateMatch: CommandFunctionWithPreviousSubject<typeof requestCreateMatch>;
+      requestUpdateMatch: CommandFunctionWithPreviousSubject<typeof requestUpdateMatch>;
+      requestDeleteMatch: CommandFunctionWithPreviousSubject<typeof requestDeleteMatch>;
+      requestGetMatchList: CommandFunctionWithPreviousSubject<typeof requestGetMatchList>;
+      requestSetFinalScoreOfMatch: CommandFunctionWithPreviousSubject<typeof requestSetFinalScoreOfMatch>;
+    }
+
+    interface ChainableResponseBody extends Chainable {
+      expectMatchResponse: CommandFunctionWithPreviousSubject<typeof expectMatchResponse>;
+      validateMatchDocument: CommandFunctionWithPreviousSubject<typeof validateMatchDocument>;
+      validateMatchResponse: CommandFunctionWithPreviousSubject<typeof validateMatchResponse>;
+    }
+  }
+}

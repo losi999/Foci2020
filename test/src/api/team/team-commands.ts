@@ -1,18 +1,10 @@
-import { DynamoDB } from 'aws-sdk';
-import { databaseServiceFactory } from '@foci2020/shared/services/database-service';
 import { TeamRequest } from '@foci2020/shared/types/requests';
 import { TeamDocument } from '@foci2020/shared/types/documents';
 import { TeamResponse } from '@foci2020/shared/types/responses';
+import { CommandFunction, CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
+import { databaseService } from '@foci2020/test/api/dependencies';
 
-const documentClient = new DynamoDB.DocumentClient({
-  region: Cypress.env('AWS_DEFAULT_REGION'),
-  accessKeyId: Cypress.env('AWS_ACCESS_KEY_ID'),
-  secretAccessKey: Cypress.env('AWS_SECRET_ACCESS_KEY'),
-});
-
-const databaseService = databaseServiceFactory(Cypress.env('DYNAMO_TABLE'), documentClient);
-
-export const requestCreateTeam = (idToken: string, team: TeamRequest) => {
+const requestCreateTeam = (idToken: string, team: TeamRequest) => {
   return cy.request({
     body: team,
     method: 'POST',
@@ -24,7 +16,7 @@ export const requestCreateTeam = (idToken: string, team: TeamRequest) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const requestUpdateTeam = (idToken: string, teamId: string, team: TeamRequest) => {
+const requestUpdateTeam = (idToken: string, teamId: string, team: TeamRequest) => {
   return cy.request({
     body: team,
     method: 'PUT',
@@ -36,7 +28,7 @@ export const requestUpdateTeam = (idToken: string, teamId: string, team: TeamReq
   }) as Cypress.ChainableResponse;
 };
 
-export const requestDeleteTeam = (idToken: string, teamId: string) => {
+const requestDeleteTeam = (idToken: string, teamId: string) => {
   return cy.request({
     method: 'DELETE',
     url: `/team/v1/teams/${teamId}`,
@@ -47,7 +39,7 @@ export const requestDeleteTeam = (idToken: string, teamId: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const requestGetTeam = (idToken: string, teamId: string) => {
+const requestGetTeam = (idToken: string, teamId: string) => {
   return cy.request({
     method: 'GET',
     url: `/team/v1/teams/${teamId}`,
@@ -58,7 +50,7 @@ export const requestGetTeam = (idToken: string, teamId: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const requestGetTeamList = (idToken: string) => {
+const requestGetTeamList = (idToken: string) => {
   return cy.request({
     method: 'GET',
     url: '/team/v1/teams',
@@ -69,15 +61,15 @@ export const requestGetTeamList = (idToken: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const saveTeamDocument = (document: TeamDocument): void => {
+const saveTeamDocument = (document: TeamDocument): void => {
   cy.log('Save team document', document).wrap(databaseService.saveTeam(document), { log: false });
 };
 
-export const expectTeamResponse = (body: TeamResponse) => {
+const expectTeamResponse = (body: TeamResponse) => {
   return cy.log('TODO schema validation').wrap(body) as Cypress.ChainableResponseBody;
 };
 
-export const validateTeamDocument = (response: TeamResponse, request: TeamRequest, teamId?: string) => {
+const validateTeamDocument = (response: TeamResponse, request: TeamRequest, teamId?: string) => {
   const id = response?.teamId ?? teamId;
   cy.log('Get team document', id)
     .wrap(databaseService.getTeamById(id))
@@ -89,17 +81,56 @@ export const validateTeamDocument = (response: TeamResponse, request: TeamReques
     });
 };
 
-export const validateTeamResponse = (response: TeamResponse, document: TeamDocument) => {
+const validateTeamResponse = (response: TeamResponse, document: TeamDocument) => {
   expect(response.teamId).to.equal(document.id);
   expect(response.teamName).to.equal(document.teamName);
   expect(response.image).to.equal(document.image);
   expect(response.shortName).to.equal(document.shortName);
 };
 
-export const validateTeamDeleted = (teamId: string) => {
+const validateTeamDeleted = (teamId: string) => {
   cy.log('Get team document', teamId)
     .wrap(databaseService.getTeamById(teamId))
     .should((document) => {
       expect(document).to.be.undefined;
     });
 };
+
+export const setTeamCommands = () => {
+  Cypress.Commands.add('requestCreateTeam', { prevSubject: true }, requestCreateTeam);
+  Cypress.Commands.add('requestUpdateTeam', { prevSubject: true }, requestUpdateTeam);
+  Cypress.Commands.add('requestDeleteTeam', { prevSubject: true }, requestDeleteTeam);
+  Cypress.Commands.add('requestGetTeam', { prevSubject: true }, requestGetTeam);
+  Cypress.Commands.add('requestGetTeamList', { prevSubject: true }, requestGetTeamList);
+
+  Cypress.Commands.add('saveTeamDocument', saveTeamDocument);
+
+  Cypress.Commands.add('validateTeamDocument', { prevSubject: true }, validateTeamDocument);
+  Cypress.Commands.add('validateTeamResponse', { prevSubject: true }, validateTeamResponse);
+  Cypress.Commands.add('validateTeamDeleted', validateTeamDeleted);
+
+  Cypress.Commands.add('expectTeamResponse', { prevSubject: true }, expectTeamResponse);
+};
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      saveTeamDocument: CommandFunction<typeof saveTeamDocument>;
+      validateTeamDeleted: CommandFunction<typeof validateTeamDeleted>;
+    }
+
+    interface ChainableRequest extends Chainable {
+      requestGetTeam: CommandFunctionWithPreviousSubject<typeof requestGetTeam>;
+      requestCreateTeam: CommandFunctionWithPreviousSubject<typeof requestCreateTeam>;
+      requestUpdateTeam: CommandFunctionWithPreviousSubject<typeof requestUpdateTeam>;
+      requestDeleteTeam: CommandFunctionWithPreviousSubject<typeof requestDeleteTeam>;
+      requestGetTeamList: CommandFunctionWithPreviousSubject<typeof requestGetTeamList>;
+    }
+
+    interface ChainableResponseBody extends Chainable {
+      expectTeamResponse: CommandFunctionWithPreviousSubject<typeof expectTeamResponse>;
+      validateTeamDocument: CommandFunctionWithPreviousSubject<typeof validateTeamDocument>;
+      validateTeamResponse: CommandFunctionWithPreviousSubject<typeof validateTeamResponse>;
+    }
+  }
+}

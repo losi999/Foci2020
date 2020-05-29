@@ -1,11 +1,12 @@
 import { User, usernames } from '@foci2020/test/api/constants';
 import { LoginRequest } from '@foci2020/shared/types/requests';
+import { CommandFunction } from '@foci2020/test/api/types';
 
-export const unauthenticate = () => {
+const unauthenticate = () => {
   return undefined as Cypress.ChainableRequest;
 };
 
-export const authenticate = (user: User) => {
+const authenticate = (user: User) => {
   const body: LoginRequest = {
     email: usernames[user],
     password: Cypress.env('PASSWORD')
@@ -17,3 +18,17 @@ export const authenticate = (user: User) => {
     failOnStatusCode: false
   }).its('body').its('idToken') as Cypress.ChainableRequest;
 };
+
+export const setAuthCommands = () => {
+  Cypress.Commands.add('authenticate', authenticate);
+  Cypress.Commands.add('unauthenticate', unauthenticate);
+};
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      authenticate: CommandFunction<typeof authenticate>;
+      unauthenticate: CommandFunction<typeof unauthenticate>;
+    }
+  }
+}

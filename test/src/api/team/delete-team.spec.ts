@@ -1,17 +1,10 @@
 import { v4 as uuid } from 'uuid';
 import { TeamRequest } from '@foci2020/shared/types/requests';
-import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@foci2020/shared/converters/team-document-converter';
-import { IMatchDocumentConverter, matchDocumentConverterFactory } from '@foci2020/shared/converters/match-document-converter';
-import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@foci2020/shared/converters/tournament-document-converter';
 import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
 import { addMinutes } from '@foci2020/shared/common/utils';
+import { teamConverter, tournamentConverter, matchConverter } from '@foci2020/test/api/dependencies';
 
 describe('DELETE /team/v1/teams/{teamId}', () => {
-  let teamConverter: ITeamDocumentConverter;
-  before(() => {
-    teamConverter = teamDocumentConverterFactory(uuid);
-  });
-
   const team: TeamRequest = {
     teamName: 'Magyarország',
     image: 'http://image.com/hun.png',
@@ -45,18 +38,12 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
     });
 
     describe('related matches', () => {
-      let matchConverter: IMatchDocumentConverter;
-      let tournamentConverter: ITournamentDocumentConverter;
-
       let homeTeamDocument: TeamDocument;
       let awayTeamDocument: TeamDocument;
       let tournamentDocument: TournamentDocument;
       let matchDocument: MatchDocument;
 
       beforeEach(() => {
-        matchConverter = matchDocumentConverterFactory(uuid);
-        tournamentConverter = tournamentDocumentConverterFactory(uuid);
-
         homeTeamDocument = teamConverter.create({
           teamName: 'Magyarország',
           image: 'http://image.com/hun.png',
@@ -89,7 +76,7 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
           .requestDeleteTeam(homeTeamDocument.id)
           .expectOkResponse()
           .validateTeamDeleted(homeTeamDocument.id)
-          .wait(1000)
+          .wait(2000)
           .validateMatchDeleted(matchDocument.id);
       });
 
@@ -98,7 +85,7 @@ describe('DELETE /team/v1/teams/{teamId}', () => {
           .requestDeleteTeam(awayTeamDocument.id)
           .expectOkResponse()
           .validateTeamDeleted(awayTeamDocument.id)
-          .wait(1000)
+          .wait(2000)
           .validateMatchDeleted(matchDocument.id);
       });
     });

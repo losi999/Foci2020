@@ -1,13 +1,8 @@
 import { v4 as uuid } from 'uuid';
 import { TeamRequest } from '@foci2020/shared/types/requests';
-import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@foci2020/shared/converters/team-document-converter';
+import { teamConverter } from '@foci2020/test/api/dependencies';
 
 describe('GET /team/v1/teams', () => {
-  let converter: ITeamDocumentConverter;
-  before(() => {
-    converter = teamDocumentConverterFactory(uuid);
-  });
-
   const team1: TeamRequest = {
     teamName: 'Magyarország',
     image: 'http://image.com/hun.png',
@@ -38,8 +33,8 @@ describe('GET /team/v1/teams', () => {
 
   describe('called as an admin', () => {
     it('should get a list of teams', () => {
-      const document1 = converter.create(team1);
-      const document2 = converter.create(team2);
+      const document1 = teamConverter.create(team1);
+      const document2 = teamConverter.create(team2);
 
       cy.saveTeamDocument(document1)
         .saveTeamDocument(document2)

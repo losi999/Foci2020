@@ -1,21 +1,8 @@
 import { addMinutes } from '@foci2020/shared/common/utils';
-import { v4 as uuid } from 'uuid';
-import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@foci2020/shared/converters/team-document-converter';
-import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@foci2020/shared/converters/tournament-document-converter';
-import { IMatchDocumentConverter, matchDocumentConverterFactory } from '@foci2020/shared/converters/match-document-converter';
 import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
+import { teamConverter, tournamentConverter, matchConverter } from '@foci2020/test/api/dependencies';
 
 describe('GET /match/v1/matches', () => {
-  let teamConverter: ITeamDocumentConverter;
-  let tournamentConverter: ITournamentDocumentConverter;
-  let matchConverter: IMatchDocumentConverter;
-
-  before(() => {
-    teamConverter = teamDocumentConverterFactory(uuid);
-    tournamentConverter = tournamentDocumentConverterFactory(uuid);
-    matchConverter = matchDocumentConverterFactory(uuid);
-  });
-
   let homeTeamDocument: TeamDocument;
   let awayTeamDocument: TeamDocument;
   let tournamentDocument: TournamentDocument;

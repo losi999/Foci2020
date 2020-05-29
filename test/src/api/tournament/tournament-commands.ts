@@ -1,18 +1,10 @@
-import { DynamoDB } from 'aws-sdk';
-import { databaseServiceFactory } from '@foci2020/shared/services/database-service';
 import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { TournamentDocument } from '@foci2020/shared/types/documents';
 import { TournamentResponse } from '@foci2020/shared/types/responses';
+import { databaseService } from '@foci2020/test/api/dependencies';
+import { CommandFunction, CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
 
-const documentClient = new DynamoDB.DocumentClient({
-  region: Cypress.env('AWS_DEFAULT_REGION'),
-  accessKeyId: Cypress.env('AWS_ACCESS_KEY_ID'),
-  secretAccessKey: Cypress.env('AWS_SECRET_ACCESS_KEY'),
-});
-
-const databaseService = databaseServiceFactory(Cypress.env('DYNAMO_TABLE'), documentClient);
-
-export const requestCreateTournament = (idToken: string, tournament: TournamentRequest) => {
+const requestCreateTournament = (idToken: string, tournament: TournamentRequest) => {
   return cy.request({
     body: tournament,
     method: 'POST',
@@ -24,7 +16,7 @@ export const requestCreateTournament = (idToken: string, tournament: TournamentR
   }) as Cypress.ChainableResponse;
 };
 
-export const requestUpdateTournament = (idToken: string, tournamentId: string, tournament: TournamentRequest) => {
+const requestUpdateTournament = (idToken: string, tournamentId: string, tournament: TournamentRequest) => {
   return cy.request({
     body: tournament,
     method: 'PUT',
@@ -36,7 +28,7 @@ export const requestUpdateTournament = (idToken: string, tournamentId: string, t
   }) as Cypress.ChainableResponse;
 };
 
-export const requestDeleteTournament = (idToken: string, tournamentId: string) => {
+const requestDeleteTournament = (idToken: string, tournamentId: string) => {
   return cy.request({
     method: 'DELETE',
     url: `/tournament/v1/tournaments/${tournamentId}`,
@@ -47,7 +39,7 @@ export const requestDeleteTournament = (idToken: string, tournamentId: string) =
   }) as Cypress.ChainableResponse;
 };
 
-export const requestGetTournament = (idToken: string, tournamentId: string) => {
+const requestGetTournament = (idToken: string, tournamentId: string) => {
   return cy.request({
     method: 'GET',
     url: `/tournament/v1/tournaments/${tournamentId}`,
@@ -58,7 +50,7 @@ export const requestGetTournament = (idToken: string, tournamentId: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const requestGetTournamentList = (idToken: string) => {
+const requestGetTournamentList = (idToken: string) => {
   return cy.request({
     method: 'GET',
     url: '/tournament/v1/tournaments',
@@ -69,15 +61,15 @@ export const requestGetTournamentList = (idToken: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-export const saveTournamentDocument = (document: TournamentDocument): void => {
+const saveTournamentDocument = (document: TournamentDocument): void => {
   cy.log('Save tournament document', document).wrap(databaseService.saveTournament(document), { log: false });
 };
 
-export const expectTournamentResponse = (body: TournamentResponse) => {
+const expectTournamentResponse = (body: TournamentResponse) => {
   return cy.log('TODO schema validation').wrap(body) as Cypress.ChainableResponseBody;
 };
 
-export const validateTournamentDocument = (response: TournamentResponse, request: TournamentRequest, tournamentId?: string) => {
+const validateTournamentDocument = (response: TournamentResponse, request: TournamentRequest, tournamentId?: string) => {
   const id = response?.tournamentId ?? tournamentId;
   cy.log('Get tournament document', id)
     .wrap(databaseService.getTournamentById(id))
@@ -87,15 +79,54 @@ export const validateTournamentDocument = (response: TournamentResponse, request
     });
 };
 
-export const validateTournamentResponse = (response: TournamentResponse, document: TournamentDocument) => {
+const validateTournamentResponse = (response: TournamentResponse, document: TournamentDocument) => {
   expect(response.tournamentId).to.equal(document.id);
   expect(response.tournamentName).to.equal(document.tournamentName);
 };
 
-export const validateTournamentDeleted = (tournamentId: string) => {
+const validateTournamentDeleted = (tournamentId: string) => {
   cy.log('Get tournament document', tournamentId)
     .wrap(databaseService.getTournamentById(tournamentId))
     .should((document) => {
       expect(document).to.be.undefined;
     });
 };
+
+export const setTournamentCommands = () => {
+  Cypress.Commands.add('requestCreateTournament', { prevSubject: true }, requestCreateTournament);
+  Cypress.Commands.add('requestUpdateTournament', { prevSubject: true }, requestUpdateTournament);
+  Cypress.Commands.add('requestDeleteTournament', { prevSubject: true }, requestDeleteTournament);
+  Cypress.Commands.add('requestGetTournament', { prevSubject: true }, requestGetTournament);
+  Cypress.Commands.add('requestGetTournamentList', { prevSubject: true }, requestGetTournamentList);
+
+  Cypress.Commands.add('saveTournamentDocument', saveTournamentDocument);
+
+  Cypress.Commands.add('validateTournamentDocument', { prevSubject: true }, validateTournamentDocument);
+  Cypress.Commands.add('validateTournamentResponse', { prevSubject: true }, validateTournamentResponse);
+  Cypress.Commands.add('validateTournamentDeleted', validateTournamentDeleted);
+
+  Cypress.Commands.add('expectTournamentResponse', { prevSubject: true }, expectTournamentResponse);
+};
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      saveTournamentDocument: CommandFunction<typeof saveTournamentDocument>;
+      validateTournamentDeleted: CommandFunction<typeof validateTournamentDeleted>;
+    }
+
+    interface ChainableRequest extends Chainable {
+      requestGetTournament: CommandFunctionWithPreviousSubject<typeof requestGetTournament>;
+      requestCreateTournament: CommandFunctionWithPreviousSubject<typeof requestCreateTournament>;
+      requestUpdateTournament: CommandFunctionWithPreviousSubject<typeof requestUpdateTournament>;
+      requestDeleteTournament: CommandFunctionWithPreviousSubject<typeof requestDeleteTournament>;
+      requestGetTournamentList: CommandFunctionWithPreviousSubject<typeof requestGetTournamentList>;
+    }
+
+    interface ChainableResponseBody extends Chainable {
+      expectTournamentResponse: CommandFunctionWithPreviousSubject<typeof expectTournamentResponse>;
+      validateTournamentDocument: CommandFunctionWithPreviousSubject<typeof validateTournamentDocument>;
+      validateTournamentResponse: CommandFunctionWithPreviousSubject<typeof validateTournamentResponse>;
+    }
+  }
+}

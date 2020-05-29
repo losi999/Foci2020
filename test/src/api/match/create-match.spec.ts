@@ -1,19 +1,10 @@
-import { TeamRequest, TournamentRequest, MatchRequest } from '@foci2020/shared/types/requests';
+import { MatchRequest } from '@foci2020/shared/types/requests';
 import { v4 as uuid } from 'uuid';
 import { addMinutes } from '@foci2020/shared/common/utils';
-import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@foci2020/shared/converters/team-document-converter';
-import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@foci2020/shared/converters/tournament-document-converter';
 import { TeamDocument, TournamentDocument } from '@foci2020/shared/types/documents';
+import { teamConverter, tournamentConverter } from '@foci2020/test/api/dependencies';
 
 describe('POST /match/v1/matches', () => {
-  let teamConverter: ITeamDocumentConverter;
-  let tournamentConverter: ITournamentDocumentConverter;
-
-  before(() => {
-    teamConverter = teamDocumentConverterFactory(uuid);
-    tournamentConverter = tournamentDocumentConverterFactory(uuid);
-  });
-
   let homeTeamDocument: TeamDocument;
   let awayTeamDocument: TeamDocument;
   let tournamentDocument: TournamentDocument;
@@ -45,7 +36,7 @@ describe('POST /match/v1/matches', () => {
   });
 
   describe('called as anonymous', () => {
-    it.only('should return unauthorized', () => {
+    it('should return unauthorized', () => {
       cy.unauthenticate()
         .requestCreateMatch(match)
         .expectUnauthorizedResponse();
@@ -53,7 +44,7 @@ describe('POST /match/v1/matches', () => {
   });
 
   describe('called as a player', () => {
-    it.only('should return forbidden', () => {
+    it('should return forbidden', () => {
       cy.authenticate('player1')
         .requestCreateMatch(match)
         .expectForbiddenResponse();

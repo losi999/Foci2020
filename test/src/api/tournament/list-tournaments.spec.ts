@@ -1,13 +1,8 @@
 import { v4 as uuid } from 'uuid';
 import { TournamentRequest } from '@foci2020/shared/types/requests';
-import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from '@foci2020/shared/converters/tournament-document-converter';
+import { tournamentConverter } from '@foci2020/test/api/dependencies';
 
 describe('GET /tournament/v1/tournaments', () => {
-  let converter: ITournamentDocumentConverter;
-  before(() => {
-    converter = tournamentDocumentConverterFactory(uuid);
-  });
-
   const tournament1: TournamentRequest = {
     tournamentName: 'EB 2020'
   };
@@ -34,8 +29,8 @@ describe('GET /tournament/v1/tournaments', () => {
 
   describe('called as an admin', () => {
     it('should get a list of tournaments', () => {
-      const document1 = converter.create(tournament1);
-      const document2 = converter.create(tournament2);
+      const document1 = tournamentConverter.create(tournament1);
+      const document2 = tournamentConverter.create(tournament2);
 
       cy.saveTournamentDocument(document1)
         .saveTournamentDocument(document2)

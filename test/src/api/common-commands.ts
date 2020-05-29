@@ -1,4 +1,4 @@
-export const getAs = (...aliases: string[]): any => {
+const getAs = (...aliases: string[]): any => {
   if (aliases.length === 1) {
     const alias = aliases[0];
     return cy.get(alias.startsWith('@') ? alias : `@${alias}`);
@@ -15,3 +15,16 @@ export const getAs = (...aliases: string[]): any => {
 
   return promise;
 };
+
+export const setCommonCommands = () => {
+  Cypress.Commands.add('getAs', getAs);
+};
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      getAs<T>(alias: string): Chainable<T>;
+      getAs(...aliases: string[]): Chainable<any[]>;
+    }
+  }
+}

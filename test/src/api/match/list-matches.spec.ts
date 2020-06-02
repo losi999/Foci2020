@@ -9,7 +9,7 @@ describe('GET /match/v1/matches', () => {
   let matchDocument1: MatchDocument;
   let matchDocument2: MatchDocument;
 
-  before(() => {
+  beforeEach(() => {
     homeTeamDocument = teamConverter.create({
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',

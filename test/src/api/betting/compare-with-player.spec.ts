@@ -1,13 +1,19 @@
+import { v4 as uuid } from 'uuid';
+
 describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
   describe('called as anonymous', () => {
-    it.skip('should return unauthorized', () => {
-
+    it('should return unauthorized', () => {
+      cy.unauthenticate()
+        .requestCompareWithPlayer(uuid(), uuid())
+        .expectUnauthorizedResponse();
     });
   });
 
   describe('called as an admin', () => {
-    it.skip('should return forbidden', () => {
-
+    it('should return forbidden', () => {
+      cy.authenticate('admin1')
+        .requestCompareWithPlayer(uuid(), uuid())
+        .expectForbiddenResponse();
     });
   });
 
@@ -32,22 +38,20 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
 
     describe('should return error', () => {
       describe('if tournamentId', () => {
-        it.skip('is not uuid', () => {
-
-        });
-
-        it.skip('does not belong to any tournament', () => {
-
+        it('is not uuid', () => {
+          cy.authenticate('player1')
+            .requestCompareWithPlayer(`${uuid()}-not-valid`, uuid())
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('tournamentId', 'uuid', 'pathParameters');
         });
       });
 
       describe('if userId', () => {
-        it.skip('is not uuid', () => {
-
-        });
-
-        it.skip('does not belong to any user', () => {
-
+        it('is not uuid', () => {
+          cy.authenticate('player1')
+            .requestCompareWithPlayer(uuid(), `${uuid()}-not-valid`)
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('userId', 'uuid', 'pathParameters');
         });
       });
     });

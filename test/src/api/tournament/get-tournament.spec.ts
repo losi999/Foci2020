@@ -1,11 +1,18 @@
 import { v4 as uuid } from 'uuid';
 import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { tournamentConverter } from '@foci2020/test/api/dependencies';
+import { TournamentDocument } from '@foci2020/shared/types/documents';
 
 describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
     tournamentName: 'EB 2020'
   };
+
+  let tournamentDocument: TournamentDocument;
+
+  beforeEach(() => {
+    tournamentDocument = tournamentConverter.create(tournament);
+  });
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
@@ -25,13 +32,12 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
 
   describe('called as an admin', () => {
     it('should get tournament by id', () => {
-      const document = tournamentConverter.create(tournament);
-      cy.saveTournamentDocument(document)
+      cy.saveTournamentDocument(tournamentDocument)
         .authenticate('admin1')
-        .requestGetTournament(document.id)
+        .requestGetTournament(tournamentDocument.id)
         .expectOkResponse()
         .expectTournamentResponse()
-        .validateTournamentResponse(document);
+        .validateTournamentResponse(tournamentDocument);
     });
 
     describe('should return error if tournamentId', () => {

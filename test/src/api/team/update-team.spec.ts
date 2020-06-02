@@ -17,6 +17,35 @@ describe('PUT /team/v1/teams/{teamId}', () => {
     shortName: 'TUP'
   };
 
+  let homeTeamDocument: TeamDocument;
+  let awayTeamDocument: TeamDocument;
+  let tournamentDocument: TournamentDocument;
+  let matchDocument: MatchDocument;
+
+  beforeEach(() => {
+    homeTeamDocument = teamConverter.create({
+      teamName: 'Magyarország',
+      image: 'http://image.com/hun.png',
+      shortName: 'HUN',
+    });
+    awayTeamDocument = teamConverter.create({
+      teamName: 'Anglia',
+      image: 'http://image.com/eng.png',
+      shortName: 'ENG',
+    });
+    tournamentDocument = tournamentConverter.create({
+      tournamentName: 'EB 2020'
+    });
+
+    matchDocument = matchConverter.create({
+      homeTeamId: homeTeamDocument.id,
+      awayTeamId: awayTeamDocument.id,
+      tournamentId: tournamentDocument.id,
+      group: 'A csoport',
+      startTime: addMinutes(10).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+  });
+
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
       cy.unauthenticate()
@@ -35,12 +64,11 @@ describe('PUT /team/v1/teams/{teamId}', () => {
 
   describe('called as an admin', () => {
     it('should update a team', () => {
-      const document = teamConverter.create(team);
-      cy.saveTeamDocument(document)
+      cy.saveTeamDocument(homeTeamDocument)
         .authenticate('admin1')
-        .requestUpdateTeam(document.id, teamToUpdate)
+        .requestUpdateTeam(homeTeamDocument.id, teamToUpdate)
         .expectOkResponse()
-        .validateTeamDocument(teamToUpdate, document.id);
+        .validateTeamDocument(teamToUpdate, homeTeamDocument.id);
     });
 
     it('should update a team without image', () => {
@@ -49,52 +77,20 @@ describe('PUT /team/v1/teams/{teamId}', () => {
         image: undefined
       };
 
-      const document = teamConverter.create(team);
-      cy.saveTeamDocument(document)
+      cy.saveTeamDocument(homeTeamDocument)
         .authenticate('admin1')
-        .requestUpdateTeam(document.id, request)
+        .requestUpdateTeam(homeTeamDocument.id, request)
         .expectOkResponse()
-        .validateTeamDocument(request, document.id);
+        .validateTeamDocument(request, homeTeamDocument.id);
     });
 
     describe('related matches', () => {
-
-      let homeTeamDocument: TeamDocument;
-      let awayTeamDocument: TeamDocument;
-      let tournamentDocument: TournamentDocument;
-      let matchDocument: MatchDocument;
-
-      beforeEach(() => {
-        homeTeamDocument = teamConverter.create({
-          teamName: 'Magyarország',
-          image: 'http://image.com/hun.png',
-          shortName: 'HUN',
-        });
-        awayTeamDocument = teamConverter.create({
-          teamName: 'Anglia',
-          image: 'http://image.com/eng.png',
-          shortName: 'ENG',
-        });
-        tournamentDocument = tournamentConverter.create({
-          tournamentName: 'EB 2020'
-        });
-
-        matchDocument = matchConverter.create({
-          homeTeamId: homeTeamDocument.id,
-          awayTeamId: awayTeamDocument.id,
-          tournamentId: tournamentDocument.id,
-          group: 'A csoport',
-          startTime: addMinutes(10).toISOString()
-        }, homeTeamDocument, awayTeamDocument, tournamentDocument);
-
+      it('should be updated if home team is updated', () => {
         cy.saveTeamDocument(homeTeamDocument)
           .saveTeamDocument(awayTeamDocument)
           .saveTournamentDocument(tournamentDocument)
-          .saveMatchDocument(matchDocument);
-      });
-
-      it('should be updated if home team is updated', () => {
-        cy.authenticate('admin1')
+          .saveMatchDocument(matchDocument)
+          .authenticate('admin1')
           .requestUpdateTeam(homeTeamDocument.id, teamToUpdate)
           .expectOkResponse()
           .wait(2000)
@@ -102,7 +98,11 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       });
 
       it('should be updated if away team is updated', () => {
-        cy.authenticate('admin1')
+        cy.saveTeamDocument(homeTeamDocument)
+          .saveTeamDocument(awayTeamDocument)
+          .saveTournamentDocument(tournamentDocument)
+          .saveMatchDocument(matchDocument)
+          .authenticate('admin1')
           .requestUpdateTeam(awayTeamDocument.id, teamToUpdate)
           .expectOkResponse()
           .wait(2000)

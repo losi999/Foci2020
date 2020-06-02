@@ -1,15 +1,16 @@
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { v4 as uuid } from 'uuid';
-import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
-import { teamConverter, tournamentConverter, matchConverter } from '@foci2020/test/api/dependencies';
+import { TeamDocument, TournamentDocument, MatchDocument, BetDocument } from '@foci2020/shared/types/documents';
+import { teamConverter, tournamentConverter, matchConverter, betConverter } from '@foci2020/test/api/dependencies';
 
 describe('DELETE /match/v1/matches/{matchId}', () => {
   let homeTeamDocument: TeamDocument;
   let awayTeamDocument: TeamDocument;
   let tournamentDocument: TournamentDocument;
   let matchDocument: MatchDocument;
+  let betDocument: BetDocument;
 
-  before(() => {
+  beforeEach(() => {
     homeTeamDocument = teamConverter.create({
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
@@ -30,12 +31,16 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
     }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+    betDocument = betConverter.create({
+      homeScore: 1,
+      awayScore: 0
+    }, uuid(), 'username', matchDocument.id, matchDocument.tournamentId);
   });
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
       cy.unauthenticate()
-        .requestDeleteMatch(matchDocument.id)
+        .requestDeleteMatch(uuid())
         .expectUnauthorizedResponse();
     });
   });
@@ -43,7 +48,7 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
   describe('called as a player', () => {
     it('should return forbidden', () => {
       cy.authenticate('player1')
-        .requestDeleteMatch(matchDocument.id)
+        .requestDeleteMatch(uuid())
         .expectForbiddenResponse();
     });
   });
@@ -58,8 +63,15 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
     });
 
     describe('related bets', () => {
-      it.skip('should be deleted if match is deleted', () => {
-
+      it('should be deleted if match is deleted', () => {
+        cy.saveMatchDocument(matchDocument)
+          .saveBetDocument(betDocument)
+          .authenticate('admin1')
+          .requestDeleteMatch(matchDocument.id)
+          .expectOkResponse()
+          .validateMatchDeleted(matchDocument.id)
+          .wait(2000)
+          .validateBetDeleted(betDocument.userId, homeTeamDocument.id);
       });
     });
 

@@ -16,6 +16,7 @@ export interface IDatabaseService {
   getTeamById(teamId: string): Promise<TeamDocument>;
   getTournamentById(tournamentId: string): Promise<TournamentDocument>;
   getBetById(userId: string, matchId: string): Promise<BetDocument>;
+  getStandingById(tournamentId: string, userId: string): Promise<StandingDocument>;
   queryBetsByMatchId(matchId: string): Promise<BetDocument[]>;
   queryBetsByTournamentIdUserId(tournamentId: string, userId: string): Promise<BetDocument[]>;
   queryMatchesByTournamentId(tournamentId: string): Promise<MatchDocument[]>;
@@ -153,6 +154,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
     deleteTeam: teamId => deleteDocument(teamId, 'team'),
     deleteTournament: tournamentId => deleteDocument(tournamentId, 'tournament'),
     getBetById: (userId, matchId) => getDocumentById(concatenate(userId, matchId), 'bet'),
+    getStandingById: (tournamentId, userId) => getDocumentById(concatenate(tournamentId, userId), 'standing'),
     getMatchById: matchId => getDocumentById(matchId, 'match'),
     getTeamById: teamId => getDocumentById(teamId, 'team'),
     getTournamentById: tournamentId => getDocumentById(tournamentId, 'tournament'),

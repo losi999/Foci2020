@@ -10,9 +10,10 @@ describe('PUT /match/v1/matches/{matchId}', () => {
   let tournamentDocument1: TournamentDocument;
   let tournamentDocument2: TournamentDocument;
   let matchDocument: MatchDocument;
+  let finishedMatch: MatchDocument;
   let updatedMatch: MatchRequest;
 
-  before(() => {
+  beforeEach(() => {
     homeTeamDocument = teamConverter.create({
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
@@ -37,11 +38,13 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       startTime: addMinutes(10).toISOString()
     }, homeTeamDocument, awayTeamDocument, tournamentDocument1);
 
-    cy.saveTeamDocument(homeTeamDocument)
-      .saveTeamDocument(awayTeamDocument)
-      .saveTournamentDocument(tournamentDocument1)
-      .saveTournamentDocument(tournamentDocument2)
-      .saveMatchDocument(matchDocument);
+    finishedMatch = matchConverter.create({
+      homeTeamId: homeTeamDocument.id,
+      awayTeamId: awayTeamDocument.id,
+      tournamentId: tournamentDocument1.id,
+      group: 'A csoport',
+      startTime: addMinutes(10).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument1);
 
     updatedMatch = {
       homeTeamId: awayTeamDocument.id,
@@ -70,7 +73,12 @@ describe('PUT /match/v1/matches/{matchId}', () => {
 
   describe('called as an admin', () => {
     it('should update a match', () => {
-      cy.authenticate('admin1')
+      cy.saveTeamDocument(homeTeamDocument)
+        .saveTeamDocument(awayTeamDocument)
+        .saveTournamentDocument(tournamentDocument1)
+        .saveTournamentDocument(tournamentDocument2)
+        .saveMatchDocument(matchDocument)
+        .authenticate('admin1')
         .requestUpdateMatch(matchDocument.id, updatedMatch)
         .expectOkResponse()
         .validateMatchDocument(updatedMatch, awayTeamDocument, homeTeamDocument, tournamentDocument2, matchDocument.id);
@@ -109,7 +117,12 @@ describe('PUT /match/v1/matches/{matchId}', () => {
         });
 
         it('does not belong to any team', () => {
-          cy.authenticate('admin1')
+          cy.saveTeamDocument(homeTeamDocument)
+            .saveTeamDocument(awayTeamDocument)
+            .saveTournamentDocument(tournamentDocument1)
+            .saveTournamentDocument(tournamentDocument2)
+            .saveMatchDocument(matchDocument)
+            .authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
               homeTeamId: uuid()
@@ -151,7 +164,12 @@ describe('PUT /match/v1/matches/{matchId}', () => {
         });
 
         it('does not belong to any team', () => {
-          cy.authenticate('admin1')
+          cy.saveTeamDocument(homeTeamDocument)
+            .saveTeamDocument(awayTeamDocument)
+            .saveTournamentDocument(tournamentDocument1)
+            .saveTournamentDocument(tournamentDocument2)
+            .saveMatchDocument(matchDocument)
+            .authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
               awayTeamId: uuid()
@@ -203,7 +221,12 @@ describe('PUT /match/v1/matches/{matchId}', () => {
         });
 
         it('does not belong to any tournament', () => {
-          cy.authenticate('admin1')
+          cy.saveTeamDocument(homeTeamDocument)
+            .saveTeamDocument(awayTeamDocument)
+            .saveTournamentDocument(tournamentDocument1)
+            .saveTournamentDocument(tournamentDocument2)
+            .saveMatchDocument(matchDocument)
+            .authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
               tournamentId: uuid()
@@ -294,14 +317,6 @@ describe('PUT /match/v1/matches/{matchId}', () => {
 
       describe('if finalScore', () => {
         it('is already set for a match', () => {
-          const finishedMatch = matchConverter.create({
-            homeTeamId: homeTeamDocument.id,
-            awayTeamId: awayTeamDocument.id,
-            tournamentId: tournamentDocument1.id,
-            group: 'A csoport',
-            startTime: addMinutes(10).toISOString()
-          }, homeTeamDocument, awayTeamDocument, tournamentDocument1);
-
           cy.saveMatchDocument({
             ...finishedMatch,
             finalScore: {

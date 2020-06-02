@@ -1,6 +1,6 @@
-import { v4 as uuid } from 'uuid';
 import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { tournamentConverter } from '@foci2020/test/api/dependencies';
+import { TournamentDocument } from '@foci2020/shared/types/documents';
 
 describe('GET /tournament/v1/tournaments', () => {
   const tournament1: TournamentRequest = {
@@ -10,6 +10,14 @@ describe('GET /tournament/v1/tournaments', () => {
   const tournament2: TournamentRequest = {
     tournamentName: 'VB 2020'
   };
+
+  let tournamentDocument1: TournamentDocument;
+  let tournamentDocument2: TournamentDocument;
+
+  beforeEach(() => {
+    tournamentDocument1 = tournamentConverter.create(tournament1);
+    tournamentDocument2 = tournamentConverter.create(tournament2);
+  });
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
@@ -29,11 +37,8 @@ describe('GET /tournament/v1/tournaments', () => {
 
   describe('called as an admin', () => {
     it('should get a list of tournaments', () => {
-      const document1 = tournamentConverter.create(tournament1);
-      const document2 = tournamentConverter.create(tournament2);
-
-      cy.saveTournamentDocument(document1)
-        .saveTournamentDocument(document2)
+      cy.saveTournamentDocument(tournamentDocument1)
+        .saveTournamentDocument(tournamentDocument2)
         .authenticate('admin1')
         .requestGetTournamentList()
         .expectOkResponse()

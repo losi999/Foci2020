@@ -9,7 +9,10 @@
       "es2019",
       "dom"
     ],
-    "types": ["cypress"],
+    "types": [
+      "cypress",
+      "node"
+    ],
     "noImplicitAny": true,
     "sourceMap": false,
     "moduleResolution": "node",

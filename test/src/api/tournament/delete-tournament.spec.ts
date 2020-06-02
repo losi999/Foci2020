@@ -9,6 +9,32 @@ describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
     tournamentName: 'EB 2020'
   };
 
+  let homeTeamDocument: TeamDocument;
+  let awayTeamDocument: TeamDocument;
+  let tournamentDocument: TournamentDocument;
+  let matchDocument: MatchDocument;
+
+  beforeEach(() => {
+    homeTeamDocument = teamConverter.create({
+      teamName: 'Magyarország',
+      image: 'http://image.com/hun.png',
+      shortName: 'HUN',
+    });
+    awayTeamDocument = teamConverter.create({
+      teamName: 'Anglia',
+      image: 'http://image.com/eng.png',
+      shortName: 'ENG',
+    });
+    tournamentDocument = tournamentConverter.create(tournament);
+    matchDocument = matchConverter.create({
+      homeTeamId: homeTeamDocument.id,
+      awayTeamId: awayTeamDocument.id,
+      tournamentId: tournamentDocument.id,
+      group: 'A csoport',
+      startTime: addMinutes(10).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+  });
+
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
       cy.unauthenticate()
@@ -27,53 +53,25 @@ describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
 
   describe('called as an admin', () => {
     it('should delete tournament', () => {
-      const document = tournamentConverter.create(tournament);
-      cy.saveTournamentDocument(document)
+      cy.saveTournamentDocument(tournamentDocument)
         .authenticate('admin1')
-        .requestDeleteTournament(document.id)
+        .requestDeleteTournament(tournamentDocument.id)
         .expectOkResponse()
-        .validateTournamentDeleted(document.id);
+        .validateTournamentDeleted(tournamentDocument.id);
     });
 
     describe('related matches', () => {
-      let homeTeamDocument: TeamDocument;
-      let awayTeamDocument: TeamDocument;
-      let tournamentDocument: TournamentDocument;
-      let matchDocument: MatchDocument;
-
-      before(() => {
-        homeTeamDocument = teamConverter.create({
-          teamName: 'Magyarország',
-          image: 'http://image.com/hun.png',
-          shortName: 'HUN',
-        });
-        awayTeamDocument = teamConverter.create({
-          teamName: 'Anglia',
-          image: 'http://image.com/eng.png',
-          shortName: 'ENG',
-        });
-        tournamentDocument = tournamentConverter.create(tournament);
-        matchDocument = matchConverter.create({
-          homeTeamId: homeTeamDocument.id,
-          awayTeamId: awayTeamDocument.id,
-          tournamentId: tournamentDocument.id,
-          group: 'A csoport',
-          startTime: addMinutes(10).toISOString()
-        }, homeTeamDocument, awayTeamDocument, tournamentDocument);
-
+      it('should be deleted if tournament is deleted', () => {
         cy.saveTeamDocument(homeTeamDocument)
           .saveTeamDocument(awayTeamDocument)
           .saveTournamentDocument(tournamentDocument)
-          .saveMatchDocument(matchDocument);
-      });
-
-      it('should be deleted if tournament is deleted', () => {
-        cy.authenticate('admin1')
-        .requestDeleteTournament(tournamentDocument.id)
-        .expectOkResponse()
-        .validateTournamentDeleted(tournamentDocument.id)
-        .wait(2000)
-        .validateMatchDeleted(matchDocument.id);
+          .saveMatchDocument(matchDocument)
+          .authenticate('admin1')
+          .requestDeleteTournament(tournamentDocument.id)
+          .expectOkResponse()
+          .validateTournamentDeleted(tournamentDocument.id)
+          .wait(2000)
+          .validateMatchDeleted(matchDocument.id);
       });
     });
 

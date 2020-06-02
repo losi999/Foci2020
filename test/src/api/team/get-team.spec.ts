@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { TeamRequest } from '@foci2020/shared/types/requests';
 import { teamConverter } from '@foci2020/test/api/dependencies';
+import { TeamDocument } from '@foci2020/shared/types/documents';
 
 describe('GET /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
@@ -8,6 +9,12 @@ describe('GET /team/v1/teams/{teamId}', () => {
     image: 'http://image.com/hun.png',
     shortName: 'HUN'
   };
+
+  let teamDocument: TeamDocument;
+
+  beforeEach(() => {
+    teamDocument = teamConverter.create(team);
+  });
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
@@ -27,13 +34,12 @@ describe('GET /team/v1/teams/{teamId}', () => {
 
   describe('called as an admin', () => {
     it('should get team by id', () => {
-      const document = teamConverter.create(team);
-      cy.saveTeamDocument(document)
+      cy.saveTeamDocument(teamDocument)
         .authenticate('admin1')
-        .requestGetTeam(document.id)
+        .requestGetTeam(teamDocument.id)
         .expectOkResponse()
         .expectTeamResponse()
-        .validateTeamResponse(document);
+        .validateTeamResponse(teamDocument);
     });
 
     describe('should return error if teamId', () => {

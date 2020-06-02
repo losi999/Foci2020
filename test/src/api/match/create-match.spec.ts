@@ -9,7 +9,7 @@ describe('POST /match/v1/matches', () => {
   let awayTeamDocument: TeamDocument;
   let tournamentDocument: TournamentDocument;
   let match: MatchRequest;
-  before(() => {
+  beforeEach(() => {
     homeTeamDocument = teamConverter.create({
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
@@ -30,9 +30,6 @@ describe('POST /match/v1/matches', () => {
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
     };
-    cy.saveTeamDocument(homeTeamDocument)
-      .saveTeamDocument(awayTeamDocument)
-      .saveTournamentDocument(tournamentDocument);
   });
 
   describe('called as anonymous', () => {
@@ -53,7 +50,10 @@ describe('POST /match/v1/matches', () => {
 
   describe('called as an admin', () => {
     it('should create a match', () => {
-      cy.authenticate('admin1')
+      cy.saveTeamDocument(homeTeamDocument)
+        .saveTeamDocument(awayTeamDocument)
+        .saveTournamentDocument(tournamentDocument)
+        .authenticate('admin1')
         .requestCreateMatch(match)
         .expectOkResponse()
         .expectMatchResponse()
@@ -93,7 +93,10 @@ describe('POST /match/v1/matches', () => {
         });
 
         it('does not belong to any team', () => {
-          cy.authenticate('admin1')
+          cy.saveTeamDocument(homeTeamDocument)
+            .saveTeamDocument(awayTeamDocument)
+            .saveTournamentDocument(tournamentDocument)
+            .authenticate('admin1')
             .requestCreateMatch({
               ...match,
               homeTeamId: uuid()
@@ -135,7 +138,10 @@ describe('POST /match/v1/matches', () => {
         });
 
         it('does not belong to any team', () => {
-          cy.authenticate('admin1')
+          cy.saveTeamDocument(homeTeamDocument)
+            .saveTeamDocument(awayTeamDocument)
+            .saveTournamentDocument(tournamentDocument)
+            .authenticate('admin1')
             .requestCreateMatch({
               ...match,
               awayTeamId: uuid()
@@ -187,7 +193,10 @@ describe('POST /match/v1/matches', () => {
         });
 
         it('does not belong to any tournament', () => {
-          cy.authenticate('admin1')
+          cy.saveTeamDocument(homeTeamDocument)
+            .saveTeamDocument(awayTeamDocument)
+            .saveTournamentDocument(tournamentDocument)
+            .authenticate('admin1')
             .requestCreateMatch({
               ...match,
               tournamentId: uuid()

@@ -1,6 +1,8 @@
 {
     "integrationFolder": "src/api",
     "testFiles": "**/*.spec.ts",
+    "supportFile": "src/support",
     "baseUrl": "https://d2acwaw2vg2h1u.cloudfront.net",
-    "pluginsFile": "src/plugins"
+    "pluginsFile": "src/plugins",
+    "videoCompression": false
 }

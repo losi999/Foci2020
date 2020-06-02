@@ -73,8 +73,8 @@ const requestSetFinalScoreOfMatch = (idToken: string, matchId: string, score: Ma
   }) as Cypress.ChainableResponse;
 };
 
-const saveMatchDocument = (document: MatchDocument): void => {
-  cy.log('Save match document', document).wrap(databaseService.saveMatch(document), { log: false });
+const saveMatchDocument = (document: MatchDocument) => {
+  return cy.log('Save match document', document).wrap(databaseService.saveMatch(document), { log: false });
 };
 
 const expectMatchResponse = (body: MatchResponse) => {

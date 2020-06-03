@@ -5,6 +5,7 @@ import { User } from '@foci2020/test/api/constants';
 import { BetDocument, StandingDocument } from '@foci2020/shared/types/documents';
 import { concatenate } from '@foci2020/shared/common/utils';
 import { BetResult } from '@foci2020/shared/types/common';
+import { StandingResponse } from '@foci2020/shared/types/responses';
 
 const requestPlaceBet = (idToken: string, matchId: string, score: BetRequest) => {
   return cy.request({
@@ -66,6 +67,10 @@ const saveBetDocument = (document: BetDocument): void => {
   cy.log('Save bet document', document).wrap(databaseService.saveBet(document), { log: false });
 };
 
+const saveStandingDocument = (document: StandingDocument): void => {
+  cy.log('Save standing document', document).wrap(databaseService.saveStanding(document), { log: false });
+};
+
 const saveBetForUser = (user: User, score: BetRequest, matchId: string, tournamentId: string) => {
   return cy.authenticate(user)
     .then((idToken: string) => {
@@ -118,6 +123,19 @@ const validateStandingDocument = (tournamentId: string, userId: string, results:
     });
 };
 
+const validateStandingResponse = (response: StandingResponse[], documents: StandingDocument[]) => {
+  response.forEach((resp, index) => {
+    expect(resp.userName).to.equal(documents[index].userName);
+    expect(resp.total).to.equal(documents[index].total);
+    expect(resp.userId).to.equal(documents[index].userId);
+    expect(resp.results).to.deep.equal(documents[index].results);
+  });
+};
+
+const expectStandingResponse = (body: StandingResponse[]) => {
+  return cy.log('TODO schema validation').wrap(body) as Cypress.ChainableResponseBody;
+};
+
 export const setBettingCommands = () => {
   Cypress.Commands.add('requestGetMatchListOfTournament', { prevSubject: true }, requestGetMatchListOfTournament);
   Cypress.Commands.add('requestGetStandingListOfTournament', { prevSubject: true }, requestGetStandingListOfTournament);
@@ -126,10 +144,13 @@ export const setBettingCommands = () => {
   Cypress.Commands.add('requestPlaceBet', { prevSubject: true }, requestPlaceBet);
   Cypress.Commands.add('saveBetForUser', saveBetForUser);
   Cypress.Commands.add('saveBetDocument', saveBetDocument);
+  Cypress.Commands.add('saveStandingDocument', saveStandingDocument);
   Cypress.Commands.add('validateBetDocument', validateBetDocument);
   Cypress.Commands.add('validateBetDeleted', validateBetDeleted);
   Cypress.Commands.add('validateBetResult', validateBetResult);
   Cypress.Commands.add('validateStandingDocument', validateStandingDocument);
+  Cypress.Commands.add('validateStandingResponse', { prevSubject: true }, validateStandingResponse);
+  Cypress.Commands.add('expectStandingResponse', { prevSubject: true }, expectStandingResponse);
 };
 
 declare global {
@@ -137,6 +158,7 @@ declare global {
     interface Chainable {
       saveBetForUser: CommandFunction<typeof saveBetForUser>;
       saveBetDocument: CommandFunction<typeof saveBetDocument>;
+      saveStandingDocument: CommandFunction<typeof saveStandingDocument>;
 
       validateBetDeleted: CommandFunction<typeof validateBetDeleted>;
       validateBetResult: CommandFunction<typeof validateBetResult>;
@@ -152,7 +174,9 @@ declare global {
     }
 
     interface ChainableResponseBody extends Chainable {
+      expectStandingResponse: CommandFunctionWithPreviousSubject<typeof expectStandingResponse>;
       validateBetDocument: CommandFunction<typeof validateBetDocument>;
+      validateStandingResponse: CommandFunctionWithPreviousSubject<typeof validateStandingResponse>;
     }
   }
 }

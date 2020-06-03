@@ -61,6 +61,18 @@ describe('Set final score of match service', () => {
       expect.assertions(4);
     });
 
+    it('if no match found', async () => {
+      mockDatabaseService.functions.getMatchById.mockResolvedValue(undefined);
+
+      await service({
+        matchId,
+        finalScore
+      }).catch(validateError('No match found', 404));
+      validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
+      validateFunctionCall(mockDatabaseService.functions.updateMatch);
+      expect.assertions(4);
+    });
+
     it('if the match has yet to finish', async () => {
       const queriedMatch = matchDocument({
         startTime: addMinutes(-104, now).toISOString()

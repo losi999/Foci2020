@@ -26,8 +26,8 @@ export const tournamentDocumentConverterFactory = (uuid: v4String): ITournamentD
     update: (tournamentId: string, tournamentRequest: TournamentRequest): TournamentDocument => {
       return {
         ...tournamentRequest,
-        id: tournamentId,
         documentType,
+        id: tournamentId,
         orderingValue: tournamentRequest.tournamentName,
         'documentType-id': concatenate(documentType, tournamentId)
       };

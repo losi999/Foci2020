@@ -26,8 +26,8 @@ export const teamDocumentConverterFactory = (uuid: v4String): ITeamDocumentConve
     update: (teamId, teamRequest): TeamDocument => {
       return {
         ...teamRequest,
-        id: teamId,
         documentType,
+        id: teamId,
         orderingValue: teamRequest.teamName,
         'documentType-id': concatenate(documentType, teamId)
       };

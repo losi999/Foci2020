@@ -297,6 +297,30 @@ describe('Database service', () => {
     });
   });
 
+  describe('getStandingById', () => {
+    it('should call dynamo.get with correct parameters and return queried data', async () => {
+      const userId = 'userId';
+      const tournamentId = 'tournamentId';
+      const queriedItem = standingDocument();
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
+
+      const result = await service.getStandingById(tournamentId, userId);
+      expect(result).toEqual(queriedItem);
+      validateFunctionCall(mockDynamoClient.functions.get, {
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: tableName,
+        Key: {
+          'documentType-id': `standing#${tournamentId}#${userId}`
+        },
+      });
+      validateFunctionCall(mockDynamoClient.functions.query);
+      validateFunctionCall(mockDynamoClient.functions.delete);
+      validateFunctionCall(mockDynamoClient.functions.put);
+      validateFunctionCall(mockDynamoClient.functions.update);
+      expect.assertions(6);
+    });
+  });
+
   describe('queryBetsByMatchId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const matchId = 'matchId';

@@ -5,11 +5,11 @@ export type TournamentResponse = TournamentBase
   & TournamentId
   & Remove<InternalDocumentProperties>;
 
-  export type TeamResponse = TeamBase
+export type TeamResponse = TeamBase
   & TeamId
   & Remove<InternalDocumentProperties>;
 
-  export type MatchResponse = MatchId
+export type MatchResponse = MatchId
   & MatchBase
   & Remove<Score>
   & Remove<MatchTeamIds>
@@ -25,7 +25,7 @@ export type TournamentResponse = TournamentBase
     finalScore: Score;
   };
 
-  export type BetResponse = (Score | Remove<Score>)
+export type BetResponse = (Score | Remove<Score>)
   & BetBase
   & Remove<MatchId>
   & Remove<TournamentId>
@@ -37,7 +37,7 @@ export type TournamentResponse = TournamentBase
     point: number;
   };
 
-  export type StandingResponse = StandingBase
+export type StandingResponse = StandingBase
   & BetBase
   & Remove<TournamentId>
   & Remove<IndexTournamentIdDocumentType>
@@ -54,8 +54,6 @@ export type CompareResponse = {
     awayFlag: string;
   }[];
 };
-
-
 
 export type LoginResponse = {
   idToken: string;

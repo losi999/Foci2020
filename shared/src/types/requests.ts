@@ -13,12 +13,12 @@ export type MatchFinalScoreRequest = Score;
 export type BetRequest = Score;
 
 export type LoginRequest = {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 };
 
 export type RegistrationRequest = {
-    email: string;
-    displayName: string;
-    password: string;
+  email: string;
+  displayName: string;
+  password: string;
 };

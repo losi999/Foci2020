@@ -19,6 +19,18 @@ jobs:
             - shared/node_modules
           key: shared-dependencies-{{ checksum "shared/package.json" }}
 
+      - run:
+          name: Running Shared linter
+          command: cd shared && npm run lint
+
+      - run:
+          name: Running Shared unit tests
+          command: cd shared && npm run test
+
+      - store_artifacts:
+          path: shared/coverage
+          destination: shared/coverage
+
       - restore_cache:
           name: Restoring API dependencies from cache
           key: api-dependencies-{{ checksum "api/package.json" }}
@@ -42,7 +54,7 @@ jobs:
 
       - store_artifacts:
           path: api/coverage
-          destination: coverage
+          destination: api/coverage
 
       - run:
           name: Build API

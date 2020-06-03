@@ -23,7 +23,10 @@ export const updateMatchServiceFactory = (
       throw httpError(400, 'Home and away teams cannot be the same');
     }
 
-    const oldDocument = await databaseService.getMatchById(matchId);
+    const oldDocument = await databaseService.getMatchById(matchId).catch((error) => {
+      console.error('Query match by id', error);
+      throw httpError(500, 'Unable to query match');
+    });
 
     if (!oldDocument) {
       throw httpError(404, 'No match found');

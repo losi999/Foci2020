@@ -2,7 +2,6 @@ import { IBetDocumentConverter, betDocumentConverterFactory } from '@foci2020/sh
 import { betRequest, betDocument, betResponse } from '@foci2020/shared/common/test-data-factory';
 import { BetDocument } from '@foci2020/shared/types/documents';
 
-
 describe('Bet document converter', () => {
   let converter: IBetDocumentConverter;
   const userId = 'userId';

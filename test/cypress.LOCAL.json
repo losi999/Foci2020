@@ -6,5 +6,6 @@
     "pluginsFile": "src/plugins",
     "viewportWidth": 0,
     "viewportHeight": 0,
+    "defaultCommandTimeout": 10000,
     "videoCompression": false
 }

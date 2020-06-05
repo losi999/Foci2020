@@ -2,6 +2,7 @@ import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/share
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { v4 as uuid } from 'uuid';
 import { teamConverter, tournamentConverter, matchConverter } from '@foci2020/test/api/dependencies';
+import { default as schema } from '@foci2020/test/api/schemas/match-response-list';
 
 describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
   let homeTeamDocument: TeamDocument;
@@ -64,7 +65,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
         .authenticate('player1')
         .requestGetMatchListOfTournament(tournamentDocument.id)
         .expectOkResponse()
-        .expectMatchResponse();
+        .expectValidResponseSchema(schema);
     });
 
     describe('should return error', () => {

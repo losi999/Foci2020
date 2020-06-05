@@ -1,6 +1,7 @@
 import { TournamentDocument, StandingDocument, BetDocument } from '@foci2020/shared/types/documents';
 import { tournamentConverter, standingConverter, betConverter } from '@foci2020/test/api/dependencies';
 import { v4 as uuid } from 'uuid';
+import { default as schema } from '@foci2020/test/api/schemas/standing-response-list';
 
 describe('GET /betting/v1/tournaments/{tournamentId}/standings', () => {
   let tournamentDocument: TournamentDocument;
@@ -56,7 +57,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/standings', () => {
         .authenticate('player1')
         .requestGetStandingListOfTournament(tournamentDocument.id)
         .expectOkResponse()
-        .expectStandingResponse()
+        .expectValidResponseSchema(schema)
         .validateStandingResponse([higherStandingDocument, lowerStandingDocument]);
     });
 

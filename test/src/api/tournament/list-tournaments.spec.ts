@@ -1,6 +1,7 @@
 import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { tournamentConverter } from '@foci2020/test/api/dependencies';
 import { TournamentDocument } from '@foci2020/shared/types/documents';
+import { default as schema } from '@foci2020/test/api/schemas/tournament-response-list';
 
 describe('GET /tournament/v1/tournaments', () => {
   const tournament1: TournamentRequest = {
@@ -42,7 +43,7 @@ describe('GET /tournament/v1/tournaments', () => {
         .authenticate('admin1')
         .requestGetTournamentList()
         .expectOkResponse()
-        .expectTournamentResponse();
+        .expectValidResponseSchema(schema);
     });
   });
 });

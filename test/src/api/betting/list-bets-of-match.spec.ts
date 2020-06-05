@@ -2,6 +2,7 @@ import { MatchDocument, TeamDocument, TournamentDocument } from '@foci2020/share
 import { matchConverter, teamConverter, tournamentConverter } from '@foci2020/test/api/dependencies';
 import { v4 as uuid } from 'uuid';
 import { addMinutes } from '@foci2020/shared/common/utils';
+import { default as schema } from '@foci2020/test/api/schemas/bet-response-list';
 
 describe('GET /betting/v1/matches/{matchId}/bets', () => {
   let homeTeamDocument: TeamDocument;
@@ -45,34 +46,65 @@ describe('GET /betting/v1/matches/{matchId}/bets', () => {
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
       cy.unauthenticate()
-      .requestGetBetListOfMatch(pendingMatchDocument.id)
-      .expectUnauthorizedResponse();
+        .requestGetBetListOfMatch(pendingMatchDocument.id)
+        .expectUnauthorizedResponse();
     });
   });
 
   describe('called as an admin', () => {
     it('should return forbidden', () => {
       cy.authenticate('admin1')
-      .requestGetBetListOfMatch(pendingMatchDocument.id)
-      .expectForbiddenResponse();
+        .requestGetBetListOfMatch(pendingMatchDocument.id)
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as a player', () => {
     describe('should list bets', () => {
       describe('showing other player\'s bets if', () => {
-        it.skip('betting time has expired', () => {
-
+        it('betting time has expired', () => {
+          cy.saveMatchDocument(startedMatchDocument)
+            .saveBetForUser('player2', {
+              homeScore: 1,
+              awayScore: 1
+            }, startedMatchDocument.id, startedMatchDocument.tournamentId)
+            .authenticate('player1')
+            .requestGetBetListOfMatch(startedMatchDocument.id)
+            .expectOkResponse()
+            .expectValidResponseSchema(schema)
+            .validatePublicBetResponse('player1');
         });
 
-        it.skip('player already placed a bet', () => {
-
+        it('player already placed a bet', () => {
+          cy.saveMatchDocument(startedMatchDocument)
+            .saveBetForUser('player1', {
+              homeScore: 1,
+              awayScore: 1
+            }, startedMatchDocument.id, startedMatchDocument.tournamentId)
+            .saveBetForUser('player2', {
+              homeScore: 1,
+              awayScore: 1
+            }, startedMatchDocument.id, startedMatchDocument.tournamentId)
+            .authenticate('player1')
+            .requestGetBetListOfMatch(startedMatchDocument.id)
+            .expectOkResponse()
+            .expectValidResponseSchema(schema)
+            .validatePublicBetResponse('player1');
         });
       });
 
       describe('NOT showing other player\'s bets if', () => {
-        it.skip('player can still place a bet', () => {
-
+        it('player can still place a bet', () => {
+          cy.saveMatchDocument(pendingMatchDocument)
+            .saveBetForUser('player2', {
+              homeScore: 1,
+              awayScore: 1
+            }, pendingMatchDocument.id, pendingMatchDocument.tournamentId)
+            .authenticate('player1')
+            .requestGetBetListOfMatch(pendingMatchDocument.id)
+            .expectOkResponse()
+            .expectValidResponseSchema(schema)
+            .validatePrivateBetResponse('player1');
         });
       });
     });
@@ -81,15 +113,15 @@ describe('GET /betting/v1/matches/{matchId}/bets', () => {
       describe('if matchId', () => {
         it('is not uuid', () => {
           cy.authenticate('player1')
-          .requestGetBetListOfMatch(`${uuid()}-not-valid`)
-          .expectBadRequestResponse()
-          .expectWrongPropertyFormat('matchId', 'uuid', 'pathParameters');
+            .requestGetBetListOfMatch(`${uuid()}-not-valid`)
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('matchId', 'uuid', 'pathParameters');
         });
 
         it('does not belong to any match', () => {
           cy.authenticate('player1')
-          .requestGetBetListOfMatch(uuid())
-          .expectNotFoundResponse();
+            .requestGetBetListOfMatch(uuid())
+            .expectNotFoundResponse();
         });
       });
     });

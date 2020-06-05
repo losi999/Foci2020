@@ -1,4 +1,6 @@
 import { CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
+import { JSONSchema7 } from 'json-schema';
+import { validatorService } from '@foci2020/test/api/dependencies';
 
 const expectOkResponse = (response: Cypress.Response) => {
   expect(response.status).to.equal(200);
@@ -27,6 +29,12 @@ const expectNotFoundResponse = (response: Cypress.Response) => {
 
 const expectMessage = (body: any, message: string) => {
   expect(body).to.equal(message);
+};
+
+const expectValidResponseSchema = (body: object, schema: JSONSchema7) => {
+  const validation = validatorService.validate(body, schema);
+  expect(validation, 'Response schema validation').to.be.undefined;
+  return cy.wrap(body, { log: false }) as Cypress.ChainableResponseBody;
 };
 
 const expectRequiredProperty = (body: any, propertyName: string, requestPart: string) => {
@@ -64,6 +72,7 @@ export const setExpectCommands = () => {
   Cypress.Commands.add('expectForbiddenResponse', { prevSubject: true }, expectForbiddenResponse);
   Cypress.Commands.add('expectNotFoundResponse', { prevSubject: true }, expectNotFoundResponse);
 
+  Cypress.Commands.add('expectValidResponseSchema', { prevSubject: true }, expectValidResponseSchema);
   Cypress.Commands.add('expectRequiredProperty', { prevSubject: true }, expectRequiredProperty);
   Cypress.Commands.add('expectWrongPropertyType', { prevSubject: true }, expectWrongPropertyType);
   Cypress.Commands.add('expectWrongPropertyFormat', { prevSubject: true }, expectWrongPropertyFormat);
@@ -85,6 +94,7 @@ declare global {
     }
 
     interface ChainableResponseBody extends Chainable {
+      expectValidResponseSchema: CommandFunctionWithPreviousSubject<typeof expectValidResponseSchema>;
       expectRequiredProperty: CommandFunctionWithPreviousSubject<typeof expectRequiredProperty>;
       expectWrongPropertyType: CommandFunctionWithPreviousSubject<typeof expectWrongPropertyType>;
       expectWrongPropertyFormat: CommandFunctionWithPreviousSubject<typeof expectWrongPropertyFormat>;

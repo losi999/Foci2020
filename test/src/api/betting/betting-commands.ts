@@ -5,7 +5,7 @@ import { User } from '@foci2020/test/api/constants';
 import { BetDocument, StandingDocument } from '@foci2020/shared/types/documents';
 import { concatenate } from '@foci2020/shared/common/utils';
 import { BetResult } from '@foci2020/shared/types/common';
-import { StandingResponse } from '@foci2020/shared/types/responses';
+import { StandingResponse, BetResponse, CompareResponse } from '@foci2020/shared/types/responses';
 
 const requestPlaceBet = (idToken: string, matchId: string, score: BetRequest) => {
   return cy.request({
@@ -132,8 +132,33 @@ const validateStandingResponse = (response: StandingResponse[], documents: Stand
   });
 };
 
-const expectStandingResponse = (body: StandingResponse[]) => {
-  return cy.log('TODO schema validation').wrap(body) as Cypress.ChainableResponseBody;
+const validatePrivateBetResponse = (response: BetResponse[], user: User) => {
+  response.filter(bet => bet.userName !== user).forEach((bet) => {
+    expect(bet.homeScore).to.be.undefined;
+    expect(bet.awayScore).to.be.undefined;
+  });
+};
+
+const validatePublicBetResponse = (response: BetResponse[], user: User) => {
+  response.filter(bet => bet.userName !== user).forEach((bet) => {
+    expect(bet.homeScore).to.be.at.least(0);
+    expect(bet.awayScore).to.be.at.least(0);
+  });
+};
+
+const validatePublicCompareResponse = (response: CompareResponse, ownPlayer: User, otherPlayer: User, matchId: string) => {
+  expect(response.leftUserName).to.equal(ownPlayer);
+  expect(response.rightUserName).to.equal(otherPlayer);
+  const match = response.matches.find(match => match.matchId === matchId);
+  expect(match.rightScore.homeScore).to.be.at.least(0);
+  expect(match.rightScore.awayScore).to.be.at.least(0);
+};
+
+const validatePrivateCompareResponse = (response: CompareResponse, ownPlayer: User, otherPlayer: User, matchId: string) => {
+  expect(response.leftUserName).to.equal(ownPlayer);
+  expect(response.rightUserName).to.equal(otherPlayer);
+  const match = response.matches.find(match => match.matchId === matchId);
+  expect(match.rightScore).to.be.undefined;
 };
 
 export const setBettingCommands = () => {
@@ -150,7 +175,10 @@ export const setBettingCommands = () => {
   Cypress.Commands.add('validateBetResult', validateBetResult);
   Cypress.Commands.add('validateStandingDocument', validateStandingDocument);
   Cypress.Commands.add('validateStandingResponse', { prevSubject: true }, validateStandingResponse);
-  Cypress.Commands.add('expectStandingResponse', { prevSubject: true }, expectStandingResponse);
+  Cypress.Commands.add('validatePrivateBetResponse', { prevSubject: true }, validatePrivateBetResponse);
+  Cypress.Commands.add('validatePublicBetResponse', { prevSubject: true }, validatePublicBetResponse);
+  Cypress.Commands.add('validatePublicCompareResponse', { prevSubject: true }, validatePublicCompareResponse);
+  Cypress.Commands.add('validatePrivateCompareResponse', { prevSubject: true }, validatePrivateCompareResponse);
 };
 
 declare global {
@@ -174,9 +202,12 @@ declare global {
     }
 
     interface ChainableResponseBody extends Chainable {
-      expectStandingResponse: CommandFunctionWithPreviousSubject<typeof expectStandingResponse>;
       validateBetDocument: CommandFunction<typeof validateBetDocument>;
       validateStandingResponse: CommandFunctionWithPreviousSubject<typeof validateStandingResponse>;
+      validatePrivateBetResponse: CommandFunctionWithPreviousSubject<typeof validatePrivateBetResponse>;
+      validatePublicBetResponse: CommandFunctionWithPreviousSubject<typeof validatePublicBetResponse>;
+      validatePublicCompareResponse: CommandFunctionWithPreviousSubject<typeof validatePublicCompareResponse>;
+      validatePrivateCompareResponse: CommandFunctionWithPreviousSubject<typeof validatePrivateCompareResponse>;
     }
   }
 }

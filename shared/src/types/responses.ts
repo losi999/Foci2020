@@ -47,6 +47,7 @@ export type CompareResponse = {
   leftUserName: string
   rightUserName: string;
   matches: {
+    matchId: string;
     leftScore: Score & Result;
     rightScore: Score & Result;
     matchScore: Score;

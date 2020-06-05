@@ -20,6 +20,7 @@ export const compareDocumentConverterFactory = (): ICompareDocumentConverter => 
         const showScore = leftBet || addMinutes(5) > new Date(m.startTime);
 
         return {
+          matchId: m.id,
           homeFlag: m.homeTeam.image,
           awayFlag: m.awayTeam.image,
           matchScore: m.finalScore,

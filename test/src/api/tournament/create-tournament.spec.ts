@@ -26,7 +26,6 @@ describe('POST /tournament/v1/tournaments', () => {
       cy.authenticate('admin1')
         .requestCreateTournament(tournament)
         .expectOkResponse()
-        .expectTournamentResponse()
         .validateTournamentDocument(tournament);
     });
 

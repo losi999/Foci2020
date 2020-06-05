@@ -1,13 +1,14 @@
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
 import { teamConverter, tournamentConverter, matchConverter } from '@foci2020/test/api/dependencies';
+import { default as schema } from '@foci2020/test/api/schemas/match-response-list';
 
 describe('GET /match/v1/matches', () => {
   let homeTeamDocument: TeamDocument;
   let awayTeamDocument: TeamDocument;
   let tournamentDocument: TournamentDocument;
-  let matchDocument1: MatchDocument;
-  let matchDocument2: MatchDocument;
+  let pendingMatchDocument: MatchDocument;
+  let finishedMatchDocument: MatchDocument;
 
   beforeEach(() => {
     homeTeamDocument = teamConverter.create({
@@ -23,7 +24,7 @@ describe('GET /match/v1/matches', () => {
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
     });
-    matchDocument1 = matchConverter.create({
+    pendingMatchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
@@ -31,13 +32,19 @@ describe('GET /match/v1/matches', () => {
       startTime: addMinutes(10).toISOString()
     }, homeTeamDocument, awayTeamDocument, tournamentDocument);
 
-    matchDocument2 = matchConverter.create({
-      homeTeamId: awayTeamDocument.id,
-      awayTeamId: homeTeamDocument.id,
-      tournamentId: tournamentDocument.id,
-      group: 'B csoport',
-      startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+    finishedMatchDocument = {
+      ...matchConverter.create({
+        homeTeamId: awayTeamDocument.id,
+        awayTeamId: homeTeamDocument.id,
+        tournamentId: tournamentDocument.id,
+        group: 'B csoport',
+        startTime: addMinutes(10).toISOString()
+      }, homeTeamDocument, awayTeamDocument, tournamentDocument),
+      finalScore: {
+        homeScore: 2,
+        awayScore: 0
+      }
+    };
   });
 
   describe('called as anonymous', () => {
@@ -58,12 +65,12 @@ describe('GET /match/v1/matches', () => {
 
   describe('called as an admin', () => {
     it('should get a list of matches', () => {
-      cy.saveMatchDocument(matchDocument1)
-        .saveMatchDocument(matchDocument2)
+      cy.saveMatchDocument(pendingMatchDocument)
+        .saveMatchDocument(finishedMatchDocument)
         .authenticate('admin1')
         .requestGetMatchList()
         .expectOkResponse()
-        .expectMatchResponse();
+        .expectValidResponseSchema(schema);
     });
   });
 });

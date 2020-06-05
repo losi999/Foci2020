@@ -2,7 +2,7 @@ import { TeamRequest } from '@foci2020/shared/types/requests';
 import { TeamDocument } from '@foci2020/shared/types/documents';
 import { TeamResponse } from '@foci2020/shared/types/responses';
 import { CommandFunction, CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
-import { databaseService } from '@foci2020/test/api/dependencies';
+import { databaseService, } from '@foci2020/test/api/dependencies';
 
 const requestCreateTeam = (idToken: string, team: TeamRequest) => {
   return cy.request({
@@ -65,10 +65,6 @@ const saveTeamDocument = (document: TeamDocument): void => {
   cy.log('Save team document', document).wrap(databaseService.saveTeam(document), { log: false });
 };
 
-const expectTeamResponse = (body: TeamResponse) => {
-  return cy.log('TODO schema validation').wrap(body) as Cypress.ChainableResponseBody;
-};
-
 const validateTeamDocument = (response: TeamResponse, request: TeamRequest, teamId?: string) => {
   const id = response?.teamId ?? teamId;
   cy.log('Get team document', id)
@@ -108,8 +104,6 @@ export const setTeamCommands = () => {
   Cypress.Commands.add('validateTeamDocument', { prevSubject: true }, validateTeamDocument);
   Cypress.Commands.add('validateTeamResponse', { prevSubject: true }, validateTeamResponse);
   Cypress.Commands.add('validateTeamDeleted', validateTeamDeleted);
-
-  Cypress.Commands.add('expectTeamResponse', { prevSubject: true }, expectTeamResponse);
 };
 
 declare global {
@@ -128,7 +122,6 @@ declare global {
     }
 
     interface ChainableResponseBody extends Chainable {
-      expectTeamResponse: CommandFunctionWithPreviousSubject<typeof expectTeamResponse>;
       validateTeamDocument: CommandFunctionWithPreviousSubject<typeof validateTeamDocument>;
       validateTeamResponse: CommandFunctionWithPreviousSubject<typeof validateTeamResponse>;
     }

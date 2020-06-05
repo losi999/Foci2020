@@ -65,10 +65,6 @@ const saveTournamentDocument = (document: TournamentDocument): void => {
   cy.log('Save tournament document', document).wrap(databaseService.saveTournament(document), { log: false });
 };
 
-const expectTournamentResponse = (body: TournamentResponse) => {
-  return cy.log('TODO schema validation').wrap(body) as Cypress.ChainableResponseBody;
-};
-
 const validateTournamentDocument = (response: TournamentResponse, request: TournamentRequest, tournamentId?: string) => {
   const id = response?.tournamentId ?? tournamentId;
   cy.log('Get tournament document', id)
@@ -104,8 +100,6 @@ export const setTournamentCommands = () => {
   Cypress.Commands.add('validateTournamentDocument', { prevSubject: true }, validateTournamentDocument);
   Cypress.Commands.add('validateTournamentResponse', { prevSubject: true }, validateTournamentResponse);
   Cypress.Commands.add('validateTournamentDeleted', validateTournamentDeleted);
-
-  Cypress.Commands.add('expectTournamentResponse', { prevSubject: true }, expectTournamentResponse);
 };
 
 declare global {
@@ -124,7 +118,6 @@ declare global {
     }
 
     interface ChainableResponseBody extends Chainable {
-      expectTournamentResponse: CommandFunctionWithPreviousSubject<typeof expectTournamentResponse>;
       validateTournamentDocument: CommandFunctionWithPreviousSubject<typeof validateTournamentDocument>;
       validateTournamentResponse: CommandFunctionWithPreviousSubject<typeof validateTournamentResponse>;
     }

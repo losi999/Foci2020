@@ -1,6 +1,7 @@
 import { TeamRequest } from '@foci2020/shared/types/requests';
 import { teamConverter } from '@foci2020/test/api/dependencies';
 import { TeamDocument } from '@foci2020/shared/types/documents';
+import { default as schema } from '@foci2020/test/api/schemas/team-response-list';
 
 describe('GET /team/v1/teams', () => {
   const team1: TeamRequest = {
@@ -46,7 +47,7 @@ describe('GET /team/v1/teams', () => {
         .authenticate('admin1')
         .requestGetTeamList()
         .expectOkResponse()
-        .expectTeamResponse();
+        .expectValidResponseSchema(schema);
     });
   });
 });

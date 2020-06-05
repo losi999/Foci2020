@@ -28,7 +28,6 @@ describe('POST /team/v1/teams', () => {
       cy.authenticate('admin1')
         .requestCreateTeam(team)
         .expectOkResponse()
-        .expectTeamResponse()
         .validateTeamDocument(team);
     });
 
@@ -40,7 +39,6 @@ describe('POST /team/v1/teams', () => {
       cy.authenticate('admin1')
         .requestCreateTeam(request)
         .expectOkResponse()
-        .expectTeamResponse()
         .validateTeamDocument(request);
     });
 

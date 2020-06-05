@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { tournamentConverter } from '@foci2020/test/api/dependencies';
 import { TournamentDocument } from '@foci2020/shared/types/documents';
+import { default as schema } from '@foci2020/test/api/schemas/tournament-response';
 
 describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
@@ -36,7 +37,7 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
         .authenticate('admin1')
         .requestGetTournament(tournamentDocument.id)
         .expectOkResponse()
-        .expectTournamentResponse()
+        .expectValidResponseSchema(schema)
         .validateTournamentResponse(tournamentDocument);
     });
 

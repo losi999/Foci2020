@@ -56,7 +56,6 @@ describe('POST /match/v1/matches', () => {
         .authenticate('admin1')
         .requestCreateMatch(match)
         .expectOkResponse()
-        .expectMatchResponse()
         .validateMatchDocument(match, homeTeamDocument, awayTeamDocument, tournamentDocument);
     });
 

@@ -19,3 +19,5 @@ test/cypress
 !test/src/support/index.js
 *.env.json
 .env
+samconfig.toml
+samconfig.*.toml

@@ -77,10 +77,6 @@ const saveMatchDocument = (document: MatchDocument) => {
   return cy.log('Save match document', document).wrap(databaseService.saveMatch(document), { log: false });
 };
 
-const expectMatchResponse = (body: MatchResponse) => {
-  return cy.log('TODO schema validation').wrap(body) as Cypress.ChainableResponseBody;
-};
-
 const validateMatchDocument = (response: MatchResponse,
   match: MatchRequest,
   homeTeam: TeamDocument,
@@ -251,8 +247,6 @@ export const setMatchCommands = () => {
   Cypress.Commands.add('validateUpdatedTournament', validateUpdatedTournament);
   Cypress.Commands.add('validateMatchResponse', { prevSubject: true }, validateMatchResponse);
   Cypress.Commands.add('validateMatchDeleted', validateMatchDeleted);
-
-  Cypress.Commands.add('expectMatchResponse', { prevSubject: true }, expectMatchResponse);
 };
 
 declare global {
@@ -276,7 +270,6 @@ declare global {
     }
 
     interface ChainableResponseBody extends Chainable {
-      expectMatchResponse: CommandFunctionWithPreviousSubject<typeof expectMatchResponse>;
       validateMatchDocument: CommandFunctionWithPreviousSubject<typeof validateMatchDocument>;
       validateMatchResponse: CommandFunctionWithPreviousSubject<typeof validateMatchResponse>;
     }

@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { TeamRequest } from '@foci2020/shared/types/requests';
 import { teamConverter } from '@foci2020/test/api/dependencies';
 import { TeamDocument } from '@foci2020/shared/types/documents';
+import { default as schema } from '@foci2020/test/api/schemas/team-response';
 
 describe('GET /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
@@ -38,7 +39,7 @@ describe('GET /team/v1/teams/{teamId}', () => {
         .authenticate('admin1')
         .requestGetTeam(teamDocument.id)
         .expectOkResponse()
-        .expectTeamResponse()
+        .expectValidResponseSchema(schema)
         .validateTeamResponse(teamDocument);
     });
 

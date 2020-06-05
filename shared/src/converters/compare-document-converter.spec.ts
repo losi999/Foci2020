@@ -38,6 +38,7 @@ describe('Compare document converter', () => {
           matches: [{
             homeFlag,
             awayFlag,
+            matchId: match.id,
             rightScore: {
               homeScore: otherBet.homeScore,
               awayScore: otherBet.awayScore,
@@ -65,6 +66,7 @@ describe('Compare document converter', () => {
           matches: [{
             homeFlag,
             awayFlag,
+            matchId: match.id,
             leftScore: {
               homeScore: ownBet.homeScore,
               awayScore: ownBet.awayScore,
@@ -96,6 +98,7 @@ describe('Compare document converter', () => {
         matches: [{
           homeFlag,
           awayFlag,
+          matchId: match.id,
         }]
       });
 

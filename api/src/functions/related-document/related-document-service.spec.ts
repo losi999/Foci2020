@@ -11,6 +11,7 @@ describe('Related document service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;
   let mockBetDocumentConverter: Mock<IBetDocumentConverter>;
   let mockStandingDocumentConverter: Mock<IStandingDocumentConverter>;
+  const isTestData = false;
 
   beforeEach(() => {
     mockDatabaseService = createMockService('deleteMatch',
@@ -463,9 +464,9 @@ describe('Related document service', () => {
 
       mockDatabaseService.functions.saveStanding.mockResolvedValue(undefined);
 
-      await service.betResultCalculated(tournamentId, userId);
+      await service.betResultCalculated(tournamentId, userId, isTestData);
       validateFunctionCall(mockDatabaseService.functions.queryBetsByTournamentIdUserId, tournamentId, userId);
-      validateFunctionCall(mockStandingDocumentConverter.functions.create, bets);
+      validateFunctionCall(mockStandingDocumentConverter.functions.create, bets, isTestData);
       validateFunctionCall(mockDatabaseService.functions.saveStanding, converted);
     });
 
@@ -474,7 +475,7 @@ describe('Related document service', () => {
         const message = 'This is a dynamo error';
         mockDatabaseService.functions.queryBetsByTournamentIdUserId.mockRejectedValue({ message });
 
-        await service.betResultCalculated(tournamentId, userId).catch((validateError(message)));
+        await service.betResultCalculated(tournamentId, userId, isTestData).catch((validateError(message)));
         validateFunctionCall(mockDatabaseService.functions.queryBetsByTournamentIdUserId, tournamentId, userId);
         validateFunctionCall(mockStandingDocumentConverter.functions.create);
         validateFunctionCall(mockDatabaseService.functions.saveStanding);
@@ -490,9 +491,9 @@ describe('Related document service', () => {
         const message = 'This is a dynamo error';
         mockDatabaseService.functions.saveStanding.mockRejectedValue({ message });
 
-        await service.betResultCalculated(tournamentId, userId).catch((validateError(message)));
+        await service.betResultCalculated(tournamentId, userId, isTestData).catch((validateError(message)));
         validateFunctionCall(mockDatabaseService.functions.queryBetsByTournamentIdUserId, tournamentId, userId);
-        validateFunctionCall(mockStandingDocumentConverter.functions.create, bets);
+        validateFunctionCall(mockStandingDocumentConverter.functions.create, bets, false);
         validateFunctionCall(mockDatabaseService.functions.saveStanding, converted);
       });
     });

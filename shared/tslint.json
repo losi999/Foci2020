@@ -5,7 +5,7 @@
     "trailing-comma": true,
     "max-line-length": [
       true,
-      200
+      250
     ],
     "deprecation": {
       "severity": "warning"

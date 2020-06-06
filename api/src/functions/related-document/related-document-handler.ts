@@ -22,7 +22,7 @@ export default (relatedDocument: IRelatedDocumentService): DynamoDBStreamHandler
               }
             } break;
             case 'bet': {
-              await relatedDocument.betResultCalculated(document.tournamentId, document.userId);
+              await relatedDocument.betResultCalculated(document.tournamentId, document.userId, !!document.expiresAt);
             }
           }
         } break;

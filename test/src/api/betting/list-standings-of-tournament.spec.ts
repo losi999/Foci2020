@@ -13,24 +13,24 @@ describe('GET /betting/v1/tournaments/{tournamentId}/standings', () => {
   beforeEach(() => {
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    });
+    }, true);
 
     exactMatchBet = betConverter.create({
       homeScore: 1, awayScore: 2
-    }, uuid(), 'user1', uuid(), tournamentDocument.id);
+    }, uuid(), 'user1', uuid(), tournamentDocument.id, true);
 
     outcomeBet = betConverter.create({
       homeScore: 1, awayScore: 2
-    }, uuid(), 'user2', uuid(), tournamentDocument.id);
+    }, uuid(), 'user2', uuid(), tournamentDocument.id, true);
 
     higherStandingDocument = standingConverter.create([betConverter.calculateResult(exactMatchBet, {
       homeScore: 1,
       awayScore: 2
-    })]);
+    })], true);
     lowerStandingDocument = standingConverter.create([betConverter.calculateResult(outcomeBet, {
       homeScore: 3,
       awayScore: 5
-    })]);
+    })], true);
   });
 
   describe('called as anonymous', () => {

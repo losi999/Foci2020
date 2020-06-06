@@ -5,15 +5,16 @@ import { TournamentRequest } from '@foci2020/shared/types/requests';
 
 export interface ICreateTournamentService {
   (ctx: {
-    body: TournamentRequest
+    body: TournamentRequest;
+    isTestData: boolean;
   }): Promise<string>;
 }
 
 export const createTournamentServiceFactory = (
   databaseService: IDatabaseService,
   tournamentDocumentConverter: ITournamentDocumentConverter): ICreateTournamentService => {
-  return async ({ body }) => {
-    const document = tournamentDocumentConverter.create(body);
+  return async ({ body, isTestData }) => {
+    const document = tournamentDocumentConverter.create(body, isTestData);
 
     await databaseService.saveTournament(document).catch((error) => {
       console.error('Save tournament', error);

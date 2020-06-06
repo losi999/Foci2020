@@ -16,15 +16,15 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    });
+    }, true);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    });
+    }, true);
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    });
+    }, true);
 
     pendingMatchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
@@ -32,7 +32,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(15).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
 
     startedMatchDocument = matchConverter.create({
       homeTeamId: awayTeamDocument.id,
@@ -40,7 +40,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
       tournamentId: tournamentDocument.id,
       group: 'B csoport',
       startTime: addMinutes(-10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
   });
 
   describe('called as anonymous', () => {

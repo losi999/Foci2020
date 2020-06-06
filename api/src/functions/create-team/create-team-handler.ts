@@ -7,7 +7,10 @@ export default (createTeam: ICreateTeamService): APIGatewayProxyHandler => {
 
     let teamId: string;
     try {
-      teamId = await createTeam({ body });
+      teamId = await createTeam({
+        body,
+        isTestData: !!event.headers['Foci2020-AutoTest']
+      });
     } catch (error) {
       console.error(error);
       return {

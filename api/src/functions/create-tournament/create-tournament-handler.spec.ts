@@ -8,10 +8,11 @@ describe('Create tournament handler', () => {
     mockCreateTournamentService = jest.fn();
   });
 
+  const handlerEvent = {
+    body: '{}',
+    headers: {}
+  } as APIGatewayProxyEvent;
   it('should respond with error if createTournament throws error', async () => {
-    const handlerEvent = {
-      body: '{}'
-    } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -27,9 +28,6 @@ describe('Create tournament handler', () => {
   });
 
   it('should respond with HTTP 200 if createTournament executes successfully', async () => {
-    const handlerEvent = {
-      body: '{}'
-    } as APIGatewayProxyEvent;
     const tournamentId = 'tournamentId';
 
     mockCreateTournamentService.mockResolvedValue(tournamentId);

@@ -9,7 +9,8 @@ export default (updateTournament: IUpdateTournamentService): APIGatewayProxyHand
     try {
       await updateTournament({
         body,
-        tournamentId
+        tournamentId,
+        isTestData: !!event.headers['Foci2020-AutoTest']
       });
     } catch (error) {
       console.error(error);

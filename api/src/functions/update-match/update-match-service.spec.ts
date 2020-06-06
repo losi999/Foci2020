@@ -13,6 +13,7 @@ describe('Update match service', () => {
 
   const now = new Date(2019, 3, 21, 19, 0, 0);
   const matchId = 'matchId';
+  const isTestData = false;
 
   beforeEach(() => {
     mockMatchDocumentConverter = createMockService('update');
@@ -47,7 +48,8 @@ describe('Update match service', () => {
 
     const result = await service({
       body,
-      matchId
+      matchId,
+      isTestData
     });
 
     expect(result).toBeUndefined();
@@ -55,7 +57,7 @@ describe('Update match service', () => {
     expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
     expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
     validateFunctionCall(mockDatabaseService.functions.getTournamentById, body.tournamentId);
-    validateFunctionCall(mockMatchDocumentConverter.functions.update, matchId, body, queriedAwayTeam, queriedHomeTeam, queriedTournament);
+    validateFunctionCall(mockMatchDocumentConverter.functions.update, matchId, body, queriedAwayTeam, queriedHomeTeam, queriedTournament, isTestData);
     validateFunctionCall(mockDatabaseService.functions.updateMatch, convertedMatch);
     expect.assertions(7);
   });
@@ -68,7 +70,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Start time has to be at least 5 minutes from now', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById);
@@ -88,7 +91,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Home and away teams cannot be the same', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById);
@@ -108,7 +112,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Unable to query match', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -128,7 +133,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('No match found', 404));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -154,7 +160,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Final score is already set for this match', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -176,7 +183,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Unable to query related document', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -202,7 +210,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Unable to query related document', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -230,7 +239,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Unable to query related document', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -253,7 +263,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Home team not found', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -279,7 +290,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Away team not found', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -307,7 +319,8 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Tournament not found', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -340,14 +353,15 @@ describe('Update match service', () => {
 
       await service({
         body,
-        matchId
+        matchId,
+        isTestData
       }).catch(validateError('Error while updating match', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
       validateFunctionCall(mockDatabaseService.functions.getTournamentById, body.tournamentId);
-      validateFunctionCall(mockMatchDocumentConverter.functions.update, matchId, body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
+      validateFunctionCall(mockMatchDocumentConverter.functions.update, matchId, body, queriedHomeTeam, queriedAwayTeam, queriedTournament, isTestData);
       validateFunctionCall(mockDatabaseService.functions.updateMatch, convertedMatch);
       expect.assertions(8);
     });

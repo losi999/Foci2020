@@ -8,6 +8,7 @@ export type DocumentKey = {
 export type InternalDocumentProperties<T extends DocumentType = never> = DocumentKey & {
   documentType: T;
   orderingValue: string;
+  expiresAt: number;
 };
 
 export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';

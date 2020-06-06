@@ -13,7 +13,8 @@ export default (placeBet: IPlaceBetService): APIGatewayProxyHandler =>
         matchId,
         userId,
         bet,
-        userName
+        userName,
+        isTestData: !!event.headers['Foci2020-AutoTest']
       });
     } catch (error) {
       console.error(error);

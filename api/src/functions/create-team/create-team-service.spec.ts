@@ -8,6 +8,7 @@ describe('Create team service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;
   let mockTeamDocumentConverter: Mock<ITeamDocumentConverter>;
   let service: ICreateTeamService;
+  const isTestData = false;
 
   beforeEach(() => {
     mockDatabaseService = createMockService('saveTeam');
@@ -23,9 +24,9 @@ describe('Create team service', () => {
     mockTeamDocumentConverter.functions.create.mockReturnValue(convertedTeam);
     mockDatabaseService.functions.saveTeam.mockRejectedValue({});
 
-    await service({ body }).catch(validateError('Error while saving team', 500));
+    await service({ body, isTestData }).catch(validateError('Error while saving team', 500));
 
-    validateFunctionCall(mockTeamDocumentConverter.functions.create, body);
+    validateFunctionCall(mockTeamDocumentConverter.functions.create, body, isTestData);
     validateFunctionCall(mockDatabaseService.functions.saveTeam, convertedTeam);
     expect.assertions(4);
   });
@@ -37,10 +38,10 @@ describe('Create team service', () => {
     mockTeamDocumentConverter.functions.create.mockReturnValue(convertedTeam);
     mockDatabaseService.functions.saveTeam.mockResolvedValue(undefined);
 
-    const result = await service({ body });
+    const result = await service({ body, isTestData });
 
     expect(result).toEqual(convertedTeam.id);
-    validateFunctionCall(mockTeamDocumentConverter.functions.create, body);
+    validateFunctionCall(mockTeamDocumentConverter.functions.create, body, isTestData);
     validateFunctionCall(mockDatabaseService.functions.saveTeam, convertedTeam);
     expect.assertions(3);
   });

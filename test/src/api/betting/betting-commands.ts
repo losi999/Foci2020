@@ -13,7 +13,8 @@ const requestPlaceBet = (idToken: string, matchId: string, score: BetRequest) =>
     method: 'POST',
     url: `/betting/v1/matches/${matchId}/bets`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken,
+      'Foci2020-AutoTest': true
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
@@ -75,7 +76,7 @@ const saveBetForUser = (user: User, score: BetRequest, matchId: string, tourname
   return cy.authenticate(user)
     .then((idToken: string) => {
       const { sub, nickname } = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString('utf8'));
-      const betdocument = betConverter.create(score, sub, nickname, matchId, tournamentId);
+      const betdocument = betConverter.create(score, sub, nickname, matchId, tournamentId, true);
       return cy.log('Save bet document', betdocument).wrap(databaseService.saveBet(betdocument), { log: false });
     });
 };

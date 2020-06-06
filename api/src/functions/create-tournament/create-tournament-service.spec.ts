@@ -8,6 +8,7 @@ describe('Create tournament service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;
   let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
   let service: ICreateTournamentService;
+  const isTestData = false;
 
   beforeEach(() => {
     mockDatabaseService = createMockService('saveTournament');
@@ -23,8 +24,8 @@ describe('Create tournament service', () => {
     mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
     mockDatabaseService.functions.saveTournament.mockRejectedValue({});
 
-    await service({ body }).catch(validateError('Error while saving tournament', 500));
-    validateFunctionCall(mockTournamentDocumentConverter.functions.create, body);
+    await service({ body, isTestData }).catch(validateError('Error while saving tournament', 500));
+    validateFunctionCall(mockTournamentDocumentConverter.functions.create, body, isTestData);
     validateFunctionCall(mockDatabaseService.functions.saveTournament, convertedTournament);
     expect.assertions(4);
   });
@@ -36,10 +37,10 @@ describe('Create tournament service', () => {
     mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
     mockDatabaseService.functions.saveTournament.mockResolvedValue(undefined);
 
-    const result = await service({ body });
+    const result = await service({ body, isTestData });
 
     expect(result).toEqual(convertedTournament.id);
-    validateFunctionCall(mockTournamentDocumentConverter.functions.create, body);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.create, body, isTestData);
     validateFunctionCall(mockDatabaseService.functions.saveTournament, convertedTournament);
     expect.assertions(3);
   });

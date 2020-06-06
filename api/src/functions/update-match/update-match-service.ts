@@ -5,8 +5,9 @@ import { MatchRequest } from '@foci2020/shared/types/requests';
 
 export interface IUpdateMatchService {
   (ctx: {
-    matchId: string,
-    body: MatchRequest
+    matchId: string;
+    body: MatchRequest;
+    isTestData: boolean;
   }): Promise<void>;
 }
 
@@ -14,7 +15,7 @@ export const updateMatchServiceFactory = (
   databaseService: IDatabaseService,
   matchDocumentConverter: IMatchDocumentConverter
 ): IUpdateMatchService => {
-  return async ({ body, matchId }) => {
+  return async ({ body, matchId, isTestData }) => {
     if (addMinutes(5) > new Date(body.startTime)) {
       throw httpError(400, 'Start time has to be at least 5 minutes from now');
     }
@@ -57,7 +58,7 @@ export const updateMatchServiceFactory = (
       throw httpError(400, 'Tournament not found');
     }
 
-    const document = matchDocumentConverter.update(matchId, body, homeTeam, awayTeam, tournament);
+    const document = matchDocumentConverter.update(matchId, body, homeTeam, awayTeam, tournament, isTestData);
 
     await databaseService.updateMatch(document).catch((error) => {
       console.error('Update match', error);

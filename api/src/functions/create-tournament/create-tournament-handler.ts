@@ -7,7 +7,10 @@ export default (createTournament: ICreateTournamentService): APIGatewayProxyHand
 
     let tournamentId: string;
     try {
-      tournamentId = await createTournament({ body });
+      tournamentId = await createTournament({
+        body,
+        isTestData: !!event.headers['Foci2020-AutoTest']
+      });
     } catch (error) {
       console.error(error);
       return {

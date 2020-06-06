@@ -8,10 +8,11 @@ describe('Create team handler', () => {
     mockCreateTeamService = jest.fn();
   });
 
+  const handlerEvent = {
+    body: '{}',
+    headers: {}
+  } as APIGatewayProxyEvent;
   it('should respond with error if createTeam throws error', async () => {
-    const handlerEvent = {
-      body: '{}'
-    } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -27,9 +28,6 @@ describe('Create team handler', () => {
   });
 
   it('should respond with HTTP 200 if createTeam executes successfully', async () => {
-    const handlerEvent = {
-      body: '{}'
-    } as APIGatewayProxyEvent;
     const teamId = 'teamId';
 
     mockCreateTeamService.mockResolvedValue(teamId);

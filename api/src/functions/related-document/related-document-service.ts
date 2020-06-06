@@ -10,7 +10,7 @@ export interface IRelatedDocumentService {
   tournamentUpdated(tournament: TournamentDocument): Promise<void>;
   matchDeleted(matchId: string): Promise<void>;
   matchFinalScoreUpdated(match: MatchDocument): Promise<void>;
-  betResultCalculated(tournamentId: string, userId: string): Promise<void>;
+  betResultCalculated(tournamentId: string, userId: string, isTestData: boolean): Promise<void>;
 }
 
 export const relatedDocumentServiceFactory = (
@@ -108,13 +108,13 @@ export const relatedDocumentServiceFactory = (
         throw error;
       });
     },
-    betResultCalculated: async (tournamentId, userId) => {
+    betResultCalculated: async (tournamentId, userId, isTestData) => {
       const bets = await databaseService.queryBetsByTournamentIdUserId(tournamentId, userId).catch((error) => {
         console.error('Query bets by tournament and user Id', tournamentId, userId, error);
         throw error;
       });
 
-      const standing = standingDocumentConverter.create(bets);
+      const standing = standingDocumentConverter.create(bets, isTestData);
 
       await databaseService.saveStanding(standing).catch((error) => {
         console.error('Save standing', error);

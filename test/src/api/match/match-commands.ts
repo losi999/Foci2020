@@ -10,7 +10,8 @@ const requestCreateMatch = (idToken: string, match: MatchRequest) => {
     method: 'POST',
     url: '/match/v1/matches',
     headers: {
-      Authorization: idToken
+      Authorization: idToken,
+      'Foci2020-AutoTest': true
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
@@ -22,7 +23,8 @@ const requestUpdateMatch = (idToken: string, matchId: string, match: MatchReques
     method: 'PUT',
     url: `/match/v1/matches/${matchId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken,
+      'Foci2020-AutoTest': true
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;

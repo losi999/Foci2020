@@ -10,7 +10,8 @@ const requestCreateTournament = (idToken: string, tournament: TournamentRequest)
     method: 'POST',
     url: '/tournament/v1/tournaments',
     headers: {
-      Authorization: idToken
+      Authorization: idToken,
+      'Foci2020-AutoTest': true
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
@@ -22,7 +23,8 @@ const requestUpdateTournament = (idToken: string, tournamentId: string, tourname
     method: 'PUT',
     url: `/tournament/v1/tournaments/${tournamentId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken,
+      'Foci2020-AutoTest': true
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;

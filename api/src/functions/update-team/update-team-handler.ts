@@ -9,7 +9,8 @@ export default (updateTeam: IUpdateTeamService): APIGatewayProxyHandler => {
     try {
       await updateTeam({
         body,
-        teamId
+        teamId,
+        isTestData: !!event.headers['Foci2020-AutoTest']
       });
     } catch (error) {
       console.error(error);

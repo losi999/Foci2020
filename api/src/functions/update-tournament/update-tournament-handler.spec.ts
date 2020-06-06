@@ -8,11 +8,12 @@ describe('Update tournament handler', () => {
     mockUpdateTournamentService = jest.fn();
   });
 
+  const handlerEvent = {
+    body: '{}',
+    pathParameters: {},
+    headers: {}
+  } as APIGatewayProxyEvent;
   it('should respond with error if updateTournament throws error', async () => {
-    const handlerEvent = {
-      body: '{}',
-      pathParameters: {}
-    } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -28,11 +29,6 @@ describe('Update tournament handler', () => {
   });
 
   it('should respond with HTTP 200 if updateTournament executes successfully', async () => {
-    const handlerEvent = {
-      body: '{}',
-      pathParameters: {}
-    } as APIGatewayProxyEvent;
-
     mockUpdateTournamentService.mockResolvedValue(undefined);
 
     const response = await handler(mockUpdateTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

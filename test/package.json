@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@cypress/webpack-preprocessor": "5.4.1",
+    "@types/json-schema": "7.0.4",
     "@types/node": "13.5.0",
     "@types/uuid": "8.0.0",
     "aws-sdk": "2.596.0",

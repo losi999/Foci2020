@@ -18,25 +18,25 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    });
+    }, true);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    });
+    }, true);
     tournamentDocument1 = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    });
+    }, true);
     tournamentDocument2 = tournamentConverter.create({
       tournamentName: 'VB 2022'
-    });
+    }, true);
     matchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument1.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument1);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument1, true);
 
     finishedMatch = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
@@ -44,7 +44,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       tournamentId: tournamentDocument1.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument1);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument1, true);
 
     updatedMatch = {
       homeTeamId: awayTeamDocument.id,

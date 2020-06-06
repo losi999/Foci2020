@@ -5,16 +5,17 @@ import { TeamRequest } from '@foci2020/shared/types/requests';
 
 export interface IUpdateTeamService {
   (ctx: {
-    teamId: string,
-    body: TeamRequest
+    teamId: string;
+    body: TeamRequest;
+    isTestData: boolean;
   }): Promise<void>;
 }
 
 export const updateTeamServiceFactory = (
   databaseService: IDatabaseService,
   teamDocumentConverter: ITeamDocumentConverter): IUpdateTeamService => {
-  return async ({ body, teamId }) => {
-    const document = teamDocumentConverter.update(teamId, body);
+  return async ({ body, teamId, isTestData }) => {
+    const document = teamDocumentConverter.update(teamId, body, isTestData);
 
     await databaseService.updateTeam(document).catch((error) => {
       console.error('Update team', error);

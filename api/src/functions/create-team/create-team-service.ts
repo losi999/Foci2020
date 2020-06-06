@@ -5,15 +5,16 @@ import { TeamRequest } from '@foci2020/shared/types/requests';
 
 export interface ICreateTeamService {
   (ctx: {
-    body: TeamRequest
+    body: TeamRequest;
+    isTestData: boolean;
   }): Promise<string>;
 }
 
 export const createTeamServiceFactory = (
   databaseService: IDatabaseService,
   teamDocumentConverter: ITeamDocumentConverter): ICreateTeamService => {
-  return async ({ body }) => {
-    const document = teamDocumentConverter.create(body);
+  return async ({ body, isTestData }) => {
+    const document = teamDocumentConverter.create(body, isTestData);
 
     await databaseService.saveTeam(document).catch((error) => {
       console.error('Save team', error);

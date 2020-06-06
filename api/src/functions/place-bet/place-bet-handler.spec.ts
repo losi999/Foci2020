@@ -27,7 +27,8 @@ describe('Place bet handler', () => {
           nickname: userName,
         }
       }
-    } as any
+    } as any,
+    headers: {}
   } as APIGatewayProxyEvent;
 
   it('should respond with error if placeBet throws error', async () => {
@@ -46,7 +47,8 @@ describe('Place bet handler', () => {
       matchId,
       userId,
       bet,
-      userName
+      userName,
+      isTestData: false
     });
     expect.assertions(3);
   });
@@ -61,7 +63,8 @@ describe('Place bet handler', () => {
       matchId,
       userId,
       bet,
-      userName
+      userName,
+      isTestData: false
     });
     expect.assertions(2);
   });

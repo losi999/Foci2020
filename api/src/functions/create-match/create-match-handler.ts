@@ -7,7 +7,10 @@ export default (createMatch: ICreateMatchService): APIGatewayProxyHandler => {
 
     let matchId: string;
     try {
-      matchId = await createMatch({ body });
+      matchId = await createMatch({
+        body,
+        isTestData: !!event.headers['Foci2020-AutoTest']
+      });
     } catch (error) {
       console.error(error);
       return {

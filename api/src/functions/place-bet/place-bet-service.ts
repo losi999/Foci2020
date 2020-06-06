@@ -9,6 +9,7 @@ export interface IPlaceBetService {
     userId: string;
     userName: string;
     bet: BetRequest;
+    isTestData: boolean
   }): Promise<void>;
 }
 
@@ -16,7 +17,7 @@ export const placeBetServiceFactory = (
   databaseService: IDatabaseService,
   betDocumentConverter: IBetDocumentConverter
 ): IPlaceBetService => {
-  return async ({ bet, userId, matchId, userName }) => {
+  return async ({ bet, userId, matchId, userName, isTestData }) => {
     const storedBet = await databaseService.getBetById(userId, matchId).catch((error) => {
       console.error('Query bet', error);
       throw httpError(500, 'Unable to query bet');
@@ -41,7 +42,7 @@ export const placeBetServiceFactory = (
       throw httpError(400, 'Betting time expired');
     }
 
-    const document = betDocumentConverter.create(bet, userId, userName, matchId, match.tournamentId);
+    const document = betDocumentConverter.create(bet, userId, userName, matchId, match.tournamentId, isTestData);
 
     await databaseService.saveBet(document).catch((error) => {
       console.error('Save bet', error);

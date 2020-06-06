@@ -9,7 +9,8 @@ export default (updateMatch: IUpdateMatchService): APIGatewayProxyHandler => {
     try {
       await updateMatch({
         body,
-        matchId
+        matchId,
+        isTestData: !!event.headers['Foci2020-AutoTest']
       });
     } catch (error) {
       console.error(error);

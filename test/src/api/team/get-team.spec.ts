@@ -14,7 +14,7 @@ describe('GET /team/v1/teams/{teamId}', () => {
   let teamDocument: TeamDocument;
 
   beforeEach(() => {
-    teamDocument = teamConverter.create(team);
+    teamDocument = teamConverter.create(team, true);
   });
 
   describe('called as anonymous', () => {

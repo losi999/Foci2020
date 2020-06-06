@@ -12,6 +12,7 @@ describe('Create match service', () => {
   let service: ICreateMatchService;
 
   const now = new Date(2019, 3, 21, 19, 0, 0);
+  const isTestData = false;
 
   beforeEach(() => {
     mockDatabaseService = createMockService('saveMatch', 'getTeamById', 'getTournamentById');
@@ -41,12 +42,12 @@ describe('Create match service', () => {
     mockMatchDocumentConverter.functions.create.mockReturnValue(convertedMatch);
     mockDatabaseService.functions.saveMatch.mockResolvedValue(undefined);
 
-    const result = await service({ body });
+    const result = await service({ body, isTestData });
     expect(result).toEqual(convertedMatch.id);
     expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
     expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
     validateFunctionCall(mockDatabaseService.functions.getTournamentById, body.tournamentId);
-    validateFunctionCall(mockMatchDocumentConverter.functions.create, body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
+    validateFunctionCall(mockMatchDocumentConverter.functions.create, body, queriedHomeTeam, queriedAwayTeam, queriedTournament, isTestData);
     validateFunctionCall(mockDatabaseService.functions.saveMatch, convertedMatch);
   });
 
@@ -56,7 +57,7 @@ describe('Create match service', () => {
         startTime: addMinutes(4.9).toISOString()
       });
 
-      await service({ body }).catch(validateError('Start time has to be at least 5 minutes from now', 400));
+      await service({ body, isTestData }).catch(validateError('Start time has to be at least 5 minutes from now', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getTeamById);
       validateFunctionCall(mockDatabaseService.functions.getTeamById);
@@ -73,7 +74,7 @@ describe('Create match service', () => {
         awayTeamId: 'sameTeamId'
       });
 
-      await service({ body }).catch(validateError('Home and away teams cannot be the same', 400));
+      await service({ body, isTestData }).catch(validateError('Home and away teams cannot be the same', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getTeamById);
       validateFunctionCall(mockDatabaseService.functions.getTeamById);
@@ -90,7 +91,7 @@ describe('Create match service', () => {
 
       mockDatabaseService.functions.getTeamById.mockRejectedValue('This is a dynamo error');
 
-      await service({ body }).catch(validateError('Unable to query related document', 500));
+      await service({ body, isTestData }).catch(validateError('Unable to query related document', 500));
 
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
@@ -109,7 +110,7 @@ describe('Create match service', () => {
       mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
       mockDatabaseService.functions.getTeamById.mockRejectedValueOnce('This is a dynamo error');
 
-      await service({ body }).catch(validateError('Unable to query related document', 500));
+      await service({ body, isTestData }).catch(validateError('Unable to query related document', 500));
 
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
@@ -130,7 +131,7 @@ describe('Create match service', () => {
       mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
       mockDatabaseService.functions.getTournamentById.mockRejectedValueOnce('This is a dynamo error');
 
-      await service({ body }).catch(validateError('Unable to query related document', 500));
+      await service({ body, isTestData }).catch(validateError('Unable to query related document', 500));
 
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
@@ -155,12 +156,12 @@ describe('Create match service', () => {
       mockMatchDocumentConverter.functions.create.mockReturnValue(convertedMatch);
       mockDatabaseService.functions.saveMatch.mockRejectedValue('This is a dynamo error');
 
-      await service({ body }).catch(validateError('Error while saving match', 500));
+      await service({ body, isTestData }).catch(validateError('Error while saving match', 500));
 
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
       validateFunctionCall(mockDatabaseService.functions.getTournamentById, body.tournamentId);
-      validateFunctionCall(mockMatchDocumentConverter.functions.create, body, queriedHomeTeam, queriedAwayTeam, queriedTournament);
+      validateFunctionCall(mockMatchDocumentConverter.functions.create, body, queriedHomeTeam, queriedAwayTeam, queriedTournament, isTestData);
       validateFunctionCall(mockDatabaseService.functions.saveMatch, convertedMatch);
       expect.assertions(7);
     });
@@ -172,7 +173,7 @@ describe('Create match service', () => {
 
       mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(undefined);
 
-      await service({ body }).catch(validateError('Home team not found', 400));
+      await service({ body, isTestData }).catch(validateError('Home team not found', 400));
 
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
@@ -191,7 +192,7 @@ describe('Create match service', () => {
       mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedHomeTeam);
       mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(undefined);
 
-      await service({ body }).catch(validateError('Away team not found', 400));
+      await service({ body, isTestData }).catch(validateError('Away team not found', 400));
 
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);
@@ -212,7 +213,7 @@ describe('Create match service', () => {
       mockDatabaseService.functions.getTeamById.mockResolvedValueOnce(queriedAwayTeam);
       mockDatabaseService.functions.getTournamentById.mockResolvedValue(undefined);
 
-      await service({ body }).catch(validateError('Tournament not found', 400));
+      await service({ body, isTestData }).catch(validateError('Tournament not found', 400));
 
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(1, body.homeTeamId);
       expect(mockDatabaseService.functions.getTeamById).toHaveBeenNthCalledWith(2, body.awayTeamId);

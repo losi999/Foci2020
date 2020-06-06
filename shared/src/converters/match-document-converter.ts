@@ -2,14 +2,14 @@ import { MatchDocument, TeamDocument, TournamentDocument } from '@foci2020/share
 import { MatchResponse } from '@foci2020/shared/types/responses';
 import { MatchRequest } from '@foci2020/shared/types/requests';
 import { v4String } from 'uuid/interfaces';
-import { concatenate } from '@foci2020/shared/common/utils';
+import { concatenate, addMinutes } from '@foci2020/shared/common/utils';
 import { internalDocumentPropertiesToRemove } from '@foci2020/shared/constants';
 
 export interface IMatchDocumentConverter {
   toResponse(matchDocument: MatchDocument): MatchResponse;
   toResponseList(matchDocuments: MatchDocument[]): MatchResponse[];
-  create(matchRequest: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): MatchDocument;
-  update(matchId: string, matchRequest: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument): MatchDocument;
+  create(matchRequest: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument, isTestData: boolean): MatchDocument;
+  update(matchId: string, matchRequest: MatchRequest, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument, isTestData: boolean): MatchDocument;
 }
 
 export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentConverter => {
@@ -47,7 +47,7 @@ export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentCon
         finalScore: matchDocument.finalScore
       };
     },
-    update: (matchId, matchRequest, homeTeam, awayTeam, tournament) => {
+    update: (matchId, matchRequest, homeTeam, awayTeam, tournament, isTestData) => {
       return {
         ...matchRequest,
         homeTeam,
@@ -59,11 +59,12 @@ export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentCon
         'documentType-id': concatenate(documentType, matchId),
         'homeTeamId-documentType': concatenate(matchRequest.homeTeamId, documentType),
         'awayTeamId-documentType': concatenate(matchRequest.awayTeamId, documentType),
-        'tournamentId-documentType': concatenate(matchRequest.tournamentId, documentType)
+        'tournamentId-documentType': concatenate(matchRequest.tournamentId, documentType),
+        expiresAt: isTestData ? Math.floor(addMinutes(60).getTime() / 1000) : undefined
       };
     },
     toResponseList: matchDocuments => matchDocuments.map(d => instance.toResponse(d)),
-    create: (matchRequest, homeTeam, awayTeam, tournament) => instance.update(uuid(), matchRequest, homeTeam, awayTeam, tournament),
+    create: (matchRequest, homeTeam, awayTeam, tournament, isTestData) => instance.update(uuid(), matchRequest, homeTeam, awayTeam, tournament, isTestData),
   };
 
   return instance;

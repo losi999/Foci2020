@@ -23,20 +23,20 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    });
+    }, true);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    });
-    tournamentDocument = tournamentConverter.create(tournament);
+    }, true);
+    tournamentDocument = tournamentConverter.create(tournament, true);
     matchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
   });
 
   describe('called as anonymous', () => {

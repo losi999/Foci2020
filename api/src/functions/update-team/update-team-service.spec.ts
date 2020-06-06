@@ -8,6 +8,7 @@ describe('Update team service', () => {
   let service: IUpdateTeamService;
   let mockDatabaseService: Mock<IDatabaseService>;
   let mockTeamDocumentConverter: Mock<ITeamDocumentConverter>;
+  const isTestData = false;
 
   beforeEach(() => {
     mockDatabaseService = createMockService('updateTeam');
@@ -27,10 +28,11 @@ describe('Update team service', () => {
 
     const result = await service({
       teamId,
-      body
+      body,
+      isTestData
     });
     expect(result).toBeUndefined();
-    validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
+    validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body, isTestData);
     validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
     expect.assertions(3);
   });
@@ -47,9 +49,10 @@ describe('Update team service', () => {
 
       await service({
         teamId,
-        body
+        body,
+        isTestData
       }).catch(validateError('No team found', 404));
-      validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
+      validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body, isTestData);
       validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
       expect.assertions(4);
     });
@@ -65,9 +68,10 @@ describe('Update team service', () => {
 
       await service({
         teamId,
-        body
+        body,
+        isTestData
       }).catch(validateError('Error while updating team', 500));
-      validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body);
+      validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body, isTestData);
       validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
       expect.assertions(4);
     });

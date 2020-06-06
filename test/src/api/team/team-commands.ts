@@ -10,7 +10,8 @@ const requestCreateTeam = (idToken: string, team: TeamRequest) => {
     method: 'POST',
     url: '/team/v1/teams',
     headers: {
-      Authorization: idToken
+      Authorization: idToken,
+      'Foci2020-AutoTest': true
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
@@ -22,7 +23,8 @@ const requestUpdateTeam = (idToken: string, teamId: string, team: TeamRequest) =
     method: 'PUT',
     url: `/team/v1/teams/${teamId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken,
+      'Foci2020-AutoTest': true
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;

@@ -68,7 +68,7 @@ describe('Match related handler', () => {
   });
 
   it('should process modified bet document', async () => {
-    const document = betDocument();
+    const document = betDocument({ expiresAt: 12345 });
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -83,7 +83,7 @@ describe('Match related handler', () => {
     mockRelatedDocumentService.functions.tournamentUpdated.mockResolvedValue(undefined);
 
     await apiHandler(event, undefined, undefined);
-    validateFunctionCall(mockRelatedDocumentService.functions.betResultCalculated, document.tournamentId, document.userId);
+    validateFunctionCall(mockRelatedDocumentService.functions.betResultCalculated, document.tournamentId, document.userId, true);
     validateFunctionCall(mockRelatedDocumentService.functions.tournamentUpdated);
     validateFunctionCall(mockRelatedDocumentService.functions.tournamentDeleted);
     validateFunctionCall(mockRelatedDocumentService.functions.teamDeleted);

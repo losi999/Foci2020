@@ -23,22 +23,22 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    });
+    }, true);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    });
+    }, true);
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    });
+    }, true);
     matchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(-110).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
 
     ongoingMatch = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
@@ -46,24 +46,24 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(-104).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
 
-    exactMatchBet = betConverter.create(finalScore, uuid(), 'user', matchDocument.id, matchDocument.tournamentId);
+    exactMatchBet = betConverter.create(finalScore, uuid(), 'user', matchDocument.id, matchDocument.tournamentId, true);
 
     goalDifferenceBet = betConverter.create({
       homeScore: finalScore.homeScore + 1,
       awayScore: finalScore.awayScore + 1
-    }, uuid(), 'user', matchDocument.id, matchDocument.tournamentId);
+    }, uuid(), 'user', matchDocument.id, matchDocument.tournamentId, true);
 
     outcomeBet = betConverter.create({
       homeScore: finalScore.homeScore * 2,
       awayScore: finalScore.awayScore * 2
-    }, uuid(), 'user', matchDocument.id, matchDocument.tournamentId);
+    }, uuid(), 'user', matchDocument.id, matchDocument.tournamentId, true);
 
     nothingBet = betConverter.create({
       homeScore: finalScore.awayScore,
       awayScore: finalScore.homeScore
-    }, uuid(), 'user', matchDocument.id, matchDocument.tournamentId);
+    }, uuid(), 'user', matchDocument.id, matchDocument.tournamentId, true);
   });
 
   describe('called as anonymous', () => {

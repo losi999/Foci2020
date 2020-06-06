@@ -8,6 +8,7 @@ describe('Update tournament service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;
   let service: IUpdateTournamentService;
   let mockTournamentDocumentConverter: Mock<ITournamentDocumentConverter>;
+  const isTestData = false;
 
   beforeEach(() => {
     mockTournamentDocumentConverter = createMockService('update');
@@ -27,10 +28,11 @@ describe('Update tournament service', () => {
 
     const result = await service({
       tournamentId,
-      body
+      body,
+      isTestData
     });
     expect(result).toBeUndefined();
-    validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body);
+    validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body, isTestData);
     validateFunctionCall(mockDatabaseService.functions.updateTournament, converted);
     expect.assertions(3);
   });
@@ -47,10 +49,11 @@ describe('Update tournament service', () => {
 
       await service({
         tournamentId,
-        body
+        body,
+        isTestData
       }).catch(validateError('No tournament found', 404));
 
-      validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body);
+      validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body, isTestData);
       validateFunctionCall(mockDatabaseService.functions.updateTournament, converted);
       expect.assertions(4);
     });
@@ -66,10 +69,11 @@ describe('Update tournament service', () => {
 
       await service({
         tournamentId,
-        body
+        body,
+        isTestData
       }).catch(validateError('Error while updating tournament', 500));
 
-      validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body);
+      validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body, isTestData);
       validateFunctionCall(mockDatabaseService.functions.updateTournament, converted);
       expect.assertions(4);
     });

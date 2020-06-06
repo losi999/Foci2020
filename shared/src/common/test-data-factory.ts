@@ -10,7 +10,7 @@ export const teamRequest = (req?: Partial<TeamRequest>): TeamRequest => ({
   ...req
 });
 
-export const teamDocument = (doc?: Partial<Pick<TeamDocument, keyof TeamRequest | 'id'>>): TeamDocument => {
+export const teamDocument = (doc?: Partial<Pick<TeamDocument, keyof TeamRequest | 'id' | 'expiresAt'>>): TeamDocument => {
   const id = doc?.id ?? 'teamId';
   return {
     id,
@@ -20,6 +20,7 @@ export const teamDocument = (doc?: Partial<Pick<TeamDocument, keyof TeamRequest 
     'documentType-id': `team#${id}`,
     documentType: 'team',
     orderingValue: 'Team name',
+    expiresAt: undefined,
     ...doc,
   };
 };
@@ -33,6 +34,7 @@ export const teamResponse = (res?: Partial<Pick<TeamResponse, keyof TeamRequest 
   documentType: undefined,
   id: undefined,
   orderingValue: undefined,
+  expiresAt: undefined,
   ...res
 });
 
@@ -41,7 +43,7 @@ export const tournamentRequest = (req?: Partial<TournamentRequest>): TournamentR
   ...req
 });
 
-export const tournamentDocument = (doc?: Partial<Pick<TournamentDocument, keyof TournamentRequest | 'id'>>): TournamentDocument => {
+export const tournamentDocument = (doc?: Partial<Pick<TournamentDocument, keyof TournamentRequest | 'id' | 'expiresAt'>>): TournamentDocument => {
   const id = doc?.id ?? 'tournamentId';
   return {
     id,
@@ -49,6 +51,7 @@ export const tournamentDocument = (doc?: Partial<Pick<TournamentDocument, keyof 
     'documentType-id': `tournament#${id}`,
     documentType: 'tournament',
     orderingValue: 'Tournament',
+    expiresAt: undefined,
     ...doc
   };
 };
@@ -60,6 +63,7 @@ export const tournamentResponse = (res?: Partial<Pick<TournamentResponse, keyof 
   documentType: undefined,
   id: undefined,
   orderingValue: undefined,
+  expiresAt: undefined,
   ...res
 });
 
@@ -72,7 +76,7 @@ export const matchRequest = (req?: Partial<MatchRequest>): MatchRequest => ({
   ...req
 });
 
-export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'group' | 'id' | 'finalScore' | 'homeTeam' | 'awayTeam' | 'tournament'>>): MatchDocument => {
+export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'group' | 'id' | 'finalScore' | 'homeTeam' | 'awayTeam' | 'tournament' | 'expiresAt'>>): MatchDocument => {
   const homeTeam = doc?.homeTeam ?? teamDocument({ id: 'homeTeamId' });
   const awayTeam = doc?.awayTeam ?? teamDocument({ id: 'awayTeamId' });
   const tournament = doc?.tournament ?? tournamentDocument({ id: 'tournamentId' });
@@ -96,6 +100,7 @@ export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'g
     'awayTeamId-documentType': `${awayTeamId}#match`,
     documentType: 'match',
     orderingValue: 'startTime',
+    expiresAt: undefined,
     ...doc
   };
 };
@@ -124,6 +129,7 @@ export const matchResponse = (res?: Partial<Pick<MatchResponse, keyof MatchReque
     homeTeam: teamResponse({ teamId: homeTeamId }),
     awayTeam: teamResponse({ teamId: awayTeamId }),
     tournament: tournamentResponse({ tournamentId }),
+    expiresAt: undefined,
     ...res
   };
 };
@@ -134,7 +140,7 @@ export const betRequest = (req?: Partial<BetRequest>): BetRequest => ({
   ...req
 });
 
-export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | 'matchId' | 'tournamentId' | 'userId' | 'userName' | 'homeScore' | 'awayScore' | 'result'>>): BetDocument => {
+export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | 'matchId' | 'tournamentId' | 'userId' | 'userName' | 'homeScore' | 'awayScore' | 'result' | 'expiresAt'>>): BetDocument => {
   const matchId = doc?.matchId ?? 'matchId';
   const tournamentId = doc?.tournamentId ?? 'tournamentId';
   const userId = doc?.userId ?? 'userId';
@@ -151,6 +157,7 @@ export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | '
     'documentType-id': `bet#${userId}#${matchId}`,
     documentType: 'bet',
     orderingValue: 'userName',
+    expiresAt: undefined,
     ...doc
   };
 };
@@ -172,13 +179,14 @@ export const betResponse = (res?: Partial<Pick<BetResponse, keyof BetRequest | '
     documentType: undefined,
     orderingValue: undefined,
     'documentType-id': undefined,
+    expiresAt: undefined,
     ...res
   };
 };
 
 const toFourDigit = (input: number) => String(input).padStart(4, '0');
 
-export const standingDocument = (doc?: Partial<Pick<StandingDocument, 'userName' | 'tournamentId' | 'userId' | 'results' | 'total'>>): StandingDocument => {
+export const standingDocument = (doc?: Partial<Pick<StandingDocument, 'userName' | 'tournamentId' | 'userId' | 'results' | 'total' | 'expiresAt'>>): StandingDocument => {
   const tournamentId = doc?.tournamentId ?? 'tournamentId';
   const userId = doc?.userId ?? 'userId';
   const total = doc?.total ?? 0;
@@ -200,6 +208,7 @@ export const standingDocument = (doc?: Partial<Pick<StandingDocument, 'userName'
     id: `${tournamentId}#${userId}`,
     'documentType-id': `standing#${tournamentId}#${userId}`,
     documentType: 'standing',
+    expiresAt: undefined,
     ...doc
   };
 };
@@ -224,6 +233,7 @@ export const standingResponse = (res?: Partial<Pick<StandingResponse, 'userId' |
     id: undefined,
     orderingValue: undefined,
     tournamentId: undefined,
+    expiresAt: undefined,
     ...res
   };
 };

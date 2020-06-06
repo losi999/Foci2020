@@ -5,8 +5,9 @@ import { TournamentRequest } from '@foci2020/shared/types/requests';
 
 export interface IUpdateTournamentService {
   (ctx: {
-    tournamentId: string,
-    body: TournamentRequest
+    tournamentId: string;
+    body: TournamentRequest;
+    isTestData: boolean;
   }): Promise<void>;
 }
 
@@ -14,8 +15,8 @@ export const updateTournamentServiceFactory = (
   databaseService: IDatabaseService,
   tournamentDocumentConverter: ITournamentDocumentConverter
 ): IUpdateTournamentService => {
-  return async ({ body, tournamentId }) => {
-    const document = tournamentDocumentConverter.update(tournamentId, body);
+  return async ({ body, tournamentId, isTestData }) => {
+    const document = tournamentDocumentConverter.update(tournamentId, body, isTestData);
 
     await databaseService.updateTournament(document).catch((error) => {
       console.error('Update tournament', error);

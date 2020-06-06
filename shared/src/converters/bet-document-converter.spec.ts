@@ -1,6 +1,7 @@
 import { IBetDocumentConverter, betDocumentConverterFactory } from '@foci2020/shared/converters/bet-document-converter';
 import { betRequest, betDocument, betResponse } from '@foci2020/shared/common/test-data-factory';
 import { BetDocument } from '@foci2020/shared/types/documents';
+import { advanceTo, clear } from 'jest-date-mock';
 
 describe('Bet document converter', () => {
   let converter: IBetDocumentConverter;
@@ -10,9 +11,16 @@ describe('Bet document converter', () => {
   const tournamentId = 'tournamentId';
   const homeScore = 1;
   const awayScore = 2;
+  const now = 1591443246;
 
   beforeEach(() => {
     converter = betDocumentConverterFactory();
+
+    advanceTo(new Date(now * 1000));
+  });
+
+  afterEach(() => {
+    clear();
   });
 
   describe('create', () => {
@@ -34,7 +42,33 @@ describe('Bet document converter', () => {
         userId,
         userName,
         matchId,
-        tournamentId);
+        tournamentId,
+        false);
+      expect(res).toEqual(expectedDocument);
+      expect.assertions(1);
+    });
+
+    it('should create a bet document with expiration date set if it is a test data', () => {
+      const input = betRequest({
+        homeScore,
+        awayScore
+      });
+      const expectedDocument = betDocument({
+        userId,
+        matchId,
+        tournamentId,
+        userName,
+        homeScore,
+        awayScore,
+        expiresAt: now + 3600
+      });
+
+      const res = converter.create(input,
+        userId,
+        userName,
+        matchId,
+        tournamentId,
+        true);
       expect(res).toEqual(expectedDocument);
       expect.assertions(1);
     });

@@ -15,26 +15,26 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    });
+    }, true);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    });
+    }, true);
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    });
+    }, true);
     matchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
     betDocument = betConverter.create({
       homeScore: 1,
       awayScore: 0
-    }, uuid(), 'username', matchDocument.id, matchDocument.tournamentId);
+    }, uuid(), 'username', matchDocument.id, matchDocument.tournamentId, true);
   });
 
   describe('called as anonymous', () => {

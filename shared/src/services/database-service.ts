@@ -1,6 +1,7 @@
 import { BetDocument, MatchDocument, StandingDocument, TeamDocument, TournamentDocument, IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, Document, DocumentType } from '@foci2020/shared/types/documents';
 import { DynamoDB } from 'aws-sdk';
 import { concatenate } from '@foci2020/shared/common/utils';
+import { UserIdType, MatchIdType, TeamIdType, TournamentIdType } from '@foci2020/shared/types/common';
 
 export interface IDatabaseService {
   saveBet(document: BetDocument): Promise<unknown>;
@@ -8,28 +9,28 @@ export interface IDatabaseService {
   saveStanding(document: StandingDocument): Promise<unknown>;
   saveTeam(document: TeamDocument): Promise<unknown>;
   saveTournament(document: TournamentDocument): Promise<unknown>;
-  deleteBet(userId: string, matchId: string): Promise<unknown>;
-  deleteMatch(matchId: string): Promise<unknown>;
-  deleteTeam(teamId: string): Promise<unknown>;
-  deleteTournament(tournamentId: string): Promise<unknown>;
-  getMatchById(matchId: string): Promise<MatchDocument>;
-  getTeamById(teamId: string): Promise<TeamDocument>;
-  getTournamentById(tournamentId: string): Promise<TournamentDocument>;
-  getBetById(userId: string, matchId: string): Promise<BetDocument>;
-  getStandingById(tournamentId: string, userId: string): Promise<StandingDocument>;
-  queryBetsByMatchId(matchId: string): Promise<BetDocument[]>;
-  queryBetsByTournamentIdUserId(tournamentId: string, userId: string): Promise<BetDocument[]>;
-  queryMatchesByTournamentId(tournamentId: string): Promise<MatchDocument[]>;
-  queryStandingsByTournamentId(tournamentId: string): Promise<StandingDocument[]>;
-  queryMatchKeysByHomeTeamId(teamId: string): Promise<IndexByHomeTeamIdDocument[]>;
-  queryMatchKeysByAwayTeamId(teamId: string): Promise<IndexByAwayTeamIdDocument[]>;
+  deleteBet(userId: UserIdType, matchId: MatchIdType): Promise<unknown>;
+  deleteMatch(matchId: MatchIdType): Promise<unknown>;
+  deleteTeam(teamId: TeamIdType): Promise<unknown>;
+  deleteTournament(tournamentId: TournamentIdType): Promise<unknown>;
+  getMatchById(matchId: MatchIdType): Promise<MatchDocument>;
+  getTeamById(teamId: TeamIdType): Promise<TeamDocument>;
+  getTournamentById(tournamentId: TournamentIdType): Promise<TournamentDocument>;
+  getBetById(userId: UserIdType, matchId: MatchIdType): Promise<BetDocument>;
+  getStandingById(tournamentId: TournamentIdType, userId: UserIdType): Promise<StandingDocument>;
+  queryBetsByMatchId(matchId: MatchIdType): Promise<BetDocument[]>;
+  queryBetsByTournamentIdUserId(tournamentId: TournamentIdType, userId: UserIdType): Promise<BetDocument[]>;
+  queryMatchesByTournamentId(tournamentId: TournamentIdType): Promise<MatchDocument[]>;
+  queryStandingsByTournamentId(tournamentId: TournamentIdType): Promise<StandingDocument[]>;
+  queryMatchKeysByHomeTeamId(teamId: TeamIdType): Promise<IndexByHomeTeamIdDocument[]>;
+  queryMatchKeysByAwayTeamId(teamId: TeamIdType): Promise<IndexByAwayTeamIdDocument[]>;
   listMatches(): Promise<MatchDocument[]>;
   listTeams(): Promise<TeamDocument[]>;
   listTournaments(): Promise<TournamentDocument[]>;
   updateBet(document: BetDocument): Promise<unknown>;
   updateMatch(document: MatchDocument): Promise<unknown>;
-  updateTeamOfMatch(matchId: string, team: TeamDocument, type: 'home' | 'away'): Promise<unknown>;
-  updateTournamentOfMatch(matchId: string, tournament: TournamentDocument): Promise<unknown>;
+  updateTeamOfMatch(matchId: MatchIdType, team: TeamDocument, type: 'home' | 'away'): Promise<unknown>;
+  updateTournamentOfMatch(matchId: MatchIdType, tournament: TournamentDocument): Promise<unknown>;
   updateTournament(document: TournamentDocument): Promise<unknown>;
   updateTeam(document: TeamDocument): Promise<unknown>;
 }

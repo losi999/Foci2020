@@ -1,12 +1,12 @@
-import { TournamentBase, TeamBase, MatchBase, MatchTeamIds, TournamentId, Score, BetBase, MatchId, Result, StandingBase } from '@foci2020/shared/types/common';
+import { TournamentBase, TeamBase, MatchBase, MatchTeamIds, TournamentId, Score, BetBase, MatchId, Result, StandingBase, Brand, TournamentIdType, TeamIdType, MatchIdType } from '@foci2020/shared/types/common';
 
-export type DocumentKey = {
+export type DocumentKey<Id extends Brand<any, any> = never> = {
   'documentType-id': string;
-  id: string;
+  id: Id;
 };
 
-export type InternalDocumentProperties<T extends DocumentType = never> = DocumentKey & {
-  documentType: T;
+export type InternalDocumentProperties<Id extends Brand<any, any> = never, Doc extends DocumentType = never> = DocumentKey<Id> & {
+  documentType: Doc;
   orderingValue: string;
   expiresAt: number;
 };
@@ -40,10 +40,10 @@ export type IndexByHomeTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 
 export type IndexByAwayTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'awayTeamId'>;
 
 export type TournamentDocument = TournamentBase
-  & InternalDocumentProperties<'tournament'>;
+  & InternalDocumentProperties<TournamentIdType, 'tournament'>;
 
 export type TeamDocument = TeamBase
-  & InternalDocumentProperties<'team'>;
+  & InternalDocumentProperties<TeamIdType, 'team'>;
 
 export type MatchDocument = MatchBase
   & MatchTeamIds
@@ -51,7 +51,7 @@ export type MatchDocument = MatchBase
   & IndexHomeTeamIdDocumentType
   & IndexAwayTeamIdDocumentType
   & IndexTournamentIdDocumentType
-  & InternalDocumentProperties<'match'>
+  & InternalDocumentProperties<MatchIdType, 'match'>
   & {
     homeTeam: TeamDocument;
     awayTeam: TeamDocument;
@@ -65,11 +65,11 @@ export type BetDocument = Score
   & TournamentId
   & IndexMatchIdDocumentType
   & IndexByTournamentIdUserIdDocumentType
-  & InternalDocumentProperties<'bet'>
+  & InternalDocumentProperties<string, 'bet'>
   & Partial<Result>;
 
 export type StandingDocument = StandingBase
   & BetBase
   & TournamentId
   & IndexTournamentIdDocumentType
-  & InternalDocumentProperties<'standing'>;
+  & InternalDocumentProperties<string, 'standing'>;

@@ -3,6 +3,7 @@ import { Mock, createMockService, awsResolvedValue, validateFunctionCall } from 
 import { DynamoDB } from 'aws-sdk';
 import { betDocument, matchDocument, standingDocument, teamDocument, tournamentDocument } from '@foci2020/shared/common/test-data-factory';
 import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@foci2020/shared/types/documents';
+import { MatchIdType, UserIdType, TeamIdType, TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('Database service', () => {
   let service: IDatabaseService;
@@ -14,6 +15,11 @@ describe('Database service', () => {
 
     service = databaseServiceFactory(tableName, mockDynamoClient.service);
   });
+
+  const userId = 'userId' as UserIdType;
+  const teamId = 'teamId' as TeamIdType;
+  const tournamentId = 'tournamentId' as TournamentIdType;
+  const matchId = 'matchId' as MatchIdType;
 
   describe('saveBet', () => {
     it('should call dynamo.put with correct parameters', async () => {
@@ -119,9 +125,6 @@ describe('Database service', () => {
     it('should call dynamo.delete with correct parameters and return queried data', async () => {
       mockDynamoClient.functions.delete.mockReturnValue(awsResolvedValue());
 
-      const userId = 'userId';
-      const matchId = 'matchId';
-
       await service.deleteBet(userId, matchId);
       validateFunctionCall(mockDynamoClient.functions.delete, {
         ReturnConsumedCapacity: 'INDEXES',
@@ -141,8 +144,6 @@ describe('Database service', () => {
   describe('deleteMatch', () => {
     it('should call dynamo.delete with correct parameters and return queried data', async () => {
       mockDynamoClient.functions.delete.mockReturnValue(awsResolvedValue());
-
-      const matchId = 'matchId';
 
       await service.deleteMatch(matchId);
       validateFunctionCall(mockDynamoClient.functions.delete, {
@@ -164,8 +165,6 @@ describe('Database service', () => {
     it('should call dynamo.delete with correct parameters and return queried data', async () => {
       mockDynamoClient.functions.delete.mockReturnValue(awsResolvedValue());
 
-      const teamId = 'teamId';
-
       await service.deleteTeam(teamId);
       validateFunctionCall(mockDynamoClient.functions.delete, {
         ReturnConsumedCapacity: 'INDEXES',
@@ -186,8 +185,6 @@ describe('Database service', () => {
     it('should call dynamo.delete with correct parameters and return queried data', async () => {
       mockDynamoClient.functions.delete.mockReturnValue(awsResolvedValue());
 
-      const tournamentId = 'tournamentId';
-
       await service.deleteTournament(tournamentId);
       validateFunctionCall(mockDynamoClient.functions.delete, {
         ReturnConsumedCapacity: 'INDEXES',
@@ -206,7 +203,6 @@ describe('Database service', () => {
 
   describe('getMatchById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
-      const matchId = 'matchId';
       const queriedItem = matchDocument();
       mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
 
@@ -229,7 +225,6 @@ describe('Database service', () => {
 
   describe('getTeamById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
-      const teamId = 'teamId';
       const queriedItem = teamDocument();
       mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
 
@@ -252,7 +247,6 @@ describe('Database service', () => {
 
   describe('getTournamentById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
-      const tournamentId = 'tournamentId';
       const queriedItem = tournamentDocument();
       mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
 
@@ -275,8 +269,6 @@ describe('Database service', () => {
 
   describe('getBetById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
-      const matchId = 'matchId';
-      const userId = 'userId';
       const queriedItem = betDocument();
       mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
 
@@ -299,8 +291,6 @@ describe('Database service', () => {
 
   describe('getStandingById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
-      const userId = 'userId';
-      const tournamentId = 'tournamentId';
       const queriedItem = standingDocument();
       mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
 
@@ -323,7 +313,6 @@ describe('Database service', () => {
 
   describe('queryBetsByMatchId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
-      const matchId = 'matchId';
       const queriedItems = [betDocument()];
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
 
@@ -351,8 +340,6 @@ describe('Database service', () => {
 
   describe('queryBetsByTournamentIdUserId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
-      const tournamentId = 'tournamentId';
-      const userId = 'userId';
       const queriedItems = [betDocument()];
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
 
@@ -380,7 +367,6 @@ describe('Database service', () => {
 
   describe('queryMatchesByTournamentId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
-      const tournamentId = 'tournamentId';
       const queriedItems = [matchDocument()];
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
 
@@ -409,7 +395,6 @@ describe('Database service', () => {
 
   describe('queryStandingsByTournamentId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
-      const tournamentId = 'tournamentId';
       const queriedItems = [standingDocument()];
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
 
@@ -438,7 +423,6 @@ describe('Database service', () => {
 
   describe('queryMatchKeysByHomeTeamId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
-      const teamId = 'teamId';
       const queriedItems = [{
         id: 'matchId'
       }] as IndexByHomeTeamIdDocument[];
@@ -468,7 +452,6 @@ describe('Database service', () => {
 
   describe('queryMatchKeysByAwayTeamId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
-      const teamId = 'teamId';
       const queriedItems = [{
         id: 'matchId'
       }] as IndexByAwayTeamIdDocument[];
@@ -626,7 +609,6 @@ describe('Database service', () => {
     it('should call dynamo.update with correct parameters', async () => {
       mockDynamoClient.functions.update.mockReturnValue(awsResolvedValue());
 
-      const matchId = 'matchId';
       const team = teamDocument();
       const type = 'home';
 
@@ -660,7 +642,6 @@ describe('Database service', () => {
     it('should call dynamo.update with correct parameters', async () => {
       mockDynamoClient.functions.update.mockReturnValue(awsResolvedValue());
 
-      const matchId = 'matchId';
       const tournament = tournamentDocument();
 
       await service.updateTournamentOfMatch(matchId, tournament);

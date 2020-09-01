@@ -2,10 +2,11 @@ import { httpError } from '@foci2020/shared/common/utils';
 import { IMatchDocumentConverter } from '@foci2020/shared/converters/match-document-converter';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { MatchResponse } from '@foci2020/shared/types/responses';
+import { MatchIdType } from '@foci2020/shared/types/common';
 
 export interface IGetMatchService {
   (ctx: {
-    matchId: string
+    matchId: MatchIdType
   }): Promise<MatchResponse>;
 }
 

@@ -3,12 +3,13 @@ import { BetDocument } from '@foci2020/shared/types/documents';
 import { betDocument, standingDocument, standingResponse } from '@foci2020/shared/common/test-data-factory';
 import { advanceTo } from 'jest-date-mock';
 import { clear } from 'console';
+import { TournamentIdType, UserIdType } from '@foci2020/shared/types/common';
 
 describe('Standing document converter', () => {
   let converter: IStandingDocumentConverter;
-  const userId = 'userId';
+  const userId = 'userId' as UserIdType;
   const userName = 'userName';
-  const tournamentId = 'tournamentId';
+  const tournamentId = 'tournamentId' as TournamentIdType;
   const now = 1591443246;
 
   beforeEach(() => {
@@ -44,7 +45,7 @@ describe('Standing document converter', () => {
         }
       });
 
-      const result = converter.create(bets, false);
+      const result = converter.create(bets, NaN);
       expect(result).toEqual(expectedDocument);
     });
 
@@ -71,7 +72,7 @@ describe('Standing document converter', () => {
         expiresAt: now + 3600
       });
 
-      const result = converter.create(bets, true);
+      const result = converter.create(bets, 3600);
       expect(result).toEqual(expectedDocument);
     });
   });

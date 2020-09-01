@@ -3,6 +3,7 @@ import { ITeamDocumentConverter } from '@foci2020/shared/converters/team-documen
 import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { teamDocument, teamResponse } from '@foci2020/shared/common/test-data-factory';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 describe('Get team service', () => {
   let service: IGetTeamService;
@@ -17,8 +18,9 @@ describe('Get team service', () => {
     service = getTeamServiceFactory(mockDatabaseService.service, mockTeamDocumentConverter.service);
   });
 
+  const teamId = 'teamId' as TeamIdType;
+
   it('should return with a team', async () => {
-    const teamId = 'teamId';
     const document = teamDocument();
 
     mockDatabaseService.functions.getTeamById.mockResolvedValue(document);
@@ -35,7 +37,6 @@ describe('Get team service', () => {
   });
 
   it('should throw error if unable to query team', async () => {
-    const teamId = 'teamId';
     mockDatabaseService.functions.getTeamById.mockRejectedValue('This is a dynamo error');
 
     await service({ teamId }).catch(validateError('Unable to query team', 500));
@@ -45,7 +46,6 @@ describe('Get team service', () => {
   });
 
   it('should return with error if no team found', async () => {
-    const teamId = 'teamId';
     mockDatabaseService.functions.getTeamById.mockResolvedValue(undefined);
 
     await service({ teamId }).catch(validateError('No team found', 404));

@@ -48,7 +48,7 @@ describe('Place bet handler', () => {
       userId,
       bet,
       userName,
-      isTestData: false
+      expiresIn: NaN
     });
     expect.assertions(3);
   });
@@ -64,7 +64,7 @@ describe('Place bet handler', () => {
       userId,
       bet,
       userName,
-      isTestData: false
+      expiresIn: NaN
     });
     expect.assertions(2);
   });

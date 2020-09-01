@@ -20,8 +20,8 @@ describe('GET /team/v1/teams', () => {
   let teamDocument2: TeamDocument;
 
   beforeEach(() => {
-    teamDocument1 = teamConverter.create(team1, true);
-    teamDocument2 = teamConverter.create(team2, true);
+    teamDocument1 = teamConverter.create(team1, 600);
+    teamDocument2 = teamConverter.create(team2, 600);
   });
 
   describe('called as anonymous', () => {

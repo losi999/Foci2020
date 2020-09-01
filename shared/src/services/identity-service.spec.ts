@@ -1,6 +1,7 @@
 import { IIdentityService, identityServiceFactory } from '@foci2020/shared/services/identity-service';
 import { Mock, createMockService, awsResolvedValue } from '@foci2020/shared/common/unit-testing';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
+import { UserIdType } from '@foci2020/shared/types/common';
 
 describe('Notification service', () => {
   let service: IIdentityService;
@@ -84,7 +85,7 @@ describe('Notification service', () => {
   describe('getUserName', () => {
     it('should call cognito operation with correct parameters and return "nickname" attribute', async () => {
       const nickname = 'Nick Name';
-      const userId = 'userId';
+      const userId = 'userId' as UserIdType;
 
       mockCognito.functions.adminGetUser.mockReturnValue(awsResolvedValue({
         UserAttributes: [{

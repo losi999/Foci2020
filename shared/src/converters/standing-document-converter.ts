@@ -1,11 +1,11 @@
 import { BetDocument, StandingDocument } from '@foci2020/shared/types/documents';
 import { StandingResponse } from '@foci2020/shared/types/responses';
-import { concatenate, addMinutes } from '@foci2020/shared/common/utils';
+import { concatenate, addSeconds } from '@foci2020/shared/common/utils';
 import { BetResult } from '@foci2020/shared/types/common';
 import { betResultPoint } from '@foci2020/shared/constants';
 
 export interface IStandingDocumentConverter {
-  create(bets: BetDocument[], isTestData: boolean): StandingDocument;
+  create(bets: BetDocument[], expiresIn: number): StandingDocument;
   toResponseList(documents: StandingDocument[]): StandingResponse[];
 }
 
@@ -15,7 +15,7 @@ export const standingDocumentConverterFactory = (): IStandingDocumentConverter =
   const documentType: StandingDocument['documentType'] = 'standing';
 
   const instance: IStandingDocumentConverter = {
-    create: (bets, isTestData) => {
+    create: (bets, expiresIn) => {
       const userId = bets[0].userId;
       const tournamentId = bets[0].tournamentId;
       const userName = bets[0].userName;
@@ -49,7 +49,7 @@ export const standingDocumentConverterFactory = (): IStandingDocumentConverter =
           goalDifference,
           exactMatch
         },
-        expiresAt: isTestData ? Math.floor(addMinutes(60).getTime() / 1000) : undefined
+        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined
       };
     },
     toResponseList: documents => documents.map(d => ({

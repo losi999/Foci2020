@@ -1,6 +1,7 @@
 import { IDeleteTournamentService, deleteTournamentServiceFactory } from '@foci2020/api/functions/delete-tournament/delete-tournament-service';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('Delete tournament service', () => {
   let service: IDeleteTournamentService;
@@ -12,8 +13,9 @@ describe('Delete tournament service', () => {
     service = deleteTournamentServiceFactory(mockDatabaseService.service);
   });
 
+  const tournamentId = 'tournamentId' as TournamentIdType;
+
   it('should return with undefined', async () => {
-    const tournamentId = 'tournamentId';
 
     mockDatabaseService.functions.deleteTournament.mockResolvedValue(undefined);
 
@@ -24,8 +26,6 @@ describe('Delete tournament service', () => {
   });
 
   it('should throw error if unable to delete tournament', async () => {
-    const tournamentId = 'tournamentId';
-
     mockDatabaseService.functions.deleteTournament.mockRejectedValue('This is a dynamo error');
 
     await service({ tournamentId }).catch(validateError('Unable to delete tournament', 500));

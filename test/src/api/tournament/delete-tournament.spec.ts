@@ -3,6 +3,7 @@ import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { tournamentConverter, teamConverter, matchConverter } from '@foci2020/test/api/dependencies';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
@@ -19,26 +20,26 @@ describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, true);
+    }, 600);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, true);
-    tournamentDocument = tournamentConverter.create(tournament, true);
+    }, 600);
+    tournamentDocument = tournamentConverter.create(tournament, 600);
     matchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
   });
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
       cy.unauthenticate()
-        .requestDeleteTournament(uuid())
+        .requestDeleteTournament(uuid() as TournamentIdType)
         .expectUnauthorizedResponse();
     });
   });
@@ -46,7 +47,7 @@ describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
   describe('called as a player', () => {
     it('should return forbidden', () => {
       cy.authenticate('player1')
-        .requestDeleteTournament(uuid())
+        .requestDeleteTournament(uuid() as TournamentIdType)
         .expectForbiddenResponse();
     });
   });
@@ -79,7 +80,7 @@ describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
       describe('if tournamentId', () => {
         it('is not uuid', () => {
           cy.authenticate('admin1')
-            .requestDeleteTournament(`${uuid()}-not-valid`)
+            .requestDeleteTournament(`${uuid()}-not-valid` as TournamentIdType)
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('tournamentId', 'uuid', 'pathParameters');
         });

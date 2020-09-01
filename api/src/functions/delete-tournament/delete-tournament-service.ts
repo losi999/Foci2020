@@ -1,9 +1,10 @@
 import { httpError } from '@foci2020/shared/common/utils';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 export interface IDeleteTournamentService {
   (ctx: {
-    tournamentId: string
+    tournamentId: TournamentIdType
   }): Promise<void>;
 }
 

@@ -5,6 +5,7 @@ import { advanceTo, clear } from 'jest-date-mock';
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { betRequest, matchDocument, betDocument } from '@foci2020/shared/common/test-data-factory';
+import { MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 describe('Place bet service', () => {
   let service: IPlaceBetService;
@@ -12,7 +13,7 @@ describe('Place bet service', () => {
   let mockBetDocumentConverter: Mock<IBetDocumentConverter>;
 
   const now = new Date(2020, 2, 11, 21, 6, 0);
-  const isTestData = false;
+  const expiresIn = 30;
 
   beforeEach(() => {
     mockBetDocumentConverter = createMockService('create');
@@ -31,8 +32,8 @@ describe('Place bet service', () => {
     homeScore: 1,
     awayScore: 3
   });
-  const userId = 'userId';
-  const matchId = 'matchId';
+  const userId = 'userId' as UserIdType;
+  const matchId = 'matchId' as MatchIdType;
   const userName = 'userName';
 
   it('should return undefined if bet is placed on a match', async () => {
@@ -55,12 +56,12 @@ describe('Place bet service', () => {
       matchId,
       userId,
       userName,
-      isTestData
+      expiresIn
     });
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
     validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
-    validateFunctionCall(mockBetDocumentConverter.functions.create, bet, userId, userName, matchId, queriedMatch.tournamentId, isTestData);
+    validateFunctionCall(mockBetDocumentConverter.functions.create, bet, userId, userName, matchId, queriedMatch.tournamentId, expiresIn);
     validateFunctionCall(mockDatabaseService.functions.saveBet, converted);
     expect.assertions(5);
   });
@@ -74,7 +75,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        isTestData
+        expiresIn
       }).catch(validateError('You already placed a bet on this match', 400));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById);
@@ -91,7 +92,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        isTestData
+        expiresIn
       }).catch(validateError('Unable to query bet', 500));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById);
@@ -109,7 +110,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        isTestData
+        expiresIn
       }).catch(validateError('Unable to query match by id', 500));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -127,7 +128,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        isTestData
+        expiresIn
       }).catch(validateError('No match found', 404));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -149,7 +150,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        isTestData
+        expiresIn
       }).catch(validateError('Betting time expired', 400));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -179,11 +180,11 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        isTestData
+        expiresIn
       }).catch(validateError('Unable to save bet', 500));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
-      validateFunctionCall(mockBetDocumentConverter.functions.create, bet, userId, userName, matchId, queriedMatch.tournamentId, isTestData);
+      validateFunctionCall(mockBetDocumentConverter.functions.create, bet, userId, userName, matchId, queriedMatch.tournamentId, expiresIn);
       validateFunctionCall(mockDatabaseService.functions.saveBet, converted);
       expect.assertions(6);
     });

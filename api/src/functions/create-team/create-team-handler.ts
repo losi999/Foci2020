@@ -1,5 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { ICreateTeamService } from '@foci2020/api/functions/create-team/create-team-service';
+import { headerExpiresIn } from '@foci2020/shared/constants';
 
 export default (createTeam: ICreateTeamService): APIGatewayProxyHandler => {
   return async (event) => {
@@ -9,7 +10,7 @@ export default (createTeam: ICreateTeamService): APIGatewayProxyHandler => {
     try {
       teamId = await createTeam({
         body,
-        isTestData: !!event.headers['Foci2020-AutoTest']
+        expiresIn: Number(event.headers[headerExpiresIn])
       });
     } catch (error) {
       console.error(error);

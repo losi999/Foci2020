@@ -1,10 +1,11 @@
 import { addMinutes, httpError } from '@foci2020/shared/common/utils';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { MatchFinalScoreRequest } from '@foci2020/shared/types/requests';
+import { MatchIdType } from '@foci2020/shared/types/common';
 
 export interface ISetFinalScoreOfMatchService {
   (ctx: {
-    matchId: string;
+    matchId: MatchIdType;
     finalScore: MatchFinalScoreRequest;
   }): Promise<void>;
 }

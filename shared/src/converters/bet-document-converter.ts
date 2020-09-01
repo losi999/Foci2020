@@ -1,12 +1,13 @@
 import { BetDocument } from '@foci2020/shared/types/documents';
 import { BetResponse } from '@foci2020/shared/types/responses';
 import { BetRequest, MatchFinalScoreRequest } from '@foci2020/shared/types/requests';
-import { concatenate, addMinutes } from '@foci2020/shared/common/utils';
+import { concatenate, addSeconds } from '@foci2020/shared/common/utils';
 import { internalDocumentPropertiesToRemove, betResultPoint } from '@foci2020/shared/constants';
+import { MatchIdType, TournamentIdType, UserIdType } from '@foci2020/shared/types/common';
 
 export interface IBetDocumentConverter {
-  toResponseList(documents: BetDocument[], userId?: string): BetResponse[];
-  create(body: BetRequest, userId: string, userName: string, matchId: string, tournamentId: string, isTestData: boolean): BetDocument;
+  toResponseList(documents: BetDocument[], userId?: UserIdType): BetResponse[];
+  create(body: BetRequest, userId: UserIdType, userName: string, matchId: MatchIdType, tournamentId: TournamentIdType, expiresIn: number): BetDocument;
   calculateResult(bet: BetDocument, finalScore: MatchFinalScoreRequest): BetDocument;
 }
 
@@ -28,7 +29,7 @@ export const betDocumentConverterFactory = (): IBetDocumentConverter => {
     };
   };
   const instance: IBetDocumentConverter = {
-    create: (body, userId, userName, matchId, tournamentId, isTestData) => {
+    create: (body, userId, userName, matchId, tournamentId, expiresIn) => {
       const betId = concatenate(userId, matchId);
       return {
         ...body,
@@ -42,7 +43,7 @@ export const betDocumentConverterFactory = (): IBetDocumentConverter => {
         'matchId-documentType': concatenate(matchId, documentType),
         id: betId,
         orderingValue: userName,
-        expiresAt: isTestData ? Math.floor(addMinutes(60).getTime() / 1000) : undefined
+        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined
       };
     },
     toResponseList: (bets, userId) => {

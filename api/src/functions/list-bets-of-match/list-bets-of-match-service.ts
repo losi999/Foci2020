@@ -2,11 +2,12 @@ import { IBetDocumentConverter } from '@foci2020/shared/converters/bet-document-
 import { httpError, addMinutes } from '@foci2020/shared/common/utils';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { BetResponse } from '@foci2020/shared/types/responses';
+import { MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 export interface IListBetsOfMatchService {
   (ctx: {
-    matchId: string,
-    userId: string,
+    matchId: MatchIdType,
+    userId: UserIdType,
   }): Promise<BetResponse[]>;
 }
 

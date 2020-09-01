@@ -1,12 +1,13 @@
 import { IDeleteMatchService, deleteMatchServiceFactory } from '@foci2020/api/functions/delete-match/delete-match-service';
 import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { MatchIdType } from '@foci2020/shared/types/common';
 
 describe('Delete match service', () => {
   let service: IDeleteMatchService;
   let mockDatabaseService: Mock<IDatabaseService>;
 
-  const matchId = 'matchId';
+  const matchId = 'matchId' as MatchIdType;
 
   beforeEach(() => {
     mockDatabaseService = createMockService('deleteMatch');

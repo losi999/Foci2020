@@ -3,6 +3,7 @@ import { TeamRequest } from '@foci2020/shared/types/requests';
 import { teamConverter } from '@foci2020/test/api/dependencies';
 import { TeamDocument } from '@foci2020/shared/types/documents';
 import { default as schema } from '@foci2020/test/api/schemas/team-response';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 describe('GET /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
@@ -14,13 +15,13 @@ describe('GET /team/v1/teams/{teamId}', () => {
   let teamDocument: TeamDocument;
 
   beforeEach(() => {
-    teamDocument = teamConverter.create(team, true);
+    teamDocument = teamConverter.create(team, 600);
   });
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
       cy.unauthenticate()
-        .requestGetTeam(uuid())
+        .requestGetTeam(uuid() as TeamIdType)
         .expectUnauthorizedResponse();
     });
   });
@@ -28,7 +29,7 @@ describe('GET /team/v1/teams/{teamId}', () => {
   describe('called as a player', () => {
     it('should return forbidden', () => {
       cy.authenticate('player1')
-        .requestGetTeam(uuid())
+        .requestGetTeam(uuid() as TeamIdType)
         .expectForbiddenResponse();
     });
   });
@@ -46,14 +47,14 @@ describe('GET /team/v1/teams/{teamId}', () => {
     describe('should return error if teamId', () => {
       it('is not uuid', () => {
         cy.authenticate('admin1')
-          .requestGetTeam(`${uuid()}-not-valid`)
+          .requestGetTeam(`${uuid()}-not-valid` as TeamIdType)
           .expectBadRequestResponse()
           .expectWrongPropertyFormat('teamId', 'uuid', 'pathParameters');
       });
 
       it('does not belong to any team', () => {
         cy.authenticate('admin1')
-          .requestGetTeam(uuid())
+          .requestGetTeam(uuid() as TeamIdType)
           .expectNotFoundResponse();
       });
     });

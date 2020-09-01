@@ -2,13 +2,14 @@ import { IBetDocumentConverter, betDocumentConverterFactory } from '@foci2020/sh
 import { betRequest, betDocument, betResponse } from '@foci2020/shared/common/test-data-factory';
 import { BetDocument } from '@foci2020/shared/types/documents';
 import { advanceTo, clear } from 'jest-date-mock';
+import { TournamentIdType, MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 describe('Bet document converter', () => {
   let converter: IBetDocumentConverter;
-  const userId = 'userId';
+  const userId = 'userId' as UserIdType;
   const userName = 'userName';
-  const matchId = 'matchId';
-  const tournamentId = 'tournamentId';
+  const matchId = 'matchId' as MatchIdType;
+  const tournamentId = 'tournamentId' as TournamentIdType;
   const homeScore = 1;
   const awayScore = 2;
   const now = 1591443246;
@@ -43,7 +44,7 @@ describe('Bet document converter', () => {
         userName,
         matchId,
         tournamentId,
-        false);
+        NaN);
       expect(res).toEqual(expectedDocument);
       expect.assertions(1);
     });
@@ -68,7 +69,7 @@ describe('Bet document converter', () => {
         userName,
         matchId,
         tournamentId,
-        true);
+        3600);
       expect(res).toEqual(expectedDocument);
       expect.assertions(1);
     });
@@ -89,7 +90,7 @@ describe('Bet document converter', () => {
     });
 
     it('should convert list of documents to response list and hide other players bets scores', () => {
-      const userId2 = 'userId2';
+      const userId2 = 'userId2' as UserIdType;
       const inputs = [
         betDocument({
           userId,

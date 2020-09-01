@@ -3,6 +3,7 @@ import { TeamDocument, TournamentDocument, MatchDocument, BetDocument, StandingD
 import { MatchFinalScoreRequest } from '@foci2020/shared/types/requests';
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { teamConverter, tournamentConverter, matchConverter, betConverter } from '@foci2020/test/api/dependencies';
+import { UserIdType, MatchIdType } from '@foci2020/shared/types/common';
 
 describe('PATCH /match/v1/matches/{matchId}', () => {
   let homeTeamDocument: TeamDocument;
@@ -23,47 +24,47 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, true);
+    }, 600);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, true);
+    }, 600);
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    }, true);
+    }, 600);
     matchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(-110).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
 
     ongoingMatch = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(-104).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
+      startTime: addMinutes(-100).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
 
-    exactMatchBet = betConverter.create(finalScore, uuid(), 'user', matchDocument.id, matchDocument.tournamentId, true);
+    exactMatchBet = betConverter.create(finalScore, uuid() as UserIdType, 'user', matchDocument.id, matchDocument.tournamentId, 600);
 
     goalDifferenceBet = betConverter.create({
       homeScore: finalScore.homeScore + 1,
       awayScore: finalScore.awayScore + 1
-    }, uuid(), 'user', matchDocument.id, matchDocument.tournamentId, true);
+    }, uuid() as UserIdType, 'user', matchDocument.id, matchDocument.tournamentId, 600);
 
     outcomeBet = betConverter.create({
       homeScore: finalScore.homeScore * 2,
       awayScore: finalScore.awayScore * 2
-    }, uuid(), 'user', matchDocument.id, matchDocument.tournamentId, true);
+    }, uuid() as UserIdType, 'user', matchDocument.id, matchDocument.tournamentId, 600);
 
     nothingBet = betConverter.create({
       homeScore: finalScore.awayScore,
       awayScore: finalScore.homeScore
-    }, uuid(), 'user', matchDocument.id, matchDocument.tournamentId, true);
+    }, uuid() as UserIdType, 'user', matchDocument.id, matchDocument.tournamentId, 600);
   });
 
   describe('called as anonymous', () => {
@@ -150,14 +151,14 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
       describe('if matchId', () => {
         it('is not uuid', () => {
           cy.authenticate('admin1')
-            .requestSetFinalScoreOfMatch(`${uuid()}-not-valid`, finalScore)
+            .requestSetFinalScoreOfMatch(`${uuid()}-not-valid` as MatchIdType, finalScore)
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('matchId', 'uuid', 'pathParameters');
         });
 
         it('does not belong to any match', () => {
           cy.authenticate('admin1')
-            .requestSetFinalScoreOfMatch(uuid(), finalScore)
+            .requestSetFinalScoreOfMatch(uuid() as MatchIdType, finalScore)
             .expectNotFoundResponse();
         });
       });
@@ -227,7 +228,7 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
       });
 
       describe('if current time', () => {
-        it('is less than 105 minutes from startTime', () => {
+        it.only('is less than 105 minutes from startTime', () => {
           cy.saveMatchDocument(ongoingMatch)
             .authenticate('admin1')
             .requestSetFinalScoreOfMatch(ongoingMatch.id, finalScore)

@@ -4,8 +4,9 @@ import { betConverter, databaseService } from '@foci2020/test/api/dependencies';
 import { User } from '@foci2020/test/api/constants';
 import { BetDocument, StandingDocument } from '@foci2020/shared/types/documents';
 import { concatenate } from '@foci2020/shared/common/utils';
-import { BetResult } from '@foci2020/shared/types/common';
+import { BetResult, MatchIdType, TournamentIdType, UserIdType } from '@foci2020/shared/types/common';
 import { StandingResponse, BetResponse, CompareResponse } from '@foci2020/shared/types/responses';
+import { headerExpiresIn } from '@foci2020/shared/constants';
 
 const requestPlaceBet = (idToken: string, matchId: string, score: BetRequest) => {
   return cy.request({
@@ -14,7 +15,7 @@ const requestPlaceBet = (idToken: string, matchId: string, score: BetRequest) =>
     url: `/betting/v1/matches/${matchId}/bets`,
     headers: {
       Authorization: idToken,
-      'Foci2020-AutoTest': true
+      [headerExpiresIn]: 600
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
@@ -72,16 +73,16 @@ const saveStandingDocument = (document: StandingDocument): void => {
   cy.log('Save standing document', document).wrap(databaseService.saveStanding(document), { log: false });
 };
 
-const saveBetForUser = (user: User, score: BetRequest, matchId: string, tournamentId: string) => {
+const saveBetForUser = (user: User, score: BetRequest, matchId: MatchIdType, tournamentId: TournamentIdType) => {
   return cy.authenticate(user)
     .then((idToken: string) => {
       const { sub, nickname } = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString('utf8'));
-      const betdocument = betConverter.create(score, sub, nickname, matchId, tournamentId, true);
+      const betdocument = betConverter.create(score, sub, nickname, matchId, tournamentId, 600);
       return cy.log('Save bet document', betdocument).wrap(databaseService.saveBet(betdocument), { log: false });
     });
 };
 
-const validateBetDocument = (user: User, matchId: string, bet: BetRequest) => {
+const validateBetDocument = (user: User, matchId: MatchIdType, bet: BetRequest) => {
   let userId: string;
   let userName: string;
   return cy.authenticate(user)
@@ -100,7 +101,7 @@ const validateBetDocument = (user: User, matchId: string, bet: BetRequest) => {
     });
 };
 
-const validateBetDeleted = (userId: string, matchId: string) => {
+const validateBetDeleted = (userId: UserIdType, matchId: MatchIdType) => {
   return cy.log('Get bet document', concatenate(userId, matchId))
     .wrap(databaseService.getBetById(userId, matchId))
     .should((document) => {
@@ -108,7 +109,7 @@ const validateBetDeleted = (userId: string, matchId: string) => {
     });
 };
 
-const validateBetResult = (userId: string, matchId: string, result: BetResult) => {
+const validateBetResult = (userId: UserIdType, matchId: MatchIdType, result: BetResult) => {
   return cy.log('Get bet document', concatenate(userId, matchId))
     .wrap(databaseService.getBetById(userId, matchId))
     .should((document: BetDocument) => {
@@ -116,7 +117,7 @@ const validateBetResult = (userId: string, matchId: string, result: BetResult) =
     });
 };
 
-const validateStandingDocument = (tournamentId: string, userId: string, results: StandingDocument['results']) => {
+const validateStandingDocument = (tournamentId: TournamentIdType, userId: UserIdType, results: StandingDocument['results']) => {
   return cy.log('Get standing document', concatenate(tournamentId, userId))
     .wrap(databaseService.getStandingById(tournamentId, userId))
     .should((document: StandingDocument) => {

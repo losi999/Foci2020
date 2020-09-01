@@ -3,6 +3,7 @@ import { MatchRequest } from '@foci2020/shared/types/requests';
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
 import { teamConverter, tournamentConverter, matchConverter } from '@foci2020/test/api/dependencies';
+import { TeamIdType, TournamentIdType, MatchIdType } from '@foci2020/shared/types/common';
 
 describe('PUT /match/v1/matches/{matchId}', () => {
   let homeTeamDocument: TeamDocument;
@@ -18,25 +19,25 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, true);
+    }, 600);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, true);
+    }, 600);
     tournamentDocument1 = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    }, true);
+    }, 600);
     tournamentDocument2 = tournamentConverter.create({
       tournamentName: 'VB 2022'
-    }, true);
+    }, 600);
     matchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument1.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument1, true);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument1, 600);
 
     finishedMatch = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
@@ -44,7 +45,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       tournamentId: tournamentDocument1.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument1, true);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument1, 600);
 
     updatedMatch = {
       homeTeamId: awayTeamDocument.id,
@@ -110,7 +111,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              homeTeamId: `${uuid()}-not-valid`
+              homeTeamId: `${uuid()}-not-valid` as TeamIdType
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('homeTeamId', 'uuid', 'body');
@@ -125,7 +126,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
             .authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              homeTeamId: uuid()
+              homeTeamId: uuid() as TeamIdType
             })
             .expectBadRequestResponse()
             .expectMessage('Home team not found');
@@ -157,7 +158,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              awayTeamId: `${uuid()}-not-valid`
+              awayTeamId: `${uuid()}-not-valid` as TeamIdType
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('awayTeamId', 'uuid', 'body');
@@ -172,7 +173,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
             .authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              awayTeamId: uuid()
+              awayTeamId: uuid() as TeamIdType
             })
             .expectBadRequestResponse()
             .expectMessage('Away team not found');
@@ -214,7 +215,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              tournamentId: `${uuid()}-not-valid`
+              tournamentId: `${uuid()}-not-valid` as TournamentIdType
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('tournamentId', 'uuid', 'body');
@@ -229,7 +230,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
             .authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              tournamentId: uuid()
+              tournamentId: uuid() as TournamentIdType
             })
             .expectBadRequestResponse()
             .expectMessage('Tournament not found');
@@ -303,14 +304,14 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       describe('if matchId', () => {
         it('is not uuid', () => {
           cy.authenticate('admin1')
-            .requestUpdateMatch(`${uuid()}-not-valid`, updatedMatch)
+            .requestUpdateMatch(`${uuid()}-not-valid` as MatchIdType, updatedMatch)
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('matchId', 'uuid', 'pathParameters');
         });
 
         it('does not belong to any match', () => {
           cy.authenticate('admin1')
-            .requestUpdateMatch(uuid(), updatedMatch)
+            .requestUpdateMatch(uuid() as MatchIdType, updatedMatch)
             .expectNotFoundResponse();
         });
       });

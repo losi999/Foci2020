@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { TeamDocument, TournamentDocument } from '@foci2020/shared/types/documents';
 import { teamConverter, tournamentConverter } from '@foci2020/test/api/dependencies';
+import { TeamIdType, TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('POST /match/v1/matches', () => {
   let homeTeamDocument: TeamDocument;
@@ -14,15 +15,15 @@ describe('POST /match/v1/matches', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, true);
+    }, 600);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, true);
+    }, 600);
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    }, true);
+    }, 600);
     match = {
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
@@ -85,7 +86,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              homeTeamId: `${uuid()}-not-valid`
+              homeTeamId: `${uuid()}-not-valid` as TeamIdType
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('homeTeamId', 'uuid', 'body');
@@ -98,7 +99,7 @@ describe('POST /match/v1/matches', () => {
             .authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              homeTeamId: uuid()
+              homeTeamId: uuid() as TeamIdType
             })
             .expectBadRequestResponse()
             .expectMessage('Home team not found');
@@ -130,7 +131,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              awayTeamId: `${uuid()}-not-valid`
+              awayTeamId: `${uuid()}-not-valid` as TeamIdType
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('awayTeamId', 'uuid', 'body');
@@ -143,7 +144,7 @@ describe('POST /match/v1/matches', () => {
             .authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              awayTeamId: uuid()
+              awayTeamId: uuid() as TeamIdType
             })
             .expectBadRequestResponse()
             .expectMessage('Away team not found');
@@ -185,7 +186,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              tournamentId: `${uuid()}-not-valid`
+              tournamentId: `${uuid()}-not-valid` as TournamentIdType
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('tournamentId', 'uuid', 'body');
@@ -198,7 +199,7 @@ describe('POST /match/v1/matches', () => {
             .authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              tournamentId: uuid()
+              tournamentId: uuid() as TournamentIdType
             })
             .expectBadRequestResponse()
             .expectMessage('Tournament not found');

@@ -3,6 +3,7 @@ import { ITournamentDocumentConverter } from '@foci2020/shared/converters/tourna
 import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { tournamentResponse, tournamentDocument } from '@foci2020/shared/common/test-data-factory';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('Get tournament service', () => {
   let service: IGetTournamentService;
@@ -17,8 +18,9 @@ describe('Get tournament service', () => {
     service = getTournamentServiceFactory(mockDatabaseService.service, mockTournamentDocumentConverter.service);
   });
 
+  const tournamentId = 'tournamentId' as TournamentIdType;
+
   it('should return with a tournament', async () => {
-    const tournamentId = 'tournamentId';
     const document = tournamentDocument();
 
     mockDatabaseService.functions.getTournamentById.mockResolvedValue(document);
@@ -35,7 +37,6 @@ describe('Get tournament service', () => {
   });
 
   it('should throw error if unable to query tournament', async () => {
-    const tournamentId = 'tournamentId';
     mockDatabaseService.functions.getTournamentById.mockRejectedValue('This is a dynamo error');
 
     await service({ tournamentId }).catch(validateError('Unable to query tournament', 500));
@@ -45,7 +46,6 @@ describe('Get tournament service', () => {
   });
 
   it('should return with error if no tournament found', async () => {
-    const tournamentId = 'tournamentId';
     mockDatabaseService.functions.getTournamentById.mockResolvedValue(undefined);
 
     await service({ tournamentId }).catch(validateError('No tournament found', 404));

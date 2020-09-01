@@ -1,9 +1,9 @@
 import { RegistrationRequest, LoginRequest } from '@foci2020/shared/types/requests';
-import { UserType } from '@foci2020/shared/types/common';
+import { UserType, UserIdType } from '@foci2020/shared/types/common';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
 
 export interface IIdentityService {
-  getUserName(userId: string): Promise<string>;
+  getUserName(userId: UserIdType): Promise<string>;
   register(body: RegistrationRequest, userGroup: UserType): Promise<any>;
   login(body: LoginRequest): Promise<CognitoIdentityServiceProvider.AdminInitiateAuthResponse>;
 }

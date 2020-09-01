@@ -3,6 +3,7 @@ import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { tournamentConverter } from '@foci2020/test/api/dependencies';
 import { TournamentDocument } from '@foci2020/shared/types/documents';
 import { default as schema } from '@foci2020/test/api/schemas/tournament-response';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
@@ -12,13 +13,13 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   let tournamentDocument: TournamentDocument;
 
   beforeEach(() => {
-    tournamentDocument = tournamentConverter.create(tournament, true);
+    tournamentDocument = tournamentConverter.create(tournament, 600);
   });
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
       cy.unauthenticate()
-        .requestGetTournament(uuid())
+        .requestGetTournament(uuid() as TournamentIdType)
         .expectUnauthorizedResponse();
     });
   });
@@ -26,7 +27,7 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   describe('called as a player', () => {
     it('should return forbidden', () => {
       cy.authenticate('player1')
-        .requestGetTournament(uuid())
+        .requestGetTournament(uuid() as TournamentIdType)
         .expectForbiddenResponse();
     });
   });
@@ -44,14 +45,14 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
     describe('should return error if tournamentId', () => {
       it('is not uuid', () => {
         cy.authenticate('admin1')
-          .requestGetTournament(`${uuid()}-not-valid`)
+          .requestGetTournament(`${uuid()}-not-valid` as TournamentIdType)
           .expectBadRequestResponse()
           .expectWrongPropertyFormat('tournamentId', 'uuid', 'pathParameters');
       });
 
       it('does not belong to any tournament', () => {
         cy.authenticate('admin1')
-          .requestGetTournament(uuid())
+          .requestGetTournament(uuid() as TournamentIdType)
           .expectNotFoundResponse();
       });
     });

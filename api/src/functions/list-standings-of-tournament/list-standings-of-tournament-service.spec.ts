@@ -3,6 +3,7 @@ import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { IStandingDocumentConverter } from '@foci2020/shared/converters/standing-document-converter';
 import { createMockService, Mock, validateFunctionCall, validateError } from '@foci2020/shared/common/unit-testing';
 import { tournamentDocument, standingDocument, standingResponse } from '@foci2020/shared/common/test-data-factory';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('List standings of tournament service', () => {
   let service: IListStandingsOfTournament;
@@ -16,7 +17,7 @@ describe('List standings of tournament service', () => {
     service = listStandingsOfTournamentFactory(mockDatabaseService.service, mockStandingDocumentConverter.service);
   });
 
-  const tournamentId = 'tournamentId';
+  const tournamentId = 'tournamentId' as TournamentIdType;
 
   it('should return standings of a tournament', async () => {
     mockDatabaseService.functions.getTournamentById.mockResolvedValue(tournamentDocument());

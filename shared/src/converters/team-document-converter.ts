@@ -2,12 +2,13 @@ import { TeamRequest } from '@foci2020/shared/types/requests';
 import { TeamDocument } from '@foci2020/shared/types/documents';
 import { TeamResponse } from '@foci2020/shared/types/responses';
 import { v4String } from 'uuid/interfaces';
-import { concatenate, addMinutes } from '@foci2020/shared/common/utils';
+import { concatenate, addSeconds } from '@foci2020/shared/common/utils';
 import { internalDocumentPropertiesToRemove } from '@foci2020/shared/constants';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 export interface ITeamDocumentConverter {
-  create(teamRequest: TeamRequest, isTestData: boolean): TeamDocument;
-  update(teamId: string, teamRequest: TeamRequest, isTestData: boolean): TeamDocument;
+  create(teamRequest: TeamRequest, expiresIn: number): TeamDocument;
+  update(teamId: TeamIdType, teamRequest: TeamRequest, expiresIn: number): TeamDocument;
   toResponse(teamDocument: TeamDocument): TeamResponse;
   toResponseList(teamDocuments: TeamDocument[]): TeamResponse[];
 }
@@ -23,20 +24,20 @@ export const teamDocumentConverterFactory = (uuid: v4String): ITeamDocumentConve
         teamId: teamDocument.id,
       };
     },
-    update: (teamId, teamRequest, isTestData): TeamDocument => {
+    update: (teamId, teamRequest, expiresIn): TeamDocument => {
       return {
         ...teamRequest,
         documentType,
         id: teamId,
         orderingValue: teamRequest.teamName,
         'documentType-id': concatenate(documentType, teamId),
-        expiresAt: isTestData ? Math.floor(addMinutes(60).getTime() / 1000) : undefined
+        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined
       };
     },
     toResponseList: teamDocuments => teamDocuments.map<TeamResponse>(d => instance.toResponse(d)),
-    create: (teamRequest, isTestData) => {
-      const id = uuid();
-      return instance.update(id, teamRequest, isTestData);
+    create: (teamRequest, expiresIn) => {
+      const id = uuid() as TeamIdType;
+      return instance.update(id, teamRequest, expiresIn);
     },
   };
 

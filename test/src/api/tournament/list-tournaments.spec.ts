@@ -16,8 +16,8 @@ describe('GET /tournament/v1/tournaments', () => {
   let tournamentDocument2: TournamentDocument;
 
   beforeEach(() => {
-    tournamentDocument1 = tournamentConverter.create(tournament1, true);
-    tournamentDocument2 = tournamentConverter.create(tournament2, true);
+    tournamentDocument1 = tournamentConverter.create(tournament1, 600);
+    tournamentDocument2 = tournamentConverter.create(tournament2, 600);
   });
 
   describe('called as anonymous', () => {

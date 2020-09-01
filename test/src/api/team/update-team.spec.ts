@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { teamConverter, tournamentConverter, matchConverter } from '@foci2020/test/api/dependencies';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 describe('PUT /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
@@ -27,15 +28,15 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, true);
+    }, 600);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, true);
+    }, 600);
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    }, true);
+    }, 600);
 
     matchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
@@ -43,13 +44,13 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
   });
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
       cy.unauthenticate()
-        .requestUpdateTeam(uuid(), teamToUpdate)
+        .requestUpdateTeam(uuid() as TeamIdType, teamToUpdate)
         .expectUnauthorizedResponse();
     });
   });
@@ -57,7 +58,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
   describe('called as a player', () => {
     it('should return forbidden', () => {
       cy.authenticate('player1')
-        .requestUpdateTeam(uuid(), teamToUpdate)
+        .requestUpdateTeam(uuid() as TeamIdType, teamToUpdate)
         .expectForbiddenResponse();
     });
   });
@@ -114,7 +115,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       describe('if teamName', () => {
         it('is missing from body', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(uuid(), {
+            .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
               teamName: undefined
             })
@@ -124,7 +125,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
 
         it('is not string', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(uuid(), {
+            .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
               teamName: 1 as any
             })
@@ -136,7 +137,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       describe('if image', () => {
         it('is not string', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(uuid(), {
+            .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
               image: 1 as any
             })
@@ -146,7 +147,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
 
         it('is not an URI', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(uuid(), {
+            .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
               image: 'not.an.uri'
             })
@@ -158,7 +159,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       describe('if shortName', () => {
         it('is missing from body', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(uuid(), {
+            .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
               shortName: undefined
             })
@@ -168,7 +169,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
 
         it('is not string', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(uuid(), {
+            .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
               shortName: 1 as any
             })
@@ -178,7 +179,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
 
         it('is shorter than 3 characters', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(uuid(), {
+            .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
               shortName: 'AB'
             })
@@ -188,7 +189,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
 
         it('is longer than 3 characters', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(uuid(), {
+            .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
               shortName: 'ABCD'
             })
@@ -200,14 +201,14 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       describe('if teamId', () => {
         it('is not uuid', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(`${uuid()}-not-valid`, teamToUpdate)
+            .requestUpdateTeam(`${uuid()}-not-valid` as TeamIdType, teamToUpdate)
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('teamId', 'uuid', 'pathParameters');
         });
 
         it('does not belong to any team', () => {
           cy.authenticate('admin1')
-            .requestUpdateTeam(uuid(), teamToUpdate)
+            .requestUpdateTeam(uuid() as TeamIdType, teamToUpdate)
             .expectNotFoundResponse();
         });
       });

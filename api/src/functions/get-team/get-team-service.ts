@@ -2,10 +2,11 @@ import { httpError } from '@foci2020/shared/common/utils';
 import { ITeamDocumentConverter } from '@foci2020/shared/converters/team-document-converter';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { TeamResponse } from '@foci2020/shared/types/responses';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 export interface IGetTeamService {
   (ctx: {
-    teamId: string
+    teamId: TeamIdType
   }): Promise<TeamResponse>;
 }
 

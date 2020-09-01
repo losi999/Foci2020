@@ -2,6 +2,7 @@ import { TournamentDocument, StandingDocument, BetDocument } from '@foci2020/sha
 import { tournamentConverter, standingConverter, betConverter } from '@foci2020/test/api/dependencies';
 import { v4 as uuid } from 'uuid';
 import { default as schema } from '@foci2020/test/api/schemas/standing-response-list';
+import { MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 describe('GET /betting/v1/tournaments/{tournamentId}/standings', () => {
   let tournamentDocument: TournamentDocument;
@@ -13,24 +14,24 @@ describe('GET /betting/v1/tournaments/{tournamentId}/standings', () => {
   beforeEach(() => {
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    }, true);
+    }, 600);
 
     exactMatchBet = betConverter.create({
       homeScore: 1, awayScore: 2
-    }, uuid(), 'user1', uuid(), tournamentDocument.id, true);
+    }, uuid() as UserIdType, 'user1', uuid() as MatchIdType, tournamentDocument.id, 600);
 
     outcomeBet = betConverter.create({
       homeScore: 1, awayScore: 2
-    }, uuid(), 'user2', uuid(), tournamentDocument.id, true);
+    }, uuid() as UserIdType, 'user2', uuid() as MatchIdType, tournamentDocument.id, 600);
 
     higherStandingDocument = standingConverter.create([betConverter.calculateResult(exactMatchBet, {
       homeScore: 1,
       awayScore: 2
-    })], true);
+    })], 600);
     lowerStandingDocument = standingConverter.create([betConverter.calculateResult(outcomeBet, {
       homeScore: 3,
       awayScore: 5
-    })], true);
+    })], 600);
   });
 
   describe('called as anonymous', () => {

@@ -3,6 +3,7 @@ import { IMatchDocumentConverter } from '@foci2020/shared/converters/match-docum
 import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { matchDocument, matchResponse } from '@foci2020/shared/common/test-data-factory';
+import { MatchIdType } from '@foci2020/shared/types/common';
 
 describe('Get match service', () => {
   let service: IGetMatchService;
@@ -16,8 +17,9 @@ describe('Get match service', () => {
     service = getMatchServiceFactory(mockDatabaseService.service, mockMatchDocumentConverter.service);
   });
 
+  const matchId = 'matchId' as MatchIdType;
+
   it('should return with a match', async () => {
-    const matchId = 'matchId';
     const document = matchDocument();
 
     mockDatabaseService.functions.getMatchById.mockResolvedValue(document);
@@ -34,7 +36,6 @@ describe('Get match service', () => {
   });
 
   it('should throw error if unable to query match', async () => {
-    const matchId = 'matchId';
     mockDatabaseService.functions.getMatchById.mockRejectedValue('This is a dynamo error');
 
     await service({ matchId }).catch(validateError('Unable to query match', 500));
@@ -44,7 +45,6 @@ describe('Get match service', () => {
   });
 
   it('should return with error if no match found', async () => {
-    const matchId = 'matchId';
     mockDatabaseService.functions.getMatchById.mockResolvedValue(undefined);
 
     await service({ matchId }).catch(validateError('No match found', 404));

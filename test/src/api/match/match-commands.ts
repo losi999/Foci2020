@@ -3,6 +3,8 @@ import { MatchDocument, TeamDocument, TournamentDocument } from '@foci2020/share
 import { MatchResponse } from '@foci2020/shared/types/responses';
 import { CommandFunction, CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
 import { databaseService } from '@foci2020/test/api/dependencies';
+import { headerExpiresIn } from '@foci2020/shared/constants';
+import { MatchIdType } from '@foci2020/shared/types/common';
 
 const requestCreateMatch = (idToken: string, match: MatchRequest) => {
   return cy.request({
@@ -11,26 +13,26 @@ const requestCreateMatch = (idToken: string, match: MatchRequest) => {
     url: '/match/v1/matches',
     headers: {
       Authorization: idToken,
-      'Foci2020-AutoTest': true
+      [headerExpiresIn]: 600
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
 };
 
-const requestUpdateMatch = (idToken: string, matchId: string, match: MatchRequest) => {
+const requestUpdateMatch = (idToken: string, matchId: MatchIdType, match: MatchRequest) => {
   return cy.request({
     body: match,
     method: 'PUT',
     url: `/match/v1/matches/${matchId}`,
     headers: {
       Authorization: idToken,
-      'Foci2020-AutoTest': true
+      [headerExpiresIn]: 600
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
 };
 
-const requestDeleteMatch = (idToken: string, matchId: string) => {
+const requestDeleteMatch = (idToken: string, matchId: MatchIdType) => {
   return cy.request({
     method: 'DELETE',
     url: `/match/v1/matches/${matchId}`,
@@ -41,7 +43,7 @@ const requestDeleteMatch = (idToken: string, matchId: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-const requestGetMatch = (idToken: string, matchId: string) => {
+const requestGetMatch = (idToken: string, matchId: MatchIdType) => {
   return cy.request({
     method: 'GET',
     url: `/match/v1/matches/${matchId}`,
@@ -63,7 +65,7 @@ const requestGetMatchList = (idToken: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-const requestSetFinalScoreOfMatch = (idToken: string, matchId: string, score: MatchFinalScoreRequest) => {
+const requestSetFinalScoreOfMatch = (idToken: string, matchId: MatchIdType, score: MatchFinalScoreRequest) => {
   return cy.request({
     body: score,
     method: 'PATCH',
@@ -85,7 +87,7 @@ const validateMatchDocument = (response: MatchResponse,
   awayTeam: TeamDocument,
   tournament: TournamentDocument,
   matchId?: string) => {
-  const id = response?.matchId ?? matchId;
+  const id = response?.matchId ?? matchId as MatchIdType;
   cy.log('Get match document', id)
     .wrap(databaseService.getMatchById(id))
     .should((document: MatchDocument) => {
@@ -111,7 +113,7 @@ const validateUpdatedHomeTeam = (
   homeTeam: TeamDocument,
   awayTeam: TeamDocument,
   tournament: TournamentDocument,
-  matchId: string) => {
+  matchId: MatchIdType) => {
   cy.log('Get match document', matchId)
     .wrap(databaseService.getMatchById(matchId))
     .should((document: MatchDocument) => {
@@ -136,7 +138,7 @@ const validateUpdatedAwayTeam = (updated: TeamRequest,
   homeTeam: TeamDocument,
   awayTeam: TeamDocument,
   tournament: TournamentDocument,
-  matchId: string) => {
+  matchId: MatchIdType) => {
   cy.log('Get match document', matchId)
     .wrap(databaseService.getMatchById(matchId))
     .should((document: MatchDocument) => {
@@ -161,7 +163,7 @@ const validateUpdatedTournament = (updated: TournamentRequest,
   homeTeam: TeamDocument,
   awayTeam: TeamDocument,
   tournament: TournamentDocument,
-  matchId: string) => {
+  matchId: MatchIdType) => {
   cy.log('Get match document', matchId)
     .wrap(databaseService.getMatchById(matchId))
     .should((document: MatchDocument) => {
@@ -186,7 +188,7 @@ const validateMatchFinalScore = (finalScore: MatchFinalScoreRequest,
   homeTeam: TeamDocument,
   awayTeam: TeamDocument,
   tournament: TournamentDocument,
-  matchId: string) => {
+  matchId: MatchIdType) => {
   cy.log('Get match document', matchId)
     .wrap(databaseService.getMatchById(matchId))
     .should((document: MatchDocument) => {
@@ -224,7 +226,7 @@ const validateMatchResponse = (response: MatchResponse, document: MatchDocument,
   expect(response.tournament.tournamentName).to.equal(tournament.tournamentName);
 };
 
-const validateMatchDeleted = (matchId: string) => {
+const validateMatchDeleted = (matchId: MatchIdType) => {
   cy.log('Get match document', matchId)
     .wrap(databaseService.getMatchById(matchId))
     .should((document) => {

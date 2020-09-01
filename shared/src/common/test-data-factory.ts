@@ -1,7 +1,7 @@
 import { TeamRequest, TournamentRequest, MatchRequest, BetRequest } from '@foci2020/shared/types/requests';
 import { TeamDocument, TournamentDocument, MatchDocument, BetDocument, StandingDocument } from '@foci2020/shared/types/documents';
 import { TeamResponse, TournamentResponse, MatchResponse, BetResponse, StandingResponse, CompareResponse } from '@foci2020/shared/types/responses';
-import { RecursivePartial } from '@foci2020/shared/types/common';
+import { RecursivePartial, TeamIdType, TournamentIdType, MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 export const teamRequest = (req?: Partial<TeamRequest>): TeamRequest => ({
   image: 'http://image.com',
@@ -11,7 +11,7 @@ export const teamRequest = (req?: Partial<TeamRequest>): TeamRequest => ({
 });
 
 export const teamDocument = (doc?: Partial<Pick<TeamDocument, keyof TeamRequest | 'id' | 'expiresAt'>>): TeamDocument => {
-  const id = doc?.id ?? 'teamId';
+  const id = doc?.id ?? 'teamId' as TeamIdType;
   return {
     id,
     image: 'http://image.com',
@@ -26,7 +26,7 @@ export const teamDocument = (doc?: Partial<Pick<TeamDocument, keyof TeamRequest 
 };
 
 export const teamResponse = (res?: Partial<Pick<TeamResponse, keyof TeamRequest | 'teamId'>>): TeamResponse => ({
-  teamId: 'teamId',
+  teamId: 'teamId' as TeamIdType,
   image: 'http://image.com',
   shortName: 'TMN',
   teamName: 'Team name',
@@ -44,7 +44,7 @@ export const tournamentRequest = (req?: Partial<TournamentRequest>): TournamentR
 });
 
 export const tournamentDocument = (doc?: Partial<Pick<TournamentDocument, keyof TournamentRequest | 'id' | 'expiresAt'>>): TournamentDocument => {
-  const id = doc?.id ?? 'tournamentId';
+  const id = doc?.id ?? 'tournamentId' as TournamentIdType;
   return {
     id,
     tournamentName: 'Tournament',
@@ -57,7 +57,7 @@ export const tournamentDocument = (doc?: Partial<Pick<TournamentDocument, keyof 
 };
 
 export const tournamentResponse = (res?: Partial<Pick<TournamentResponse, keyof TournamentRequest | 'tournamentId'>>): TournamentResponse => ({
-  tournamentId: 'tournamentId',
+  tournamentId: 'tournamentId' as TournamentIdType,
   tournamentName: 'Tournament',
   'documentType-id': undefined,
   documentType: undefined,
@@ -68,22 +68,22 @@ export const tournamentResponse = (res?: Partial<Pick<TournamentResponse, keyof 
 });
 
 export const matchRequest = (req?: Partial<MatchRequest>): MatchRequest => ({
-  awayTeamId: 'awayTeamId',
-  homeTeamId: 'homeTeamId',
-  tournamentId: 'tournamentId',
+  awayTeamId: 'awayTeamId' as TeamIdType,
+  homeTeamId: 'homeTeamId' as TeamIdType,
+  tournamentId: 'tournamentId' as TournamentIdType,
   group: 'Group',
   startTime: 'startTime',
   ...req
 });
 
 export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'group' | 'id' | 'finalScore' | 'homeTeam' | 'awayTeam' | 'tournament' | 'expiresAt'>>): MatchDocument => {
-  const homeTeam = doc?.homeTeam ?? teamDocument({ id: 'homeTeamId' });
-  const awayTeam = doc?.awayTeam ?? teamDocument({ id: 'awayTeamId' });
-  const tournament = doc?.tournament ?? tournamentDocument({ id: 'tournamentId' });
+  const homeTeam = doc?.homeTeam ?? teamDocument({ id: 'homeTeamId' as TeamIdType });
+  const awayTeam = doc?.awayTeam ?? teamDocument({ id: 'awayTeamId' as TeamIdType });
+  const tournament = doc?.tournament ?? tournamentDocument({ id: 'tournamentId' as TournamentIdType });
   const tournamentId = tournament.id;
   const homeTeamId = homeTeam.id;
   const awayTeamId = awayTeam.id;
-  const id = doc?.id ?? 'matchId';
+  const id = doc?.id ?? 'matchId' as MatchIdType;
   return {
     awayTeamId,
     homeTeamId,
@@ -106,11 +106,11 @@ export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'g
 };
 
 export const matchResponse = (res?: Partial<Pick<MatchResponse, keyof MatchRequest | 'matchId' | 'finalScore'>>): MatchResponse => {
-  const tournamentId = res?.tournamentId ?? 'tournamentId';
-  const homeTeamId = res?.homeTeamId ?? 'homeTeamId';
-  const awayTeamId = res?.awayTeamId ?? 'awayTeamId';
+  const tournamentId = res?.tournamentId ?? 'tournamentId' as TournamentIdType;
+  const homeTeamId = res?.homeTeamId ?? 'homeTeamId' as TeamIdType;
+  const awayTeamId = res?.awayTeamId ?? 'awayTeamId' as TeamIdType;
   return {
-    matchId: 'matchId',
+    matchId: 'matchId' as MatchIdType,
     group: 'Group',
     startTime: 'startTime',
     finalScore: undefined,
@@ -141,9 +141,9 @@ export const betRequest = (req?: Partial<BetRequest>): BetRequest => ({
 });
 
 export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | 'matchId' | 'tournamentId' | 'userId' | 'userName' | 'homeScore' | 'awayScore' | 'result' | 'expiresAt'>>): BetDocument => {
-  const matchId = doc?.matchId ?? 'matchId';
-  const tournamentId = doc?.tournamentId ?? 'tournamentId';
-  const userId = doc?.userId ?? 'userId';
+  const matchId = doc?.matchId ?? 'matchId' as MatchIdType;
+  const tournamentId = doc?.tournamentId ?? 'tournamentId' as TournamentIdType;
+  const userId = doc?.userId ?? 'userId' as UserIdType;
   return {
     userId,
     matchId,
@@ -163,7 +163,7 @@ export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | '
 };
 
 export const betResponse = (res?: Partial<Pick<BetResponse, keyof BetRequest | 'userId' | 'point' | 'homeScore' | 'awayScore' | 'userName'>>): BetResponse => {
-  const userId = res?.userId ?? 'userId';
+  const userId = res?.userId ?? 'userId' as UserIdType;
   return {
     userId,
     userName: 'userName',
@@ -187,8 +187,8 @@ export const betResponse = (res?: Partial<Pick<BetResponse, keyof BetRequest | '
 const toFourDigit = (input: number) => String(input).padStart(4, '0');
 
 export const standingDocument = (doc?: Partial<Pick<StandingDocument, 'userName' | 'tournamentId' | 'userId' | 'results' | 'total' | 'expiresAt'>>): StandingDocument => {
-  const tournamentId = doc?.tournamentId ?? 'tournamentId';
-  const userId = doc?.userId ?? 'userId';
+  const tournamentId = doc?.tournamentId ?? 'tournamentId' as TournamentIdType;
+  const userId = doc?.userId ?? 'userId' as UserIdType;
   const total = doc?.total ?? 0;
   const results = doc?.results ?? {
     exactMatch: 0,
@@ -214,7 +214,7 @@ export const standingDocument = (doc?: Partial<Pick<StandingDocument, 'userName'
 };
 
 export const standingResponse = (res?: Partial<Pick<StandingResponse, 'userId' | 'total' | 'results'>>): StandingResponse => {
-  const userId = res?.userId ?? 'userId';
+  const userId = res?.userId ?? 'userId' as UserIdType;
   const total = res?.total ?? 0;
   const results = res?.results ?? {
     exactMatch: 0,

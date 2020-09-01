@@ -3,6 +3,8 @@ import { TeamDocument } from '@foci2020/shared/types/documents';
 import { TeamResponse } from '@foci2020/shared/types/responses';
 import { CommandFunction, CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
 import { databaseService, } from '@foci2020/test/api/dependencies';
+import { headerExpiresIn } from '@foci2020/shared/constants';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 const requestCreateTeam = (idToken: string, team: TeamRequest) => {
   return cy.request({
@@ -11,26 +13,26 @@ const requestCreateTeam = (idToken: string, team: TeamRequest) => {
     url: '/team/v1/teams',
     headers: {
       Authorization: idToken,
-      'Foci2020-AutoTest': true
+      [headerExpiresIn]: 600
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
 };
 
-const requestUpdateTeam = (idToken: string, teamId: string, team: TeamRequest) => {
+const requestUpdateTeam = (idToken: string, teamId: TeamIdType, team: TeamRequest) => {
   return cy.request({
     body: team,
     method: 'PUT',
     url: `/team/v1/teams/${teamId}`,
     headers: {
       Authorization: idToken,
-      'Foci2020-AutoTest': true
+      [headerExpiresIn]: 600
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
 };
 
-const requestDeleteTeam = (idToken: string, teamId: string) => {
+const requestDeleteTeam = (idToken: string, teamId: TeamIdType) => {
   return cy.request({
     method: 'DELETE',
     url: `/team/v1/teams/${teamId}`,
@@ -41,7 +43,7 @@ const requestDeleteTeam = (idToken: string, teamId: string) => {
   }) as Cypress.ChainableResponse;
 };
 
-const requestGetTeam = (idToken: string, teamId: string) => {
+const requestGetTeam = (idToken: string, teamId: TeamIdType) => {
   return cy.request({
     method: 'GET',
     url: `/team/v1/teams/${teamId}`,
@@ -68,7 +70,7 @@ const saveTeamDocument = (document: TeamDocument): void => {
 };
 
 const validateTeamDocument = (response: TeamResponse, request: TeamRequest, teamId?: string) => {
-  const id = response?.teamId ?? teamId;
+  const id = response?.teamId ?? teamId as TeamIdType;
   cy.log('Get team document', id)
     .wrap(databaseService.getTeamById(id))
     .should((document: TeamDocument) => {
@@ -86,7 +88,7 @@ const validateTeamResponse = (response: TeamResponse, document: TeamDocument) =>
   expect(response.shortName).to.equal(document.shortName);
 };
 
-const validateTeamDeleted = (teamId: string) => {
+const validateTeamDeleted = (teamId: TeamIdType) => {
   cy.log('Get team document', teamId)
     .wrap(databaseService.getTeamById(teamId))
     .should((document) => {

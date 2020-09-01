@@ -4,10 +4,14 @@ export const httpError = (statusCode: number, message: string) => ({
 });
 
 export const addMinutes = (minutes: number, dateFrom?: Date): Date => {
+  return addSeconds(minutes * 60, dateFrom);
+};
+
+export const addSeconds = (seconds: number, dateFrom?: Date): Date => {
   if (dateFrom) {
-    return new Date(dateFrom.getTime() + minutes * 60 * 1000);
+    return new Date(dateFrom.getTime() + seconds * 1000);
   }
-  return new Date(Date.now() + minutes * 60 * 1000);
+  return new Date(Date.now() + seconds * 1000);
 };
 
 export const chunk = (input: any[], count: number): any[][] => {

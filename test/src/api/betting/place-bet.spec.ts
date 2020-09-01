@@ -16,22 +16,22 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, true);
+    }, 600);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, true);
+    }, 600);
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    }, true);
+    }, 600);
     pendingMatchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(15).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
 
     startedMatchDocument = matchConverter.create({
       homeTeamId: awayTeamDocument.id,
@@ -39,7 +39,7 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
       tournamentId: tournamentDocument.id,
       group: 'B csoport',
       startTime: addMinutes(-10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
 
     cy.saveMatchDocument(startedMatchDocument)
       .saveMatchDocument(pendingMatchDocument);

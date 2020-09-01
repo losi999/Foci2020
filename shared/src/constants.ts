@@ -18,3 +18,5 @@ export const betResultPoint: BetResultPoint = {
   goalDifference: 2,
   exactMatch: 3,
 };
+
+export const headerExpiresIn = 'Foci2020-ExpiresIn';

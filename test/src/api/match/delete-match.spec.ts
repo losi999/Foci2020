@@ -2,6 +2,7 @@ import { addMinutes } from '@foci2020/shared/common/utils';
 import { v4 as uuid } from 'uuid';
 import { TeamDocument, TournamentDocument, MatchDocument, BetDocument } from '@foci2020/shared/types/documents';
 import { teamConverter, tournamentConverter, matchConverter, betConverter } from '@foci2020/test/api/dependencies';
+import { MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 describe('DELETE /match/v1/matches/{matchId}', () => {
   let homeTeamDocument: TeamDocument;
@@ -15,32 +16,32 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, true);
+    }, 600);
     awayTeamDocument = teamConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, true);
+    }, 600);
     tournamentDocument = tournamentConverter.create({
       tournamentName: 'EB 2020'
-    }, true);
+    }, 600);
     matchDocument = matchConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument, true);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
     betDocument = betConverter.create({
       homeScore: 1,
       awayScore: 0
-    }, uuid(), 'username', matchDocument.id, matchDocument.tournamentId, true);
+    }, uuid() as UserIdType, 'username', matchDocument.id, matchDocument.tournamentId, 600);
   });
 
   describe('called as anonymous', () => {
     it('should return unauthorized', () => {
       cy.unauthenticate()
-        .requestDeleteMatch(uuid())
+        .requestDeleteMatch(uuid() as MatchIdType)
         .expectUnauthorizedResponse();
     });
   });
@@ -48,7 +49,7 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
   describe('called as a player', () => {
     it('should return forbidden', () => {
       cy.authenticate('player1')
-        .requestDeleteMatch(uuid())
+        .requestDeleteMatch(uuid() as MatchIdType)
         .expectForbiddenResponse();
     });
   });
@@ -71,7 +72,7 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
           .expectOkResponse()
           .validateMatchDeleted(matchDocument.id)
           .wait(2000)
-          .validateBetDeleted(betDocument.userId, homeTeamDocument.id);
+          .validateBetDeleted(betDocument.userId, matchDocument.id);
       });
     });
 
@@ -79,7 +80,7 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
       describe('if matchId', () => {
         it('is not uuid', () => {
           cy.authenticate('admin1')
-            .requestDeleteMatch(`${uuid()}-not-valid`)
+            .requestDeleteMatch(`${uuid()}-not-valid` as MatchIdType)
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('matchId', 'uuid', 'pathParameters');
         });

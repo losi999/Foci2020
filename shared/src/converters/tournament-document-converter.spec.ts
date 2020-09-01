@@ -2,11 +2,12 @@ import { ITournamentDocumentConverter, tournamentDocumentConverterFactory } from
 import { tournamentDocument, tournamentResponse, tournamentRequest } from '@foci2020/shared/common/test-data-factory';
 import { advanceTo } from 'jest-date-mock';
 import { clear } from 'console';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('Tournament document converter', () => {
   let converter: ITournamentDocumentConverter;
   let mockUuid: jest.Mock;
-  const tournamentId = 'tournamentId';
+  const tournamentId = 'tournamentId' as TournamentIdType;
   const now = 1591443246;
 
   beforeEach(() => {
@@ -49,7 +50,7 @@ describe('Tournament document converter', () => {
 
       const expectedDocument = tournamentDocument();
 
-      const result = converter.create(body, false);
+      const result = converter.create(body, NaN);
       expect(result).toEqual(expectedDocument);
     });
 
@@ -62,7 +63,7 @@ describe('Tournament document converter', () => {
         expiresAt: now + 3600
       });
 
-      const result = converter.create(body, true);
+      const result = converter.create(body, 3600);
       expect(result).toEqual(expectedDocument);
     });
   });
@@ -73,7 +74,7 @@ describe('Tournament document converter', () => {
 
       const expectedDocument = tournamentDocument();
 
-      const result = converter.update(tournamentId, body, false);
+      const result = converter.update(tournamentId, body, NaN);
       expect(result).toEqual(expectedDocument);
     });
 
@@ -84,7 +85,7 @@ describe('Tournament document converter', () => {
         expiresAt: now + 3600
       });
 
-      const result = converter.update(tournamentId, body, true);
+      const result = converter.update(tournamentId, body, 3600);
       expect(result).toEqual(expectedDocument);
     });
   });

@@ -83,7 +83,7 @@ describe('Match related handler', () => {
     mockRelatedDocumentService.functions.tournamentUpdated.mockResolvedValue(undefined);
 
     await apiHandler(event, undefined, undefined);
-    validateFunctionCall(mockRelatedDocumentService.functions.betResultCalculated, document.tournamentId, document.userId, true);
+    validateFunctionCall(mockRelatedDocumentService.functions.betResultCalculated, document.tournamentId, document.userId, document.expiresAt);
     validateFunctionCall(mockRelatedDocumentService.functions.tournamentUpdated);
     validateFunctionCall(mockRelatedDocumentService.functions.tournamentDeleted);
     validateFunctionCall(mockRelatedDocumentService.functions.teamDeleted);

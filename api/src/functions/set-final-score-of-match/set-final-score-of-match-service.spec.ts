@@ -5,12 +5,13 @@ import { addMinutes } from '@foci2020/shared/common/utils';
 import { IDatabaseService } from '@foci2020/shared/services/database-service';
 import { matchDocument } from '@foci2020/shared/common/test-data-factory';
 import { MatchFinalScoreRequest } from '@foci2020/shared/types/requests';
+import { MatchIdType } from '@foci2020/shared/types/common';
 
 describe('Set final score of match service', () => {
   let service: ISetFinalScoreOfMatchService;
   let mockDatabaseService: Mock<IDatabaseService>;
 
-  const matchId = 'matchId';
+  const matchId = 'matchId' as MatchIdType;
   const finalScore: MatchFinalScoreRequest = {
     homeScore: 1,
     awayScore: 2

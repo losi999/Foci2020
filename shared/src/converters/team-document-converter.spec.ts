@@ -2,11 +2,12 @@ import { ITeamDocumentConverter, teamDocumentConverterFactory } from '@foci2020/
 import { teamDocument, teamResponse, teamRequest } from '@foci2020/shared/common/test-data-factory';
 import { advanceTo } from 'jest-date-mock';
 import { clear } from 'console';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 describe('Team document converter', () => {
   let converter: ITeamDocumentConverter;
   let mockUuid: jest.Mock;
-  const teamId = 'teamId';
+  const teamId = 'teamId' as TeamIdType;
   const now = 1591443246;
 
   beforeEach(() => {
@@ -49,7 +50,7 @@ describe('Team document converter', () => {
 
       const expectedDocument = teamDocument();
 
-      const result = converter.create(body, false);
+      const result = converter.create(body, NaN);
       expect(result).toEqual(expectedDocument);
     });
 
@@ -62,7 +63,7 @@ describe('Team document converter', () => {
         expiresAt: now + 3600
       });
 
-      const result = converter.create(body, true);
+      const result = converter.create(body, 3600);
       expect(result).toEqual(expectedDocument);
     });
   });
@@ -73,7 +74,7 @@ describe('Team document converter', () => {
 
       const expectedDocument = teamDocument();
 
-      const result = converter.update(teamId, body, false);
+      const result = converter.update(teamId, body, NaN);
       expect(result).toEqual(expectedDocument);
     });
 
@@ -84,7 +85,7 @@ describe('Team document converter', () => {
         expiresAt: now + 3600
       });
 
-      const result = converter.update(teamId, body, true);
+      const result = converter.update(teamId, body, 3600);
       expect(result).toEqual(expectedDocument);
     });
   });

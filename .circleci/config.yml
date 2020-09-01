@@ -1,16 +1,41 @@
 version: 2.1
 jobs:
-  api_unit_test:     
+  api_unit_test:
     docker:
       - image: circleci/node:12.13.1
     working_directory: ~/repo
     steps:
       - checkout
       - restore_cache:
-          name: Restoring API dependencies from cache 
+          name: Restoring Shared dependecies from cache
+          key: shared-dependencies-{{ checksum "shared/package.json" }}
+
+      - run:
+          name: Installing Shared dependencies
+          command: cd shared && npm install
+
+      - save_cache:
+          paths:
+            - shared/node_modules
+          key: shared-dependencies-{{ checksum "shared/package.json" }}
+
+      - run:
+          name: Running Shared linter
+          command: cd shared && npm run lint
+
+      - run:
+          name: Running Shared unit tests
+          command: cd shared && npm run test
+
+      - store_artifacts:
+          path: shared/coverage
+          destination: shared/coverage
+
+      - restore_cache:
+          name: Restoring API dependencies from cache
           key: api-dependencies-{{ checksum "api/package.json" }}
 
-      - run: 
+      - run:
           name: Installing API dependencies
           command: cd api && npm install
 
@@ -29,12 +54,12 @@ jobs:
 
       - store_artifacts:
           path: api/coverage
-          destination: coverage
-      
+          destination: api/coverage
+
       - run:
           name: Build API
           command: npm run build:api
-        
+
       - persist_to_workspace:
           root: ~/
           paths:
@@ -47,14 +72,14 @@ jobs:
         type: string
       admin_user_email:
         type: string
-    docker: 
+    docker:
       - image: cibuilds/aws:1.16.1
     working_directory: ~/repo
     steps:
       - checkout
       - attach_workspace:
           at: ~/
-      - deploy: 
+      - deploy:
           name: AWS Package
           command: aws cloudformation package --template-file cf.foci2020.yaml --s3-bucket ${AWS_PACKAGES_S3} --output-template-file packaged.cf.foci2020.yaml
       - deploy:
@@ -69,16 +94,29 @@ jobs:
         type: string
     docker:
       - image: cypress/base
-        environment: 
+        environment:
           ENV: <<parameters.env>>
     working_directory: ~/repo
     steps:
       - checkout
       - restore_cache:
-          name: Restoring test dependencies from cache 
+          name: Restoring Shared dependecies from cache
+          key: shared-dependencies-{{ checksum "shared/package.json" }}
+
+      - run:
+          name: Installing Shared dependencies
+          command: cd shared && npm install
+
+      - save_cache:
+          paths:
+            - shared/node_modules
+          key: shared-dependencies-{{ checksum "shared/package.json" }}
+
+      - restore_cache:
+          name: Restoring test dependencies from cache
           key: test-dependencies-{{ checksum "test/package.json" }}
 
-      - run: 
+      - run:
           name: Installing test dependencies
           command: cd test && npm install
 
@@ -93,9 +131,9 @@ jobs:
           command: cd test && npm run test
 workflows:
   version: 2.1
-  api: 
-    jobs:               
-      - api_unit_test   
+  api:
+    jobs:
+      - api_unit_test
       - api_deploy:
           name: api_deploy_dev
           env: 'DEV'
@@ -105,30 +143,30 @@ workflows:
             - api_unit_test
           filters:
             branches:
-              only: 
+              only:
                 - develop
       - api_deploy:
           name: api_deploy_uat
           env: 'UAT'
           cypress_password: ${CYPRESS_PASSWORD}
-          admin_user_email: ${ADMIN_USER_EMAIL}          
+          admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
             - api_unit_test
           filters:
             branches:
-              only: 
-                - release      
+              only:
+                - release
       - api_deploy:
           name: api_deploy_prod
           env: 'PROD'
           cypress_password: ''
-          admin_user_email: ${ADMIN_USER_EMAIL}          
+          admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
             - api_unit_test
           filters:
             branches:
-              only: 
-                - master                    
+              only:
+                - master
       - test:
           name: test_dev
           env: 'DEV'
@@ -137,7 +175,7 @@ workflows:
           filters:
             branches:
               only:
-                - develop          
+                - develop
       - test:
           name: test_uat
           env: 'UAT'

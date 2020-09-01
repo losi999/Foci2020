@@ -1,5 +1,5 @@
 import { Handler } from 'aws-lambda';
-import { IPostDeployService } from '@/functions/post-deploy/post-deploy-service';
+import { IPostDeployService } from '@foci2020/api/functions/post-deploy/post-deploy-service';
 
 export default (postDeploy: IPostDeployService): Handler =>
   async () => {

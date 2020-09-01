@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/compare-with-player/compare-with-player-handler';
+import { default as handler } from '@foci2020/api/functions/compare-with-player/compare-with-player-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Compare with player handler', () => {

@@ -1,18 +1,27 @@
-import { default as handler } from '@/functions/related-document/related-document-handler';
+import { default as handler } from '@foci2020/api/functions/related-document/related-document-handler';
 import { DynamoDBStreamEvent, DynamoDBRecord } from 'aws-lambda';
-import { IRelatedDocumentService } from '@/functions/related-document/related-document-service';
-import { Mock, createMockService, validateFunctionCall } from '@/common/unit-testing';
+import { IRelatedDocumentService } from '@foci2020/api/functions/related-document/related-document-service';
+import { Mock, createMockService, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
 import { DynamoDB } from 'aws-sdk';
-import { tournamentDocument, teamDocument, betDocument, matchDocument } from '@/common/test-data-factory';
+import { tournamentDocument, teamDocument, betDocument, matchDocument } from '@foci2020/shared/common/test-data-factory';
+import { advanceTo, clear } from 'jest-date-mock';
+import { addSeconds } from '@foci2020/shared/common/utils';
 
 describe('Match related handler', () => {
   let apiHandler: ReturnType<typeof handler>;
   let mockRelatedDocumentService: Mock<IRelatedDocumentService>;
 
+  const now = new Date(2019, 3, 21, 19, 0, 0);
+
   beforeEach(() => {
     mockRelatedDocumentService = createMockService('teamDeleted', 'teamUpdated', 'tournamentUpdated', 'tournamentDeleted', 'matchDeleted', 'matchFinalScoreUpdated', 'betResultCalculated');
 
     apiHandler = handler(mockRelatedDocumentService.service);
+    advanceTo(now);
+  });
+
+  afterEach(() => {
+    clear();
   });
 
   it('should process modified team document', async () => {
@@ -68,7 +77,8 @@ describe('Match related handler', () => {
   });
 
   it('should process modified bet document', async () => {
-    const document = betDocument();
+    const expiresIn = 30;
+    const document = betDocument({ expiresAt: addSeconds(expiresIn, now).getTime() / 1000 });
     const event: DynamoDBStreamEvent = {
       Records: [
         {
@@ -83,7 +93,7 @@ describe('Match related handler', () => {
     mockRelatedDocumentService.functions.tournamentUpdated.mockResolvedValue(undefined);
 
     await apiHandler(event, undefined, undefined);
-    validateFunctionCall(mockRelatedDocumentService.functions.betResultCalculated, document.tournamentId, document.userId);
+    validateFunctionCall(mockRelatedDocumentService.functions.betResultCalculated, document.tournamentId, document.userId, expiresIn);
     validateFunctionCall(mockRelatedDocumentService.functions.tournamentUpdated);
     validateFunctionCall(mockRelatedDocumentService.functions.tournamentDeleted);
     validateFunctionCall(mockRelatedDocumentService.functions.teamDeleted);

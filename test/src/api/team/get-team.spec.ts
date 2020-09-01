@@ -1,6 +1,9 @@
-import { createTeam, getTeam, deleteTeam, validateTeam } from './team-common';
-import uuid from 'uuid';
-import { TeamRequest, TeamResponse } from 'api/types/types';
+import { v4 as uuid } from 'uuid';
+import { TeamRequest } from '@foci2020/shared/types/requests';
+import { teamConverter } from '@foci2020/test/api/dependencies';
+import { TeamDocument } from '@foci2020/shared/types/documents';
+import { default as schema } from '@foci2020/test/api/schemas/team-response';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 describe('GET /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
@@ -9,59 +12,50 @@ describe('GET /team/v1/teams/{teamId}', () => {
     shortName: 'HUN'
   };
 
-  let createdTeamIds: string[];
+  let teamDocument: TeamDocument;
 
-  before(() => {
-    createdTeamIds = [];
+  beforeEach(() => {
+    teamDocument = teamConverter.create(team, 600);
   });
 
-  after(() => {
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
+  describe('called as anonymous', () => {
+    it('should return unauthorized', () => {
+      cy.unauthenticate()
+        .requestGetTeam(uuid() as TeamIdType)
+        .expectUnauthorizedResponse();
+    });
   });
 
   describe('called as a player', () => {
-    it('should return unauthorized', () => {
-      getTeam(uuid(), 'player1')
-        .its('status')
-        .should((status) => {
-          expect(status).to.equal(403);
-        });
+    it('should return forbidden', () => {
+      cy.authenticate('player1')
+        .requestGetTeam(uuid() as TeamIdType)
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as an admin', () => {
     it('should get team by id', () => {
-      let teamId: string;
-
-      createTeam(team, 'admin1')
-        .its('body')
-        .its('teamId')
-        .then((id) => {
-          createdTeamIds.push(id);
-          teamId = id;
-          expect(id).to.be.a('string');
-          return getTeam(teamId, 'admin1');
-        })
-        .its('body')
-        .should((body: TeamResponse) => {
-          validateTeam(body, teamId, team);
-        });
+      cy.saveTeamDocument(teamDocument)
+        .authenticate('admin1')
+        .requestGetTeam(teamDocument.id)
+        .expectOkResponse()
+        .expectValidResponseSchema(schema)
+        .validateTeamResponse(teamDocument);
     });
 
     describe('should return error if teamId', () => {
       it('is not uuid', () => {
-        getTeam(`${uuid()}-not-valid`, 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(400);
-            expect(response.body.pathParameters).to.contain('teamId').to.contain('format').to.contain('uuid');
-          });
+        cy.authenticate('admin1')
+          .requestGetTeam(`${uuid()}-not-valid` as TeamIdType)
+          .expectBadRequestResponse()
+          .expectWrongPropertyFormat('teamId', 'uuid', 'pathParameters');
       });
 
       it('does not belong to any team', () => {
-        getTeam(uuid(), 'admin1')
-          .should((response) => {
-            expect(response.status).to.equal(404);
-          });
+        cy.authenticate('admin1')
+          .requestGetTeam(uuid() as TeamIdType)
+          .expectNotFoundResponse();
       });
     });
   });

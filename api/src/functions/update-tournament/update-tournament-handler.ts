@@ -1,15 +1,18 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { IUpdateTournamentService } from '@/functions/update-tournament/update-tournament-service';
+import { IUpdateTournamentService } from '@foci2020/api/functions/update-tournament/update-tournament-service';
+import { TournamentIdType } from '@foci2020/shared/types/common';
+import { headerExpiresIn } from '@foci2020/shared/constants';
 
 export default (updateTournament: IUpdateTournamentService): APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body);
-    const { tournamentId } = event.pathParameters;
+    const tournamentId = event.pathParameters.tournamentId as TournamentIdType;
 
     try {
       await updateTournament({
         body,
-        tournamentId
+        tournamentId,
+        expiresIn: Number(event.headers[headerExpiresIn])
       });
     } catch (error) {
       console.error(error);

@@ -1,8 +1,9 @@
-import { deleteMatch, createMatch, getMatch } from '../match/match-common';
-import { TournamentRequest, TeamRequest, TournamentResponse, MatchResponse } from 'api/types/types';
-import { deleteTeam, createTeam } from '../team/team-common';
-import { deleteTournament, createTournament, updateTournament, getTournament, validateTournament } from './tournament-common';
-import { addMinutes } from 'api/common';
+import { v4 as uuid } from 'uuid';
+import { TournamentRequest } from '@foci2020/shared/types/requests';
+import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
+import { addMinutes } from '@foci2020/shared/common/utils';
+import { tournamentConverter, teamConverter, matchConverter } from '@foci2020/test/api/dependencies';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
@@ -13,161 +14,106 @@ describe('PUT /tournament/v1/tournaments/{tournamentId}', () => {
     tournamentName: 'VB 2022'
   };
 
-  let createdMatchIds: string[];
-  let createdTeamIds: string[];
-  let createdTournamentIds: string[];
+  let homeTeamDocument: TeamDocument;
+  let awayTeamDocument: TeamDocument;
+  let tournamentDocument: TournamentDocument;
+  let matchDocument: MatchDocument;
 
-  before(() => {
-    createdMatchIds = [];
-    createdTeamIds = [];
-    createdTournamentIds = [];
+  beforeEach(() => {
+    homeTeamDocument = teamConverter.create({
+      teamName: 'Magyarország',
+      image: 'http://image.com/hun.png',
+      shortName: 'HUN',
+    }, 600);
+    awayTeamDocument = teamConverter.create({
+      teamName: 'Anglia',
+      image: 'http://image.com/eng.png',
+      shortName: 'ENG',
+    }, 600);
+    tournamentDocument = tournamentConverter.create(tournament, 600);
+    matchDocument = matchConverter.create({
+      homeTeamId: homeTeamDocument.id,
+      awayTeamId: awayTeamDocument.id,
+      tournamentId: tournamentDocument.id,
+      group: 'A csoport',
+      startTime: addMinutes(10).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
   });
 
-  after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
-  });
-
-  let tournamentId: string;
-
-  before(() => {
-    createTournament(tournamentToUpdate, 'admin1')
-      .its('body')
-      .its('tournamentId')
-      .then((id) => {
-        tournamentId = id;
-        createdTournamentIds.push(id);
-        expect(id).to.be.a('string');
-      });
+  describe('called as anonymous', () => {
+    it('should return unauthorized', () => {
+      cy.unauthenticate()
+        .requestUpdateTournament(uuid() as TournamentIdType, tournamentToUpdate)
+        .expectUnauthorizedResponse();
+    });
   });
 
   describe('called as a player', () => {
-    it('should return unauthorized', () => {
-      updateTournament(tournamentId, tournament, 'player1')
-        .its('status')
-        .should((status) => {
-          expect(status).to.equal(403);
-        });
+    it('should return forbidden', () => {
+      cy.authenticate('player1')
+        .requestUpdateTournament(uuid() as TournamentIdType, tournamentToUpdate)
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as an admin', () => {
     it('should update a tournament', () => {
-      updateTournament(tournamentId, tournament, 'admin1')
-        .its('status')
-        .then((status) => {
-          expect(status).to.equal(200);
-          return getTournament(tournamentId, 'admin1');
-        })
-        .its('body')
-        .should((body: TournamentResponse) => {
-          validateTournament(body, tournamentId, tournament);
-        });
+      cy.saveTournamentDocument(tournamentDocument)
+        .authenticate('admin1')
+        .requestUpdateTournament(tournamentDocument.id, tournamentToUpdate)
+        .expectOkResponse()
+        .validateTournamentDocument(tournamentToUpdate, tournamentDocument.id);
     });
 
     describe('related matches', () => {
-      const homeTeam: TeamRequest = {
-        teamName: 'Magyarország',
-        image: 'http://image.com/hun.png',
-        shortName: 'HUN',
-      };
-      const awayTeam: TeamRequest = {
-        teamName: 'Anglia',
-        image: 'http://image.com/eng.png',
-        shortName: 'ENG',
-      };
-
-      const updatedTournament: TournamentRequest = {
-        tournamentName: 'updated'
-      };
-
-      let homeTeamId: string;
-      let awayTeamId: string;
-
-      beforeEach(() => {
-        createTeam(homeTeam, 'admin1')
-          .its('body')
-          .its('teamId')
-          .then((id) => {
-            homeTeamId = id;
-            createdTeamIds.push(id);
-            expect(id).to.be.a('string');
-            return createTeam(awayTeam, 'admin1');
-          })
-          .its('body')
-          .its('teamId')
-          .then((id) => {
-            awayTeamId = id;
-            createdTeamIds.push(id);
-            expect(id).to.be.a('string');
-          });
-      });
-
       it('should be updated if tournament is updated', () => {
-        let matchId: string;
-
-        createMatch({
-          tournamentId,
-          homeTeamId,
-          awayTeamId,
-          group: 'A csoport',
-          startTime: addMinutes(10).toISOString()
-        }, 'admin1').its('body')
-          .its('matchId')
-          .then((id) => {
-            matchId = id;
-            createdMatchIds.push(id);
-            expect(id).to.be.a('string');
-            return getMatch(matchId, 'admin1');
-          })
-          .its('body')
-          .then(() => {
-            return updateTournament(tournamentId, updatedTournament, 'admin1');
-          })
-          .its('status')
-          .wait(1000)
-          .then((status) => {
-            expect(status).to.equal(200);
-            return getMatch(matchId, 'admin1');
-          })
-          .its('body')
-          .should((body: MatchResponse) => {
-            validateTournament(body.tournament, tournamentId, updatedTournament);
-          });
+        cy.saveTeamDocument(homeTeamDocument)
+          .saveTeamDocument(awayTeamDocument)
+          .saveTournamentDocument(tournamentDocument)
+          .saveMatchDocument(matchDocument)
+          .authenticate('admin1')
+          .requestUpdateTournament(tournamentDocument.id, tournamentToUpdate)
+          .expectOkResponse()
+          .wait(2000)
+          .validateUpdatedTournament(tournamentToUpdate, matchDocument, homeTeamDocument, awayTeamDocument, tournamentDocument, matchDocument.id);
       });
     });
 
     describe('should return error', () => {
       describe('if tournamentName', () => {
         it('is missing from body', () => {
-          updateTournament(tournamentId, {
-            tournamentName: undefined
-          }, 'admin1')
-            .should((response) => {
-              expect(response.status).to.equal(400);
-              expect(response.body.body).to.contain('tournamentName').to.contain('required');
-            });
+          cy.authenticate('admin1')
+            .requestUpdateTournament(uuid() as TournamentIdType, {
+              ...tournament,
+              tournamentName: undefined
+            })
+            .expectBadRequestResponse()
+            .expectRequiredProperty('tournamentName', 'body');
         });
 
         it('is not string', () => {
-          updateTournament(tournamentId, {
-            tournamentName: 1 as any
-          }, 'admin1')
-            .should((response) => {
-              expect(response.status).to.equal(400);
-              expect(response.body.body).to.contain('tournamentName').to.contain('string');
-            });
+          cy.authenticate('admin1')
+            .requestUpdateTournament(uuid() as TournamentIdType, {
+              ...tournament,
+              tournamentName: 1 as any
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('tournamentName', 'string', 'body');
         });
       });
 
       describe('if tournamentId', () => {
-        it.skip('is not uuid', () => {
-
+        it('is not uuid', () => {
+          cy.authenticate('admin1')
+            .requestUpdateTournament(`${uuid()}-not-valid` as TournamentIdType, tournamentToUpdate)
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('tournamentId', 'uuid', 'pathParameters');
         });
 
-        it.skip('does not belong to any tournament', () => {
-
+        it('does not belong to any tournament', () => {
+          cy.authenticate('admin1')
+            .requestUpdateTournament(uuid() as TournamentIdType, tournamentToUpdate)
+            .expectNotFoundResponse();
         });
       });
     });

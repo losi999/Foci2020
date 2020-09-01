@@ -3,11 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "build:api": "cd api && npm run build",
-    "dotenv": "export $(cat .env | xargs)",
-    "deploy:local": "npm run dotenv && export ENV=LOCAL && npm run sam-package -- --profile losonczil && npm run sam-deploy -- --profile losonczil && npm run postdeploy -- --profile losonczil",
-    "deploy:ci": "npm run dotenv && export ENV=CI && npm run sam-package -- --profile ci && npm run sam-deploy -- --profile ci && npm run postdeploy -- --profile ci",
-    "sam-package": "sam package -t cf.foci2020.yaml --s3-bucket losonczil-packages-eu-west-1 --output-template-file packaged.cf.foci2020.yaml",
-    "sam-deploy": "sam deploy -t packaged.cf.foci2020.yaml --stack-name foci2020-${ENV} --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=${ENV} TestUserPassword=${CYPRESS_PASSWORD:-'\"\"'} AdminUserEmail=${ADMIN_USER_EMAIL}",
+    "samconfig": "cp samconfig.${ENV}.toml samconfig.toml",
+    "deploy:local": "export ENV=LOCAL && yarn samconfig && sam deploy -t cf.foci2020.yaml --profile losonczil && yarn postdeploy --profile losonczil",
+    "deploy:ci": "export ENV=CI && sam deploy -t cf.foci2020.yaml --profile ci && yarn postdeploy --profile ci",
     "postdeploy": "aws lambda invoke --function-name Foci2020-${ENV}-PostDeploy /dev/null"
   }
 }

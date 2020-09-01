@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/place-bet/place-bet-handler';
+import { default as handler } from '@foci2020/api/functions/place-bet/place-bet-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Place bet handler', () => {
@@ -27,7 +27,8 @@ describe('Place bet handler', () => {
           nickname: userName,
         }
       }
-    } as any
+    } as any,
+    headers: {}
   } as APIGatewayProxyEvent;
 
   it('should respond with error if placeBet throws error', async () => {
@@ -46,7 +47,8 @@ describe('Place bet handler', () => {
       matchId,
       userId,
       bet,
-      userName
+      userName,
+      expiresIn: NaN
     });
     expect.assertions(3);
   });
@@ -61,7 +63,8 @@ describe('Place bet handler', () => {
       matchId,
       userId,
       bet,
-      userName
+      userName,
+      expiresIn: NaN
     });
     expect.assertions(2);
   });

@@ -1,15 +1,16 @@
-import { CompareResponse } from '@/types/types';
-import { IDatabaseService } from '@/services/database-service';
-import { IIdentityService } from '@/services/identity-service';
-import { ICompareDocumentConverter } from '@/converters/compare-document-converter';
-import { httpError } from '@/common';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { IIdentityService } from '@foci2020/shared/services/identity-service';
+import { ICompareDocumentConverter } from '@foci2020/shared/converters/compare-document-converter';
+import { httpError } from '@foci2020/shared/common/utils';
+import { CompareResponse } from '@foci2020/shared/types/responses';
+import { TournamentIdType, UserIdType } from '@foci2020/shared/types/common';
 
 export interface ICompareWithPlayerService {
   (ctx: {
-    tournamentId: string;
-    ownUserId: string;
+    tournamentId: TournamentIdType;
+    ownUserId: UserIdType;
     ownUserName: string;
-    otherUserId: string;
+    otherUserId: UserIdType;
   }): Promise<CompareResponse>;
 }
 

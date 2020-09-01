@@ -1,6 +1,6 @@
-import { default as handler } from '@/functions/list-matches-of-tournament/list-matches-of-tournament-handler';
+import { default as handler } from '@foci2020/api/functions/list-matches-of-tournament/list-matches-of-tournament-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { matchResponse } from '@/common/test-data-factory';
+import { matchResponse } from '@foci2020/shared/common/test-data-factory';
 
 describe('List matches of tournament handler', () => {
   let mockListMatchesOfTournamentService: jest.Mock;

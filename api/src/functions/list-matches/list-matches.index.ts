@@ -1,6 +1,6 @@
-import { default as handler } from '@/functions/list-matches/list-matches-handler';
-import { matchDocumentConverter, databaseService, authorizer } from '@/dependencies';
-import { listMatchesServiceFactory } from '@/functions/list-matches/list-matches-service';
+import { default as handler } from '@foci2020/api/functions/list-matches/list-matches-handler';
+import { authorizer, databaseService, matchDocumentConverter } from '@foci2020/api/dependencies';
+import { listMatchesServiceFactory } from '@foci2020/api/functions/list-matches/list-matches-service';
 
 const listMatchesService = listMatchesServiceFactory(databaseService, matchDocumentConverter);
 

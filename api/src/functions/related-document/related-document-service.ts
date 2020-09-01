@@ -1,16 +1,17 @@
-import { TeamDocument, TournamentDocument, MatchDocument, BetDocument } from '@/types/types';
-import { IBetDocumentConverter } from '@/converters/bet-document-converter';
-import { IStandingDocumentConverter } from '@/converters/standing-document-converter';
-import { IDatabaseService } from '@/services/database-service';
+import { IBetDocumentConverter } from '@foci2020/shared/converters/bet-document-converter';
+import { IStandingDocumentConverter } from '@foci2020/shared/converters/standing-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { TeamDocument, TournamentDocument, MatchDocument, BetDocument } from '@foci2020/shared/types/documents';
+import { TeamIdType, TournamentIdType, MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 export interface IRelatedDocumentService {
-  teamDeleted(teamId: string): Promise<void>;
-  tournamentDeleted(tournamentId: string): Promise<void>;
+  teamDeleted(teamId: TeamIdType): Promise<void>;
+  tournamentDeleted(tournamentId: TournamentIdType): Promise<void>;
   teamUpdated(team: TeamDocument): Promise<void>;
   tournamentUpdated(tournament: TournamentDocument): Promise<void>;
-  matchDeleted(matchId: string): Promise<void>;
+  matchDeleted(matchId: MatchIdType): Promise<void>;
   matchFinalScoreUpdated(match: MatchDocument): Promise<void>;
-  betResultCalculated(tournamentId: string, userId: string): Promise<void>;
+  betResultCalculated(tournamentId: TournamentIdType, userId: UserIdType, expiresIn: number): Promise<void>;
 }
 
 export const relatedDocumentServiceFactory = (
@@ -18,23 +19,23 @@ export const relatedDocumentServiceFactory = (
   betDocumentConverter: IBetDocumentConverter,
   standingDocumentConverter: IStandingDocumentConverter,
 ): IRelatedDocumentService => {
-  const deleteMatchesById = async (matchIds: string[]): Promise<unknown> => {
+  const deleteMatchesById = async (matchIds: MatchIdType[]): Promise<unknown> => {
     return Promise.all(matchIds.map(id => databaseService.deleteMatch(id))).catch((error) => {
       console.error('Delete matches', error);
       throw error;
     });
   };
 
-  const queryMatchIdsByTournamentId = async (tournamentId: string): Promise<string[]> => {
+  const queryMatchIdsByTournamentId = async (tournamentId: TournamentIdType): Promise<MatchIdType[]> => {
     return (await databaseService.queryMatchesByTournamentId(tournamentId).catch((error) => {
       console.error('Query matches to delete', error, tournamentId);
       throw error;
     })).map(m => m.id);
   };
 
-  const queryMatchIdsByTeamId = async (teamId: string): Promise<{
-    homeMatchIds: string[],
-    awayMatchIds: string[]
+  const queryMatchIdsByTeamId = async (teamId: TeamIdType): Promise<{
+    homeMatchIds: MatchIdType[],
+    awayMatchIds: MatchIdType[]
   }> => {
     const [homeMatches, awayMatches] = await Promise.all([
       databaseService.queryMatchKeysByHomeTeamId(teamId),
@@ -50,7 +51,7 @@ export const relatedDocumentServiceFactory = (
     };
   };
 
-  const queryBetsOfMatch = (matchId: string): Promise<BetDocument[]> => {
+  const queryBetsOfMatch = (matchId: MatchIdType): Promise<BetDocument[]> => {
     return databaseService.queryBetsByMatchId(matchId).catch((error) => {
       console.error('Query bets of match', matchId, error);
       throw error;
@@ -108,13 +109,13 @@ export const relatedDocumentServiceFactory = (
         throw error;
       });
     },
-    betResultCalculated: async (tournamentId, userId) => {
+    betResultCalculated: async (tournamentId, userId, expiresIn) => {
       const bets = await databaseService.queryBetsByTournamentIdUserId(tournamentId, userId).catch((error) => {
         console.error('Query bets by tournament and user Id', tournamentId, userId, error);
         throw error;
       });
 
-      const standing = standingDocumentConverter.create(bets);
+      const standing = standingDocumentConverter.create(bets, expiresIn);
 
       await databaseService.saveStanding(standing).catch((error) => {
         console.error('Save standing', error);

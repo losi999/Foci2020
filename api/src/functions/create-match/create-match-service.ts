@@ -1,11 +1,12 @@
-import { httpError, addMinutes } from '@/common';
-import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { MatchRequest } from '@/types/types';
-import { IDatabaseService } from '@/services/database-service';
+import { httpError, addMinutes } from '@foci2020/shared/common/utils';
+import { IMatchDocumentConverter } from '@foci2020/shared/converters/match-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { MatchRequest } from '@foci2020/shared/types/requests';
 
 export interface ICreateMatchService {
   (ctx: {
-    body: MatchRequest
+    body: MatchRequest;
+    expiresIn: number;
   }): Promise<string>;
 }
 
@@ -13,7 +14,7 @@ export const createMatchServiceFactory = (
   databaseService: IDatabaseService,
   matchDocumentConverter: IMatchDocumentConverter
 ): ICreateMatchService => {
-  return async ({ body }) => {
+  return async ({ body, expiresIn }) => {
     if (addMinutes(5) > new Date(body.startTime)) {
       throw httpError(400, 'Start time has to be at least 5 minutes from now');
     }
@@ -43,7 +44,7 @@ export const createMatchServiceFactory = (
       throw httpError(400, 'Tournament not found');
     }
 
-    const document = matchDocumentConverter.create(body, homeTeam, awayTeam, tournament);
+    const document = matchDocumentConverter.create(body, homeTeam, awayTeam, tournament, expiresIn);
 
     await databaseService.saveMatch(document).catch((error) => {
       console.error('Save match', error);

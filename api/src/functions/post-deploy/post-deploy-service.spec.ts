@@ -1,6 +1,6 @@
-import { IPostDeployService, postDeployServiceFactory } from '@/functions/post-deploy/post-deploy-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IInfrastructureService } from '@/services/infrastructure-service';
+import { IPostDeployService, postDeployServiceFactory } from '@foci2020/api/functions/post-deploy/post-deploy-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IInfrastructureService } from '@foci2020/shared/services/infrastructure-service';
 
 describe('Post deploy service', () => {
   let service: IPostDeployService;

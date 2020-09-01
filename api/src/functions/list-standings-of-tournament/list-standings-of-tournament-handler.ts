@@ -1,10 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { IListStandingsOfTournament } from '@/functions/list-standings-of-tournament/list-standings-of-tournament-service';
-import { StandingResponse } from '@/types/types';
+import { IListStandingsOfTournament } from '@foci2020/api/functions/list-standings-of-tournament/list-standings-of-tournament-service';
+import { StandingResponse } from '@foci2020/shared/types/responses';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 export default (listStandingsOfTournament: IListStandingsOfTournament): APIGatewayProxyHandler =>
   async (event) => {
-    const tournamentId = event.pathParameters.tournamentId;
+    const tournamentId = event.pathParameters.tournamentId as TournamentIdType;
 
     let standings: StandingResponse[];
     try {

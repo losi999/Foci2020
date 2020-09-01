@@ -36,7 +36,8 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
-      '@': path.resolve('src')
+      '@foci2020/api': path.resolve('src'),
+      '@foci2020/shared': path.resolve('../shared/src'),
     }
   },
   optimization: {

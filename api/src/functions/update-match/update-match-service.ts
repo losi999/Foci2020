@@ -1,12 +1,14 @@
-import { httpError, addMinutes } from '@/common';
-import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { MatchRequest } from '@/types/types';
-import { IDatabaseService } from '@/services/database-service';
+import { httpError, addMinutes } from '@foci2020/shared/common/utils';
+import { IMatchDocumentConverter } from '@foci2020/shared/converters/match-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { MatchRequest } from '@foci2020/shared/types/requests';
+import { MatchIdType } from '@foci2020/shared/types/common';
 
 export interface IUpdateMatchService {
   (ctx: {
-    matchId: string,
-    body: MatchRequest
+    matchId: MatchIdType;
+    body: MatchRequest;
+    expiresIn: number;
   }): Promise<void>;
 }
 
@@ -14,13 +16,26 @@ export const updateMatchServiceFactory = (
   databaseService: IDatabaseService,
   matchDocumentConverter: IMatchDocumentConverter
 ): IUpdateMatchService => {
-  return async ({ body, matchId }) => {
+  return async ({ body, matchId, expiresIn }) => {
     if (addMinutes(5) > new Date(body.startTime)) {
       throw httpError(400, 'Start time has to be at least 5 minutes from now');
     }
 
     if (body.homeTeamId === body.awayTeamId) {
       throw httpError(400, 'Home and away teams cannot be the same');
+    }
+
+    const oldDocument = await databaseService.getMatchById(matchId).catch((error) => {
+      console.error('Query match by id', error);
+      throw httpError(500, 'Unable to query match');
+    });
+
+    if (!oldDocument) {
+      throw httpError(404, 'No match found');
+    }
+
+    if (oldDocument.finalScore) {
+      throw httpError(400, 'Final score is already set for this match');
     }
 
     const [homeTeam, awayTeam, tournament] = await Promise.all([
@@ -44,7 +59,7 @@ export const updateMatchServiceFactory = (
       throw httpError(400, 'Tournament not found');
     }
 
-    const document = matchDocumentConverter.update(matchId, body, homeTeam, awayTeam, tournament);
+    const document = matchDocumentConverter.update(matchId, body, homeTeam, awayTeam, tournament, expiresIn);
 
     await databaseService.updateMatch(document).catch((error) => {
       console.error('Update match', error);

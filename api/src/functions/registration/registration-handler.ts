@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { IRegistrationService } from '@/functions/registration/registration-service';
+import { IRegistrationService } from '@foci2020/api/functions/registration/registration-service';
 
 export default (registration: IRegistrationService): APIGatewayProxyHandler => {
   return async (event) => {

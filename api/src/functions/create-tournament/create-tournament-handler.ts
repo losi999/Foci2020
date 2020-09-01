@@ -1,5 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { ICreateTournamentService } from '@/functions/create-tournament/create-tournament-service';
+import { ICreateTournamentService } from '@foci2020/api/functions/create-tournament/create-tournament-service';
+import { headerExpiresIn } from '@foci2020/shared/constants';
 
 export default (createTournament: ICreateTournamentService): APIGatewayProxyHandler => {
   return async (event) => {
@@ -7,7 +8,10 @@ export default (createTournament: ICreateTournamentService): APIGatewayProxyHand
 
     let tournamentId: string;
     try {
-      tournamentId = await createTournament({ body });
+      tournamentId = await createTournament({
+        body,
+        expiresIn: Number(event.headers[headerExpiresIn])
+      });
     } catch (error) {
       console.error(error);
       return {

@@ -1,13 +1,14 @@
-import { createTeamServiceFactory, ICreateTeamService } from '@/functions/create-team/create-team-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { ITeamDocumentConverter } from '@/converters/team-document-converter';
-import { IDatabaseService } from '@/services/database-service';
-import { teamRequest, teamDocument } from '@/common/test-data-factory';
+import { createTeamServiceFactory, ICreateTeamService } from '@foci2020/api/functions/create-team/create-team-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { ITeamDocumentConverter } from '@foci2020/shared/converters/team-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { teamRequest, teamDocument } from '@foci2020/shared/common/test-data-factory';
 
 describe('Create team service', () => {
   let mockDatabaseService: Mock<IDatabaseService>;
   let mockTeamDocumentConverter: Mock<ITeamDocumentConverter>;
   let service: ICreateTeamService;
+  const expiresIn = 30;
 
   beforeEach(() => {
     mockDatabaseService = createMockService('saveTeam');
@@ -23,9 +24,9 @@ describe('Create team service', () => {
     mockTeamDocumentConverter.functions.create.mockReturnValue(convertedTeam);
     mockDatabaseService.functions.saveTeam.mockRejectedValue({});
 
-    await service({ body }).catch(validateError('Error while saving team', 500));
+    await service({ body, expiresIn }).catch(validateError('Error while saving team', 500));
 
-    validateFunctionCall(mockTeamDocumentConverter.functions.create, body);
+    validateFunctionCall(mockTeamDocumentConverter.functions.create, body, expiresIn);
     validateFunctionCall(mockDatabaseService.functions.saveTeam, convertedTeam);
     expect.assertions(4);
   });
@@ -37,10 +38,10 @@ describe('Create team service', () => {
     mockTeamDocumentConverter.functions.create.mockReturnValue(convertedTeam);
     mockDatabaseService.functions.saveTeam.mockResolvedValue(undefined);
 
-    const result = await service({ body });
+    const result = await service({ body, expiresIn });
 
     expect(result).toEqual(convertedTeam.id);
-    validateFunctionCall(mockTeamDocumentConverter.functions.create, body);
+    validateFunctionCall(mockTeamDocumentConverter.functions.create, body, expiresIn);
     validateFunctionCall(mockDatabaseService.functions.saveTeam, convertedTeam);
     expect.assertions(3);
   });

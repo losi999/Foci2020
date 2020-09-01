@@ -1,8 +1,11 @@
 {
     "integrationFolder": "src/api",
     "testFiles": "**/*.spec.ts",
+    "supportFile": "src/support",
     "baseUrl": "https://d2tm4opeg4njny.cloudfront.net",
     "pluginsFile": "src/plugins",
     "viewportWidth": 0,
-    "viewportHeight": 0
+    "viewportHeight": 0,
+    "defaultCommandTimeout": 10000,
+    "videoCompression": false
 }

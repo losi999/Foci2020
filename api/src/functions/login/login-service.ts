@@ -1,6 +1,7 @@
-import { IIdentityService } from '@/services/identity-service';
-import { httpError } from '@/common';
-import { LoginRequest, LoginResponse } from '@/types/types';
+import { IIdentityService } from '@foci2020/shared/services/identity-service';
+import { httpError } from '@foci2020/shared/common/utils';
+import { LoginRequest } from '@foci2020/shared/types/requests';
+import { LoginResponse } from '@foci2020/shared/types/responses';
 
 export interface ILoginService {
   (CTX: {

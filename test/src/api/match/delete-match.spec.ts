@@ -1,127 +1,88 @@
-import { TeamRequest, TournamentRequest, MatchRequest } from 'api/types/types';
-import { createTeam, deleteTeam } from '../team/team-common';
-import { createTournament, deleteTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/common';
-import { deleteMatch, createMatch, getMatch } from './match-common';
-import uuid from 'uuid';
+import { addMinutes } from '@foci2020/shared/common/utils';
+import { v4 as uuid } from 'uuid';
+import { TeamDocument, TournamentDocument, MatchDocument, BetDocument } from '@foci2020/shared/types/documents';
+import { teamConverter, tournamentConverter, matchConverter, betConverter } from '@foci2020/test/api/dependencies';
+import { MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 describe('DELETE /match/v1/matches/{matchId}', () => {
-  const homeTeam: TeamRequest = {
-    teamName: 'Magyarország',
-    image: 'http://image.com/hun.png',
-    shortName: 'HUN',
-  };
+  let homeTeamDocument: TeamDocument;
+  let awayTeamDocument: TeamDocument;
+  let tournamentDocument: TournamentDocument;
+  let matchDocument: MatchDocument;
+  let betDocument: BetDocument;
 
-  const awayTeam: TeamRequest = {
-    teamName: 'Anglia',
-    image: 'http://image.com/eng.png',
-    shortName: 'ENG',
-  };
-
-  const tournament: TournamentRequest = {
-    tournamentName: 'EB 2020'
-  };
-
-  let createdMatchIds: string[];
-  let createdTeamIds: string[];
-  let createdTournamentIds: string[];
-
-  before(() => {
-    createdMatchIds = [];
-    createdTeamIds = [];
-    createdTournamentIds = [];
+  beforeEach(() => {
+    homeTeamDocument = teamConverter.create({
+      teamName: 'Magyarország',
+      image: 'http://image.com/hun.png',
+      shortName: 'HUN',
+    }, 600);
+    awayTeamDocument = teamConverter.create({
+      teamName: 'Anglia',
+      image: 'http://image.com/eng.png',
+      shortName: 'ENG',
+    }, 600);
+    tournamentDocument = tournamentConverter.create({
+      tournamentName: 'EB 2020'
+    }, 600);
+    matchDocument = matchConverter.create({
+      homeTeamId: homeTeamDocument.id,
+      awayTeamId: awayTeamDocument.id,
+      tournamentId: tournamentDocument.id,
+      group: 'A csoport',
+      startTime: addMinutes(10).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
+    betDocument = betConverter.create({
+      homeScore: 1,
+      awayScore: 0
+    }, uuid() as UserIdType, 'username', matchDocument.id, matchDocument.tournamentId, 600);
   });
 
-  after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
-  });
-
-  let homeTeamId: string;
-  let awayTeamId: string;
-  let tournamentId: string;
-  let match: MatchRequest;
-
-  before(() => {
-    createTeam(homeTeam, 'admin1')
-      .its('body')
-      .its('teamId')
-      .then((id) => {
-        homeTeamId = id;
-        createdTeamIds.push(id);
-        expect(id).to.be.a('string');
-        return createTeam(awayTeam, 'admin1');
-      })
-      .its('body')
-      .its('teamId')
-      .then((id) => {
-        awayTeamId = id;
-        createdTeamIds.push(id);
-        expect(id).to.be.a('string');
-        return createTournament(tournament, 'admin1');
-      })
-      .its('body')
-      .its('tournamentId')
-      .then((id) => {
-        tournamentId = id;
-        createdTournamentIds.push(id);
-        expect(id).to.be.a('string');
-
-        match = {
-          homeTeamId,
-          awayTeamId,
-          tournamentId,
-          group: 'A csoport',
-          startTime: addMinutes(10).toISOString()
-        };
-      });
+  describe('called as anonymous', () => {
+    it('should return unauthorized', () => {
+      cy.unauthenticate()
+        .requestDeleteMatch(uuid() as MatchIdType)
+        .expectUnauthorizedResponse();
+    });
   });
 
   describe('called as a player', () => {
-    it('should return unauthorized', () => {
-      deleteMatch(uuid(), 'player1')
-        .its('status')
-        .should((status) => {
-          expect(status).to.equal(403);
-        });
+    it('should return forbidden', () => {
+      cy.authenticate('player1')
+        .requestDeleteMatch(uuid() as MatchIdType)
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as an admin', () => {
     it('should delete match', () => {
-      let matchId: string;
-
-      createMatch(match, 'admin1')
-        .its('body')
-        .its('matchId')
-        .then((id) => {
-          matchId = id;
-          createdMatchIds.push(id);
-          expect(id).to.be.a('string');
-          return deleteMatch(matchId, 'admin1');
-        })
-        .its('status')
-        .then((status) => {
-          expect(status).to.equal(200);
-          return getMatch(matchId, 'admin1');
-        })
-        .its('status')
-        .should((status) => {
-          expect(status).to.equal(404);
-        });
+      cy.saveMatchDocument(matchDocument)
+        .authenticate('admin1')
+        .requestDeleteMatch(matchDocument.id)
+        .expectOkResponse()
+        .validateMatchDeleted(matchDocument.id);
     });
 
     describe('related bets', () => {
-      it.skip('should be deleted if match is deleted', () => {
-
+      it('should be deleted if match is deleted', () => {
+        cy.saveMatchDocument(matchDocument)
+          .saveBetDocument(betDocument)
+          .authenticate('admin1')
+          .requestDeleteMatch(matchDocument.id)
+          .expectOkResponse()
+          .validateMatchDeleted(matchDocument.id)
+          .wait(2000)
+          .validateBetDeleted(betDocument.userId, matchDocument.id);
       });
     });
 
     describe('should return error', () => {
       describe('if matchId', () => {
-        it.skip('is not uuid', () => {
-
+        it('is not uuid', () => {
+          cy.authenticate('admin1')
+            .requestDeleteMatch(`${uuid()}-not-valid` as MatchIdType)
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('matchId', 'uuid', 'pathParameters');
         });
       });
     });

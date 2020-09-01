@@ -13,6 +13,9 @@ Resources:
     Properties:
       TableName: !Sub Foci2020-${Env}-200330
       BillingMode: PAY_PER_REQUEST
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: True
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
       AttributeDefinitions:
@@ -31,7 +34,7 @@ Resources:
         - AttributeName: tournamentId-documentType
           AttributeType: S
         - AttributeName: tournamentId-userId-documentType
-          AttributeType: S          
+          AttributeType: S
       KeySchema:
         - AttributeName: documentType-id
           KeyType: HASH
@@ -41,7 +44,7 @@ Resources:
             - AttributeName: tournamentId-documentType
               KeyType: HASH
             - AttributeName: orderingValue
-              KeyType: RANGE              
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL
         - IndexName: indexByAwayTeamIdDocumentType
@@ -65,7 +68,7 @@ Resources:
             - AttributeName: matchId-documentType
               KeyType: HASH
             - AttributeName: orderingValue
-              KeyType: RANGE              
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL
         - IndexName: indexByTournamentIdUserIdDocumentType
@@ -73,9 +76,9 @@ Resources:
             - AttributeName: tournamentId-userId-documentType
               KeyType: HASH
             - AttributeName: orderingValue
-              KeyType: RANGE              
+              KeyType: RANGE
           Projection:
-            ProjectionType: ALL            
+            ProjectionType: ALL
         - IndexName: indexByDocumentType
           KeySchema:
             - AttributeName: documentType
@@ -179,4 +182,4 @@ Outputs:
   ClientId:
     Value: !Ref ApplicationClient
   UserPoolArn:
-    Value: !GetAtt UserPool.Arn    
+    Value: !GetAtt UserPool.Arn

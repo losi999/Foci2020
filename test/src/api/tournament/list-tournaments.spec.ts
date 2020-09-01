@@ -1,5 +1,7 @@
-import { createTournament, deleteTournament, getTournamentList, validateTournament } from './tournament-common';
-import { TournamentRequest, TournamentResponse } from 'api/types/types';
+import { TournamentRequest } from '@foci2020/shared/types/requests';
+import { tournamentConverter } from '@foci2020/test/api/dependencies';
+import { TournamentDocument } from '@foci2020/shared/types/documents';
+import { default as schema } from '@foci2020/test/api/schemas/tournament-response-list';
 
 describe('GET /tournament/v1/tournaments', () => {
   const tournament1: TournamentRequest = {
@@ -10,51 +12,38 @@ describe('GET /tournament/v1/tournaments', () => {
     tournamentName: 'VB 2020'
   };
 
-  let createdTournamentIds: string[];
+  let tournamentDocument1: TournamentDocument;
+  let tournamentDocument2: TournamentDocument;
 
-  before(() => {
-    createdTournamentIds = [];
+  beforeEach(() => {
+    tournamentDocument1 = tournamentConverter.create(tournament1, 600);
+    tournamentDocument2 = tournamentConverter.create(tournament2, 600);
   });
 
-  after(() => {
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
+  describe('called as anonymous', () => {
+    it('should return unauthorized', () => {
+      cy.unauthenticate()
+        .requestGetTournamentList()
+        .expectUnauthorizedResponse();
+    });
   });
 
   describe('called as a player', () => {
-    it('should return unauthorized', () => {
-      getTournamentList('player1')
-        .its('status')
-        .should((status) => {
-          expect(status).to.equal(403);
-        });
+    it('should return forbidden', () => {
+      cy.authenticate('player1')
+        .requestGetTournamentList()
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as an admin', () => {
     it('should get a list of tournaments', () => {
-      let tournamentId1: string;
-      let tournamentId2: string;
-
-      createTournament(tournament1, 'admin1')
-        .its('body')
-        .its('tournamentId')
-        .then((id) => {
-          tournamentId1 = id;
-          createdTournamentIds.push(id);
-          return createTournament(tournament2, 'admin1');
-        })
-        .its('body')
-        .its('tournamentId')
-        .then((id) => {
-          tournamentId2 = id;
-          createdTournamentIds.push(id);
-          return getTournamentList('admin1');
-        })
-        .its('body')
-        .should((tournaments: TournamentResponse[]) => {
-          validateTournament(tournaments.find(t => t.tournamentId === tournamentId1), tournamentId1, tournament1);
-          validateTournament(tournaments.find(t => t.tournamentId === tournamentId2), tournamentId2, tournament2);
-        });
+      cy.saveTournamentDocument(tournamentDocument1)
+        .saveTournamentDocument(tournamentDocument2)
+        .authenticate('admin1')
+        .requestGetTournamentList()
+        .expectOkResponse()
+        .expectValidResponseSchema(schema);
     });
   });
 });

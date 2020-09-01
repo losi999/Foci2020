@@ -1,9 +1,10 @@
-import { httpError } from '@/common';
-import { IDatabaseService } from '@/services/database-service';
+import { httpError } from '@foci2020/shared/common/utils';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { MatchIdType } from '@foci2020/shared/types/common';
 
 export interface IDeleteMatchService {
   (ctx: {
-    matchId: string
+    matchId: MatchIdType
   }): Promise<void>;
 }
 

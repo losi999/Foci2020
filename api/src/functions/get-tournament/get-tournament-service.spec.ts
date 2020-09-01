@@ -1,8 +1,9 @@
-import { IGetTournamentService, getTournamentServiceFactory } from '@/functions/get-tournament/get-tournament-service';
-import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
-import { tournamentResponse, tournamentDocument } from '@/common/test-data-factory';
+import { IGetTournamentService, getTournamentServiceFactory } from '@foci2020/api/functions/get-tournament/get-tournament-service';
+import { ITournamentDocumentConverter } from '@foci2020/shared/converters/tournament-document-converter';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { tournamentResponse, tournamentDocument } from '@foci2020/shared/common/test-data-factory';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('Get tournament service', () => {
   let service: IGetTournamentService;
@@ -17,8 +18,9 @@ describe('Get tournament service', () => {
     service = getTournamentServiceFactory(mockDatabaseService.service, mockTournamentDocumentConverter.service);
   });
 
+  const tournamentId = 'tournamentId' as TournamentIdType;
+
   it('should return with a tournament', async () => {
-    const tournamentId = 'tournamentId';
     const document = tournamentDocument();
 
     mockDatabaseService.functions.getTournamentById.mockResolvedValue(document);
@@ -35,7 +37,6 @@ describe('Get tournament service', () => {
   });
 
   it('should throw error if unable to query tournament', async () => {
-    const tournamentId = 'tournamentId';
     mockDatabaseService.functions.getTournamentById.mockRejectedValue('This is a dynamo error');
 
     await service({ tournamentId }).catch(validateError('Unable to query tournament', 500));
@@ -45,7 +46,6 @@ describe('Get tournament service', () => {
   });
 
   it('should return with error if no tournament found', async () => {
-    const tournamentId = 'tournamentId';
     mockDatabaseService.functions.getTournamentById.mockResolvedValue(undefined);
 
     await service({ tournamentId }).catch(validateError('No tournament found', 404));

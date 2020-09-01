@@ -1,175 +1,98 @@
-import { createTeam, deleteTeam, getTeam } from './team-common';
-import { createTournament, deleteTournament } from '../tournament/tournament-common';
-import { addMinutes } from 'api/common';
-import { createMatch, getMatch, deleteMatch } from '../match/match-common';
-import { TeamRequest, TournamentRequest } from 'api/types/types';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
+import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
+import { addMinutes } from '@foci2020/shared/common/utils';
+import { teamConverter, tournamentConverter, matchConverter } from '@foci2020/test/api/dependencies';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 describe('DELETE /team/v1/teams/{teamId}', () => {
-  const team: TeamRequest = {
-    teamName: 'Magyarország',
-    image: 'http://image.com/hun.png',
-    shortName: 'HUN'
-  };
+  let homeTeamDocument: TeamDocument;
+  let awayTeamDocument: TeamDocument;
+  let tournamentDocument: TournamentDocument;
+  let matchDocument: MatchDocument;
 
-  let createdMatchIds: string[];
-  let createdTeamIds: string[];
-  let createdTournamentIds: string[];
-
-  before(() => {
-    createdMatchIds = [];
-    createdTeamIds = [];
-    createdTournamentIds = [];
+  beforeEach(() => {
+    homeTeamDocument = teamConverter.create({
+      teamName: 'Magyarország',
+      image: 'http://image.com/hun.png',
+      shortName: 'HUN',
+    }, 600);
+    awayTeamDocument = teamConverter.create({
+      teamName: 'Anglia',
+      image: 'http://image.com/eng.png',
+      shortName: 'ENG',
+    }, 600);
+    tournamentDocument = tournamentConverter.create({
+      tournamentName: 'EB 2020'
+    }, 600);
+    matchDocument = matchConverter.create({
+      homeTeamId: homeTeamDocument.id,
+      awayTeamId: awayTeamDocument.id,
+      tournamentId: tournamentDocument.id,
+      group: 'A csoport',
+      startTime: addMinutes(10).toISOString()
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
   });
 
-  after(() => {
-    createdMatchIds.map(matchId => deleteMatch(matchId, 'admin1'));
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
-    createdTournamentIds.map(tournamentId => deleteTournament(tournamentId, 'admin1'));
+  describe('called as anonymous', () => {
+    it('should return unauthorized', () => {
+      cy.unauthenticate()
+        .requestDeleteTeam(uuid() as TeamIdType)
+        .expectUnauthorizedResponse();
+    });
   });
 
   describe('called as a player', () => {
-    it('should return unauthorized', () => {
-      deleteTeam(uuid(), 'player1')
-        .its('status')
-        .should((status) => {
-          expect(status).to.equal(403);
-        });
+    it('should return forbidden', () => {
+      cy.authenticate('player1')
+        .requestDeleteTeam(uuid() as TeamIdType)
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as an admin', () => {
     it('should delete team', () => {
-      let teamId: string;
-
-      createTeam(team, 'admin1')
-        .its('body')
-        .its('teamId')
-        .then((id) => {
-          teamId = id;
-          expect(id).to.be.a('string');
-          return deleteTeam(teamId, 'admin1');
-        })
-        .its('status')
-        .then((status) => {
-          expect(status).to.equal(200);
-          return getTeam(teamId, 'admin1');
-        })
-        .its('status')
-        .should((status) => {
-          expect(status).to.equal(404);
-        });
+      cy.saveTeamDocument(homeTeamDocument)
+        .authenticate('admin1')
+        .requestDeleteTeam(homeTeamDocument.id)
+        .expectOkResponse()
+        .validateTeamDeleted(homeTeamDocument.id);
     });
 
     describe('related matches', () => {
-      const teamToDelete: TeamRequest = {
-        teamName: 'Anglia',
-        image: 'http://image.com/eng.png',
-        shortName: 'ENG',
-      };
-      const tournament: TournamentRequest = {
-        tournamentName: 'EB 2020'
-      };
-
-      let teamId: string;
-      let teamToDeleteId: string;
-      let tournamentId: string;
-
-      beforeEach(() => {
-        createTeam(team, 'admin1')
-          .its('body')
-          .its('teamId')
-          .then((id) => {
-            teamId = id;
-            createdTeamIds.push(id);
-            expect(id).to.be.a('string');
-            return createTeam(teamToDelete, 'admin1');
-          })
-          .its('body')
-          .its('teamId')
-          .then((id) => {
-            teamToDeleteId = id;
-            expect(id).to.be.a('string');
-            return createTournament(tournament, 'admin1');
-          })
-          .its('body')
-          .its('tournamentId')
-          .then((id) => {
-            tournamentId = id;
-            createdTournamentIds.push(id);
-            expect(id).to.be.a('string');
-          });
-      });
-
       it('should be deleted if "home team" is deleted', () => {
-        let matchId: string;
-        createMatch({
-          tournamentId,
-          homeTeamId: teamToDeleteId,
-          awayTeamId: teamId,
-          group: 'A csoport',
-          startTime: addMinutes(10).toISOString(),
-        }, 'admin1')
-          .its('body')
-          .its('matchId')
-          .then((id) => {
-            matchId = id;
-            createdMatchIds.push(id);
-            return deleteTeam(teamToDeleteId, 'admin1');
-          })
-          .its('status')
-          .then((status) => {
-            expect(status).to.equal(200);
-            return getTeam(teamToDeleteId, 'admin1');
-          })
-          .its('status')
-          .then((status) => {
-            expect(status).to.equal(404);
-            return getMatch(matchId, 'admin1');
-          })
-          .its('status')
-          .should((status) => {
-            expect(status).to.equal(404);
-          });
+        cy.saveTeamDocument(homeTeamDocument)
+          .saveTeamDocument(awayTeamDocument)
+          .saveTournamentDocument(tournamentDocument)
+          .saveMatchDocument(matchDocument)
+          .authenticate('admin1')
+          .requestDeleteTeam(homeTeamDocument.id)
+          .expectOkResponse()
+          .validateTeamDeleted(homeTeamDocument.id)
+          .wait(2000)
+          .validateMatchDeleted(matchDocument.id);
       });
 
       it('should be deleted if "away team" is deleted', () => {
-        let matchId: string;
-        createMatch({
-          tournamentId,
-          awayTeamId: teamToDeleteId,
-          homeTeamId: teamId,
-          group: 'A csoport',
-          startTime: addMinutes(10).toISOString(),
-        }, 'admin1')
-          .its('body')
-          .its('matchId')
-          .then((id) => {
-            matchId = id;
-            createdMatchIds.push(id);
-            return deleteTeam(teamToDeleteId, 'admin1');
-          })
-          .its('status')
-          .then((status) => {
-            expect(status).to.equal(200);
-            return getTeam(teamToDeleteId, 'admin1');
-          })
-          .its('status')
-          .then((status) => {
-            expect(status).to.equal(404);
-            return getMatch(matchId, 'admin1');
-          })
-          .its('status')
-          .should((status) => {
-            expect(status).to.equal(404);
-          });
+        cy.saveTeamDocument(homeTeamDocument)
+          .saveTeamDocument(awayTeamDocument)
+          .saveTournamentDocument(tournamentDocument)
+          .saveMatchDocument(matchDocument)
+          .authenticate('admin1')
+          .requestDeleteTeam(awayTeamDocument.id)
+          .expectOkResponse()
+          .validateTeamDeleted(awayTeamDocument.id)
+          .wait(2000)
+          .validateMatchDeleted(matchDocument.id);
       });
     });
 
     describe('should return error', () => {
       describe('if teamId', () => {
-        it.skip('is not uuid', () => {
-
+        it('is not uuid', () => {
+          cy.authenticate('admin1')
+            .requestDeleteTeam(`${uuid()}-not-valid` as TeamIdType)
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('teamId', 'uuid', 'pathParameters');
         });
       });
     });

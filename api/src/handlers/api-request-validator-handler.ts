@@ -1,6 +1,6 @@
-import { IValidatorService } from '@/services/validator-service';
 import { JSONSchema7 } from 'json-schema';
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
+import { IValidatorService } from '@foci2020/shared/services/validator-service';
 
 type RequestSchemaTypes = {
   body?: JSONSchema7;
@@ -17,7 +17,8 @@ export default (validatorService: IValidatorService) => {
     return (handler) => {
       return async (event, context, callback) => {
         const validationErrors = keys(schemas).reduce((accumulator, currentValue) => {
-          const validation = validatorService.validate(event[currentValue], schemas[currentValue]);
+          const data = currentValue === 'body' ? JSON.parse(event[currentValue]) : event[currentValue];
+          const validation = validatorService.validate(data, schemas[currentValue]);
           if (validation) {
             return {
               ...accumulator,

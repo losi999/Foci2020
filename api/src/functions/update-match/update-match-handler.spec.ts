@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/update-match/update-match-handler';
+import { default as handler } from '@foci2020/api/functions/update-match/update-match-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Update match handler', () => {
@@ -8,11 +8,12 @@ describe('Update match handler', () => {
     mockUpdateMatchService = jest.fn();
   });
 
+  const handlerEvent = {
+    body: '{}',
+    pathParameters: {},
+    headers: {}
+  } as APIGatewayProxyEvent;
   it('should respond with error if updateMatch throws error', async () => {
-    const handlerEvent = {
-      body: '{}',
-      pathParameters: {}
-    } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -28,11 +29,6 @@ describe('Update match handler', () => {
   });
 
   it('should respond with HTTP 200 if updateMatch executes successfully', async () => {
-    const handlerEvent = {
-      body: '{}',
-      pathParameters: {}
-    } as APIGatewayProxyEvent;
-
     mockUpdateMatchService.mockResolvedValue(undefined);
 
     const response = await handler(mockUpdateMatchService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

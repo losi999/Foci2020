@@ -1,6 +1,6 @@
-import { default as handler } from '@/handlers/api-request-validator-handler';
-import { IValidatorService } from '@/services/validator-service';
+import { default as handler } from '@foci2020/api/handlers/api-request-validator-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { IValidatorService } from '@foci2020/shared/services/validator-service';
 
 describe('API request validator handler', () => {
   let mockValidatorService: IValidatorService;
@@ -17,7 +17,7 @@ describe('API request validator handler', () => {
 
   it('should respond with HTTP 400 if request is not valid', async () => {
     const handlerEvent = {
-
+      body: '{}'
     } as APIGatewayProxyEvent;
     const validationError = 'This is a validation error';
     mockValidate.mockReturnValue(validationError);
@@ -33,7 +33,7 @@ describe('API request validator handler', () => {
 
   it('should call inner handler if request is valid', async () => {
     const handlerEvent = {
-
+      body: '{}'
     } as APIGatewayProxyEvent;
 
     mockValidate.mockReturnValue(undefined);

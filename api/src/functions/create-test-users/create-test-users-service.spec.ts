@@ -1,6 +1,6 @@
-import { ICreateTestUsersService, createTestUsersServiceFactory } from '@/functions/create-test-users/create-test-users-service';
-import { IIdentityService } from '@/services/identity-service';
-import { Mock, createMockService, validateError } from '@/common/unit-testing';
+import { ICreateTestUsersService, createTestUsersServiceFactory } from '@foci2020/api/functions/create-test-users/create-test-users-service';
+import { IIdentityService } from '@foci2020/shared/services/identity-service';
+import { Mock, createMockService, validateError } from '@foci2020/shared/common/unit-testing';
 
 describe('Create test users service', () => {
   let service: ICreateTestUsersService;

@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { ILoginService } from '@/functions/login/login-service';
-import { LoginResponse } from '@/types/types';
+import { ILoginService } from '@foci2020/api/functions/login/login-service';
+import { LoginResponse } from '@foci2020/shared/types/responses';
 
 export default (login: ILoginService): APIGatewayProxyHandler => {
   return async (event) => {

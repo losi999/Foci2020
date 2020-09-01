@@ -1,9 +1,10 @@
-import { ICompareWithPlayerService, compareWithPlayerServiceFactory } from '@/functions/compare-with-player/compare-with-player-service';
-import { IDatabaseService } from '@/services/database-service';
-import { Mock, createMockService, validateFunctionCall, validateError } from '@/common/unit-testing';
-import { IIdentityService } from '@/services/identity-service';
-import { ICompareDocumentConverter } from '@/converters/compare-document-converter';
-import { matchDocument, betDocument, compareResponse } from '@/common/test-data-factory';
+import { ICompareWithPlayerService, compareWithPlayerServiceFactory } from '@foci2020/api/functions/compare-with-player/compare-with-player-service';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { IIdentityService } from '@foci2020/shared/services/identity-service';
+import { ICompareDocumentConverter } from '@foci2020/shared/converters/compare-document-converter';
+import { Mock, createMockService, validateFunctionCall, validateError } from '@foci2020/shared/common/unit-testing';
+import { matchDocument, betDocument, compareResponse } from '@foci2020/shared/common/test-data-factory';
+import { UserIdType, TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('Compare with player service', () => {
   let service: ICompareWithPlayerService;
@@ -19,10 +20,10 @@ describe('Compare with player service', () => {
     service = compareWithPlayerServiceFactory(mockDatabaseService.service, mockIdentityService.service, mockCompareDocumentConverter.service);
   });
 
-  const otherUserId = 'otherUserId';
-  const tournamentId = 'tournamentId';
+  const otherUserId = 'otherUserId' as UserIdType;
+  const tournamentId = 'tournamentId' as TournamentIdType;
   const ownUserName = 'ownUserName';
-  const ownUserId = 'ownUserId';
+  const ownUserId = 'ownUserId' as UserIdType;
   const otherUserName = 'otherUserName';
 
   it('should return compare response', async () => {

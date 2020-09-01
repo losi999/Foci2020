@@ -1,4 +1,4 @@
-import { default as handler } from '@/functions/update-team/update-team-handler';
+import { default as handler } from '@foci2020/api/functions/update-team/update-team-handler';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Update team handler', () => {
@@ -8,11 +8,12 @@ describe('Update team handler', () => {
     mockUpdateTeamService = jest.fn();
   });
 
+  const handlerEvent = {
+    body: '{}',
+    pathParameters: {},
+    headers: {}
+  } as APIGatewayProxyEvent;
   it('should respond with error if updateTeam throws error', async () => {
-    const handlerEvent = {
-      body: '{}',
-      pathParameters: {}
-    } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -28,11 +29,6 @@ describe('Update team handler', () => {
   });
 
   it('should respond with HTTP 200 if updateTeam executes successfully', async () => {
-    const handlerEvent = {
-      body: '{}',
-      pathParameters: {}
-    } as APIGatewayProxyEvent;
-
     mockUpdateTeamService.mockResolvedValue(undefined);
 
     const response = await handler(mockUpdateTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

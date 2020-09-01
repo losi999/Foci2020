@@ -1,6 +1,7 @@
-import { IDeleteTeamService, deleteTeamServiceFactory } from '@/functions/delete-team/delete-team-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
+import { IDeleteTeamService, deleteTeamServiceFactory } from '@foci2020/api/functions/delete-team/delete-team-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { TeamIdType } from '@foci2020/shared/types/common';
 
 describe('Delete team service', () => {
   let service: IDeleteTeamService;
@@ -12,8 +13,9 @@ describe('Delete team service', () => {
     service = deleteTeamServiceFactory(mockDatabaseService.service);
   });
 
+  const teamId = 'teamId' as TeamIdType;
+
   it('should return with undefined', async () => {
-    const teamId = 'teamId';
 
     mockDatabaseService.functions.deleteTeam.mockResolvedValue(undefined);
 
@@ -24,8 +26,6 @@ describe('Delete team service', () => {
   });
 
   it('should throw error if unable to delete team', async () => {
-    const teamId = 'teamId';
-
     mockDatabaseService.functions.deleteTeam.mockRejectedValue('This is a dynamo error');
 
     await service({ teamId }).catch(validateError('Unable to delete team', 500));

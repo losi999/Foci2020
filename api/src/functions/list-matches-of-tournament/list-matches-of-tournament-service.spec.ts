@@ -1,8 +1,9 @@
-import { IListMatchesOfTournamentService, listMatchesOfTournamentServiceFactory } from '@/functions/list-matches-of-tournament/list-matches-of-tournament-service';
-import { IMatchDocumentConverter } from '@/converters/match-document-converter';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IDatabaseService } from '@/services/database-service';
-import { matchResponse, matchDocument } from '@/common/test-data-factory';
+import { IListMatchesOfTournamentService, listMatchesOfTournamentServiceFactory } from '@foci2020/api/functions/list-matches-of-tournament/list-matches-of-tournament-service';
+import { IMatchDocumentConverter } from '@foci2020/shared/converters/match-document-converter';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { matchResponse, matchDocument } from '@foci2020/shared/common/test-data-factory';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('List matches of tournament service', () => {
   let service: IListMatchesOfTournamentService;
@@ -17,7 +18,7 @@ describe('List matches of tournament service', () => {
     service = listMatchesOfTournamentServiceFactory(mockDatabaseService.service, mockMatchDocumentConverter.service);
   });
 
-  const tournamentId = 'tournamentId';
+  const tournamentId = 'tournamentId' as TournamentIdType;
 
   it('should return with list of matches', async () => {
     const queriedDocuments = [matchDocument()];

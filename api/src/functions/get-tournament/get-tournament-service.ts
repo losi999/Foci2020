@@ -1,11 +1,12 @@
-import { httpError } from '@/common';
-import { ITournamentDocumentConverter } from '@/converters/tournament-document-converter';
-import { TournamentResponse } from '@/types/types';
-import { IDatabaseService } from '@/services/database-service';
+import { httpError } from '@foci2020/shared/common/utils';
+import { ITournamentDocumentConverter } from '@foci2020/shared/converters/tournament-document-converter';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { TournamentResponse } from '@foci2020/shared/types/responses';
+import { TournamentIdType } from '@foci2020/shared/types/common';
 
 export interface IGetTournamentService {
   (ctx: {
-    tournamentId: string
+    tournamentId: TournamentIdType
   }): Promise<TournamentResponse>;
 }
 

@@ -1,19 +1,20 @@
-import { IListBetsOfMatchService, listBetsOfMatchServiceFactory } from '@/functions/list-bets-of-match/list-bets-of-match-service';
-import { Mock, createMockService, validateError, validateFunctionCall } from '@/common/unit-testing';
-import { IBetDocumentConverter } from '@/converters/bet-document-converter';
+import { IListBetsOfMatchService, listBetsOfMatchServiceFactory } from '@foci2020/api/functions/list-bets-of-match/list-bets-of-match-service';
+import { Mock, createMockService, validateError, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
+import { IBetDocumentConverter } from '@foci2020/shared/converters/bet-document-converter';
 import { advanceTo, clear } from 'jest-date-mock';
-import { addMinutes } from '@/common';
-import { IDatabaseService } from '@/services/database-service';
-import { matchDocument, betDocument, betResponse } from '@/common/test-data-factory';
+import { addMinutes } from '@foci2020/shared/common/utils';
+import { IDatabaseService } from '@foci2020/shared/services/database-service';
+import { matchDocument, betDocument, betResponse } from '@foci2020/shared/common/test-data-factory';
+import { MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 describe('List bets of match service', () => {
   let service: IListBetsOfMatchService;
   let mockDatabaseService: Mock<IDatabaseService>;
   let mockBetDocumentConverter: Mock<IBetDocumentConverter>;
   const now = new Date(2020, 2, 11, 23, 55, 0);
-  const matchId = 'matchId';
-  const userId = 'userId';
-  const userId2 = 'userId2';
+  const matchId = 'matchId' as MatchIdType;
+  const userId = 'userId' as UserIdType;
+  const userId2 = 'userId2' as UserIdType;
 
   beforeEach(() => {
     mockDatabaseService = createMockService('queryBetsByMatchId', 'getMatchById');

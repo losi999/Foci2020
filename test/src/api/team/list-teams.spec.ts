@@ -1,5 +1,7 @@
-import { deleteTeam, createTeam, getTeamList, validateTeam } from './team-common';
-import { TeamRequest, TeamResponse } from 'api/types/types';
+import { TeamRequest } from '@foci2020/shared/types/requests';
+import { teamConverter } from '@foci2020/test/api/dependencies';
+import { TeamDocument } from '@foci2020/shared/types/documents';
+import { default as schema } from '@foci2020/test/api/schemas/team-response-list';
 
 describe('GET /team/v1/teams', () => {
   const team1: TeamRequest = {
@@ -14,51 +16,38 @@ describe('GET /team/v1/teams', () => {
     shortName: 'ENG'
   };
 
-  let createdTeamIds: string[];
+  let teamDocument1: TeamDocument;
+  let teamDocument2: TeamDocument;
 
-  before(() => {
-    createdTeamIds = [];
+  beforeEach(() => {
+    teamDocument1 = teamConverter.create(team1, 600);
+    teamDocument2 = teamConverter.create(team2, 600);
   });
 
-  after(() => {
-    createdTeamIds.map(teamId => deleteTeam(teamId, 'admin1'));
+  describe('called as anonymous', () => {
+    it('should return unauthorized', () => {
+      cy.unauthenticate()
+        .requestGetTeamList()
+        .expectUnauthorizedResponse();
+    });
   });
 
   describe('called as a player', () => {
-    it('should return unauthorized', () => {
-      getTeamList('player1')
-        .its('status')
-        .should((status) => {
-          expect(status).to.equal(403);
-        });
+    it('should return forbidden', () => {
+      cy.authenticate('player1')
+        .requestGetTeamList()
+        .expectForbiddenResponse();
     });
   });
 
   describe('called as an admin', () => {
     it('should get a list of teams', () => {
-      let teamId1: string;
-      let teamId2: string;
-
-      createTeam(team1, 'admin1')
-        .its('body')
-        .its('teamId')
-        .then((id) => {
-          teamId1 = id;
-          createdTeamIds.push(id);
-          return createTeam(team2, 'admin1');
-        })
-        .its('body')
-        .its('teamId')
-        .then((id) => {
-          teamId2 = id;
-          createdTeamIds.push(id);
-          return getTeamList('admin1');
-        })
-        .its('body')
-        .should((teams: TeamResponse[]) => {
-          validateTeam(teams.find(t => t.teamId === teamId1), teamId1, team1);
-          validateTeam(teams.find(t => t.teamId === teamId2), teamId2, team2);
-        });
+      cy.saveTeamDocument(teamDocument1)
+        .saveTeamDocument(teamDocument2)
+        .authenticate('admin1')
+        .requestGetTeamList()
+        .expectOkResponse()
+        .expectValidResponseSchema(schema);
     });
   });
 });

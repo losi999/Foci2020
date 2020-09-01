@@ -1,7 +1,7 @@
-import { default as handler } from '@/functions/get-tournament/get-tournament-handler';
-import { apiRequestValidator, tournamentDocumentConverter, databaseService, authorizer } from '@/dependencies';
-import { getTournamentServiceFactory } from '@/functions/get-tournament/get-tournament-service';
-import { default as pathParameters } from '@/schemas/tournament-id';
+import { default as handler } from '@foci2020/api/functions/get-tournament/get-tournament-handler';
+import { apiRequestValidator,   authorizer, databaseService, tournamentDocumentConverter } from '@foci2020/api/dependencies';
+import { getTournamentServiceFactory } from '@foci2020/api/functions/get-tournament/get-tournament-service';
+import { default as pathParameters } from '@foci2020/shared/schemas/tournament-id';
 
 const getTournamentService = getTournamentServiceFactory(databaseService, tournamentDocumentConverter);
 

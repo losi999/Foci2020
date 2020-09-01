@@ -1,15 +1,18 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { IUpdateTeamService } from '@/functions/update-team/update-team-service';
+import { IUpdateTeamService } from '@foci2020/api/functions/update-team/update-team-service';
+import { TeamIdType } from '@foci2020/shared/types/common';
+import { headerExpiresIn } from '@foci2020/shared/constants';
 
 export default (updateTeam: IUpdateTeamService): APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body);
-    const { teamId } = event.pathParameters;
+    const teamId = event.pathParameters.teamId as TeamIdType;
 
     try {
       await updateTeam({
         body,
-        teamId
+        teamId,
+        expiresIn: Number(event.headers[headerExpiresIn])
       });
     } catch (error) {
       console.error(error);

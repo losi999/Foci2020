@@ -3,6 +3,7 @@ import { IValidatorService, validatorServiceFactory } from '@foci2020/shared/ser
 import ajv from 'ajv';
 import { validateSchemaAdditionalProperties, validateSchemaRequired, validateSchemaType, validateSchemaFormat, validateSchemaMinLength } from '@foci2020/shared/common/unit-testing';
 import { MatchRequest } from '@foci2020/shared/types/requests';
+import { TeamIdType, TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('Match schema', () => {
   let data: MatchRequest;
@@ -15,11 +16,11 @@ describe('Match schema', () => {
     }));
 
     data = {
-      awayTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      tournamentId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      awayTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TeamIdType,
+      tournamentId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TournamentIdType,
       startTime: '2019-10-08T18:25:07.291Z',
       group: 'Döntő',
-      homeTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+      homeTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TeamIdType
     };
   });
 
@@ -91,7 +92,7 @@ describe('Match schema', () => {
       });
 
       it('is wrong format', () => {
-        data.homeTeamId = 'not-date';
+        data.homeTeamId = 'not-date' as TeamIdType;
         const result = validatorService.validate(data, schema);
         validateSchemaFormat(result, 'homeTeamId', 'uuid');
       });
@@ -111,7 +112,7 @@ describe('Match schema', () => {
       });
 
       it('is wrong format', () => {
-        data.awayTeamId = 'not-date';
+        data.awayTeamId = 'not-date' as TeamIdType;
         const result = validatorService.validate(data, schema);
         validateSchemaFormat(result, 'awayTeamId', 'uuid');
       });
@@ -131,7 +132,7 @@ describe('Match schema', () => {
       });
 
       it('is wrong format', () => {
-        data.tournamentId = 'not-date';
+        data.tournamentId = 'not-date' as TournamentIdType;
         const result = validatorService.validate(data, schema);
         validateSchemaFormat(result, 'tournamentId', 'uuid');
       });

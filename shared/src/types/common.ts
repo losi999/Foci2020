@@ -8,6 +8,8 @@ export type RecursivePartial<T> = {
   T[P];
 };
 
+export type KeyType = Brand<string, 'key'>;
+
 export type TournamentBase = {
   tournamentName: string;
 };

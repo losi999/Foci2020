@@ -1,7 +1,7 @@
-import { BetDocument, MatchDocument, StandingDocument, TeamDocument, TournamentDocument, IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument, Document, DocumentType } from '@foci2020/shared/types/documents';
-import { DynamoDB } from 'aws-sdk';
-import { concatenate } from '@foci2020/shared/common/utils';
-import { UserIdType, MatchIdType, TeamIdType, TournamentIdType } from '@foci2020/shared/types/common';
+import { BetDocument, MatchDocument, StandingDocument, TeamDocument, TournamentDocument, Document, DocumentType, DocumentKey } from '@foci2020/shared/types/documents';
+import { chunk, concatenate } from '@foci2020/shared/common/utils';
+import { UserIdType, MatchIdType, TeamIdType, TournamentIdType, KeyType } from '@foci2020/shared/types/common';
+import { DocumentClient } from 'aws-sdk/lib/dynamodb/document_client';
 
 export interface IDatabaseService {
   saveBet(document: BetDocument): Promise<unknown>;
@@ -22,24 +22,30 @@ export interface IDatabaseService {
   queryBetsByTournamentIdUserId(tournamentId: TournamentIdType, userId: UserIdType): Promise<BetDocument[]>;
   queryMatchesByTournamentId(tournamentId: TournamentIdType): Promise<MatchDocument[]>;
   queryStandingsByTournamentId(tournamentId: TournamentIdType): Promise<StandingDocument[]>;
-  queryMatchKeysByHomeTeamId(teamId: TeamIdType): Promise<IndexByHomeTeamIdDocument[]>;
-  queryMatchKeysByAwayTeamId(teamId: TeamIdType): Promise<IndexByAwayTeamIdDocument[]>;
+  queryMatchKeysByHomeTeamId(teamId: TeamIdType): Promise<DocumentKey[]>;
+  queryMatchKeysByAwayTeamId(teamId: TeamIdType): Promise<DocumentKey[]>;
   listMatches(): Promise<MatchDocument[]>;
   listTeams(): Promise<TeamDocument[]>;
   listTournaments(): Promise<TournamentDocument[]>;
   updateBet(document: BetDocument): Promise<unknown>;
   updateMatch(document: MatchDocument): Promise<unknown>;
-  updateTeamOfMatch(matchId: MatchIdType, team: TeamDocument, type: 'home' | 'away'): Promise<unknown>;
-  updateTournamentOfMatch(matchId: MatchIdType, tournament: TournamentDocument): Promise<unknown>;
+  updateTeamOfMatch(matchKey: KeyType, team: TeamDocument, type: 'home' | 'away'): Promise<unknown>;
+  updateTournamentOfMatch(matchKey: KeyType, tournament: TournamentDocument): Promise<unknown>;
   updateTournament(document: TournamentDocument): Promise<unknown>;
   updateTeam(document: TeamDocument): Promise<unknown>;
+  archiveDocument(document: Document): Promise<unknown>;
+  deleteDocuments(keys: KeyType[]): Promise<unknown>;
+  putDocuments(documents: Document[]): Promise<unknown>;
 }
 
-export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB.DocumentClient): IDatabaseService => {
+export const databaseServiceFactory = (config: {
+  primaryTableName: string;
+  archiveTableName: string;
+}, dynamoClient: DocumentClient): IDatabaseService => {
   const saveDocument = <T extends Document>(document: T) => {
     return dynamoClient.put({
       ReturnConsumedCapacity: 'INDEXES',
-      TableName: tableName,
+      TableName: config.primaryTableName,
       Item: document,
     }).promise();
   };
@@ -47,7 +53,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
   const listDocuments = async <T extends Document>(documentType: T['documentType']) => {
     return (await dynamoClient.query({
       ReturnConsumedCapacity: 'INDEXES',
-      TableName: tableName,
+      TableName: config.primaryTableName,
       IndexName: 'indexByDocumentType',
       KeyConditionExpression: 'documentType = :documentType',
       ExpressionAttributeValues: {
@@ -59,7 +65,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
   const updateDocument = async <T extends Document>(document: T) => {
     return dynamoClient.put({
       ReturnConsumedCapacity: 'INDEXES',
-      TableName: tableName,
+      TableName: config.primaryTableName,
       Item: document,
       ConditionExpression: '#documentTypeId = :documentTypeId',
       ExpressionAttributeNames: {
@@ -74,7 +80,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
   const deleteDocument = (documentId: string, documentType: DocumentType) => {
     return dynamoClient.delete({
       ReturnConsumedCapacity: 'INDEXES',
-      TableName: tableName,
+      TableName: config.primaryTableName,
       Key: {
         'documentType-id': concatenate(documentType, documentId),
       }
@@ -84,7 +90,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
   const getDocumentById = async <T extends Document>(documentId: string, documentType: T['documentType']) => {
     return (await dynamoClient.get({
       ReturnConsumedCapacity: 'INDEXES',
-      TableName: tableName,
+      TableName: config.primaryTableName,
       Key: {
         'documentType-id': concatenate(documentType, documentId)
       },
@@ -93,7 +99,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
 
   const queryDocumentsByMatchId = async <T extends Document>(matchId: string, documentType: T['documentType']) => {
     return (await dynamoClient.query({
-      TableName: tableName,
+      TableName: config.primaryTableName,
       IndexName: 'indexByMatchIdDocumentType',
       ReturnConsumedCapacity: 'INDEXES',
       KeyConditionExpression: '#matchIdDocumentType = :matchIdDocumentType',
@@ -109,7 +115,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
   const queryDocumentsByTournamentId = async <T extends Document>(tournamentId: string, documentType: T['documentType'], isAscending = true) => {
     return (await dynamoClient.query({
       ReturnConsumedCapacity: 'INDEXES',
-      TableName: tableName,
+      TableName: config.primaryTableName,
       IndexName: 'indexByTournamentIdDocumentType',
       KeyConditionExpression: '#tournamentIdDocumentType = :tournamentIdDocumentType',
       ScanIndexForward: isAscending,
@@ -124,7 +130,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
 
   const queryDocumentsByTournamentIdUserId = async <T extends Document>(tournamentId: string, userId: string, documentType: T['documentType']) => {
     return (await dynamoClient.query({
-      TableName: tableName,
+      TableName: config.primaryTableName,
       IndexName: 'indexByTournamentIdUserIdDocumentType',
       ReturnConsumedCapacity: 'INDEXES',
       KeyConditionExpression: '#ournamentIdUserIdDocumentType = :ournamentIdUserIdDocumentType',
@@ -163,12 +169,12 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
     queryBetsByTournamentIdUserId: (tournamentId, userId) => queryDocumentsByTournamentIdUserId(tournamentId, userId, 'bet'),
     queryMatchesByTournamentId: tournamentId => queryDocumentsByTournamentId(tournamentId, 'match'),
     queryStandingsByTournamentId: tournamentId => queryDocumentsByTournamentId(tournamentId, 'standing', false),
-    updateTournamentOfMatch: (matchId, tournament) => {
+    updateTournamentOfMatch: (matchKey, tournament) => {
       return dynamoClient.update({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: tableName,
+        TableName: config.primaryTableName,
         Key: {
-          'documentType-id': concatenate('match', matchId),
+          'documentType-id': matchKey,
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set tournament = :tournament',
@@ -176,17 +182,17 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
           '#documentTypeId': 'documentType-id'
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': concatenate('match', matchId),
+          ':documentTypeId': matchKey,
           ':tournament': tournament
         }
       }).promise();
     },
-    updateTeamOfMatch: (matchId, team, type) => {
+    updateTeamOfMatch: (matchKey, team, type) => {
       return dynamoClient.update({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: tableName,
+        TableName: config.primaryTableName,
         Key: {
-          'documentType-id': concatenate('match', matchId),
+          'documentType-id': matchKey,
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set #team = :team',
@@ -195,7 +201,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
           '#team': `${type}Team`
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': concatenate('match', matchId),
+          ':documentTypeId': matchKey,
           ':team': team,
         }
       }).promise();
@@ -203,7 +209,7 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
     queryMatchKeysByHomeTeamId: async (teamId) => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: tableName,
+        TableName: config.primaryTableName,
         IndexName: 'indexByHomeTeamIdDocumentType',
         KeyConditionExpression: '#homeTeamIdDocumentType = :homeTeamIdDocumentType',
         ExpressionAttributeNames: {
@@ -212,12 +218,12 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
         ExpressionAttributeValues: {
           ':homeTeamIdDocumentType': concatenate(teamId, 'match'),
         }
-      }).promise()).Items as IndexByHomeTeamIdDocument[];
+      }).promise()).Items as DocumentKey[];
     },
     queryMatchKeysByAwayTeamId: async (teamId) => {
       return (await dynamoClient.query({
         ReturnConsumedCapacity: 'INDEXES',
-        TableName: tableName,
+        TableName: config.primaryTableName,
         IndexName: 'indexByAwayTeamIdDocumentType',
         KeyConditionExpression: '#awayTeamIdDocumentType = :awayTeamIdDocumentType',
         ExpressionAttributeNames: {
@@ -226,8 +232,57 @@ export const databaseServiceFactory = (tableName: string, dynamoClient: DynamoDB
         ExpressionAttributeValues: {
           ':awayTeamIdDocumentType': concatenate(teamId, 'match'),
         }
-      }).promise()).Items as IndexByAwayTeamIdDocument[];
+      }).promise()).Items as DocumentKey[];
     },
+    archiveDocument: (document) => {
+      return dynamoClient.put({
+        ReturnConsumedCapacity: 'INDEXES',
+        TableName: config.archiveTableName,
+        Item: document,
+      }).promise();
+    },
+    deleteDocuments: async (keys) => {
+      let unprocessItemCount = 0;
+      for (const batch of chunk(keys, 25)) {
+        const result = await dynamoClient.batchWrite({
+          ReturnConsumedCapacity: 'INDEXES',
+          RequestItems: {
+            [config.primaryTableName]: batch.map(key => ({
+              DeleteRequest: {
+                Key: {
+                  'documentType-id': key
+                }
+              }
+            }))
+          }
+        }).promise();
+        unprocessItemCount += result.UnprocessedItems?.[config.primaryTableName]?.length;
+      }
+
+      if (unprocessItemCount > 0) {
+        throw unprocessItemCount;
+      }
+    },
+    putDocuments: async (documents) => {
+      let unprocessItemCount = 0;
+      for (const batch of chunk(documents, 25)) {
+        const result = await dynamoClient.batchWrite({
+          ReturnConsumedCapacity: 'INDEXES',
+          RequestItems: {
+            [config.primaryTableName]: batch.map(doc => ({
+              PutRequest: {
+                Item: doc
+              }
+            }))
+          }
+        }).promise();
+        unprocessItemCount += result.UnprocessedItems?.[config.primaryTableName]?.length;
+      }
+
+      if (unprocessItemCount > 0) {
+        throw unprocessItemCount;
+      }
+    }
   };
 
   return instance;

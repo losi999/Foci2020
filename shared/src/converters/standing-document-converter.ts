@@ -1,7 +1,7 @@
 import { BetDocument, StandingDocument } from '@foci2020/shared/types/documents';
 import { StandingResponse } from '@foci2020/shared/types/responses';
 import { concatenate, addSeconds } from '@foci2020/shared/common/utils';
-import { BetResult } from '@foci2020/shared/types/common';
+import { BetResult, KeyType } from '@foci2020/shared/types/common';
 import { betResultPoint } from '@foci2020/shared/constants';
 
 export interface IStandingDocumentConverter {
@@ -41,7 +41,7 @@ export const standingDocumentConverterFactory = (): IStandingDocumentConverter =
         tournamentId,
         documentType,
         'tournamentId-documentType': concatenate(tournamentId, documentType),
-        'documentType-id': concatenate(documentType, id),
+        'documentType-id': concatenate(documentType, id) as KeyType,
         orderingValue: concatenate(toFourDigit(total), toFourDigit(exactMatch), toFourDigit(goalDifference), toFourDigit(outcome)),
         results: {
           nothing,
@@ -49,7 +49,8 @@ export const standingDocumentConverterFactory = (): IStandingDocumentConverter =
           goalDifference,
           exactMatch
         },
-        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined
+        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined,
+        modifiedAt: new Date().toISOString(),
       };
     },
     toResponseList: documents => documents.map(d => ({
@@ -60,7 +61,8 @@ export const standingDocumentConverterFactory = (): IStandingDocumentConverter =
       id: undefined,
       orderingValue: undefined,
       tournamentId: undefined,
-      expiresAt: undefined
+      expiresAt: undefined,
+      modifiedAt: undefined,
     }))
   };
 

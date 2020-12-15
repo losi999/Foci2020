@@ -21,6 +21,7 @@ Resources:
         ClientId: !GetAtt Data.Outputs.ClientId
         Env: !Ref Env
         TestUserPassword: !Ref TestUserPassword
+        DatabaseArchive: !GetAtt Data.Outputs.DatabaseArchive
 
   Data:
     Type: AWS::CloudFormation::Stack
@@ -181,7 +182,7 @@ Resources:
               - PUT
               - PATCH
               - POST
-              - DELETE              
+              - DELETE
           - ForwardedValues:
               QueryString: true
               Headers:
@@ -216,7 +217,7 @@ Resources:
           - DomainName: !GetAtt Betting.Outputs.BettingApi
             Id: Betting
             CustomOriginConfig:
-              OriginProtocolPolicy: https-only              
+              OriginProtocolPolicy: https-only
           - DomainName: !GetAtt User.Outputs.UserApi
             Id: User
             CustomOriginConfig:

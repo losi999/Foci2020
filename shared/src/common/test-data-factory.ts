@@ -1,7 +1,7 @@
 import { TeamRequest, TournamentRequest, MatchRequest, BetRequest } from '@foci2020/shared/types/requests';
 import { TeamDocument, TournamentDocument, MatchDocument, BetDocument, StandingDocument } from '@foci2020/shared/types/documents';
 import { TeamResponse, TournamentResponse, MatchResponse, BetResponse, StandingResponse, CompareResponse } from '@foci2020/shared/types/responses';
-import { RecursivePartial, TeamIdType, TournamentIdType, MatchIdType, UserIdType } from '@foci2020/shared/types/common';
+import { RecursivePartial, TeamIdType, TournamentIdType, MatchIdType, UserIdType, KeyType } from '@foci2020/shared/types/common';
 
 export const teamRequest = (req?: Partial<TeamRequest>): TeamRequest => ({
   image: 'http://image.com',
@@ -17,10 +17,11 @@ export const teamDocument = (doc?: Partial<Pick<TeamDocument, keyof TeamRequest 
     image: 'http://image.com',
     shortName: 'TMN',
     teamName: 'Team name',
-    'documentType-id': `team#${id}`,
+    'documentType-id': `team#${id}` as KeyType,
     documentType: 'team',
     orderingValue: 'Team name',
     expiresAt: undefined,
+    modifiedAt: 'now',
     ...doc,
   };
 };
@@ -35,6 +36,7 @@ export const teamResponse = (res?: Partial<Pick<TeamResponse, keyof TeamRequest 
   id: undefined,
   orderingValue: undefined,
   expiresAt: undefined,
+  modifiedAt: undefined,
   ...res
 });
 
@@ -48,10 +50,11 @@ export const tournamentDocument = (doc?: Partial<Pick<TournamentDocument, keyof 
   return {
     id,
     tournamentName: 'Tournament',
-    'documentType-id': `tournament#${id}`,
+    'documentType-id': `tournament#${id}` as KeyType,
     documentType: 'tournament',
     orderingValue: 'Tournament',
     expiresAt: undefined,
+    modifiedAt: 'now',
     ...doc
   };
 };
@@ -64,6 +67,7 @@ export const tournamentResponse = (res?: Partial<Pick<TournamentResponse, keyof 
   id: undefined,
   orderingValue: undefined,
   expiresAt: undefined,
+  modifiedAt: undefined,
   ...res
 });
 
@@ -94,13 +98,14 @@ export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'g
     id,
     group: 'Group',
     startTime: 'startTime',
-    'documentType-id': `match#${id}`,
+    'documentType-id': `match#${id}` as KeyType,
     'tournamentId-documentType': `${tournamentId}#match`,
     'homeTeamId-documentType': `${homeTeamId}#match`,
     'awayTeamId-documentType': `${awayTeamId}#match`,
     documentType: 'match',
     orderingValue: 'startTime',
     expiresAt: undefined,
+    modifiedAt: 'now',
     ...doc
   };
 };
@@ -130,6 +135,7 @@ export const matchResponse = (res?: Partial<Pick<MatchResponse, keyof MatchReque
     awayTeam: teamResponse({ teamId: awayTeamId }),
     tournament: tournamentResponse({ tournamentId }),
     expiresAt: undefined,
+    modifiedAt: undefined,
     ...res
   };
 };
@@ -154,10 +160,11 @@ export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | '
     'matchId-documentType': `${matchId}#bet`,
     'tournamentId-userId-documentType': `${tournamentId}#${userId}#bet`,
     id: `${userId}#${matchId}`,
-    'documentType-id': `bet#${userId}#${matchId}`,
+    'documentType-id': `bet#${userId}#${matchId}` as KeyType,
     documentType: 'bet',
     orderingValue: 'userName',
     expiresAt: undefined,
+    modifiedAt: 'now',
     ...doc
   };
 };
@@ -180,6 +187,7 @@ export const betResponse = (res?: Partial<Pick<BetResponse, keyof BetRequest | '
     orderingValue: undefined,
     'documentType-id': undefined,
     expiresAt: undefined,
+    modifiedAt: undefined,
     ...res
   };
 };
@@ -206,9 +214,10 @@ export const standingDocument = (doc?: Partial<Pick<StandingDocument, 'userName'
     userName: 'userName',
     'tournamentId-documentType': `${tournamentId}#standing`,
     id: `${tournamentId}#${userId}`,
-    'documentType-id': `standing#${tournamentId}#${userId}`,
+    'documentType-id': `standing#${tournamentId}#${userId}` as KeyType,
     documentType: 'standing',
     expiresAt: undefined,
+    modifiedAt: 'now',
     ...doc
   };
 };
@@ -234,6 +243,7 @@ export const standingResponse = (res?: Partial<Pick<StandingResponse, 'userId' |
     orderingValue: undefined,
     tournamentId: undefined,
     expiresAt: undefined,
+    modifiedAt: undefined,
     ...res
   };
 };

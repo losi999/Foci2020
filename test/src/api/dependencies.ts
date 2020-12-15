@@ -20,7 +20,10 @@ const ajvValidator = new ajv({
   format: 'full'
 });
 export const validatorService = validatorServiceFactory(ajvValidator);
-export const databaseService = databaseServiceFactory(Cypress.env('DYNAMO_TABLE'), documentClient);
+export const databaseService = databaseServiceFactory({
+  primaryTableName: Cypress.env('DYNAMO_TABLE'),
+  archiveTableName: undefined,
+}, documentClient);
 
 export const teamConverter = teamDocumentConverterFactory(uuid);
 export const tournamentConverter = tournamentDocumentConverterFactory(uuid);

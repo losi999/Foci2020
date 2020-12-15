@@ -11,7 +11,7 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      TableName: !Sub Foci2020-${Env}-200330
+      TableName: !Sub Foci2020-${Env}-20201215
       BillingMode: PAY_PER_REQUEST
       TimeToLiveSpecification:
         AttributeName: expiresAt
@@ -52,17 +52,13 @@ Resources:
             - AttributeName: awayTeamId-documentType
               KeyType: HASH
           Projection:
-            ProjectionType: INCLUDE
-            NonKeyAttributes:
-              - id
+            ProjectionType: KEYS_ONLY
         - IndexName: indexByHomeTeamIdDocumentType
           KeySchema:
             - AttributeName: homeTeamId-documentType
               KeyType: HASH
           Projection:
-            ProjectionType: INCLUDE
-            NonKeyAttributes:
-              - id
+            ProjectionType: KEYS_ONLY
         - IndexName: indexByMatchIdDocumentType
           KeySchema:
             - AttributeName: matchId-documentType
@@ -87,6 +83,27 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+
+  DatabaseArchive:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub Foci2020-Archive-${Env}-20201215
+      BillingMode: PAY_PER_REQUEST
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: True
+      AttributeDefinitions:
+        - AttributeName: documentType-id
+          AttributeType: S
+        - AttributeName: modifiedAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: documentType-id
+          KeyType: HASH
+        - AttributeName: modifiedAt
+          KeyType: RANGE
 
   UserPool:
     Type: AWS::Cognito::UserPool
@@ -177,6 +194,8 @@ Outputs:
     Value: !Ref Database
   DatabaseStreamArn:
     Value: !GetAtt Database.StreamArn
+  DatabaseArchive:
+    Value: !Ref DatabaseArchive
   UserPoolId:
     Value: !Ref UserPool
   ClientId:

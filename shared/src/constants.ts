@@ -6,7 +6,8 @@ export const internalDocumentPropertiesToRemove: Remove<InternalDocumentProperti
   documentType: undefined,
   id: undefined,
   orderingValue: undefined,
-  expiresAt: undefined
+  expiresAt: undefined,
+  modifiedAt: undefined,
 };
 
 type BetResultPoint = {

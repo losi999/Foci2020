@@ -42,7 +42,8 @@ module.exports = {
   },
   optimization: {
     minimize: false,
-    namedModules: true
+    // namedModules: true,
+    chunkIds: 'named',
   },
   output: {
     filename: '[name]/index.js',

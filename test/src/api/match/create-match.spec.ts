@@ -2,7 +2,8 @@ import { MatchRequest } from '@foci2020/shared/types/requests';
 import { v4 as uuid } from 'uuid';
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { TeamDocument, TournamentDocument } from '@foci2020/shared/types/documents';
-import { teamConverter, tournamentConverter } from '@foci2020/test/api/dependencies';
+import { teamDocumentConverter } from '@foci2020/shared/dependencies/converters/team-document-converter';
+import { tournamentDocumentConverter } from '@foci2020/shared/dependencies/converters/tournament-document-converter';
 import { TeamIdType, TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('POST /match/v1/matches', () => {
@@ -11,19 +12,19 @@ describe('POST /match/v1/matches', () => {
   let tournamentDocument: TournamentDocument;
   let match: MatchRequest;
   beforeEach(() => {
-    homeTeamDocument = teamConverter.create({
+    homeTeamDocument = teamDocumentConverter.create({
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, 600);
-    awayTeamDocument = teamConverter.create({
+    }, Cypress.env('EXPIRES_IN'));
+    awayTeamDocument = teamDocumentConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, 600);
-    tournamentDocument = tournamentConverter.create({
+    }, Cypress.env('EXPIRES_IN'));
+    tournamentDocument = tournamentDocumentConverter.create({
       tournamentName: 'EB 2020'
-    }, 600);
+    }, Cypress.env('EXPIRES_IN'));
     match = {
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,

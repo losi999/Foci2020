@@ -19,6 +19,8 @@ Parameters:
   TestUserPassword:
     Type: String
     Default: ""
+  EventDeadLetterQueueArn:
+    Type: String
 
 Conditions:
   ShouldCreateTestUsers: !Not [!Equals [!Ref TestUserPassword, ""]]
@@ -74,7 +76,7 @@ Resources:
           MATCH_FINAL_SCORE_UPDATED_LAMBDA: !Ref MatchFinalScoreUpdated
           TEAM_DELETED_LAMBDA: !Ref TeamDeleted
           TEAM_UPDATED_LAMBDA: !Ref TeamUpdated
-          TOURNAMENT_DELETED_LAMBDA: !Ref TeamDeleted
+          TOURNAMENT_DELETED_LAMBDA: !Ref TournamentDeleted
           TOURNAMENT_UPDATED_LAMBDA: !Ref TournamentUpdated
       Events:
         DynamoDB:
@@ -95,7 +97,9 @@ Resources:
       Environment:
         Variables:
           ARCHIVE_TABLE: !Ref DatabaseArchive
-      # DeadLetterQueue:
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
       EventInvokeConfig:
         MaximumRetryAttempts: 2
 
@@ -105,7 +109,9 @@ Resources:
       FunctionName: !Sub Foci2020-${Env}-BetResultCalculated
       CodeUri: api/dist/bet-result-calculated
       Role: !Ref LambdaRoleArn
-      # DeadLetterQueue:
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
       EventInvokeConfig:
         MaximumRetryAttempts: 2
 
@@ -115,7 +121,9 @@ Resources:
       FunctionName: !Sub Foci2020-${Env}-MatchDeleted
       CodeUri: api/dist/match-deleted
       Role: !Ref LambdaRoleArn
-      # DeadLetterQueue:
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
       EventInvokeConfig:
         MaximumRetryAttempts: 2
 
@@ -125,7 +133,9 @@ Resources:
       FunctionName: !Sub Foci2020-${Env}-MatchFinalScoreUpdated
       CodeUri: api/dist/match-final-score-updated
       Role: !Ref LambdaRoleArn
-      # DeadLetterQueue:
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
       EventInvokeConfig:
         MaximumRetryAttempts: 2
 
@@ -135,7 +145,9 @@ Resources:
       FunctionName: !Sub Foci2020-${Env}-TeamDeleted
       CodeUri: api/dist/team-deleted
       Role: !Ref LambdaRoleArn
-      # DeadLetterQueue:
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
       EventInvokeConfig:
         MaximumRetryAttempts: 2
 
@@ -145,17 +157,21 @@ Resources:
       FunctionName: !Sub Foci2020-${Env}-TeamUpdated
       CodeUri: api/dist/team-updated
       Role: !Ref LambdaRoleArn
-      # DeadLetterQueue:
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
       EventInvokeConfig:
         MaximumRetryAttempts: 2
 
-  TeamDeleted:
+  TournamentDeleted:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-TeamDeleted
-      CodeUri: api/dist/team-deleted
+      FunctionName: !Sub Foci2020-${Env}-TournamentDeleted
+      CodeUri: api/dist/tournament-deleted
       Role: !Ref LambdaRoleArn
-      # DeadLetterQueue:
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
       EventInvokeConfig:
         MaximumRetryAttempts: 2
 
@@ -165,7 +181,9 @@ Resources:
       FunctionName: !Sub Foci2020-${Env}-TournamentUpdated
       CodeUri: api/dist/tournament-updated
       Role: !Ref LambdaRoleArn
-      # DeadLetterQueue:
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
       EventInvokeConfig:
         MaximumRetryAttempts: 2
 

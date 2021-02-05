@@ -15,6 +15,8 @@ export const primaryTableTriggerServiceFactory = (eventService: IEventService): 
 
     switch (eventName) {
       case 'MODIFY': {
+        await eventService.invokeArchiveDocument({ document: oldDocument });
+
         switch (newDocument.documentType) {
           case 'team': {
             await eventService.invokeTeamUpdated({ team: newDocument });
@@ -37,6 +39,8 @@ export const primaryTableTriggerServiceFactory = (eventService: IEventService): 
         }
       } break;
       case 'REMOVE': {
+        await eventService.invokeArchiveDocument({ document: oldDocument });
+
         switch (oldDocument.documentType) {
           case 'team': {
             await eventService.invokeTeamDeleted({ teamId: oldDocument.id });
@@ -50,7 +54,5 @@ export const primaryTableTriggerServiceFactory = (eventService: IEventService): 
         }
       } break;
     }
-
-    await eventService.invokeArchiveDocument({ document: oldDocument });
   };
 };

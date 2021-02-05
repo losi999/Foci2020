@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { TournamentRequest } from '@foci2020/shared/types/requests';
-import { tournamentConverter } from '@foci2020/test/api/dependencies';
+import { tournamentDocumentConverter } from '@foci2020/shared/dependencies/converters/tournament-document-converter';
 import { TournamentDocument } from '@foci2020/shared/types/documents';
 import { default as schema } from '@foci2020/test/api/schemas/tournament-response';
 import { TournamentIdType } from '@foci2020/shared/types/common';
@@ -13,7 +13,7 @@ describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   let tournamentDocument: TournamentDocument;
 
   beforeEach(() => {
-    tournamentDocument = tournamentConverter.create(tournament, 600);
+    tournamentDocument = tournamentDocumentConverter.create(tournament, Cypress.env('EXPIRES_IN'));
   });
 
   describe('called as anonymous', () => {

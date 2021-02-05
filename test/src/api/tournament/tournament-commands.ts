@@ -1,10 +1,10 @@
 import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { TournamentDocument } from '@foci2020/shared/types/documents';
 import { TournamentResponse } from '@foci2020/shared/types/responses';
-import { databaseService } from '@foci2020/test/api/dependencies';
 import { CommandFunction, CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
 import { headerExpiresIn } from '@foci2020/shared/constants';
 import { TournamentIdType } from '@foci2020/shared/types/common';
+import { databaseService } from '@foci2020/test/api/dependencies';
 
 const requestCreateTournament = (idToken: string, tournament: TournamentRequest) => {
   return cy.request({
@@ -13,7 +13,7 @@ const requestCreateTournament = (idToken: string, tournament: TournamentRequest)
     url: '/tournament/v1/tournaments',
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: 600
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
@@ -26,7 +26,7 @@ const requestUpdateTournament = (idToken: string, tournamentId: TournamentIdType
     url: `/tournament/v1/tournaments/${tournamentId}`,
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: 600
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;

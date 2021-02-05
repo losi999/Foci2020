@@ -1,12 +1,13 @@
 import { CommandFunctionWithPreviousSubject, CommandFunction } from '@foci2020/test/api/types';
 import { BetRequest } from '@foci2020/shared/types/requests';
-import { betConverter, databaseService } from '@foci2020/test/api/dependencies';
+import { betDocumentConverter } from '@foci2020/shared/dependencies/converters/bet-document-converter';
 import { User } from '@foci2020/test/api/constants';
 import { BetDocument, StandingDocument } from '@foci2020/shared/types/documents';
 import { concatenate } from '@foci2020/shared/common/utils';
 import { BetResult, MatchIdType, TournamentIdType, UserIdType } from '@foci2020/shared/types/common';
 import { StandingResponse, BetResponse, CompareResponse } from '@foci2020/shared/types/responses';
 import { headerExpiresIn } from '@foci2020/shared/constants';
+import { databaseService } from '@foci2020/test/api/dependencies';
 
 const requestPlaceBet = (idToken: string, matchId: string, score: BetRequest) => {
   return cy.request({
@@ -15,7 +16,7 @@ const requestPlaceBet = (idToken: string, matchId: string, score: BetRequest) =>
     url: `/betting/v1/matches/${matchId}/bets`,
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: 600
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
@@ -77,7 +78,7 @@ const saveBetForUser = (user: User, score: BetRequest, matchId: MatchIdType, tou
   return cy.authenticate(user)
     .then((idToken: string) => {
       const { sub, nickname } = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString('utf8'));
-      const betdocument = betConverter.create(score, sub, nickname, matchId, tournamentId, 600);
+      const betdocument = betDocumentConverter.create(score, sub, nickname, matchId, tournamentId, Cypress.env('EXPIRES_IN'));
       return cy.log('Save bet document', betdocument).wrap(databaseService.saveBet(betdocument), { log: false });
     });
 };

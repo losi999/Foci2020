@@ -129,6 +129,10 @@ jobs:
       - run:
           name: Running tests
           command: cd test && npm run test
+
+      - store_artifacts:
+          path: test/cypress/screenshots
+          destination: test/cypress/screenshots
 workflows:
   version: 2.1
   api:
@@ -136,7 +140,7 @@ workflows:
       - api_unit_test
       - api_deploy:
           name: api_deploy_dev
-          env: 'DEV'
+          env: "DEV"
           cypress_password: ${CYPRESS_PASSWORD}
           admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
@@ -147,7 +151,7 @@ workflows:
                 - develop
       - api_deploy:
           name: api_deploy_uat
-          env: 'UAT'
+          env: "UAT"
           cypress_password: ${CYPRESS_PASSWORD}
           admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
@@ -158,8 +162,8 @@ workflows:
                 - release
       - api_deploy:
           name: api_deploy_prod
-          env: 'PROD'
-          cypress_password: ''
+          env: "PROD"
+          cypress_password: ""
           admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
             - api_unit_test
@@ -169,7 +173,7 @@ workflows:
                 - master
       - test:
           name: test_dev
-          env: 'DEV'
+          env: "DEV"
           requires:
             - api_deploy_dev
           filters:
@@ -178,7 +182,7 @@ workflows:
                 - develop
       - test:
           name: test_uat
-          env: 'UAT'
+          env: "UAT"
           requires:
             - api_deploy_uat
           filters:

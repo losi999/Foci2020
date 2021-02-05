@@ -59,7 +59,7 @@ export const eventServiceFactory = (config: {
       Payload: JSON.stringify(event)
     }).promise(),
     invokeTournamentUpdated: event => lambda.invoke({
-      FunctionName: config.tournamentDeletedLambda,
+      FunctionName: config.tournamentUpdatedLambda,
       InvocationType: 'Event',
       Payload: JSON.stringify(event)
     }).promise(),

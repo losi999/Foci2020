@@ -10,7 +10,7 @@ export const teamRequest = (req?: Partial<TeamRequest>): TeamRequest => ({
   ...req
 });
 
-export const teamDocument = (doc?: Partial<Pick<TeamDocument, keyof TeamRequest | 'id' | 'expiresAt'>>): TeamDocument => {
+export const teamDocument = (doc?: Partial<Pick<TeamDocument, keyof TeamRequest | 'id' | 'expiresAt' | 'modifiedAt'>>): TeamDocument => {
   const id = doc?.id ?? 'teamId' as TeamIdType;
   return {
     id,
@@ -45,7 +45,7 @@ export const tournamentRequest = (req?: Partial<TournamentRequest>): TournamentR
   ...req
 });
 
-export const tournamentDocument = (doc?: Partial<Pick<TournamentDocument, keyof TournamentRequest | 'id' | 'expiresAt'>>): TournamentDocument => {
+export const tournamentDocument = (doc?: Partial<Pick<TournamentDocument, keyof TournamentRequest | 'id' | 'expiresAt' | 'modifiedAt'>>): TournamentDocument => {
   const id = doc?.id ?? 'tournamentId' as TournamentIdType;
   return {
     id,
@@ -80,7 +80,7 @@ export const matchRequest = (req?: Partial<MatchRequest>): MatchRequest => ({
   ...req
 });
 
-export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'group' | 'id' | 'finalScore' | 'homeTeam' | 'awayTeam' | 'tournament' | 'expiresAt'>>): MatchDocument => {
+export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'group' | 'id' | 'finalScore' | 'homeTeam' | 'awayTeam' | 'tournament' | 'expiresAt' | 'modifiedAt'>>): MatchDocument => {
   const homeTeam = doc?.homeTeam ?? teamDocument({ id: 'homeTeamId' as TeamIdType });
   const awayTeam = doc?.awayTeam ?? teamDocument({ id: 'awayTeamId' as TeamIdType });
   const tournament = doc?.tournament ?? tournamentDocument({ id: 'tournamentId' as TournamentIdType });
@@ -146,7 +146,7 @@ export const betRequest = (req?: Partial<BetRequest>): BetRequest => ({
   ...req
 });
 
-export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | 'matchId' | 'tournamentId' | 'userId' | 'userName' | 'homeScore' | 'awayScore' | 'result' | 'expiresAt'>>): BetDocument => {
+export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | 'matchId' | 'tournamentId' | 'userId' | 'userName' | 'homeScore' | 'awayScore' | 'result' | 'expiresAt' | 'modifiedAt'>>): BetDocument => {
   const matchId = doc?.matchId ?? 'matchId' as MatchIdType;
   const tournamentId = doc?.tournamentId ?? 'tournamentId' as TournamentIdType;
   const userId = doc?.userId ?? 'userId' as UserIdType;
@@ -194,7 +194,7 @@ export const betResponse = (res?: Partial<Pick<BetResponse, keyof BetRequest | '
 
 const toFourDigit = (input: number) => String(input).padStart(4, '0');
 
-export const standingDocument = (doc?: Partial<Pick<StandingDocument, 'userName' | 'tournamentId' | 'userId' | 'results' | 'total' | 'expiresAt'>>): StandingDocument => {
+export const standingDocument = (doc?: Partial<Pick<StandingDocument, 'userName' | 'tournamentId' | 'userId' | 'results' | 'total' | 'expiresAt' | 'modifiedAt'>>): StandingDocument => {
   const tournamentId = doc?.tournamentId ?? 'tournamentId' as TournamentIdType;
   const userId = doc?.userId ?? 'userId' as UserIdType;
   const total = doc?.total ?? 0;

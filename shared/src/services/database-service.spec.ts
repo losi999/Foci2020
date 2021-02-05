@@ -2,8 +2,8 @@ import { IDatabaseService, databaseServiceFactory } from '@foci2020/shared/servi
 import { Mock, createMockService, awsResolvedValue, validateFunctionCall } from '@foci2020/shared/common/unit-testing';
 import { DynamoDB } from 'aws-sdk';
 import { betDocument, matchDocument, standingDocument, teamDocument, tournamentDocument } from '@foci2020/shared/common/test-data-factory';
-import { IndexByHomeTeamIdDocument, IndexByAwayTeamIdDocument } from '@foci2020/shared/types/documents';
-import { MatchIdType, UserIdType, TeamIdType, TournamentIdType } from '@foci2020/shared/types/common';
+import { MatchIdType, UserIdType, TeamIdType, TournamentIdType, KeyType } from '@foci2020/shared/types/common';
+import { DocumentKey } from '@foci2020/shared/types/documents';
 
 describe('Database service', () => {
   let service: IDatabaseService;
@@ -13,13 +13,17 @@ describe('Database service', () => {
   beforeEach(() => {
     mockDynamoClient = createMockService('put', 'get', 'query', 'delete', 'update');
 
-    service = databaseServiceFactory(tableName, mockDynamoClient.service);
+    service = databaseServiceFactory({
+      primaryTableName: tableName,
+      archiveTableName: undefined
+    }, mockDynamoClient.service);
   });
 
   const userId = 'userId' as UserIdType;
   const teamId = 'teamId' as TeamIdType;
   const tournamentId = 'tournamentId' as TournamentIdType;
   const matchId = 'matchId' as MatchIdType;
+  const matchKey = 'match#123' as KeyType;
 
   describe('saveBet', () => {
     it('should call dynamo.put with correct parameters', async () => {
@@ -424,8 +428,8 @@ describe('Database service', () => {
   describe('queryMatchKeysByHomeTeamId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [{
-        id: 'matchId'
-      }] as IndexByHomeTeamIdDocument[];
+        'documentType-id': 'matchId'
+      }] as DocumentKey[];
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
 
       const result = await service.queryMatchKeysByHomeTeamId(teamId);
@@ -453,8 +457,8 @@ describe('Database service', () => {
   describe('queryMatchKeysByAwayTeamId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [{
-        id: 'matchId'
-      }] as IndexByAwayTeamIdDocument[];
+        'documentType-id': 'matchId'
+      }] as DocumentKey[];
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
 
       const result = await service.queryMatchKeysByAwayTeamId(teamId);
@@ -612,12 +616,12 @@ describe('Database service', () => {
       const team = teamDocument();
       const type = 'home';
 
-      await service.updateTeamOfMatch(matchId, team, type);
+      await service.updateTeamOfMatch(matchKey, team, type);
       validateFunctionCall(mockDynamoClient.functions.update, {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `match#${matchId}`,
+          'documentType-id': matchKey,
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set #team = :team',
@@ -626,7 +630,7 @@ describe('Database service', () => {
           '#team': `${type}Team`
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `match#${matchId}`,
+          ':documentTypeId': matchKey,
           ':team': team,
         }
       });
@@ -644,12 +648,12 @@ describe('Database service', () => {
 
       const tournament = tournamentDocument();
 
-      await service.updateTournamentOfMatch(matchId, tournament);
+      await service.updateTournamentOfMatch(matchKey, tournament);
       validateFunctionCall(mockDynamoClient.functions.update, {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `match#${matchId}`,
+          'documentType-id': matchKey,
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set tournament = :tournament',
@@ -657,7 +661,7 @@ describe('Database service', () => {
           '#documentTypeId': 'documentType-id',
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': `match#${matchId}`,
+          ':documentTypeId': matchKey,
           ':tournament': tournament,
         }
       });

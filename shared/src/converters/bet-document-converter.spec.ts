@@ -13,11 +13,12 @@ describe('Bet document converter', () => {
   const homeScore = 1;
   const awayScore = 2;
   const now = 1591443246;
+  const nowDate = new Date(now * 1000);
 
   beforeEach(() => {
     converter = betDocumentConverterFactory();
 
-    advanceTo(new Date(now * 1000));
+    advanceTo(nowDate);
   });
 
   afterEach(() => {
@@ -36,7 +37,8 @@ describe('Bet document converter', () => {
         tournamentId,
         userName,
         homeScore,
-        awayScore
+        awayScore,
+        modifiedAt: nowDate.toISOString(),
       });
 
       const res = converter.create(input,
@@ -61,7 +63,8 @@ describe('Bet document converter', () => {
         userName,
         homeScore,
         awayScore,
-        expiresAt: now + 3600
+        expiresAt: now + 3600,
+        modifiedAt: nowDate.toISOString()
       });
 
       const res = converter.create(input,

@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { TeamRequest } from '@foci2020/shared/types/requests';
-import { teamConverter } from '@foci2020/test/api/dependencies';
+import { teamDocumentConverter } from '@foci2020/shared/dependencies/converters/team-document-converter';
 import { TeamDocument } from '@foci2020/shared/types/documents';
 import { default as schema } from '@foci2020/test/api/schemas/team-response';
 import { TeamIdType } from '@foci2020/shared/types/common';
@@ -15,7 +15,7 @@ describe('GET /team/v1/teams/{teamId}', () => {
   let teamDocument: TeamDocument;
 
   beforeEach(() => {
-    teamDocument = teamConverter.create(team, 600);
+    teamDocument = teamDocumentConverter.create(team, Cypress.env('EXPIRES_IN'));
   });
 
   describe('called as anonymous', () => {

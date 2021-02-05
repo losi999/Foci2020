@@ -4,8 +4,8 @@
   "scripts": {
     "build:api": "cd api && npm run build",
     "samconfig": "cp samconfig.${ENV}.toml samconfig.toml",
-    "deploy:local": "export ENV=LOCAL && yarn samconfig && sam deploy -t cf.foci2020.yaml --profile losonczil && yarn postdeploy --profile losonczil",
-    "deploy:ci": "export ENV=CI && sam deploy -t cf.foci2020.yaml --profile ci && yarn postdeploy --profile ci",
+    "deploy:local": "export ENV=LOCAL && yarn samconfig && sam deploy -t cf.foci2020.yaml && yarn postdeploy --profile losonczil",
+    "deploy:ci": "export ENV=CI && yarn samconfig && sam deploy -t cf.foci2020.yaml && yarn postdeploy --profile ci",
     "postdeploy": "aws lambda invoke --function-name Foci2020-${ENV}-PostDeploy /dev/null"
   }
 }

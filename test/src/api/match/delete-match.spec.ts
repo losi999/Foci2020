@@ -1,7 +1,10 @@
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { v4 as uuid } from 'uuid';
 import { TeamDocument, TournamentDocument, MatchDocument, BetDocument } from '@foci2020/shared/types/documents';
-import { teamConverter, tournamentConverter, matchConverter, betConverter } from '@foci2020/test/api/dependencies';
+import { matchDocumentConverter } from '@foci2020/shared/dependencies/converters/match-document-converter';
+import { teamDocumentConverter } from '@foci2020/shared/dependencies/converters/team-document-converter';
+import { tournamentDocumentConverter } from '@foci2020/shared/dependencies/converters/tournament-document-converter';
+import { betDocumentConverter } from '@foci2020/shared/dependencies/converters/bet-document-converter';
 import { MatchIdType, UserIdType } from '@foci2020/shared/types/common';
 
 describe('DELETE /match/v1/matches/{matchId}', () => {
@@ -12,30 +15,30 @@ describe('DELETE /match/v1/matches/{matchId}', () => {
   let betDocument: BetDocument;
 
   beforeEach(() => {
-    homeTeamDocument = teamConverter.create({
+    homeTeamDocument = teamDocumentConverter.create({
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, 600);
-    awayTeamDocument = teamConverter.create({
+    }, Cypress.env('EXPIRES_IN'));
+    awayTeamDocument = teamDocumentConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, 600);
-    tournamentDocument = tournamentConverter.create({
+    }, Cypress.env('EXPIRES_IN'));
+    tournamentDocument = tournamentDocumentConverter.create({
       tournamentName: 'EB 2020'
-    }, 600);
-    matchDocument = matchConverter.create({
+    }, Cypress.env('EXPIRES_IN'));
+    matchDocument = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
-    betDocument = betConverter.create({
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
+    betDocument = betDocumentConverter.create({
       homeScore: 1,
       awayScore: 0
-    }, uuid() as UserIdType, 'username', matchDocument.id, matchDocument.tournamentId, 600);
+    }, uuid() as UserIdType, 'username', matchDocument.id, matchDocument.tournamentId, Cypress.env('EXPIRES_IN'));
   });
 
   describe('called as anonymous', () => {

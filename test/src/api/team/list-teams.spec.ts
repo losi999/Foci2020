@@ -1,5 +1,5 @@
 import { TeamRequest } from '@foci2020/shared/types/requests';
-import { teamConverter } from '@foci2020/test/api/dependencies';
+import { teamDocumentConverter } from '@foci2020/shared/dependencies/converters/team-document-converter';
 import { TeamDocument } from '@foci2020/shared/types/documents';
 import { default as schema } from '@foci2020/test/api/schemas/team-response-list';
 
@@ -20,8 +20,8 @@ describe('GET /team/v1/teams', () => {
   let teamDocument2: TeamDocument;
 
   beforeEach(() => {
-    teamDocument1 = teamConverter.create(team1, 600);
-    teamDocument2 = teamConverter.create(team2, 600);
+    teamDocument1 = teamDocumentConverter.create(team1, Cypress.env('EXPIRES_IN'));
+    teamDocument2 = teamDocumentConverter.create(team2, Cypress.env('EXPIRES_IN'));
   });
 
   describe('called as anonymous', () => {

@@ -2,9 +2,9 @@ import { TeamRequest } from '@foci2020/shared/types/requests';
 import { TeamDocument } from '@foci2020/shared/types/documents';
 import { TeamResponse } from '@foci2020/shared/types/responses';
 import { CommandFunction, CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
-import { databaseService, } from '@foci2020/test/api/dependencies';
 import { headerExpiresIn } from '@foci2020/shared/constants';
 import { TeamIdType } from '@foci2020/shared/types/common';
+import { databaseService } from '@foci2020/test/api/dependencies';
 
 const requestCreateTeam = (idToken: string, team: TeamRequest) => {
   return cy.request({
@@ -13,7 +13,7 @@ const requestCreateTeam = (idToken: string, team: TeamRequest) => {
     url: '/team/v1/teams',
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: 600
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
@@ -26,7 +26,7 @@ const requestUpdateTeam = (idToken: string, teamId: TeamIdType, team: TeamReques
     url: `/team/v1/teams/${teamId}`,
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: 600
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;

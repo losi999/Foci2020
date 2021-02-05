@@ -2,9 +2,9 @@ import { MatchRequest, MatchFinalScoreRequest, TeamRequest, TournamentRequest } 
 import { MatchDocument, TeamDocument, TournamentDocument } from '@foci2020/shared/types/documents';
 import { MatchResponse } from '@foci2020/shared/types/responses';
 import { CommandFunction, CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
-import { databaseService } from '@foci2020/test/api/dependencies';
 import { headerExpiresIn } from '@foci2020/shared/constants';
 import { MatchIdType } from '@foci2020/shared/types/common';
+import { databaseService } from '@foci2020/test/api/dependencies';
 
 const requestCreateMatch = (idToken: string, match: MatchRequest) => {
   return cy.request({
@@ -13,7 +13,7 @@ const requestCreateMatch = (idToken: string, match: MatchRequest) => {
     url: '/match/v1/matches',
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: 600
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;
@@ -26,7 +26,7 @@ const requestUpdateMatch = (idToken: string, matchId: MatchIdType, match: MatchR
     url: `/match/v1/matches/${matchId}`,
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: 600
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
     },
     failOnStatusCode: false
   }) as Cypress.ChainableResponse;

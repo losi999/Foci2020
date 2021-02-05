@@ -1,10 +1,12 @@
 export type Mock<T> = {
   service: T;
   functions: {
-    // @ts-ignore works as expected but shows error, re-investigate later
+    // @ts-ignore
     [P in keyof T]?: jest.Mock<ReturnType<T[P]>, Parameters<T[P]>>;
   };
 };
+
+export type MockBusinessService<T extends (...args: any) => any> = jest.Mock<ReturnType<T>, Parameters<T>>;
 
 export const createMockService = <T>(...functionsToMock: (keyof T)[]): Mock<T> => {
   const functions = functionsToMock.reduce((accumulator, currentValue) => ({

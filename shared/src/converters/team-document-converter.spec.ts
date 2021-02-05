@@ -9,13 +9,14 @@ describe('Team document converter', () => {
   let mockUuid: jest.Mock;
   const teamId = 'teamId' as TeamIdType;
   const now = 1591443246;
+  const nowDate = new Date(now * 1000);
 
   beforeEach(() => {
     mockUuid = jest.fn();
 
     converter = teamDocumentConverterFactory(mockUuid);
 
-    advanceTo(new Date(now * 1000));
+    advanceTo(nowDate);
   });
 
   afterEach(() => {
@@ -48,7 +49,7 @@ describe('Team document converter', () => {
 
       mockUuid.mockReturnValue(teamId);
 
-      const expectedDocument = teamDocument();
+      const expectedDocument = teamDocument({ modifiedAt: nowDate.toISOString() });
 
       const result = converter.create(body, NaN);
       expect(result).toEqual(expectedDocument);
@@ -60,7 +61,8 @@ describe('Team document converter', () => {
       mockUuid.mockReturnValue(teamId);
 
       const expectedDocument = teamDocument({
-        expiresAt: now + 3600
+        expiresAt: now + 3600,
+        modifiedAt: nowDate.toISOString()
       });
 
       const result = converter.create(body, 3600);
@@ -72,7 +74,7 @@ describe('Team document converter', () => {
     it('should return a team document for update', () => {
       const body = teamRequest();
 
-      const expectedDocument = teamDocument();
+      const expectedDocument = teamDocument({ modifiedAt: nowDate.toISOString() });
 
       const result = converter.update(teamId, body, NaN);
       expect(result).toEqual(expectedDocument);
@@ -82,7 +84,8 @@ describe('Team document converter', () => {
       const body = teamRequest();
 
       const expectedDocument = teamDocument({
-        expiresAt: now + 3600
+        expiresAt: now + 3600,
+        modifiedAt: nowDate.toISOString()
       });
 
       const result = converter.update(teamId, body, 3600);

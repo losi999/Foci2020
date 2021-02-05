@@ -6,6 +6,8 @@ Parameters:
     Type: String
   Database:
     Type: String
+  DatabaseArchive:
+    Type: String
   DatabaseStreamArn:
     Type: String
   UserPoolId:
@@ -16,7 +18,9 @@ Parameters:
     Type: String
   TestUserPassword:
     Type: String
-    Default: ""    
+    Default: ""
+  EventDeadLetterQueueArn:
+    Type: String
 
 Conditions:
   ShouldCreateTestUsers: !Not [!Equals [!Ref TestUserPassword, ""]]
@@ -58,13 +62,22 @@ Resources:
           PLAYER_COUNT: "3"
           TEST_USER_PASSWORD: !Ref TestUserPassword
 
-
-  RelatedDocument:
+  PrimaryTableTrigger:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub Foci2020-${Env}-RelatedDocument
-      CodeUri: api/dist/related-document
+      FunctionName: !Sub Foci2020-${Env}-PrimaryTableTrigger
+      CodeUri: api/dist/primary-table-trigger
       Role: !Ref LambdaRoleArn
+      Environment:
+        Variables:
+          ARCHIVE_DOCUMENT_LAMBDA: !Ref ArchiveDocument
+          BET_RESULT_CALCULATED_LAMBDA: !Ref BetResultCalculated
+          MATCH_DELETED_LAMBDA: !Ref MatchDeleted
+          MATCH_FINAL_SCORE_UPDATED_LAMBDA: !Ref MatchFinalScoreUpdated
+          TEAM_DELETED_LAMBDA: !Ref TeamDeleted
+          TEAM_UPDATED_LAMBDA: !Ref TeamUpdated
+          TOURNAMENT_DELETED_LAMBDA: !Ref TournamentDeleted
+          TOURNAMENT_UPDATED_LAMBDA: !Ref TournamentUpdated
       Events:
         DynamoDB:
           Type: DynamoDB
@@ -74,7 +87,106 @@ Resources:
             Enabled: true
             MaximumRetryAttempts: 5
             BisectBatchOnFunctionError: true
-            
+
+  ArchiveDocument:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-ArchiveDocument
+      CodeUri: api/dist/archive-document
+      Role: !Ref LambdaRoleArn
+      Environment:
+        Variables:
+          ARCHIVE_TABLE: !Ref DatabaseArchive
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
+      EventInvokeConfig:
+        MaximumRetryAttempts: 2
+
+  BetResultCalculated:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-BetResultCalculated
+      CodeUri: api/dist/bet-result-calculated
+      Role: !Ref LambdaRoleArn
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
+      EventInvokeConfig:
+        MaximumRetryAttempts: 2
+
+  MatchDeleted:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-MatchDeleted
+      CodeUri: api/dist/match-deleted
+      Role: !Ref LambdaRoleArn
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
+      EventInvokeConfig:
+        MaximumRetryAttempts: 2
+
+  MatchFinalScoreUpdated:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-MatchFinalScoreUpdated
+      CodeUri: api/dist/match-final-score-updated
+      Role: !Ref LambdaRoleArn
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
+      EventInvokeConfig:
+        MaximumRetryAttempts: 2
+
+  TeamDeleted:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-TeamDeleted
+      CodeUri: api/dist/team-deleted
+      Role: !Ref LambdaRoleArn
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
+      EventInvokeConfig:
+        MaximumRetryAttempts: 2
+
+  TeamUpdated:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-TeamUpdated
+      CodeUri: api/dist/team-updated
+      Role: !Ref LambdaRoleArn
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
+      EventInvokeConfig:
+        MaximumRetryAttempts: 2
+
+  TournamentDeleted:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-TournamentDeleted
+      CodeUri: api/dist/tournament-deleted
+      Role: !Ref LambdaRoleArn
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
+      EventInvokeConfig:
+        MaximumRetryAttempts: 2
+
+  TournamentUpdated:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-TournamentUpdated
+      CodeUri: api/dist/tournament-updated
+      Role: !Ref LambdaRoleArn
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !Ref EventDeadLetterQueueArn
+      EventInvokeConfig:
+        MaximumRetryAttempts: 2
+
 Outputs:
   PostDeployCreateTestUsers:
     Value: !If [ShouldCreateTestUsers, !GetAtt CreateTestUsers.Arn, ""]

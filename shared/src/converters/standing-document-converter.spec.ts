@@ -11,11 +11,12 @@ describe('Standing document converter', () => {
   const userName = 'userName';
   const tournamentId = 'tournamentId' as TournamentIdType;
   const now = 1591443246;
+  const nowDate = new Date(now * 1000);
 
   beforeEach(() => {
     converter = standingDocumentConverterFactory();
 
-    advanceTo(new Date(now * 1000));
+    advanceTo(nowDate);
   });
 
   afterEach(() => {
@@ -42,7 +43,8 @@ describe('Standing document converter', () => {
           outcome: 2,
           goalDifference: 1,
           exactMatch: 1
-        }
+        },
+        modifiedAt: nowDate.toISOString()
       });
 
       const result = converter.create(bets, NaN);
@@ -69,7 +71,8 @@ describe('Standing document converter', () => {
           goalDifference: 1,
           exactMatch: 1
         },
-        expiresAt: now + 3600
+        expiresAt: now + 3600,
+        modifiedAt: nowDate.toISOString()
       });
 
       const result = converter.create(bets, 3600);

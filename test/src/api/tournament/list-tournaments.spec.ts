@@ -1,5 +1,5 @@
 import { TournamentRequest } from '@foci2020/shared/types/requests';
-import { tournamentConverter } from '@foci2020/test/api/dependencies';
+import { tournamentDocumentConverter } from '@foci2020/shared/dependencies/converters/tournament-document-converter';
 import { TournamentDocument } from '@foci2020/shared/types/documents';
 import { default as schema } from '@foci2020/test/api/schemas/tournament-response-list';
 
@@ -16,8 +16,8 @@ describe('GET /tournament/v1/tournaments', () => {
   let tournamentDocument2: TournamentDocument;
 
   beforeEach(() => {
-    tournamentDocument1 = tournamentConverter.create(tournament1, 600);
-    tournamentDocument2 = tournamentConverter.create(tournament2, 600);
+    tournamentDocument1 = tournamentDocumentConverter.create(tournament1, Cypress.env('EXPIRES_IN'));
+    tournamentDocument2 = tournamentDocumentConverter.create(tournament2, Cypress.env('EXPIRES_IN'));
   });
 
   describe('called as anonymous', () => {

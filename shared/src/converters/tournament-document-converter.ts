@@ -4,7 +4,7 @@ import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { v4String } from 'uuid/interfaces';
 import { concatenate, addSeconds } from '@foci2020/shared/common/utils';
 import { internalDocumentPropertiesToRemove } from '@foci2020/shared/constants';
-import { TournamentIdType } from '@foci2020/shared/types/common';
+import { KeyType, TournamentIdType } from '@foci2020/shared/types/common';
 
 export interface ITournamentDocumentConverter {
   toResponse(tournamentDocument: TournamentDocument): TournamentResponse;
@@ -30,8 +30,9 @@ export const tournamentDocumentConverterFactory = (uuid: v4String): ITournamentD
         documentType,
         id: tournamentId,
         orderingValue: tournamentRequest.tournamentName,
-        'documentType-id': concatenate(documentType, tournamentId),
-        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined
+        'documentType-id': concatenate(documentType, tournamentId) as KeyType,
+        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined,
+        modifiedAt: new Date().toISOString(),
       };
     },
     toResponseList: tournamentDocuments => tournamentDocuments.map<TournamentResponse>(d => instance.toResponse(d)),

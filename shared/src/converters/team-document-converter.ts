@@ -4,7 +4,7 @@ import { TeamResponse } from '@foci2020/shared/types/responses';
 import { v4String } from 'uuid/interfaces';
 import { concatenate, addSeconds } from '@foci2020/shared/common/utils';
 import { internalDocumentPropertiesToRemove } from '@foci2020/shared/constants';
-import { TeamIdType } from '@foci2020/shared/types/common';
+import { KeyType, TeamIdType } from '@foci2020/shared/types/common';
 
 export interface ITeamDocumentConverter {
   create(teamRequest: TeamRequest, expiresIn: number): TeamDocument;
@@ -30,8 +30,9 @@ export const teamDocumentConverterFactory = (uuid: v4String): ITeamDocumentConve
         documentType,
         id: teamId,
         orderingValue: teamRequest.teamName,
-        'documentType-id': concatenate(documentType, teamId),
-        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined
+        'documentType-id': concatenate(documentType, teamId) as KeyType,
+        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined,
+        modifiedAt: new Date().toISOString(),
       };
     },
     toResponseList: teamDocuments => teamDocuments.map<TeamResponse>(d => instance.toResponse(d)),

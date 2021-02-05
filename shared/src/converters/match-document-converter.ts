@@ -4,7 +4,7 @@ import { MatchRequest } from '@foci2020/shared/types/requests';
 import { v4String } from 'uuid/interfaces';
 import { concatenate, addSeconds } from '@foci2020/shared/common/utils';
 import { internalDocumentPropertiesToRemove } from '@foci2020/shared/constants';
-import { MatchIdType } from '@foci2020/shared/types/common';
+import { KeyType, MatchIdType } from '@foci2020/shared/types/common';
 
 export interface IMatchDocumentConverter {
   toResponse(matchDocument: MatchDocument): MatchResponse;
@@ -57,11 +57,12 @@ export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentCon
         documentType,
         id: matchId,
         orderingValue: matchRequest.startTime,
-        'documentType-id': concatenate(documentType, matchId),
+        'documentType-id': concatenate(documentType, matchId) as KeyType,
         'homeTeamId-documentType': concatenate(matchRequest.homeTeamId, documentType),
         'awayTeamId-documentType': concatenate(matchRequest.awayTeamId, documentType),
         'tournamentId-documentType': concatenate(matchRequest.tournamentId, documentType),
-        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined
+        expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined,
+        modifiedAt: new Date().toISOString(),
       };
     },
     toResponseList: matchDocuments => matchDocuments.map(d => instance.toResponse(d)),

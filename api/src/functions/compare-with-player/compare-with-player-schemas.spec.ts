@@ -1,8 +1,8 @@
 import { pathParameters } from '@foci2020/api/functions/compare-with-player/compare-with-player-schemas';
 import { validateSchemaAdditionalProperties, validateSchemaRequired } from '@foci2020/shared/common/unit-testing';
-import { validatorService } from '@foci2020/api/dependencies';
+import { validatorService } from '@foci2020/shared/dependencies/services/validator-service';
 
-describe('UserId pathParameters', () => {
+describe('Compary with player schemas', () => {
   let data: {
     userId: string;
     tournamentId: string;

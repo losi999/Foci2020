@@ -1,6 +1,6 @@
 import { CommandFunctionWithPreviousSubject } from '@foci2020/test/api/types';
 import { JSONSchema7 } from 'json-schema';
-import { validatorService } from '@foci2020/test/api/dependencies';
+import { validatorService } from '@foci2020/shared/dependencies/services/validator-service';
 
 const expectOkResponse = (response: Cypress.Response) => {
   expect(response.status).to.equal(200);

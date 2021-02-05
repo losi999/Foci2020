@@ -9,12 +9,13 @@ describe('Match document converter', () => {
   let mockUuid: jest.Mock;
   const matchId = 'matchId' as MatchIdType;
   const now = 1591443246;
+  const nowDate = new Date(now * 1000);
 
   beforeEach(() => {
     mockUuid = jest.fn();
 
     converter = matchDocumentConverterFactory(mockUuid);
-    advanceTo(new Date(now * 1000));
+    advanceTo(nowDate);
   });
 
   afterEach(() => {
@@ -50,7 +51,7 @@ describe('Match document converter', () => {
 
       mockUuid.mockReturnValue(matchId);
 
-      const expectedDocument = matchDocument();
+      const expectedDocument = matchDocument({ modifiedAt: nowDate.toISOString() });
 
       const result = converter.create(body, homeTeam, awayTeam, tournament, NaN);
       expect(result).toEqual(expectedDocument);
@@ -65,7 +66,8 @@ describe('Match document converter', () => {
       mockUuid.mockReturnValue(matchId);
 
       const expectedDocument = matchDocument({
-        expiresAt: now + 3600
+        expiresAt: now + 3600,
+        modifiedAt: nowDate.toISOString(),
       });
 
       const result = converter.create(body, homeTeam, awayTeam, tournament, 3600);
@@ -79,7 +81,7 @@ describe('Match document converter', () => {
       const homeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType });
       const awayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType });
       const tournament = tournamentDocument();
-      const expectedDocument = matchDocument();
+      const expectedDocument = matchDocument({ modifiedAt: nowDate.toISOString() });
 
       const result = converter.update(matchId, body, homeTeam, awayTeam, tournament, NaN);
       expect(result).toEqual(expectedDocument);
@@ -91,7 +93,8 @@ describe('Match document converter', () => {
       const awayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType });
       const tournament = tournamentDocument();
       const expectedDocument = matchDocument({
-        expiresAt: now + 3600
+        expiresAt: now + 3600,
+        modifiedAt: nowDate.toISOString()
       });
 
       const result = converter.update(matchId, body, homeTeam, awayTeam, tournament, 3600);

@@ -9,13 +9,14 @@ describe('Tournament document converter', () => {
   let mockUuid: jest.Mock;
   const tournamentId = 'tournamentId' as TournamentIdType;
   const now = 1591443246;
+  const nowDate = new Date(now * 1000);
 
   beforeEach(() => {
     mockUuid = jest.fn();
 
     converter = tournamentDocumentConverterFactory(mockUuid);
 
-    advanceTo(new Date(now * 1000));
+    advanceTo(nowDate);
   });
 
   afterEach(() => {
@@ -48,7 +49,7 @@ describe('Tournament document converter', () => {
 
       mockUuid.mockReturnValue(tournamentId);
 
-      const expectedDocument = tournamentDocument();
+      const expectedDocument = tournamentDocument({ modifiedAt: nowDate.toISOString() });
 
       const result = converter.create(body, NaN);
       expect(result).toEqual(expectedDocument);
@@ -60,7 +61,8 @@ describe('Tournament document converter', () => {
       mockUuid.mockReturnValue(tournamentId);
 
       const expectedDocument = tournamentDocument({
-        expiresAt: now + 3600
+        expiresAt: now + 3600,
+        modifiedAt: nowDate.toISOString()
       });
 
       const result = converter.create(body, 3600);
@@ -72,7 +74,7 @@ describe('Tournament document converter', () => {
     it('should return a tournament document for update', () => {
       const body = tournamentRequest();
 
-      const expectedDocument = tournamentDocument();
+      const expectedDocument = tournamentDocument({ modifiedAt: nowDate.toISOString() });
 
       const result = converter.update(tournamentId, body, NaN);
       expect(result).toEqual(expectedDocument);
@@ -82,7 +84,8 @@ describe('Tournament document converter', () => {
       const body = tournamentRequest();
 
       const expectedDocument = tournamentDocument({
-        expiresAt: now + 3600
+        expiresAt: now + 3600,
+        modifiedAt: nowDate.toISOString()
       });
 
       const result = converter.update(tournamentId, body, 3600);

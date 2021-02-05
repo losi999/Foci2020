@@ -1,6 +1,8 @@
 import { addMinutes } from '@foci2020/shared/common/utils';
 import { TeamDocument, TournamentDocument, MatchDocument } from '@foci2020/shared/types/documents';
-import { teamConverter, tournamentConverter, matchConverter } from '@foci2020/test/api/dependencies';
+import { matchDocumentConverter } from '@foci2020/shared/dependencies/converters/match-document-converter';
+import { teamDocumentConverter } from '@foci2020/shared/dependencies/converters/team-document-converter';
+import { tournamentDocumentConverter } from '@foci2020/shared/dependencies/converters/tournament-document-converter';
 import { default as schema } from '@foci2020/test/api/schemas/match-response-list';
 
 describe('GET /match/v1/matches', () => {
@@ -11,35 +13,35 @@ describe('GET /match/v1/matches', () => {
   let finishedMatchDocument: MatchDocument;
 
   beforeEach(() => {
-    homeTeamDocument = teamConverter.create({
+    homeTeamDocument = teamDocumentConverter.create({
       teamName: 'Magyarország',
       image: 'http://image.com/hun.png',
       shortName: 'HUN',
-    }, 600);
-    awayTeamDocument = teamConverter.create({
+    }, Cypress.env('EXPIRES_IN'));
+    awayTeamDocument = teamDocumentConverter.create({
       teamName: 'Anglia',
       image: 'http://image.com/eng.png',
       shortName: 'ENG',
-    }, 600);
-    tournamentDocument = tournamentConverter.create({
+    }, Cypress.env('EXPIRES_IN'));
+    tournamentDocument = tournamentDocumentConverter.create({
       tournamentName: 'EB 2020'
-    }, 600);
-    pendingMatchDocument = matchConverter.create({
+    }, Cypress.env('EXPIRES_IN'));
+    pendingMatchDocument = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
       startTime: addMinutes(10).toISOString()
-    }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600);
+    }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
 
     finishedMatchDocument = {
-      ...matchConverter.create({
+      ...matchDocumentConverter.create({
         homeTeamId: awayTeamDocument.id,
         awayTeamId: homeTeamDocument.id,
         tournamentId: tournamentDocument.id,
         group: 'B csoport',
         startTime: addMinutes(10).toISOString()
-      }, homeTeamDocument, awayTeamDocument, tournamentDocument, 600),
+      }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN')),
       finalScore: {
         homeScore: 2,
         awayScore: 0

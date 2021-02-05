@@ -1,14 +1,16 @@
-import { TournamentBase, TeamBase, MatchBase, MatchTeamIds, TournamentId, Score, BetBase, MatchId, Result, StandingBase, Brand, TournamentIdType, TeamIdType, MatchIdType } from '@foci2020/shared/types/common';
+import { TournamentBase, TeamBase, MatchBase, MatchTeamIds, TournamentId, Score, BetBase, MatchId, Result, StandingBase, Brand, TournamentIdType, TeamIdType, MatchIdType, KeyType } from '@foci2020/shared/types/common';
 
-export type DocumentKey<Id extends Brand<any, any> = never> = {
-  'documentType-id': string;
-  id: Id;
+export type DocumentKey = {
+  'documentType-id': KeyType;
 };
 
-export type InternalDocumentProperties<Id extends Brand<any, any> = never, Doc extends DocumentType = never> = DocumentKey<Id> & {
+export type InternalDocumentProperties<Id extends Brand<any, any> = never, Doc extends DocumentType = never> = DocumentKey & {
+  id: Id;
   documentType: Doc;
   orderingValue: string;
   expiresAt: number;
+  // createdAt: string;
+  modifiedAt: string;
 };
 
 export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';
@@ -34,10 +36,6 @@ export type IndexTournamentIdDocumentType = {
 export type IndexByTournamentIdUserIdDocumentType = {
   'tournamentId-userId-documentType': string;
 };
-
-export type IndexByHomeTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'homeTeamId'>;
-
-export type IndexByAwayTeamIdDocument = Pick<MatchDocument, keyof DocumentKey | 'awayTeamId'>;
 
 export type TournamentDocument = TournamentBase
   & InternalDocumentProperties<TournamentIdType, 'tournament'>;

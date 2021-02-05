@@ -1,9 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  Env:
+    Type: String
 
 Resources:
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Sub Foci2020-${Env}-LambdaRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -28,6 +32,7 @@ Resources:
                   - dynamodb:GetShardIterator
                   - dynamodb:DescribeStream
                   - dynamodb:ListStreams
+                  - dynamodb:BatchWriteItem
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - logs:CreateLogGroup
@@ -40,8 +45,18 @@ Resources:
                   - cognito-idp:AdminSetUserPassword
                   - cloudformation:DescribeStacks
                   - lambda:InvokeFunction
+                  - sqs:SendMessage
                 Resource: "*"
+
+  EventDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub Foci2020-${Env}-EventDeadLetterQueue
+      MessageRetentionPeriod: 1209000
 
 Outputs:
   LambdaRoleArn:
     Value: !GetAtt LambdaRole.Arn
+  EventDeadLetterQueueArn:
+    Value: !GetAtt EventDeadLetterQueue.Arn
+

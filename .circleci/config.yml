@@ -84,7 +84,7 @@ jobs:
           command: aws cloudformation package --template-file cf.foci2020.yaml --s3-bucket ${AWS_PACKAGES_S3} --output-template-file packaged.cf.foci2020.yaml
       - deploy:
           name: AWS Deploy
-          command: aws cloudformation deploy --template-file packaged.cf.foci2020.yaml --stack-name foci2020-<<parameters.env>> --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --parameter-overrides Env=<<parameters.env>> TestUserPassword=<<parameters.cypress_password>> AdminUserEmail=<<parameters.admin_user_email>>
+          command: aws cloudformation deploy --template-file packaged.cf.foci2020.yaml --stack-name foci2020-<<parameters.env>> --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND CAPABILITY_NAMED_IAM --parameter-overrides Env=<<parameters.env>> TestUserPassword=<<parameters.cypress_password>> AdminUserEmail=<<parameters.admin_user_email>>
       - run:
           name: Invoke Post deploy Lambda
           command: aws lambda invoke --function-name Foci2020-<<parameters.env>>-PostDeploy /dev/null

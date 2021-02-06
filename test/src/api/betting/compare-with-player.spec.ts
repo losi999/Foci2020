@@ -62,7 +62,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
   });
 
   describe('called as a player', () => {
-    describe('should get the comparison', () => {
+    describe.skip('should get the comparison', () => {
       describe('showing other player\'s bets if', () => {
         it('betting time has expired', () => {
           cy.saveMatchDocument(pendingMatchDocument)
@@ -72,7 +72,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
               awayScore: 1
             }, startedMatchDocument.id, startedMatchDocument.tournamentId)
             .authenticate('player1')
-            .requestCompareWithPlayer(startedMatchDocument.tournamentId, 'b772a719-c005-41d3-90f4-3e6a395642a9')
+            .requestCompareWithPlayer(startedMatchDocument.tournamentId, 'player2')
             .expectOkResponse()
             .expectValidResponseSchema(schema)
             .validatePublicCompareResponse('player1', 'player2', startedMatchDocument.id);
@@ -90,7 +90,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
               awayScore: 1
             }, pendingMatchDocument.id, pendingMatchDocument.tournamentId)
             .authenticate('player1')
-            .requestCompareWithPlayer(startedMatchDocument.tournamentId, 'b772a719-c005-41d3-90f4-3e6a395642a9')
+            .requestCompareWithPlayer(startedMatchDocument.tournamentId, 'player2')
             .expectOkResponse()
             .expectValidResponseSchema(schema)
             .validatePublicCompareResponse('player1', 'player2', pendingMatchDocument.id);
@@ -106,7 +106,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
               awayScore: 1
             }, pendingMatchDocument.id, pendingMatchDocument.tournamentId)
             .authenticate('player1')
-            .requestCompareWithPlayer(startedMatchDocument.tournamentId, 'b772a719-c005-41d3-90f4-3e6a395642a9')
+            .requestCompareWithPlayer(startedMatchDocument.tournamentId, 'player2')
             .expectOkResponse()
             .expectValidResponseSchema(schema)
             .validatePrivateCompareResponse('player1', 'player2', pendingMatchDocument.id);

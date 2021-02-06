@@ -231,7 +231,7 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
       });
 
       describe('if current time', () => {
-        it.only('is less than 105 minutes from startTime', () => {
+        it('is less than 105 minutes from startTime', () => {
           cy.saveMatchDocument(ongoingMatch)
             .authenticate('admin1')
             .requestSetFinalScoreOfMatch(ongoingMatch.id, finalScore)

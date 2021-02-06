@@ -353,12 +353,12 @@ describe('Database service', () => {
         TableName: tableName,
         IndexName: 'indexByTournamentIdUserIdDocumentType',
         ReturnConsumedCapacity: 'INDEXES',
-        KeyConditionExpression: '#ournamentIdUserIdDocumentType = :ournamentIdUserIdDocumentType',
+        KeyConditionExpression: '#tournamentIdUserIdDocumentType = :tournamentIdUserIdDocumentType',
         ExpressionAttributeNames: {
-          '#ournamentIdUserIdDocumentType': 'tournamentId-userId-documentType'
+          '#tournamentIdUserIdDocumentType': 'tournamentId-userId-documentType'
         },
         ExpressionAttributeValues: {
-          ':ournamentIdUserIdDocumentType': `${tournamentId}#${userId}#bet`
+          ':tournamentIdUserIdDocumentType': `${tournamentId}#${userId}#bet`
         }
       });
       validateFunctionCall(mockDynamoClient.functions.get);

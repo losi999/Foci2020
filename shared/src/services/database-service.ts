@@ -133,12 +133,12 @@ export const databaseServiceFactory = (config: {
       TableName: config.primaryTableName,
       IndexName: 'indexByTournamentIdUserIdDocumentType',
       ReturnConsumedCapacity: 'INDEXES',
-      KeyConditionExpression: '#ournamentIdUserIdDocumentType = :ournamentIdUserIdDocumentType',
+      KeyConditionExpression: '#tournamentIdUserIdDocumentType = :tournamentIdUserIdDocumentType',
       ExpressionAttributeNames: {
-        '#ournamentIdUserIdDocumentType': 'tournamentId-userId-documentType'
+        '#tournamentIdUserIdDocumentType': 'tournamentId-userId-documentType'
       },
       ExpressionAttributeValues: {
-        ':ournamentIdUserIdDocumentType': concatenate(tournamentId, userId, documentType)
+        ':tournamentIdUserIdDocumentType': concatenate(tournamentId, userId, documentType)
       }
     }).promise()).Items as T[];
   };

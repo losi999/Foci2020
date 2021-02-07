@@ -8,8 +8,8 @@ const schema: JSONSchema7 = {
     tournamentName: {
       type: 'string',
       minLength: 1,
-    }
-  }
+    },
+  },
 };
 
 export default schema;

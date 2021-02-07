@@ -10,5 +10,5 @@ import { createTeamServiceFactory } from '@foci2020/api/functions/create-team/cr
 const createTeamService = createTeamServiceFactory(databaseService, teamDocumentConverter);
 
 export default authorizer('admin')(apiRequestValidator({
-  body
+  body, 
 })(handler(createTeamService)));

@@ -8,17 +8,19 @@ export default (getTeam: IGetTeamService): APIGatewayProxyHandler => {
     const teamId = event.pathParameters.teamId as TeamIdType;
     let team: TeamResponse;
     try {
-      team = await getTeam({ teamId });
+      team = await getTeam({
+        teamId, 
+      });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
     return {
       statusCode: 200,
-      body: JSON.stringify(team)
+      body: JSON.stringify(team),
     };
   };
 };

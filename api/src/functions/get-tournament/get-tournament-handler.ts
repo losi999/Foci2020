@@ -8,17 +8,19 @@ export default (getTournament: IGetTournamentService): APIGatewayProxyHandler =>
     const tournamentId = event.pathParameters.tournamentId as TournamentIdType;
     let tournament: TournamentResponse;
     try {
-      tournament = await getTournament({ tournamentId });
+      tournament = await getTournament({
+        tournamentId, 
+      });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
     return {
       statusCode: 200,
-      body: JSON.stringify(tournament)
+      body: JSON.stringify(tournament),
     };
   };
 };

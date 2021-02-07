@@ -15,7 +15,7 @@ describe('Database service', () => {
 
     service = databaseServiceFactory({
       primaryTableName: tableName,
-      archiveTableName: undefined
+      archiveTableName: undefined,
     }, mockDynamoClient.service);
   });
 
@@ -134,8 +134,8 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `bet#${userId}#${matchId}`,
-        }
+          'documentType-id': `bet#${userId}#${matchId}`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -154,8 +154,8 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `match#${matchId}`,
-        }
+          'documentType-id': `match#${matchId}`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -174,8 +174,8 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `team#${teamId}`,
-        }
+          'documentType-id': `team#${teamId}`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -194,8 +194,8 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `tournament#${tournamentId}`,
-        }
+          'documentType-id': `tournament#${tournamentId}`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -208,7 +208,9 @@ describe('Database service', () => {
   describe('getMatchById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
       const queriedItem = matchDocument();
-      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({
+        Item: queriedItem, 
+      }));
 
       const result = await service.getMatchById(matchId);
       expect(result).toEqual(queriedItem);
@@ -216,7 +218,7 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `match#${matchId}`
+          'documentType-id': `match#${matchId}`, 
         },
       });
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -230,7 +232,9 @@ describe('Database service', () => {
   describe('getTeamById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
       const queriedItem = teamDocument();
-      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({
+        Item: queriedItem, 
+      }));
 
       const result = await service.getTeamById(teamId);
       expect(result).toEqual(queriedItem);
@@ -238,7 +242,7 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `team#${teamId}`
+          'documentType-id': `team#${teamId}`, 
         },
       });
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -252,7 +256,9 @@ describe('Database service', () => {
   describe('getTournamentById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
       const queriedItem = tournamentDocument();
-      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({
+        Item: queriedItem, 
+      }));
 
       const result = await service.getTournamentById(tournamentId);
       expect(result).toEqual(queriedItem);
@@ -260,7 +266,7 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `tournament#${tournamentId}`
+          'documentType-id': `tournament#${tournamentId}`, 
         },
       });
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -274,7 +280,9 @@ describe('Database service', () => {
   describe('getBetById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
       const queriedItem = betDocument();
-      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({
+        Item: queriedItem, 
+      }));
 
       const result = await service.getBetById(userId, matchId);
       expect(result).toEqual(queriedItem);
@@ -282,7 +290,7 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `bet#${userId}#${matchId}`
+          'documentType-id': `bet#${userId}#${matchId}`, 
         },
       });
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -296,7 +304,9 @@ describe('Database service', () => {
   describe('getStandingById', () => {
     it('should call dynamo.get with correct parameters and return queried data', async () => {
       const queriedItem = standingDocument();
-      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({ Item: queriedItem }));
+      mockDynamoClient.functions.get.mockReturnValue(awsResolvedValue({
+        Item: queriedItem, 
+      }));
 
       const result = await service.getStandingById(tournamentId, userId);
       expect(result).toEqual(queriedItem);
@@ -304,7 +314,7 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': `standing#${tournamentId}#${userId}`
+          'documentType-id': `standing#${tournamentId}#${userId}`, 
         },
       });
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -318,7 +328,9 @@ describe('Database service', () => {
   describe('queryBetsByMatchId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [betDocument()];
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
+        Items: queriedItems, 
+      }));
 
       const result = await service.queryBetsByMatchId(matchId);
       expect(result).toEqual(queriedItems);
@@ -328,11 +340,11 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         KeyConditionExpression: '#matchIdDocumentType = :matchIdDocumentType',
         ExpressionAttributeNames: {
-          '#matchIdDocumentType': 'matchId-documentType'
+          '#matchIdDocumentType': 'matchId-documentType', 
         },
         ExpressionAttributeValues: {
-          ':matchIdDocumentType': `${matchId}#bet`
-        }
+          ':matchIdDocumentType': `${matchId}#bet`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.delete);
@@ -345,7 +357,9 @@ describe('Database service', () => {
   describe('queryBetsByTournamentIdUserId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [betDocument()];
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
+        Items: queriedItems, 
+      }));
 
       const result = await service.queryBetsByTournamentIdUserId(tournamentId, userId);
       expect(result).toEqual(queriedItems);
@@ -355,11 +369,11 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         KeyConditionExpression: '#tournamentIdUserIdDocumentType = :tournamentIdUserIdDocumentType',
         ExpressionAttributeNames: {
-          '#tournamentIdUserIdDocumentType': 'tournamentId-userId-documentType'
+          '#tournamentIdUserIdDocumentType': 'tournamentId-userId-documentType', 
         },
         ExpressionAttributeValues: {
-          ':tournamentIdUserIdDocumentType': `${tournamentId}#${userId}#bet`
-        }
+          ':tournamentIdUserIdDocumentType': `${tournamentId}#${userId}#bet`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.delete);
@@ -372,7 +386,9 @@ describe('Database service', () => {
   describe('queryMatchesByTournamentId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [matchDocument()];
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
+        Items: queriedItems, 
+      }));
 
       const result = await service.queryMatchesByTournamentId(tournamentId);
       expect(result).toEqual(queriedItems);
@@ -383,11 +399,11 @@ describe('Database service', () => {
         KeyConditionExpression: '#tournamentIdDocumentType = :tournamentIdDocumentType',
         ScanIndexForward: true,
         ExpressionAttributeNames: {
-          '#tournamentIdDocumentType': 'tournamentId-documentType'
+          '#tournamentIdDocumentType': 'tournamentId-documentType', 
         },
         ExpressionAttributeValues: {
-          ':tournamentIdDocumentType': `${tournamentId}#match`
-        }
+          ':tournamentIdDocumentType': `${tournamentId}#match`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.delete);
@@ -400,7 +416,9 @@ describe('Database service', () => {
   describe('queryStandingsByTournamentId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [standingDocument()];
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
+        Items: queriedItems, 
+      }));
 
       const result = await service.queryStandingsByTournamentId(tournamentId);
       expect(result).toEqual(queriedItems);
@@ -411,11 +429,11 @@ describe('Database service', () => {
         KeyConditionExpression: '#tournamentIdDocumentType = :tournamentIdDocumentType',
         ScanIndexForward: false,
         ExpressionAttributeNames: {
-          '#tournamentIdDocumentType': 'tournamentId-documentType'
+          '#tournamentIdDocumentType': 'tournamentId-documentType', 
         },
         ExpressionAttributeValues: {
-          ':tournamentIdDocumentType': `${tournamentId}#standing`
-        }
+          ':tournamentIdDocumentType': `${tournamentId}#standing`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.delete);
@@ -428,9 +446,11 @@ describe('Database service', () => {
   describe('queryMatchKeysByHomeTeamId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [{
-        'documentType-id': 'matchId'
+        'documentType-id': 'matchId', 
       }] as DocumentKey[];
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
+        Items: queriedItems, 
+      }));
 
       const result = await service.queryMatchKeysByHomeTeamId(teamId);
       expect(result).toEqual(queriedItems);
@@ -440,11 +460,11 @@ describe('Database service', () => {
         IndexName: 'indexByHomeTeamIdDocumentType',
         KeyConditionExpression: '#homeTeamIdDocumentType = :homeTeamIdDocumentType',
         ExpressionAttributeNames: {
-          '#homeTeamIdDocumentType': 'homeTeamId-documentType'
+          '#homeTeamIdDocumentType': 'homeTeamId-documentType', 
         },
         ExpressionAttributeValues: {
-          ':homeTeamIdDocumentType': `${teamId}#match`,
-        }
+          ':homeTeamIdDocumentType': `${teamId}#match`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.delete);
@@ -457,9 +477,11 @@ describe('Database service', () => {
   describe('queryMatchKeysByAwayTeamId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [{
-        'documentType-id': 'matchId'
+        'documentType-id': 'matchId', 
       }] as DocumentKey[];
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
+        Items: queriedItems, 
+      }));
 
       const result = await service.queryMatchKeysByAwayTeamId(teamId);
       expect(result).toEqual(queriedItems);
@@ -469,11 +491,11 @@ describe('Database service', () => {
         IndexName: 'indexByAwayTeamIdDocumentType',
         KeyConditionExpression: '#awayTeamIdDocumentType = :awayTeamIdDocumentType',
         ExpressionAttributeNames: {
-          '#awayTeamIdDocumentType': 'awayTeamId-documentType'
+          '#awayTeamIdDocumentType': 'awayTeamId-documentType', 
         },
         ExpressionAttributeValues: {
-          ':awayTeamIdDocumentType': `${teamId}#match`,
-        }
+          ':awayTeamIdDocumentType': `${teamId}#match`, 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.delete);
@@ -486,7 +508,9 @@ describe('Database service', () => {
   describe('listMatches', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [matchDocument()];
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
+        Items: queriedItems, 
+      }));
 
       const result = await service.listMatches();
       expect(result).toEqual(queriedItems);
@@ -496,8 +520,8 @@ describe('Database service', () => {
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType',
         ExpressionAttributeValues: {
-          ':documentType': 'match',
-        }
+          ':documentType': 'match', 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.delete);
@@ -510,7 +534,9 @@ describe('Database service', () => {
   describe('listTeams', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [teamDocument()];
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
+        Items: queriedItems, 
+      }));
 
       const result = await service.listTeams();
       expect(result).toEqual(queriedItems);
@@ -520,8 +546,8 @@ describe('Database service', () => {
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType',
         ExpressionAttributeValues: {
-          ':documentType': 'team',
-        }
+          ':documentType': 'team', 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.delete);
@@ -534,7 +560,9 @@ describe('Database service', () => {
   describe('listTournaments', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
       const queriedItems = [tournamentDocument()];
-      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({ Items: queriedItems }));
+      mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
+        Items: queriedItems, 
+      }));
 
       const result = await service.listTournaments();
       expect(result).toEqual(queriedItems);
@@ -544,8 +572,8 @@ describe('Database service', () => {
         IndexName: 'indexByDocumentType',
         KeyConditionExpression: 'documentType = :documentType',
         ExpressionAttributeValues: {
-          ':documentType': 'tournament',
-        }
+          ':documentType': 'tournament', 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.delete);
@@ -568,11 +596,11 @@ describe('Database service', () => {
         Item: document,
         ConditionExpression: '#documentTypeId = :documentTypeId',
         ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
+          '#documentTypeId': 'documentType-id', 
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': document['documentType-id'],
-        }
+          ':documentTypeId': document['documentType-id'], 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -595,11 +623,11 @@ describe('Database service', () => {
         Item: document,
         ConditionExpression: '#documentTypeId = :documentTypeId',
         ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
+          '#documentTypeId': 'documentType-id', 
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': document['documentType-id'],
-        }
+          ':documentTypeId': document['documentType-id'], 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -621,18 +649,18 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': matchKey,
+          'documentType-id': matchKey, 
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set #team = :team',
         ExpressionAttributeNames: {
           '#documentTypeId': 'documentType-id',
-          '#team': `${type}Team`
+          '#team': `${type}Team`,
         },
         ExpressionAttributeValues: {
           ':documentTypeId': matchKey,
           ':team': team,
-        }
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -653,17 +681,17 @@ describe('Database service', () => {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: tableName,
         Key: {
-          'documentType-id': matchKey,
+          'documentType-id': matchKey, 
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set tournament = :tournament',
         ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
+          '#documentTypeId': 'documentType-id', 
         },
         ExpressionAttributeValues: {
           ':documentTypeId': matchKey,
           ':tournament': tournament,
-        }
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -686,11 +714,11 @@ describe('Database service', () => {
         Item: document,
         ConditionExpression: '#documentTypeId = :documentTypeId',
         ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
+          '#documentTypeId': 'documentType-id', 
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': document['documentType-id'],
-        }
+          ':documentTypeId': document['documentType-id'], 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);
@@ -713,11 +741,11 @@ describe('Database service', () => {
         Item: document,
         ConditionExpression: '#documentTypeId = :documentTypeId',
         ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id',
+          '#documentTypeId': 'documentType-id', 
         },
         ExpressionAttributeValues: {
-          ':documentTypeId': document['documentType-id'],
-        }
+          ':documentTypeId': document['documentType-id'], 
+        },
       });
       validateFunctionCall(mockDynamoClient.functions.get);
       validateFunctionCall(mockDynamoClient.functions.query);

@@ -29,7 +29,9 @@ describe('Get team service', () => {
 
     mockTeamDocumentConverter.functions.toResponse.mockReturnValue(response);
 
-    const result = await service({ teamId });
+    const result = await service({
+      teamId, 
+    });
     expect(result).toEqual(response);
     validateFunctionCall(mockDatabaseService.functions.getTeamById, teamId);
     validateFunctionCall(mockTeamDocumentConverter.functions.toResponse, document);
@@ -39,7 +41,9 @@ describe('Get team service', () => {
   it('should throw error if unable to query team', async () => {
     mockDatabaseService.functions.getTeamById.mockRejectedValue('This is a dynamo error');
 
-    await service({ teamId }).catch(validateError('Unable to query team', 500));
+    await service({
+      teamId, 
+    }).catch(validateError('Unable to query team', 500));
     validateFunctionCall(mockDatabaseService.functions.getTeamById, teamId);
     validateFunctionCall(mockTeamDocumentConverter.functions.toResponse);
     expect.assertions(4);
@@ -48,7 +52,9 @@ describe('Get team service', () => {
   it('should return with error if no team found', async () => {
     mockDatabaseService.functions.getTeamById.mockResolvedValue(undefined);
 
-    await service({ teamId }).catch(validateError('No team found', 404));
+    await service({
+      teamId, 
+    }).catch(validateError('No team found', 404));
     validateFunctionCall(mockDatabaseService.functions.getTeamById, teamId);
     validateFunctionCall(mockTeamDocumentConverter.functions.toResponse);
     expect.assertions(4);

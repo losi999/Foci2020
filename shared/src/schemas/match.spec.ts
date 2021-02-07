@@ -12,7 +12,7 @@ describe('Match schema', () => {
   beforeEach(() => {
     validatorService = validatorServiceFactory(new ajv({
       allErrors: true,
-      format: 'full'
+      format: 'full',
     }));
 
     data = {
@@ -20,7 +20,7 @@ describe('Match schema', () => {
       tournamentId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TournamentIdType,
       startTime: '2019-10-08T18:25:07.291Z',
       group: 'Döntő',
-      homeTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TeamIdType
+      homeTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TeamIdType,
     };
   });
 

@@ -16,7 +16,7 @@ export const identityServiceFactory = (
     getUserName: async (userId) => {
       return (await cognito.adminGetUser({
         UserPoolId: userPoolId,
-        Username: userId
+        Username: userId,
       }).promise()).UserAttributes.find(attr => attr.Name === 'nickname').Value;
     },
     register: async (body, userGroup) => {
@@ -32,20 +32,20 @@ export const identityServiceFactory = (
           {
             Name: 'nickname',
             Value: body.displayName,
-          }]
+          }],
       }).promise();
 
       await cognito.adminAddUserToGroup({
         UserPoolId: userPoolId,
         GroupName: userGroup,
-        Username: body.email
+        Username: body.email,
       }).promise();
 
       return cognito.adminSetUserPassword({
         UserPoolId: userPoolId,
         Password: body.password,
         Permanent: true,
-        Username: body.email
+        Username: body.email,
       }).promise();
     },
     login: (body) => {
@@ -55,10 +55,10 @@ export const identityServiceFactory = (
         AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
         AuthParameters: {
           USERNAME: body.email,
-          PASSWORD: body.password
-        }
+          PASSWORD: body.password,
+        },
       }).promise();
-    }
+    },
   };
 
   return instance;

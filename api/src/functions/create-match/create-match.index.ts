@@ -9,5 +9,5 @@ import { createMatchServiceFactory } from '@foci2020/api/functions/create-match/
 const createMatchService = createMatchServiceFactory(databaseService, matchDocumentConverter);
 
 export default authorizer('admin')(apiRequestValidator({
-  body
+  body, 
 })(handler(createMatchService)));

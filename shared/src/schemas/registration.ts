@@ -6,7 +6,7 @@ const schema: JSONSchema7 = {
   required: [
     'email',
     'displayName',
-    'password'
+    'password',
   ],
   properties: {
     email: {
@@ -15,13 +15,13 @@ const schema: JSONSchema7 = {
     },
     displayName: {
       type: 'string',
-      minLength: 1
+      minLength: 1,
     },
     password: {
       type: 'string',
-      minLength: 6
-    }
-  }
+      minLength: 6,
+    },
+  },
 };
 
 export default schema;

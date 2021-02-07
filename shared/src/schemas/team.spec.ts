@@ -11,13 +11,13 @@ describe('Team schema', () => {
   beforeEach(() => {
     validatorService = validatorServiceFactory(new ajv({
       allErrors: true,
-      format: 'full'
+      format: 'full',
     }));
 
     data = {
       shortName: 'HUN',
       image: 'http://image.com/hun.jpg',
-      teamName: 'Magyarország'
+      teamName: 'Magyarország',
     };
   });
 

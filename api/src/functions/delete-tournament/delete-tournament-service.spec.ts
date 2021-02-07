@@ -19,7 +19,9 @@ describe('Delete tournament service', () => {
 
     mockDatabaseService.functions.deleteTournament.mockResolvedValue(undefined);
 
-    const result = await service({ tournamentId });
+    const result = await service({
+      tournamentId, 
+    });
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.deleteTournament, tournamentId);
     expect.assertions(2);
@@ -28,7 +30,9 @@ describe('Delete tournament service', () => {
   it('should throw error if unable to delete tournament', async () => {
     mockDatabaseService.functions.deleteTournament.mockRejectedValue('This is a dynamo error');
 
-    await service({ tournamentId }).catch(validateError('Unable to delete tournament', 500));
+    await service({
+      tournamentId, 
+    }).catch(validateError('Unable to delete tournament', 500));
     validateFunctionCall(mockDatabaseService.functions.deleteTournament, tournamentId);
     expect.assertions(3);
   });

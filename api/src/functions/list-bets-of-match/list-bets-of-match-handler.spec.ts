@@ -15,15 +15,15 @@ describe('Place bet handler', () => {
   const userId = 'userId';
   const handlerEvent = {
     pathParameters: {
-      matchId
+      matchId,
     } as any,
     requestContext: {
       authorizer: {
         claims: {
           sub: userId,
-        }
-      }
-    } as any
+        },
+      },
+    } as any,
   } as APIGatewayProxyEvent;
 
   it('should respond with error if list bets of match throws error', async () => {
@@ -31,7 +31,7 @@ describe('Place bet handler', () => {
     const message = 'This is an error';
     mockListBetsOfMatchService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

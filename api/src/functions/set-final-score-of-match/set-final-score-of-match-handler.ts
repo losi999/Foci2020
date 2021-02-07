@@ -10,18 +10,18 @@ export default (setFinalScore: ISetFinalScoreOfMatchService): APIGatewayProxyHan
     try {
       await setFinalScore({
         matchId,
-        finalScore
+        finalScore,
       });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
 
     return {
       statusCode: 200,
-      body: ''
+      body: '',
     };
   };

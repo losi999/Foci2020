@@ -7,5 +7,5 @@ import { default as body } from '@foci2020/shared/schemas/login';
 const loginService = loginServiceFactory(identityService);
 
 export default apiRequestValidator({
-  body
+  body, 
 })(handler(loginService));

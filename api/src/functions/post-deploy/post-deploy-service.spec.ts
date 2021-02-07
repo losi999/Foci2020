@@ -18,7 +18,7 @@ describe('Post deploy service', () => {
     mockInfrastructureService.functions.executePostDeployFunctions.mockResolvedValue(undefined);
 
     const result = await service({
-      stackName
+      stackName, 
     });
     expect(result).toBeUndefined();
     validateFunctionCall(mockInfrastructureService.functions.executePostDeployFunctions, stackName);
@@ -28,11 +28,11 @@ describe('Post deploy service', () => {
   it('should throw error if a post deploy function fails', async () => {
     const errorMessage = 'This is an error';
     mockInfrastructureService.functions.executePostDeployFunctions.mockRejectedValue({
-      message: errorMessage
+      message: errorMessage, 
     });
 
     await service({
-      stackName
+      stackName, 
     }).catch(validateError(errorMessage));
     validateFunctionCall(mockInfrastructureService.functions.executePostDeployFunctions, stackName);
     expect.assertions(2);

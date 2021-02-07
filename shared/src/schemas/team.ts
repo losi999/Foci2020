@@ -11,14 +11,14 @@ const schema: JSONSchema7 = {
     },
     image: {
       type: 'string',
-      format: 'uri'
+      format: 'uri',
     },
     shortName: {
       type: 'string',
       minLength: 3,
-      maxLength: 3
-    }
-  }
+      maxLength: 3,
+    },
+  },
 };
 
 export default schema;

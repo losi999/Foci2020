@@ -13,9 +13,9 @@ const requestCreateTournament = (idToken: string, tournament: TournamentRequest)
     url: '/tournament/v1/tournaments',
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN'),
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -26,9 +26,9 @@ const requestUpdateTournament = (idToken: string, tournamentId: TournamentIdType
     url: `/tournament/v1/tournaments/${tournamentId}`,
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN'),
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -37,9 +37,9 @@ const requestDeleteTournament = (idToken: string, tournamentId: TournamentIdType
     method: 'DELETE',
     url: `/tournament/v1/tournaments/${tournamentId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -48,9 +48,9 @@ const requestGetTournament = (idToken: string, tournamentId: TournamentIdType) =
     method: 'GET',
     url: `/tournament/v1/tournaments/${tournamentId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -59,14 +59,16 @@ const requestGetTournamentList = (idToken: string) => {
     method: 'GET',
     url: '/tournament/v1/tournaments',
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
 const saveTournamentDocument = (document: TournamentDocument): void => {
-  cy.log('Save tournament document', document).wrap(databaseService.saveTournament(document), { log: false });
+  cy.log('Save tournament document', document).wrap(databaseService.saveTournament(document), {
+    log: false, 
+  });
 };
 
 const validateTournamentDocument = (response: TournamentResponse, request: TournamentRequest, tournamentId?: TournamentIdType) => {
@@ -93,16 +95,30 @@ const validateTournamentDeleted = (tournamentId: TournamentIdType) => {
 };
 
 export const setTournamentCommands = () => {
-  Cypress.Commands.add('requestCreateTournament', { prevSubject: true }, requestCreateTournament);
-  Cypress.Commands.add('requestUpdateTournament', { prevSubject: true }, requestUpdateTournament);
-  Cypress.Commands.add('requestDeleteTournament', { prevSubject: true }, requestDeleteTournament);
-  Cypress.Commands.add('requestGetTournament', { prevSubject: true }, requestGetTournament);
-  Cypress.Commands.add('requestGetTournamentList', { prevSubject: true }, requestGetTournamentList);
+  Cypress.Commands.add('requestCreateTournament', {
+    prevSubject: true, 
+  }, requestCreateTournament);
+  Cypress.Commands.add('requestUpdateTournament', {
+    prevSubject: true, 
+  }, requestUpdateTournament);
+  Cypress.Commands.add('requestDeleteTournament', {
+    prevSubject: true, 
+  }, requestDeleteTournament);
+  Cypress.Commands.add('requestGetTournament', {
+    prevSubject: true, 
+  }, requestGetTournament);
+  Cypress.Commands.add('requestGetTournamentList', {
+    prevSubject: true, 
+  }, requestGetTournamentList);
 
   Cypress.Commands.add('saveTournamentDocument', saveTournamentDocument);
 
-  Cypress.Commands.add('validateTournamentDocument', { prevSubject: true }, validateTournamentDocument);
-  Cypress.Commands.add('validateTournamentResponse', { prevSubject: true }, validateTournamentResponse);
+  Cypress.Commands.add('validateTournamentDocument', {
+    prevSubject: true, 
+  }, validateTournamentDocument);
+  Cypress.Commands.add('validateTournamentResponse', {
+    prevSubject: true, 
+  }, validateTournamentResponse);
   Cypress.Commands.add('validateTournamentDeleted', validateTournamentDeleted);
 };
 

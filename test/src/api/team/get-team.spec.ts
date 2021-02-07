@@ -9,7 +9,7 @@ describe('GET /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
     teamName: 'Magyarország',
     image: 'http://image.com/hun.png',
-    shortName: 'HUN'
+    shortName: 'HUN',
   };
 
   let teamDocument: TeamDocument;

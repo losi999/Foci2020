@@ -26,42 +26,42 @@ export const eventServiceFactory = (config: {
     invokeArchiveDocument: event => lambda.invoke({
       FunctionName: config.archiveDocumentLambda,
       InvocationType: 'Event',
-      Payload: JSON.stringify(event)
+      Payload: JSON.stringify(event),
     }).promise(),
     invokeBetResultCalculated: event => lambda.invoke({
       FunctionName: config.betResultCalculatedLambda,
       InvocationType: 'Event',
-      Payload: JSON.stringify(event)
+      Payload: JSON.stringify(event),
     }).promise(),
     invokeMatchDeleted: event => lambda.invoke({
       FunctionName: config.matchDeletedLambda,
       InvocationType: 'Event',
-      Payload: JSON.stringify(event)
+      Payload: JSON.stringify(event),
     }).promise(),
     invokeMatchFinalScoreUpdated: event => lambda.invoke({
       FunctionName: config.matchFinalScoreUpdatedLambda,
       InvocationType: 'Event',
-      Payload: JSON.stringify(event)
+      Payload: JSON.stringify(event),
     }).promise(),
     invokeTeamDeleted: event => lambda.invoke({
       FunctionName: config.teamDeletedLambda,
       InvocationType: 'Event',
-      Payload: JSON.stringify(event)
+      Payload: JSON.stringify(event),
     }).promise(),
     invokeTeamUpdated: event => lambda.invoke({
       FunctionName: config.teamUpdatedLambda,
       InvocationType: 'Event',
-      Payload: JSON.stringify(event)
+      Payload: JSON.stringify(event),
     }).promise(),
     invokeTournamentDeleted: event => lambda.invoke({
       FunctionName: config.tournamentDeletedLambda,
       InvocationType: 'Event',
-      Payload: JSON.stringify(event)
+      Payload: JSON.stringify(event),
     }).promise(),
     invokeTournamentUpdated: event => lambda.invoke({
       FunctionName: config.tournamentUpdatedLambda,
       InvocationType: 'Event',
-      Payload: JSON.stringify(event)
+      Payload: JSON.stringify(event),
     }).promise(),
   };
 

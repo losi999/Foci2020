@@ -16,9 +16,9 @@ const requestPlaceBet = (idToken: string, matchId: string, score: BetRequest) =>
     url: `/betting/v1/matches/${matchId}/bets`,
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN'),
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -27,9 +27,9 @@ const requestGetMatchListOfTournament = (idToken: string, tournamentId: string) 
     method: 'GET',
     url: `/betting/v1/tournaments/${tournamentId}/matches`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -38,9 +38,9 @@ const requestGetStandingListOfTournament = (idToken: string, tournamentId: strin
     method: 'GET',
     url: `/betting/v1/tournaments/${tournamentId}/standings`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -49,9 +49,9 @@ const requestGetBetListOfMatch = (idToken: string, matchId: string) => {
     method: 'GET',
     url: `/betting/v1/matches/${matchId}/bets`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -60,18 +60,22 @@ const requestCompareWithPlayer = (idToken: string, tournamentId: string, userId:
     method: 'GET',
     url: `/betting/v1/tournaments/${tournamentId}/compare/${userId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
 const saveBetDocument = (document: BetDocument): void => {
-  cy.log('Save bet document', document).wrap(databaseService.saveBet(document), { log: false });
+  cy.log('Save bet document', document).wrap(databaseService.saveBet(document), {
+    log: false, 
+  });
 };
 
 const saveStandingDocument = (document: StandingDocument): void => {
-  cy.log('Save standing document', document).wrap(databaseService.saveStanding(document), { log: false });
+  cy.log('Save standing document', document).wrap(databaseService.saveStanding(document), {
+    log: false, 
+  });
 };
 
 const saveBetForUser = (user: User, score: BetRequest, matchId: MatchIdType, tournamentId: TournamentIdType) => {
@@ -79,7 +83,9 @@ const saveBetForUser = (user: User, score: BetRequest, matchId: MatchIdType, tou
     .then((idToken: string) => {
       const { sub, nickname } = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString('utf8'));
       const betdocument = betDocumentConverter.create(score, sub, nickname, matchId, tournamentId, Cypress.env('EXPIRES_IN'));
-      return cy.log('Save bet document', betdocument).wrap(databaseService.saveBet(betdocument), { log: false });
+      return cy.log('Save bet document', betdocument).wrap(databaseService.saveBet(betdocument), {
+        log: false, 
+      });
     });
 };
 
@@ -165,11 +171,21 @@ const validatePrivateCompareResponse = (response: CompareResponse, ownPlayer: Us
 };
 
 export const setBettingCommands = () => {
-  Cypress.Commands.add('requestGetMatchListOfTournament', { prevSubject: true }, requestGetMatchListOfTournament);
-  Cypress.Commands.add('requestGetStandingListOfTournament', { prevSubject: true }, requestGetStandingListOfTournament);
-  Cypress.Commands.add('requestGetBetListOfMatch', { prevSubject: true }, requestGetBetListOfMatch);
-  Cypress.Commands.add('requestCompareWithPlayer', { prevSubject: true }, requestCompareWithPlayer);
-  Cypress.Commands.add('requestPlaceBet', { prevSubject: true }, requestPlaceBet);
+  Cypress.Commands.add('requestGetMatchListOfTournament', {
+    prevSubject: true, 
+  }, requestGetMatchListOfTournament);
+  Cypress.Commands.add('requestGetStandingListOfTournament', {
+    prevSubject: true, 
+  }, requestGetStandingListOfTournament);
+  Cypress.Commands.add('requestGetBetListOfMatch', {
+    prevSubject: true, 
+  }, requestGetBetListOfMatch);
+  Cypress.Commands.add('requestCompareWithPlayer', {
+    prevSubject: true, 
+  }, requestCompareWithPlayer);
+  Cypress.Commands.add('requestPlaceBet', {
+    prevSubject: true, 
+  }, requestPlaceBet);
   Cypress.Commands.add('saveBetForUser', saveBetForUser);
   Cypress.Commands.add('saveBetDocument', saveBetDocument);
   Cypress.Commands.add('saveStandingDocument', saveStandingDocument);
@@ -177,11 +193,21 @@ export const setBettingCommands = () => {
   Cypress.Commands.add('validateBetDeleted', validateBetDeleted);
   Cypress.Commands.add('validateBetResult', validateBetResult);
   Cypress.Commands.add('validateStandingDocument', validateStandingDocument);
-  Cypress.Commands.add('validateStandingResponse', { prevSubject: true }, validateStandingResponse);
-  Cypress.Commands.add('validatePrivateBetResponse', { prevSubject: true }, validatePrivateBetResponse);
-  Cypress.Commands.add('validatePublicBetResponse', { prevSubject: true }, validatePublicBetResponse);
-  Cypress.Commands.add('validatePublicCompareResponse', { prevSubject: true }, validatePublicCompareResponse);
-  Cypress.Commands.add('validatePrivateCompareResponse', { prevSubject: true }, validatePrivateCompareResponse);
+  Cypress.Commands.add('validateStandingResponse', {
+    prevSubject: true, 
+  }, validateStandingResponse);
+  Cypress.Commands.add('validatePrivateBetResponse', {
+    prevSubject: true, 
+  }, validatePrivateBetResponse);
+  Cypress.Commands.add('validatePublicBetResponse', {
+    prevSubject: true, 
+  }, validatePublicBetResponse);
+  Cypress.Commands.add('validatePublicCompareResponse', {
+    prevSubject: true, 
+  }, validatePublicCompareResponse);
+  Cypress.Commands.add('validatePrivateCompareResponse', {
+    prevSubject: true, 
+  }, validatePrivateCompareResponse);
 };
 
 declare global {

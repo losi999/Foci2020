@@ -2,7 +2,7 @@ import { TournamentRequest } from '@foci2020/shared/types/requests';
 
 describe('POST /tournament/v1/tournaments', () => {
   const tournament: TournamentRequest = {
-    tournamentName: 'EB 2020',
+    tournamentName: 'EB 2020', 
   };
 
   describe('called as anonymous', () => {
@@ -35,7 +35,7 @@ describe('POST /tournament/v1/tournaments', () => {
           cy.authenticate('admin1')
             .requestCreateTournament({
               ...tournament,
-              tournamentName: undefined
+              tournamentName: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('tournamentName', 'body');
@@ -45,7 +45,7 @@ describe('POST /tournament/v1/tournaments', () => {
           cy.authenticate('admin1')
             .requestCreateTournament({
               ...tournament,
-              tournamentName: 1 as any
+              tournamentName: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('tournamentName', 'string', 'body');

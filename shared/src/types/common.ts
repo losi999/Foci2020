@@ -4,8 +4,8 @@ export type Brand<K, T> = K & { __brand: T };
 export type RecursivePartial<T> = {
   [P in keyof T]?:
   T[P] extends (infer U)[] ? RecursivePartial<U>[] :
-  T[P] extends object ? RecursivePartial<T[P]> :
-  T[P];
+    T[P] extends object ? RecursivePartial<T[P]> :
+      T[P];
 };
 
 export type KeyType = Brand<string, 'key'>;

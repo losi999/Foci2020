@@ -4,7 +4,7 @@ describe('POST /team/v1/teams', () => {
   const team: TeamRequest = {
     teamName: 'Magyarország',
     image: 'http://image.com/hun.png',
-    shortName: 'HUN'
+    shortName: 'HUN',
   };
 
   describe('called as anonymous', () => {
@@ -34,7 +34,7 @@ describe('POST /team/v1/teams', () => {
     it('should create a team without image', () => {
       const request: TeamRequest = {
         ...team,
-        image: undefined
+        image: undefined,
       };
       cy.authenticate('admin1')
         .requestCreateTeam(request)
@@ -48,7 +48,7 @@ describe('POST /team/v1/teams', () => {
           cy.authenticate('admin1')
             .requestCreateTeam({
               ...team,
-              teamName: undefined
+              teamName: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('teamName', 'body');
@@ -58,7 +58,7 @@ describe('POST /team/v1/teams', () => {
           cy.authenticate('admin1')
             .requestCreateTeam({
               ...team,
-              teamName: 1 as any
+              teamName: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('teamName', 'string', 'body');
@@ -70,7 +70,7 @@ describe('POST /team/v1/teams', () => {
           cy.authenticate('admin1')
             .requestCreateTeam({
               ...team,
-              image: 1 as any
+              image: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('image', 'string', 'body');
@@ -80,7 +80,7 @@ describe('POST /team/v1/teams', () => {
           cy.authenticate('admin1')
             .requestCreateTeam({
               ...team,
-              image: 'not.an.uri'
+              image: 'not.an.uri',
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('image', 'uri', 'body');
@@ -92,7 +92,7 @@ describe('POST /team/v1/teams', () => {
           cy.authenticate('admin1')
             .requestCreateTeam({
               ...team,
-              shortName: undefined
+              shortName: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('shortName', 'body');
@@ -102,7 +102,7 @@ describe('POST /team/v1/teams', () => {
           cy.authenticate('admin1')
             .requestCreateTeam({
               ...team,
-              shortName: 1 as any
+              shortName: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('shortName', 'string', 'body');
@@ -112,7 +112,7 @@ describe('POST /team/v1/teams', () => {
           cy.authenticate('admin1')
             .requestCreateTeam({
               ...team,
-              shortName: 'AB'
+              shortName: 'AB',
             })
             .expectBadRequestResponse()
             .expectTooShortProperty('shortName', 3, 'body');
@@ -122,7 +122,7 @@ describe('POST /team/v1/teams', () => {
           cy.authenticate('admin1')
             .requestCreateTeam({
               ...team,
-              shortName: 'ABCD'
+              shortName: 'ABCD',
             })
             .expectBadRequestResponse()
             .expectTooLongProperty('shortName', 3, 'body');

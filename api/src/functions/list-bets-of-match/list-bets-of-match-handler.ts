@@ -12,18 +12,18 @@ export default (listBetsOfMatch: IListBetsOfMatchService): APIGatewayProxyHandle
     try {
       bets = await listBetsOfMatch({
         matchId,
-        userId
+        userId,
       });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
 
     return {
       statusCode: 200,
-      body: JSON.stringify(bets)
+      body: JSON.stringify(bets),
     };
   };

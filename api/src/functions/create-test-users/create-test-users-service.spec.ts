@@ -27,33 +27,33 @@ describe('Create test users service', () => {
 
     await service({
       numberOfAdmins,
-      numberOfPlayers
+      numberOfPlayers,
     });
     expect(mockIdentityService.functions.register).toHaveBeenCalledTimes(numberOfAdmins + numberOfPlayers);
     expect(mockIdentityService.functions.register).toHaveBeenNthCalledWith(1, {
       email: 'losonczil+admin1@gmail.com',
       password: testUserPassword,
-      displayName: 'admin1'
+      displayName: 'admin1',
     }, 'admin');
     expect(mockIdentityService.functions.register).toHaveBeenNthCalledWith(2, {
       email: 'losonczil+admin2@gmail.com',
       password: testUserPassword,
-      displayName: 'admin2'
+      displayName: 'admin2',
     }, 'admin');
     expect(mockIdentityService.functions.register).toHaveBeenNthCalledWith(3, {
       email: 'losonczil+player1@gmail.com',
       password: testUserPassword,
-      displayName: 'player1'
+      displayName: 'player1',
     }, 'player');
     expect(mockIdentityService.functions.register).toHaveBeenNthCalledWith(4, {
       email: 'losonczil+player2@gmail.com',
       password: testUserPassword,
-      displayName: 'player2'
+      displayName: 'player2',
     }, 'player');
     expect(mockIdentityService.functions.register).toHaveBeenNthCalledWith(5, {
       email: 'losonczil+player3@gmail.com',
       password: testUserPassword,
-      displayName: 'player3'
+      displayName: 'player3',
     }, 'player');
   });
 
@@ -62,11 +62,13 @@ describe('Create test users service', () => {
     const numberOfAdmins = 2;
     const numberOfPlayers = 3;
 
-    mockIdentityService.functions.register.mockRejectedValue({ code: 'UsernameExistsException' });
+    mockIdentityService.functions.register.mockRejectedValue({
+      code: 'UsernameExistsException', 
+    });
 
     await service({
       numberOfAdmins,
-      numberOfPlayers
+      numberOfPlayers,
     });
     expect(mockIdentityService.functions.register).toHaveBeenCalledTimes(numberOfAdmins + numberOfPlayers);
     expect.assertions(1);
@@ -80,12 +82,12 @@ describe('Create test users service', () => {
     const message = 'This is a cognito error';
     mockIdentityService.functions.register.mockRejectedValue({
       message,
-      code: 'NOTUsernameExistsException'
+      code: 'NOTUsernameExistsException',
     });
 
     await service({
       numberOfAdmins,
-      numberOfPlayers
+      numberOfPlayers,
     }).catch(validateError(message));
     expect(mockIdentityService.functions.register).toHaveBeenCalledTimes(numberOfAdmins + numberOfPlayers);
     expect.assertions(2);

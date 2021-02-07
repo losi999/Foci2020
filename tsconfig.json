@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "esModuleInterop": true,
     "target": "es2017",
     "lib": [
@@ -16,13 +16,16 @@
     "outDir": "output",
     "baseUrl": ".",
     "paths": {
+      "@foci2020/api/*": [
+        "api/src/*"
+      ],
       "@foci2020/shared/*": [
-        "src/*"
+        "shared/src/*"
       ]
     }
   },
   "include": [
-    "src",
-    "**/*.spec.ts"
+    "api/src",
+    "shared/src"
   ]
 }

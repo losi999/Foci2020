@@ -49,7 +49,9 @@ describe('Team document converter', () => {
 
       mockUuid.mockReturnValue(teamId);
 
-      const expectedDocument = teamDocument({ modifiedAt: nowDate.toISOString() });
+      const expectedDocument = teamDocument({
+        modifiedAt: nowDate.toISOString(), 
+      });
 
       const result = converter.create(body, NaN);
       expect(result).toEqual(expectedDocument);
@@ -62,7 +64,7 @@ describe('Team document converter', () => {
 
       const expectedDocument = teamDocument({
         expiresAt: now + 3600,
-        modifiedAt: nowDate.toISOString()
+        modifiedAt: nowDate.toISOString(),
       });
 
       const result = converter.create(body, 3600);
@@ -74,7 +76,9 @@ describe('Team document converter', () => {
     it('should return a team document for update', () => {
       const body = teamRequest();
 
-      const expectedDocument = teamDocument({ modifiedAt: nowDate.toISOString() });
+      const expectedDocument = teamDocument({
+        modifiedAt: nowDate.toISOString(), 
+      });
 
       const result = converter.update(teamId, body, NaN);
       expect(result).toEqual(expectedDocument);
@@ -85,7 +89,7 @@ describe('Team document converter', () => {
 
       const expectedDocument = teamDocument({
         expiresAt: now + 3600,
-        modifiedAt: nowDate.toISOString()
+        modifiedAt: nowDate.toISOString(),
       });
 
       const result = converter.update(teamId, body, 3600);

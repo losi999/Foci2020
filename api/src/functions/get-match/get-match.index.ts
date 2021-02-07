@@ -9,5 +9,5 @@ import { default as pathParameters } from '@foci2020/shared/schemas/match-id';
 const getMatchService = getMatchServiceFactory(databaseService, matchDocumentConverter);
 
 export default authorizer('admin')(apiRequestValidator({
-  pathParameters
+  pathParameters, 
 })(handler(getMatchService)));

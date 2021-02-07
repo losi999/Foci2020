@@ -7,10 +7,10 @@ export const pathParameters: JSONSchema7 = {
   additionalProperties: false,
   required: [
     ...userId.required,
-    ...tournamentId.required
+    ...tournamentId.required,
   ],
   properties: {
     ...userId.properties,
-    ...tournamentId.properties
-  }
+    ...tournamentId.properties,
+  },
 };

@@ -7,13 +7,13 @@ export default (registration: IRegistrationService): APIGatewayProxyHandler => {
 
     try {
       await registration({
-        body
+        body, 
       });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
 

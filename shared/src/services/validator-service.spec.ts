@@ -14,8 +14,12 @@ describe('Validator service', () => {
   });
   describe('validate', () => {
     it('should return undefined if validation is true', () => {
-      const instance = { id: 'id' };
-      const schema = { type: 'object' } as JSONSchema7;
+      const instance = {
+        id: 'id', 
+      };
+      const schema = {
+        type: 'object', 
+      } as JSONSchema7;
 
       validateSpy.mockReturnValue(true);
 
@@ -24,12 +28,15 @@ describe('Validator service', () => {
     });
 
     it('should return with error text if validation is false', () => {
-      const instance = { id: 'id' };
-      const schema = { type: 'object' } as JSONSchema7;
+      const instance = {
+        id: 'id', 
+      };
+      const schema = {
+        type: 'object', 
+      } as JSONSchema7;
 
       validateSpy.mockImplementation(() => {
-        ajvValidator.errors = [{
-        } as ErrorObject];
+        ajvValidator.errors = [{} as ErrorObject];
         ajvValidator.errorsText = () => 'some validation error';
         return false;
       });

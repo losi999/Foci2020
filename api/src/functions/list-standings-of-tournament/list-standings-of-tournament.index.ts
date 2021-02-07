@@ -9,5 +9,5 @@ import { listStandingsOfTournamentFactory } from '@foci2020/api/functions/list-s
 const listStandingsOfTournamentService = listStandingsOfTournamentFactory(databaseService, standingDocumentConverter);
 
 export default authorizer('player')(apiRequestValidator({
-  pathParameters
+  pathParameters, 
 })(handler(listStandingsOfTournamentService)));

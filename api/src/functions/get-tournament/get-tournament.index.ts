@@ -9,5 +9,5 @@ import { default as pathParameters } from '@foci2020/shared/schemas/tournament-i
 const getTournamentService = getTournamentServiceFactory(databaseService, tournamentDocumentConverter);
 
 export default authorizer('admin')(apiRequestValidator({
-  pathParameters
+  pathParameters, 
 })(handler(getTournamentService)));

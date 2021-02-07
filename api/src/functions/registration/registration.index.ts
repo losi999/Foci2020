@@ -7,5 +7,5 @@ import { default as body } from '@foci2020/shared/schemas/registration';
 const registrationService = registrationServiceFactory(identityService);
 
 export default apiRequestValidator({
-  body
+  body, 
 })(handler(registrationService));

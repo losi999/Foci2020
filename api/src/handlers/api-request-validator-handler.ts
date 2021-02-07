@@ -22,7 +22,7 @@ export default (validatorService: IValidatorService) => {
           if (validation) {
             return {
               ...accumulator,
-              [currentValue]: validation
+              [currentValue]: validation,
             };
           }
           return accumulator;
@@ -31,7 +31,7 @@ export default (validatorService: IValidatorService) => {
         if (Object.values(validationErrors).length > 0) {
           return {
             statusCode: 400,
-            body: JSON.stringify(validationErrors)
+            body: JSON.stringify(validationErrors),
           };
         }
 

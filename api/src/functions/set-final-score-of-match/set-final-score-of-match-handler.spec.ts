@@ -20,7 +20,7 @@ describe('Set final score of match handler', () => {
   const handlerEvent = {
     body: JSON.stringify(finalScore),
     pathParameters: {
-      matchId
+      matchId, 
     } as APIGatewayProxyEvent['pathParameters'],
   } as APIGatewayProxyEvent;
 
@@ -29,7 +29,7 @@ describe('Set final score of match handler', () => {
     const message = 'This is an error';
     mockSetFinalScoreOfMatchService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
@@ -38,7 +38,7 @@ describe('Set final score of match handler', () => {
     expect(response.body).toEqual(message);
     expect(mockSetFinalScoreOfMatchService).toHaveBeenCalledWith({
       matchId,
-      finalScore
+      finalScore,
     });
     expect.assertions(3);
   });
@@ -51,7 +51,7 @@ describe('Set final score of match handler', () => {
     expect(response.statusCode).toEqual(200);
     expect(mockSetFinalScoreOfMatchService).toHaveBeenCalledWith({
       matchId,
-      finalScore
+      finalScore,
     });
     expect.assertions(2);
   });

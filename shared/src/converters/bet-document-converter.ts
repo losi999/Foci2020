@@ -25,7 +25,7 @@ export const betDocumentConverterFactory = (): IBetDocumentConverter => {
       'matchId-documentType': undefined,
       homeScore: hideScore ? undefined : bet.homeScore,
       awayScore: hideScore ? undefined : bet.awayScore,
-      point: hideScore ? undefined : betResultPoint[bet.result]
+      point: hideScore ? undefined : betResultPoint[bet.result],
     };
   };
   const instance: IBetDocumentConverter = {
@@ -56,34 +56,34 @@ export const betDocumentConverterFactory = (): IBetDocumentConverter => {
       if (bet.homeScore === finalScore.homeScore && bet.awayScore === finalScore.awayScore) {
         return {
           ...bet,
-          result: 'exactMatch'
+          result: 'exactMatch',
         };
       }
       if ((bet.homeScore - bet.awayScore) * (finalScore.homeScore - finalScore.awayScore) > 0) {
         if (bet.homeScore - bet.awayScore === finalScore.homeScore - finalScore.awayScore) {
           return {
             ...bet,
-            result: 'goalDifference'
+            result: 'goalDifference',
           };
         }
         return {
           ...bet,
-          result: 'outcome'
+          result: 'outcome',
         };
       }
 
       if (bet.homeScore === bet.awayScore && finalScore.homeScore === finalScore.awayScore) {
         return {
           ...bet,
-          result: 'outcome'
+          result: 'outcome',
         };
       }
 
       return {
         ...bet,
-        result: 'nothing'
+        result: 'nothing',
       };
-    }
+    },
   };
 
   return instance;

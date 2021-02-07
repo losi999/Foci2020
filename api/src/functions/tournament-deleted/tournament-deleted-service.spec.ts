@@ -22,7 +22,9 @@ describe('Tournament deleted service', () => {
     mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue([queriedMatch]);
     mockDatabaseService.functions.deleteDocuments.mockResolvedValue(undefined);
 
-    const result = await service({ tournamentId });
+    const result = await service({
+      tournamentId, 
+    });
 
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
@@ -32,9 +34,13 @@ describe('Tournament deleted service', () => {
 
   describe('should throw error', () => {
     it('if unable to query matches by tournament Id', async () => {
-      mockDatabaseService.functions.queryMatchesByTournamentId.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.queryMatchesByTournamentId.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ tournamentId }).catch(validateError(dynamoErrorMessage));
+      await service({
+        tournamentId, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
       validateFunctionCall(mockDatabaseService.functions.deleteDocuments);
@@ -43,9 +49,13 @@ describe('Tournament deleted service', () => {
 
     it('if unable to delete matches', async () => {
       mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue([queriedMatch]);
-      mockDatabaseService.functions.deleteDocuments.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.deleteDocuments.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ tournamentId }).catch(validateError(dynamoErrorMessage));
+      await service({
+        tournamentId, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
       validateFunctionCall(mockDatabaseService.functions.deleteDocuments, [queriedMatch['documentType-id']]);

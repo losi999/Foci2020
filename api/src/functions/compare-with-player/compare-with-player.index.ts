@@ -10,5 +10,5 @@ import { pathParameters } from '@foci2020/api/functions/compare-with-player/comp
 const compareWithPlayerService = compareWithPlayerServiceFactory(databaseService, identityService, compareDocumentConverter);
 
 export default authorizer('player')(apiRequestValidator({
-  pathParameters
+  pathParameters, 
 })(handler(compareWithPlayerService)));

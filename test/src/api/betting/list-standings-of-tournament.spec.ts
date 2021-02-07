@@ -15,24 +15,26 @@ describe('GET /betting/v1/tournaments/{tournamentId}/standings', () => {
 
   beforeEach(() => {
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
 
     exactMatchBet = betDocumentConverter.create({
-      homeScore: 1, awayScore: 2
+      homeScore: 1,
+      awayScore: 2,
     }, uuid() as UserIdType, 'user1', uuid() as MatchIdType, tournamentDocument.id, Cypress.env('EXPIRES_IN'));
 
     outcomeBet = betDocumentConverter.create({
-      homeScore: 1, awayScore: 2
+      homeScore: 1,
+      awayScore: 2,
     }, uuid() as UserIdType, 'user2', uuid() as MatchIdType, tournamentDocument.id, Cypress.env('EXPIRES_IN'));
 
     higherStandingDocument = standingDocumentConverter.create([betDocumentConverter.calculateResult(exactMatchBet, {
       homeScore: 1,
-      awayScore: 2
+      awayScore: 2,
     })], Cypress.env('EXPIRES_IN'));
     lowerStandingDocument = standingDocumentConverter.create([betDocumentConverter.calculateResult(outcomeBet, {
       homeScore: 3,
-      awayScore: 5
+      awayScore: 5,
     })], Cypress.env('EXPIRES_IN'));
   });
 

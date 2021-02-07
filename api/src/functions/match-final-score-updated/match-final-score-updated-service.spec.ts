@@ -19,8 +19,8 @@ describe('Match final score updated service', () => {
   const matchWithScore = matchDocument({
     finalScore: {
       homeScore: 1,
-      awayScore: 0
-    }
+      awayScore: 0,
+    },
   });
   const queriedBet = betDocument();
   const convertedBet = betDocument();
@@ -32,7 +32,9 @@ describe('Match final score updated service', () => {
     mockBetDocumentConverter.functions.calculateResult.mockReturnValue(convertedBet);
     mockDatabaseService.functions.putDocuments.mockResolvedValue(undefined);
 
-    await service({ match: matchWithScore });
+    await service({
+      match: matchWithScore, 
+    });
 
     validateFunctionCall(mockDatabaseService.functions.queryBetsByMatchId, matchWithScore.id);
     validateFunctionCall(mockBetDocumentConverter.functions.calculateResult, queriedBet, matchWithScore.finalScore);
@@ -41,9 +43,13 @@ describe('Match final score updated service', () => {
 
   describe('should throw error', () => {
     it('if unable to query bets by match id', async () => {
-      mockDatabaseService.functions.queryBetsByMatchId.mockRejectedValue({ message });
+      mockDatabaseService.functions.queryBetsByMatchId.mockRejectedValue({
+        message, 
+      });
 
-      await service({ match: matchWithoutScore }).catch((validateError(message)));
+      await service({
+        match: matchWithoutScore, 
+      }).catch((validateError(message)));
 
       validateFunctionCall(mockDatabaseService.functions.queryBetsByMatchId, matchWithoutScore.id);
       validateFunctionCall(mockBetDocumentConverter.functions.calculateResult);
@@ -53,9 +59,13 @@ describe('Match final score updated service', () => {
     it('if unable to update bet', async () => {
       mockDatabaseService.functions.queryBetsByMatchId.mockResolvedValue([queriedBet]);
       mockBetDocumentConverter.functions.calculateResult.mockReturnValue(convertedBet);
-      mockDatabaseService.functions.putDocuments.mockRejectedValue({ message });
+      mockDatabaseService.functions.putDocuments.mockRejectedValue({
+        message, 
+      });
 
-      await service({ match: matchWithScore }).catch((validateError(message)));
+      await service({
+        match: matchWithScore, 
+      }).catch((validateError(message)));
 
       validateFunctionCall(mockDatabaseService.functions.queryBetsByMatchId, matchWithScore.id);
       validateFunctionCall(mockBetDocumentConverter.functions.calculateResult, queriedBet, matchWithScore.finalScore);

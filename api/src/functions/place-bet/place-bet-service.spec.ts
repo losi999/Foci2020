@@ -30,7 +30,7 @@ describe('Place bet service', () => {
 
   const bet = betRequest({
     homeScore: 1,
-    awayScore: 3
+    awayScore: 3,
   });
   const userId = 'userId' as UserIdType;
   const matchId = 'matchId' as MatchIdType;
@@ -40,13 +40,13 @@ describe('Place bet service', () => {
     mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
 
     const queriedMatch = matchDocument({
-      startTime: addMinutes(6, now).toISOString(),
+      startTime: addMinutes(6, now).toISOString(), 
     });
     mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
     const converted = betDocument({
       homeScore: 1,
-      awayScore: 3
+      awayScore: 3,
     });
     mockBetDocumentConverter.functions.create.mockReturnValue(converted);
     mockDatabaseService.functions.saveBet.mockResolvedValue(undefined);
@@ -56,7 +56,7 @@ describe('Place bet service', () => {
       matchId,
       userId,
       userName,
-      expiresIn
+      expiresIn,
     });
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
@@ -75,7 +75,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        expiresIn
+        expiresIn,
       }).catch(validateError('You already placed a bet on this match', 400));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById);
@@ -92,7 +92,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Unable to query bet', 500));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById);
@@ -110,7 +110,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Unable to query match by id', 500));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -128,7 +128,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        expiresIn
+        expiresIn,
       }).catch(validateError('No match found', 404));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -141,7 +141,7 @@ describe('Place bet service', () => {
       mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
 
       const queriedMatch = matchDocument({
-        startTime: addMinutes(4, now).toISOString(),
+        startTime: addMinutes(4, now).toISOString(), 
       });
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
@@ -150,7 +150,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Betting time expired', 400));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -163,14 +163,14 @@ describe('Place bet service', () => {
       mockDatabaseService.functions.getBetById.mockResolvedValue(undefined);
 
       const queriedMatch = matchDocument({
-        startTime: addMinutes(6, now).toISOString(),
+        startTime: addMinutes(6, now).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
       const converted = betDocument({
         homeScore: 1,
-        awayScore: 3
+        awayScore: 3,
       });
       mockBetDocumentConverter.functions.create.mockReturnValue(converted);
       mockDatabaseService.functions.saveBet.mockRejectedValue(undefined);
@@ -180,7 +180,7 @@ describe('Place bet service', () => {
         matchId,
         userId,
         userName,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Unable to save bet', 500));
       validateFunctionCall(mockDatabaseService.functions.getBetById, userId, matchId);
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);

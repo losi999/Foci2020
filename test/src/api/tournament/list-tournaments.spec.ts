@@ -5,11 +5,11 @@ import { default as schema } from '@foci2020/test/api/schemas/tournament-respons
 
 describe('GET /tournament/v1/tournaments', () => {
   const tournament1: TournamentRequest = {
-    tournamentName: 'EB 2020'
+    tournamentName: 'EB 2020', 
   };
 
   const tournament2: TournamentRequest = {
-    tournamentName: 'VB 2020'
+    tournamentName: 'VB 2020', 
   };
 
   let tournamentDocument1: TournamentDocument;

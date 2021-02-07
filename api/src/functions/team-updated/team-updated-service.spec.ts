@@ -19,10 +19,10 @@ describe('Team updated service', () => {
   const matchKey2 = 'match#2' as KeyType;
   const team = teamDocument();
   const queriedHomeMatches: DocumentKey[] = [{
-    'documentType-id': matchKey1
+    'documentType-id': matchKey1, 
   }];
   const queriedAwayMatches: DocumentKey[] = [{
-    'documentType-id': matchKey2
+    'documentType-id': matchKey2, 
   }];
   const dynamoErrorMessage = 'This is a dynamo error';
 
@@ -31,7 +31,9 @@ describe('Team updated service', () => {
     mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
     mockDatabaseService.functions.updateTeamOfMatch.mockResolvedValue(undefined);
 
-    const result = await service({ team });
+    const result = await service({
+      team, 
+    });
 
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, team.id);
@@ -43,10 +45,14 @@ describe('Team updated service', () => {
 
   describe('should throw error', () => {
     it('if unable to query matches by homeTeam Id', async () => {
-      mockDatabaseService.functions.queryMatchKeysByHomeTeamId.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.queryMatchKeysByHomeTeamId.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
       mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
 
-      await service({ team }).catch(validateError(dynamoErrorMessage));
+      await service({
+        team, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, team.id);
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByAwayTeamId, team.id);
@@ -56,9 +62,13 @@ describe('Team updated service', () => {
 
     it('if unable to query matches by awayTeam Id', async () => {
       mockDatabaseService.functions.queryMatchKeysByHomeTeamId.mockResolvedValue(queriedHomeMatches);
-      mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ team }).catch(validateError(dynamoErrorMessage));
+      await service({
+        team, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, team.id);
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByAwayTeamId, team.id);
@@ -69,9 +79,13 @@ describe('Team updated service', () => {
     it('if unable to update matches', async () => {
       mockDatabaseService.functions.queryMatchKeysByHomeTeamId.mockResolvedValue(queriedHomeMatches);
       mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
-      mockDatabaseService.functions.updateTeamOfMatch.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.updateTeamOfMatch.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ team }).catch(validateError(dynamoErrorMessage));
+      await service({
+        team, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, team.id);
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByAwayTeamId, team.id);

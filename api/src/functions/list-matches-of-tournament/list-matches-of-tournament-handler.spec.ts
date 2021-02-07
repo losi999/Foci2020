@@ -14,16 +14,16 @@ describe('List matches of tournament handler', () => {
   it('should respond with error if listMatchesOfTournament throws error', async () => {
     const handlerEvent = {
       pathParameters: {
-        tournamentId
+        tournamentId, 
       } as APIGatewayProxyEvent['pathParameters'],
-      body: '{}'
+      body: '{}',
     } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
     mockListMatchesOfTournamentService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await handler(mockListMatchesOfTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
@@ -35,9 +35,9 @@ describe('List matches of tournament handler', () => {
   it('should respond with HTTP 200 and list of matches if listMatches executes successfully', async () => {
     const handlerEvent = {
       pathParameters: {
-        tournamentId
+        tournamentId, 
       } as APIGatewayProxyEvent['pathParameters'],
-      body: '{}'
+      body: '{}',
     } as APIGatewayProxyEvent;
 
     const matches = [matchResponse()];

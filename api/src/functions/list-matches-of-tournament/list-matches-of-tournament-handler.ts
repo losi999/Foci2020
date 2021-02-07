@@ -9,17 +9,19 @@ export default (listMatchesOfTournament: IListMatchesOfTournamentService): APIGa
 
     let matches: MatchResponse[];
     try {
-      matches = await listMatchesOfTournament({ tournamentId });
+      matches = await listMatchesOfTournament({
+        tournamentId, 
+      });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
     return {
       statusCode: 200,
-      body: JSON.stringify(matches)
+      body: JSON.stringify(matches),
     };
   };
 };

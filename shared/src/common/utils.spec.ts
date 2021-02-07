@@ -8,7 +8,7 @@ describe('httpError common function', () => {
     const error = httpError(statusCode, message);
     expect(error).toEqual({
       statusCode,
-      message
+      message,
     });
   });
 });

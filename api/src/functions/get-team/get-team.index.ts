@@ -9,5 +9,5 @@ import { default as pathParameters } from '@foci2020/shared/schemas/team-id';
 const getTeamService = getTeamServiceFactory(databaseService, teamDocumentConverter);
 
 export default authorizer('admin')(apiRequestValidator({
-  pathParameters
+  pathParameters, 
 })(handler(getTeamService)));

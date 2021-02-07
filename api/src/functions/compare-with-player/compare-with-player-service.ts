@@ -24,7 +24,7 @@ export const compareWithPlayerServiceFactory = (
       databaseService.queryMatchesByTournamentId(tournamentId),
       databaseService.queryBetsByTournamentIdUserId(tournamentId, ownUserId),
       databaseService.queryBetsByTournamentIdUserId(tournamentId, otherUserId),
-      identityService.getUserName(otherUserId)
+      identityService.getUserName(otherUserId),
     ]).catch((error) => {
       console.error('Compare documents', error);
       throw httpError(500, 'Unable to get related documents');
@@ -33,14 +33,14 @@ export const compareWithPlayerServiceFactory = (
     const ownBets = ownBetDocuments.reduce((accumulator, currentValue) => {
       return {
         [currentValue.matchId]: currentValue,
-        ...accumulator
+        ...accumulator,
       };
     }, {});
 
     const otherBets = otherBetDocuments.reduce((accumulator, currentValue) => {
       return {
         [currentValue.matchId]: currentValue,
-        ...accumulator
+        ...accumulator,
       };
     }, {});
 

@@ -11,5 +11,5 @@ const updateTeamService = updateTeamServiceFactory(databaseService, teamDocument
 
 export default authorizer('admin')(apiRequestValidator({
   body,
-  pathParameters
+  pathParameters,
 })(handler(updateTeamService)));

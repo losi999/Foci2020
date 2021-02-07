@@ -14,14 +14,14 @@ describe('Login handler', () => {
 
   it('should respond with error if login throws error', async () => {
     const handlerEvent = {
-      body: '{}'
+      body: '{}', 
     } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
     mockLoginService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
@@ -32,11 +32,11 @@ describe('Login handler', () => {
 
   it('should respond with HTTP 200 and tokens if login executes successfully', async () => {
     const handlerEvent = {
-      body: '{}'
+      body: '{}', 
     } as APIGatewayProxyEvent;
     const tokens: LoginResponse = {
       idToken: 'some.id.token',
-      refreshToken: 'some.refresh.token'
+      refreshToken: 'some.refresh.token',
     };
     mockLoginService.mockResolvedValue(tokens);
 

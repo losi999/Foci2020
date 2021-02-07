@@ -15,10 +15,10 @@ describe('Authorizer handler', () => {
       requestContext: {
         authorizer: {
           claims: {
-            ['cognito:groups']: 'player,admin'
-          }
-        }
-      } as any
+            ['cognito:groups']: 'player,admin', 
+          }, 
+        }, 
+      } as any, 
     } as APIGatewayProxyEvent;
 
     await authHandler('player')(innerHandler)(handlerEvent, undefined, undefined);
@@ -31,10 +31,10 @@ describe('Authorizer handler', () => {
       requestContext: {
         authorizer: {
           claims: {
-            ['cognito:groups']: 'admin'
-          }
-        }
-      } as any
+            ['cognito:groups']: 'admin', 
+          }, 
+        }, 
+      } as any, 
     } as APIGatewayProxyEvent;
 
     const result = await authHandler('player')(innerHandler)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

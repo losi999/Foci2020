@@ -30,7 +30,7 @@ describe('Update tournament service', () => {
     const result = await service({
       tournamentId,
       body,
-      expiresIn
+      expiresIn,
     });
     expect(result).toBeUndefined();
     validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body, expiresIn);
@@ -45,12 +45,14 @@ describe('Update tournament service', () => {
       const converted = tournamentDocument();
 
       mockTournamentDocumentConverter.functions.update.mockReturnValue(converted);
-      mockDatabaseService.functions.updateTournament.mockRejectedValue({ code: 'ConditionalCheckFailedException' });
+      mockDatabaseService.functions.updateTournament.mockRejectedValue({
+        code: 'ConditionalCheckFailedException', 
+      });
 
       await service({
         tournamentId,
         body,
-        expiresIn
+        expiresIn,
       }).catch(validateError('No tournament found', 404));
 
       validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body, expiresIn);
@@ -69,7 +71,7 @@ describe('Update tournament service', () => {
       await service({
         tournamentId,
         body,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Error while updating tournament', 500));
 
       validateFunctionCall(mockTournamentDocumentConverter.functions.update, tournamentId, body, expiresIn);

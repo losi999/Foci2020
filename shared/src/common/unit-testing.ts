@@ -11,12 +11,12 @@ export type MockBusinessService<T extends (...args: any) => any> = jest.Mock<Ret
 export const createMockService = <T>(...functionsToMock: (keyof T)[]): Mock<T> => {
   const functions = functionsToMock.reduce((accumulator, currentValue) => ({
     ...accumulator,
-    [currentValue]: jest.fn()
+    [currentValue]: jest.fn(),
   }), {});
 
   return {
     functions,
-    service: jest.fn<Partial<T>, undefined[]>(() => functions)() as T
+    service: jest.fn<Partial<T>, undefined[]>(() => functions)() as T,
   };
 };
 
@@ -74,9 +74,9 @@ export const validateSchemaMinimum = (validation: string, propertyName: string, 
 };
 
 export const awsResolvedValue = (data?: any) => ({
-  promise: () => Promise.resolve(data)
+  promise: () => Promise.resolve(data), 
 }) as any;
 
 export const awsRejectedValue = (data?: any) => ({
-  promise: () => Promise.reject(data)
+  promise: () => Promise.reject(data), 
 }) as any;

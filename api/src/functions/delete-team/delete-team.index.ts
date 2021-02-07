@@ -8,5 +8,5 @@ import { default as pathParameters } from '@foci2020/shared/schemas/team-id';
 const deleteTeamService = deleteTeamServiceFactory(databaseService);
 
 export default authorizer('admin')(apiRequestValidator({
-  pathParameters
+  pathParameters, 
 })(handler(deleteTeamService)));

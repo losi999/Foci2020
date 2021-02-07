@@ -17,7 +17,7 @@ export const teamUpdatedServiceFactory = (databaseService: IDatabaseService): IT
 
     await Promise.all([
       ...homeMatches.map(({ 'documentType-id': key }) => databaseService.updateTeamOfMatch(key, team, 'home')),
-      ...awayMatches.map(({ 'documentType-id': key }) => databaseService.updateTeamOfMatch(key, team, 'away'))
+      ...awayMatches.map(({ 'documentType-id': key }) => databaseService.updateTeamOfMatch(key, team, 'away')),
     ]).catch((error) => {
       console.error('Update team of matches', error);
       throw error;

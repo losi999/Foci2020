@@ -9,7 +9,7 @@ import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
-    tournamentName: 'EB 2020'
+    tournamentName: 'EB 2020', 
   };
 
   let homeTeamDocument: TeamDocument;
@@ -34,7 +34,7 @@ describe('DELETE /tournament/v1/tournaments/{tournamentId}', () => {
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(10).toISOString()
+      startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
   });
 

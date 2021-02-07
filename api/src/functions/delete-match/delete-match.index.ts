@@ -8,5 +8,5 @@ import { default as pathParameters } from '@foci2020/shared/schemas/match-id';
 const deleteMatchService = deleteMatchServiceFactory(databaseService);
 
 export default authorizer('admin')(apiRequestValidator({
-  pathParameters
+  pathParameters, 
 })(handler(deleteMatchService)));

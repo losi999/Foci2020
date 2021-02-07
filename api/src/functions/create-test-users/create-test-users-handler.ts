@@ -5,6 +5,6 @@ export default (createTestUsers: ICreateTestUsersService): Handler =>
   async () => {
     await createTestUsers({
       numberOfAdmins: Number(process.env.ADMIN_COUNT),
-      numberOfPlayers: Number(process.env.PLAYER_COUNT)
+      numberOfPlayers: Number(process.env.PLAYER_COUNT),
     });
   };

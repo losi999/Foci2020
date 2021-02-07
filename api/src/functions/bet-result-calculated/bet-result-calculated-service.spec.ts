@@ -32,7 +32,11 @@ describe('Bet result calculated service', () => {
     mockStandingDocumentConverter.functions.create.mockReturnValue(convertedStansingDocument);
     mockDatabaseService.functions.saveStanding.mockResolvedValue(undefined);
 
-    await service({ tournamentId, userId, expiresIn });
+    await service({
+      tournamentId,
+      userId,
+      expiresIn,
+    });
 
     validateFunctionCall(mockDatabaseService.functions.queryBetsByTournamentIdUserId, tournamentId, userId);
     validateFunctionCall(mockStandingDocumentConverter.functions.create, queriedBets, expiresIn);
@@ -41,9 +45,15 @@ describe('Bet result calculated service', () => {
 
   describe('should throw error', () => {
     it('if unable to query bets by tournament and user id', async () => {
-      mockDatabaseService.functions.queryBetsByTournamentIdUserId.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.queryBetsByTournamentIdUserId.mockRejectedValue({
+        message: dynamoErrorMessage,
+      });
 
-      await service({ tournamentId, userId, expiresIn }).catch((validateError(dynamoErrorMessage)));
+      await service({
+        tournamentId,
+        userId,
+        expiresIn,
+      }).catch((validateError(dynamoErrorMessage)));
 
       validateFunctionCall(mockDatabaseService.functions.queryBetsByTournamentIdUserId, tournamentId, userId);
       validateFunctionCall(mockStandingDocumentConverter.functions.create);
@@ -53,9 +63,15 @@ describe('Bet result calculated service', () => {
     it('if unable to save standing document', async () => {
       mockDatabaseService.functions.queryBetsByTournamentIdUserId.mockResolvedValue(queriedBets);
       mockStandingDocumentConverter.functions.create.mockReturnValue(convertedStansingDocument);
-      mockDatabaseService.functions.saveStanding.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.saveStanding.mockRejectedValue({
+        message: dynamoErrorMessage,
+      });
 
-      await service({ tournamentId, userId, expiresIn }).catch((validateError(dynamoErrorMessage)));
+      await service({
+        tournamentId,
+        userId,
+        expiresIn,
+      }).catch((validateError(dynamoErrorMessage)));
 
       validateFunctionCall(mockDatabaseService.functions.queryBetsByTournamentIdUserId, tournamentId, userId);
       validateFunctionCall(mockStandingDocumentConverter.functions.create, queriedBets, expiresIn);

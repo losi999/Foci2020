@@ -3,7 +3,7 @@ import { validatorServiceFactory } from '@foci2020/shared/services/validator-ser
 
 const ajvValidator = new ajv({
   allErrors: true,
-  format: 'full'
+  format: 'full',
 });
 
 export const validatorService = validatorServiceFactory(ajvValidator);

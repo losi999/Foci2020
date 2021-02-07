@@ -10,7 +10,7 @@ describe('Create team handler', () => {
 
   const handlerEvent = {
     body: '{}',
-    headers: {}
+    headers: {},
   } as APIGatewayProxyEvent;
   it('should respond with error if createTeam throws error', async () => {
 
@@ -18,7 +18,7 @@ describe('Create team handler', () => {
     const message = 'This is an error';
     mockCreateTeamService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await handler(mockCreateTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

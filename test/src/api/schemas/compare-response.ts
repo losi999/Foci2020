@@ -12,11 +12,11 @@ const schema: JSONSchema7 = {
   properties: {
     leftUserName: {
       type: 'string',
-      minLength: 1
+      minLength: 1,
     },
     rightUserName: {
       type: 'string',
-      minLength: 1
+      minLength: 1,
     },
     matches: {
       type: 'array',
@@ -32,13 +32,13 @@ const schema: JSONSchema7 = {
           matchScore,
           matchId: {
             type: 'string',
-            format: 'uuid'
+            format: 'uuid',
           },
           leftScore: {
             type: 'object',
             additionalProperties: false,
             required: [
-              ...matchScore.required
+              ...matchScore.required,
             ],
             properties: {
               ...matchScore.properties,
@@ -48,16 +48,16 @@ const schema: JSONSchema7 = {
                   'nothing',
                   'outcome',
                   'goalDifference',
-                  'exactMatch'
-                ]
-              }
-            }
+                  'exactMatch',
+                ],
+              },
+            },
           },
           rightScore: {
             type: 'object',
             additionalProperties: false,
             required: [
-              ...matchScore.required
+              ...matchScore.required,
             ],
             properties: {
               ...matchScore.properties,
@@ -67,23 +67,23 @@ const schema: JSONSchema7 = {
                   'nothing',
                   'outcome',
                   'goalDifference',
-                  'exactMatch'
-                ]
-              }
-            }
+                  'exactMatch',
+                ],
+              },
+            },
           },
           homeFlag: {
             type: 'string',
-            format: 'uri'
+            format: 'uri',
           },
           awayFlag: {
             type: 'string',
-            format: 'uri'
+            format: 'uri',
           },
-        }
-      }
+        },
+      },
     },
-  }
+  },
 };
 
 export default schema;

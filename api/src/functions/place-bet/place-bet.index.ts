@@ -11,5 +11,5 @@ const placeBetService = placeBetServiceFactory(databaseService, betDocumentConve
 
 export default authorizer('player')(apiRequestValidator({
   body,
-  pathParameters
+  pathParameters,
 })(handler(placeBetService)));

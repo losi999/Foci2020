@@ -10,7 +10,7 @@ export default () =>
         if (!userTypes.some(u => groups.includes(u))) {
           return {
             statusCode: 403,
-            body: ''
+            body: '',
           };
         }
         return handler(event, context, callback) as Promise<APIGatewayProxyResult>;

@@ -3,7 +3,7 @@ import { default as teamResponse } from '@foci2020/test/api/schemas/team-respons
 
 const schema: JSONSchema7 = {
   type: 'array',
-  items: teamResponse
+  items: teamResponse,
 };
 
 export default schema;

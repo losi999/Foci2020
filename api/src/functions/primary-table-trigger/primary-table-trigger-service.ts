@@ -15,41 +15,57 @@ export const primaryTableTriggerServiceFactory = (eventService: IEventService): 
 
     switch (eventName) {
       case 'MODIFY': {
-        await eventService.invokeArchiveDocument({ document: oldDocument });
+        await eventService.invokeArchiveDocument({
+          document: oldDocument, 
+        });
 
         switch (newDocument.documentType) {
           case 'team': {
-            await eventService.invokeTeamUpdated({ team: newDocument });
+            await eventService.invokeTeamUpdated({
+              team: newDocument, 
+            });
           } break;
           case 'tournament': {
-            await eventService.invokeTournamentUpdated({ tournament: newDocument });
+            await eventService.invokeTournamentUpdated({
+              tournament: newDocument, 
+            });
           } break;
           case 'match': {
             if (newDocument.finalScore) {
-              await eventService.invokeMatchFinalScoreUpdated({ match: newDocument });
+              await eventService.invokeMatchFinalScoreUpdated({
+                match: newDocument, 
+              });
             }
           } break;
           case 'bet': {
             await eventService.invokeBetResultCalculated({
               tournamentId: newDocument.tournamentId,
               userId: newDocument.userId,
-              expiresIn: newDocument.expiresAt - (new Date().getTime() / 1000)
+              expiresIn: newDocument.expiresAt - (new Date().getTime() / 1000),
             });
           }
         }
       } break;
       case 'REMOVE': {
-        await eventService.invokeArchiveDocument({ document: oldDocument });
+        await eventService.invokeArchiveDocument({
+          document: oldDocument, 
+        });
 
         switch (oldDocument.documentType) {
           case 'team': {
-            await eventService.invokeTeamDeleted({ teamId: oldDocument.id });
+            await eventService.invokeTeamDeleted({
+              teamId: oldDocument.id, 
+            });
           } break;
           case 'tournament': {
-            await eventService.invokeTournamentDeleted({ tournamentId: oldDocument.id });
+            await eventService.invokeTournamentDeleted({
+              tournamentId: oldDocument.id, 
+            });
           } break;
           case 'match': {
-            await eventService.invokeMatchDeleted({ matchId: oldDocument.id });
+            await eventService.invokeMatchDeleted({
+              matchId: oldDocument.id, 
+            });
           } break;
         }
       } break;

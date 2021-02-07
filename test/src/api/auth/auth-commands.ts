@@ -9,14 +9,16 @@ const unauthenticate = () => {
 const authenticate = (user: User) => {
   const body: LoginRequest = {
     email: usernames[user],
-    password: Cypress.env('PASSWORD')
+    password: Cypress.env('PASSWORD'),
   };
   return cy.log(`Logging in as ${user}`).request({
     body,
     method: 'POST',
     url: 'user/v1/login',
-    failOnStatusCode: false
-  }).its('body').its('idToken') as Cypress.ChainableRequest;
+    failOnStatusCode: false,
+  })
+    .its('body')
+    .its('idToken') as Cypress.ChainableRequest;
 };
 
 export const setAuthCommands = () => {

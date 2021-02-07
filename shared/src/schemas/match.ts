@@ -8,30 +8,30 @@ const schema: JSONSchema7 = {
     'group',
     'homeTeamId',
     'awayTeamId',
-    'tournamentId'
+    'tournamentId',
   ],
   properties: {
     startTime: {
       type: 'string',
-      format: 'date-time'
+      format: 'date-time',
     },
     group: {
       type: 'string',
-      minLength: 1
+      minLength: 1,
     },
     homeTeamId: {
       type: 'string',
-      format: 'uuid'
+      format: 'uuid',
     },
     awayTeamId: {
       type: 'string',
-      format: 'uuid'
+      format: 'uuid',
     },
     tournamentId: {
       type: 'string',
-      format: 'uuid'
-    }
-  }
+      format: 'uuid',
+    },
+  },
 };
 
 export default schema;

@@ -11,5 +11,5 @@ const updateTournamentService = updateTournamentServiceFactory(databaseService, 
 
 export default authorizer('admin')(apiRequestValidator({
   body,
-  pathParameters
+  pathParameters,
 })(handler(updateTournamentService)));

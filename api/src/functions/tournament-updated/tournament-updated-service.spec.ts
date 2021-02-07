@@ -23,7 +23,9 @@ describe('Tournament updated service', () => {
     mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue([queriedMatch]);
     mockDatabaseService.functions.updateTournamentOfMatch.mockResolvedValue(undefined);
 
-    const result = await service({ tournament });
+    const result = await service({
+      tournament, 
+    });
 
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
@@ -33,9 +35,13 @@ describe('Tournament updated service', () => {
 
   describe('should throw error', () => {
     it('if unable to query matches by tournament Id', async () => {
-      mockDatabaseService.functions.queryMatchesByTournamentId.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.queryMatchesByTournamentId.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ tournament }).catch(validateError(dynamoErrorMessage));
+      await service({
+        tournament, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
       validateFunctionCall(mockDatabaseService.functions.updateTournamentOfMatch);
@@ -44,9 +50,13 @@ describe('Tournament updated service', () => {
 
     it('if unable to update matches', async () => {
       mockDatabaseService.functions.queryMatchesByTournamentId.mockResolvedValue([queriedMatch]);
-      mockDatabaseService.functions.updateTournamentOfMatch.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.updateTournamentOfMatch.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ tournament }).catch(validateError(dynamoErrorMessage));
+      await service({
+        tournament, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
       validateFunctionCall(mockDatabaseService.functions.updateTournamentOfMatch, queriedMatch['documentType-id'], tournament);

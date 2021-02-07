@@ -24,14 +24,14 @@ describe('GET /match/v1/matches', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
     pendingMatchDocument = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(10).toISOString()
+      startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
 
     finishedMatchDocument = {
@@ -40,12 +40,12 @@ describe('GET /match/v1/matches', () => {
         awayTeamId: homeTeamDocument.id,
         tournamentId: tournamentDocument.id,
         group: 'B csoport',
-        startTime: addMinutes(10).toISOString()
+        startTime: addMinutes(10).toISOString(),
       }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN')),
       finalScore: {
         homeScore: 2,
-        awayScore: 0
-      }
+        awayScore: 0,
+      },
     };
   });
 

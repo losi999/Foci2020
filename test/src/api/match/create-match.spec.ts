@@ -23,14 +23,14 @@ describe('POST /match/v1/matches', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
     match = {
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(10).toISOString()
+      startTime: addMinutes(10).toISOString(),
     };
   });
 
@@ -67,7 +67,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              homeTeamId: undefined
+              homeTeamId: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('homeTeamId', 'body');
@@ -77,7 +77,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              homeTeamId: 1 as any
+              homeTeamId: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('homeTeamId', 'string', 'body');
@@ -87,7 +87,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              homeTeamId: `${uuid()}-not-valid` as TeamIdType
+              homeTeamId: `${uuid()}-not-valid` as TeamIdType,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('homeTeamId', 'uuid', 'body');
@@ -100,7 +100,7 @@ describe('POST /match/v1/matches', () => {
             .authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              homeTeamId: uuid() as TeamIdType
+              homeTeamId: uuid() as TeamIdType,
             })
             .expectBadRequestResponse()
             .expectMessage('Home team not found');
@@ -112,7 +112,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              awayTeamId: undefined
+              awayTeamId: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('awayTeamId', 'body');
@@ -122,7 +122,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              awayTeamId: 1 as any
+              awayTeamId: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('awayTeamId', 'string', 'body');
@@ -132,7 +132,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              awayTeamId: `${uuid()}-not-valid` as TeamIdType
+              awayTeamId: `${uuid()}-not-valid` as TeamIdType,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('awayTeamId', 'uuid', 'body');
@@ -145,7 +145,7 @@ describe('POST /match/v1/matches', () => {
             .authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              awayTeamId: uuid() as TeamIdType
+              awayTeamId: uuid() as TeamIdType,
             })
             .expectBadRequestResponse()
             .expectMessage('Away team not found');
@@ -155,7 +155,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              awayTeamId: homeTeamDocument.id
+              awayTeamId: homeTeamDocument.id,
             })
             .expectBadRequestResponse()
             .expectMessage('Home and away teams cannot be the same');
@@ -167,7 +167,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              tournamentId: undefined
+              tournamentId: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('tournamentId', 'body');
@@ -177,7 +177,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              tournamentId: 1 as any
+              tournamentId: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('tournamentId', 'string', 'body');
@@ -187,7 +187,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              tournamentId: `${uuid()}-not-valid` as TournamentIdType
+              tournamentId: `${uuid()}-not-valid` as TournamentIdType,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('tournamentId', 'uuid', 'body');
@@ -200,7 +200,7 @@ describe('POST /match/v1/matches', () => {
             .authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              tournamentId: uuid() as TournamentIdType
+              tournamentId: uuid() as TournamentIdType,
             })
             .expectBadRequestResponse()
             .expectMessage('Tournament not found');
@@ -212,7 +212,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              group: undefined
+              group: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('group', 'body');
@@ -222,7 +222,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              group: 1 as any
+              group: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('group', 'string', 'body');
@@ -234,7 +234,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              startTime: undefined
+              startTime: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('startTime', 'body');
@@ -244,7 +244,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              startTime: 1 as any
+              startTime: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('startTime', 'string', 'body');
@@ -254,7 +254,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              startTime: 'not-a-date'
+              startTime: 'not-a-date',
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('startTime', 'date-time', 'body');
@@ -264,7 +264,7 @@ describe('POST /match/v1/matches', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              startTime: addMinutes(4.9).toISOString()
+              startTime: addMinutes(4.9).toISOString(),
             })
             .expectBadRequestResponse()
             .expectMessage('Start time has to be at least 5 minutes from now');

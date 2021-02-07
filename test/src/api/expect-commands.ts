@@ -34,7 +34,9 @@ const expectMessage = (body: any, message: string) => {
 const expectValidResponseSchema = (body: object, schema: JSONSchema7) => {
   const validation = validatorService.validate(body, schema);
   expect(validation, 'Response schema validation').to.be.undefined;
-  return cy.wrap(body, { log: false }) as Cypress.ChainableResponseBody;
+  return cy.wrap(body, {
+    log: false, 
+  }) as Cypress.ChainableResponseBody;
 };
 
 const expectRequiredProperty = (body: any, propertyName: string, requestPart: string) => {
@@ -66,21 +68,49 @@ const expectTooLargeNumberProperty = (body: any, propertyName: string, maximum: 
 };
 
 export const setExpectCommands = () => {
-  Cypress.Commands.add('expectOkResponse', { prevSubject: true }, expectOkResponse);
-  Cypress.Commands.add('expectBadRequestResponse', { prevSubject: true }, expectBadRequestResponse);
-  Cypress.Commands.add('expectUnauthorizedResponse', { prevSubject: true }, expectUnauthorizedResponse);
-  Cypress.Commands.add('expectForbiddenResponse', { prevSubject: true }, expectForbiddenResponse);
-  Cypress.Commands.add('expectNotFoundResponse', { prevSubject: true }, expectNotFoundResponse);
+  Cypress.Commands.add('expectOkResponse', {
+    prevSubject: true, 
+  }, expectOkResponse);
+  Cypress.Commands.add('expectBadRequestResponse', {
+    prevSubject: true, 
+  }, expectBadRequestResponse);
+  Cypress.Commands.add('expectUnauthorizedResponse', {
+    prevSubject: true, 
+  }, expectUnauthorizedResponse);
+  Cypress.Commands.add('expectForbiddenResponse', {
+    prevSubject: true, 
+  }, expectForbiddenResponse);
+  Cypress.Commands.add('expectNotFoundResponse', {
+    prevSubject: true, 
+  }, expectNotFoundResponse);
 
-  Cypress.Commands.add('expectValidResponseSchema', { prevSubject: true }, expectValidResponseSchema);
-  Cypress.Commands.add('expectRequiredProperty', { prevSubject: true }, expectRequiredProperty);
-  Cypress.Commands.add('expectWrongPropertyType', { prevSubject: true }, expectWrongPropertyType);
-  Cypress.Commands.add('expectWrongPropertyFormat', { prevSubject: true }, expectWrongPropertyFormat);
-  Cypress.Commands.add('expectTooShortProperty', { prevSubject: true }, expectTooShortProperty);
-  Cypress.Commands.add('expectTooLongProperty', { prevSubject: true }, expectTooLongProperty);
-  Cypress.Commands.add('expectTooSmallNumberProperty', { prevSubject: true }, expectTooSmallNumberProperty);
-  Cypress.Commands.add('expectTooLargeNumberProperty', { prevSubject: true }, expectTooLargeNumberProperty);
-  Cypress.Commands.add('expectMessage', { prevSubject: true }, expectMessage);
+  Cypress.Commands.add('expectValidResponseSchema', {
+    prevSubject: true, 
+  }, expectValidResponseSchema);
+  Cypress.Commands.add('expectRequiredProperty', {
+    prevSubject: true, 
+  }, expectRequiredProperty);
+  Cypress.Commands.add('expectWrongPropertyType', {
+    prevSubject: true, 
+  }, expectWrongPropertyType);
+  Cypress.Commands.add('expectWrongPropertyFormat', {
+    prevSubject: true, 
+  }, expectWrongPropertyFormat);
+  Cypress.Commands.add('expectTooShortProperty', {
+    prevSubject: true, 
+  }, expectTooShortProperty);
+  Cypress.Commands.add('expectTooLongProperty', {
+    prevSubject: true, 
+  }, expectTooLongProperty);
+  Cypress.Commands.add('expectTooSmallNumberProperty', {
+    prevSubject: true, 
+  }, expectTooSmallNumberProperty);
+  Cypress.Commands.add('expectTooLargeNumberProperty', {
+    prevSubject: true, 
+  }, expectTooLargeNumberProperty);
+  Cypress.Commands.add('expectMessage', {
+    prevSubject: true, 
+  }, expectMessage);
 };
 
 declare global {

@@ -11,11 +11,11 @@ describe('Tournament schema', () => {
   beforeEach(() => {
     validatorService = validatorServiceFactory(new ajv({
       allErrors: true,
-      format: 'full'
+      format: 'full',
     }));
 
     data = {
-      tournamentName: 'Magyarország'
+      tournamentName: 'Magyarország', 
     };
   });
 

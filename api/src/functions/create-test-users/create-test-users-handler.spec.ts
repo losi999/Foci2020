@@ -13,7 +13,9 @@ describe('Create test users handler', () => {
 
   it('should throw error if createTestUsers throws error', async () => {
     const message = 'This is an error';
-    mockCreateTestUsersService.mockRejectedValue({ message });
+    mockCreateTestUsersService.mockRejectedValue({
+      message, 
+    });
 
     await (handlerFunction(undefined, undefined, undefined) as Promise<unknown>).catch(validateError(message));
   });

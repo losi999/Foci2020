@@ -3,7 +3,7 @@ import { default as matchResponse } from '@foci2020/test/api/schemas/match-respo
 
 const schema: JSONSchema7 = {
   type: 'array',
-  items: matchResponse
+  items: matchResponse,
 };
 
 export default schema;

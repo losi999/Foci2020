@@ -12,14 +12,14 @@ describe('Get team handler', () => {
   it('should respond with error if getTeam throws error', async () => {
     const handlerEvent = {
       pathParameters: {},
-      body: '{}'
+      body: '{}',
     } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
     mockGetTeamService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await handler(mockGetTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
@@ -31,7 +31,7 @@ describe('Get team handler', () => {
   it('should respond with HTTP 200 and team if getTeam executes successfully', async () => {
     const handlerEvent = {
       pathParameters: {},
-      body: '{}'
+      body: '{}',
     } as APIGatewayProxyEvent;
     const team = teamResponse();
     mockGetTeamService.mockResolvedValue(team);

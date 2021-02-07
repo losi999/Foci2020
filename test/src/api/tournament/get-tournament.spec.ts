@@ -7,7 +7,7 @@ import { TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('GET /tournament/v1/tournaments/{tournamentId}', () => {
   const tournament: TournamentRequest = {
-    tournamentName: 'EB 2020'
+    tournamentName: 'EB 2020', 
   };
 
   let tournamentDocument: TournamentDocument;

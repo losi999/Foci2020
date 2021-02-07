@@ -29,7 +29,7 @@ describe('Bet document converter', () => {
     it('should create a bet document', () => {
       const input = betRequest({
         homeScore,
-        awayScore
+        awayScore,
       });
       const expectedDocument = betDocument({
         userId,
@@ -54,7 +54,7 @@ describe('Bet document converter', () => {
     it('should create a bet document with expiration date set if it is a test data', () => {
       const input = betRequest({
         homeScore,
-        awayScore
+        awayScore,
       });
       const expectedDocument = betDocument({
         userId,
@@ -64,7 +64,7 @@ describe('Bet document converter', () => {
         homeScore,
         awayScore,
         expiresAt: now + 3600,
-        modifiedAt: nowDate.toISOString()
+        modifiedAt: nowDate.toISOString(),
       });
 
       const res = converter.create(input,
@@ -81,10 +81,10 @@ describe('Bet document converter', () => {
   describe('toResponseList', () => {
     it('should convert list of documents to response list', () => {
       const input = betDocument({
-        result: 'outcome'
+        result: 'outcome', 
       });
       const expectedResponse = betResponse({
-        point: 1
+        point: 1, 
       });
 
       const [res] = converter.toResponseList([input]);
@@ -99,30 +99,30 @@ describe('Bet document converter', () => {
           userId,
           homeScore,
           awayScore,
-          result: 'exactMatch'
+          result: 'exactMatch',
         }),
 
         betDocument({
           homeScore,
           awayScore,
           userId: userId2,
-          result: 'goalDifference'
-        })
+          result: 'goalDifference',
+        }),
       ];
       const expectedResponse = [
         betResponse({
           userId,
           homeScore,
           awayScore,
-          point: 3
+          point: 3,
         }),
 
         betResponse({
           userId: userId2,
           homeScore: undefined,
           awayScore: undefined,
-          point: undefined
-        })
+          point: undefined,
+        }),
       ];
 
       const results = converter.toResponseList(inputs, userId);
@@ -136,17 +136,17 @@ describe('Bet document converter', () => {
       it('home victory is guessed', () => {
         const bet = betDocument({
           homeScore: 1,
-          awayScore: 0
+          awayScore: 0,
         });
 
         const expectedBet: BetDocument = {
           ...bet,
-          result: 'outcome'
+          result: 'outcome',
         };
 
         const result = converter.calculateResult(bet, {
           homeScore: 2,
-          awayScore: 0
+          awayScore: 0,
         });
         expect(result).toEqual(expectedBet);
       });
@@ -154,17 +154,17 @@ describe('Bet document converter', () => {
       it('away victory is guessed', () => {
         const bet = betDocument({
           homeScore: 1,
-          awayScore: 3
+          awayScore: 3,
         });
 
         const expectedBet: BetDocument = {
           ...bet,
-          result: 'outcome'
+          result: 'outcome',
         };
 
         const result = converter.calculateResult(bet, {
           homeScore: 0,
-          awayScore: 1
+          awayScore: 1,
         });
         expect(result).toEqual(expectedBet);
       });
@@ -172,17 +172,17 @@ describe('Bet document converter', () => {
       it('draw is guessed', () => {
         const bet = betDocument({
           homeScore: 1,
-          awayScore: 1
+          awayScore: 1,
         });
 
         const expectedBet: BetDocument = {
           ...bet,
-          result: 'outcome'
+          result: 'outcome',
         };
 
         const result = converter.calculateResult(bet, {
           homeScore: 2,
-          awayScore: 2
+          awayScore: 2,
         });
         expect(result).toEqual(expectedBet);
       });
@@ -192,17 +192,17 @@ describe('Bet document converter', () => {
       it('home victory is guessed with correct margin', () => {
         const bet = betDocument({
           homeScore: 3,
-          awayScore: 1
+          awayScore: 1,
         });
 
         const expectedBet: BetDocument = {
           ...bet,
-          result: 'goalDifference'
+          result: 'goalDifference',
         };
 
         const result = converter.calculateResult(bet, {
           homeScore: 2,
-          awayScore: 0
+          awayScore: 0,
         });
         expect(result).toEqual(expectedBet);
       });
@@ -210,17 +210,17 @@ describe('Bet document converter', () => {
       it('away victory is guessed with correct margin', () => {
         const bet = betDocument({
           homeScore: 1,
-          awayScore: 2
+          awayScore: 2,
         });
 
         const expectedBet: BetDocument = {
           ...bet,
-          result: 'goalDifference'
+          result: 'goalDifference',
         };
 
         const result = converter.calculateResult(bet, {
           homeScore: 0,
-          awayScore: 1
+          awayScore: 1,
         });
         expect(result).toEqual(expectedBet);
       });
@@ -230,17 +230,17 @@ describe('Bet document converter', () => {
       it('home victory is guessed correctly', () => {
         const bet = betDocument({
           homeScore: 3,
-          awayScore: 1
+          awayScore: 1,
         });
 
         const expectedBet: BetDocument = {
           ...bet,
-          result: 'exactMatch'
+          result: 'exactMatch',
         };
 
         const result = converter.calculateResult(bet, {
           homeScore: 3,
-          awayScore: 1
+          awayScore: 1,
         });
         expect(result).toEqual(expectedBet);
       });
@@ -248,17 +248,17 @@ describe('Bet document converter', () => {
       it('away victory is guessed correctly', () => {
         const bet = betDocument({
           homeScore: 1,
-          awayScore: 2
+          awayScore: 2,
         });
 
         const expectedBet: BetDocument = {
           ...bet,
-          result: 'exactMatch'
+          result: 'exactMatch',
         };
 
         const result = converter.calculateResult(bet, {
           homeScore: 1,
-          awayScore: 2
+          awayScore: 2,
         });
         expect(result).toEqual(expectedBet);
       });
@@ -266,17 +266,17 @@ describe('Bet document converter', () => {
       it('draw is guessed correctly', () => {
         const bet = betDocument({
           homeScore: 2,
-          awayScore: 2
+          awayScore: 2,
         });
 
         const expectedBet: BetDocument = {
           ...bet,
-          result: 'exactMatch'
+          result: 'exactMatch',
         };
 
         const result = converter.calculateResult(bet, {
           homeScore: 2,
-          awayScore: 2
+          awayScore: 2,
         });
         expect(result).toEqual(expectedBet);
       });
@@ -285,17 +285,17 @@ describe('Bet document converter', () => {
     it('should set result to "nothing" otherwise', () => {
       const bet = betDocument({
         homeScore: 3,
-        awayScore: 1
+        awayScore: 1,
       });
 
       const expectedBet: BetDocument = {
         ...bet,
-        result: 'nothing'
+        result: 'nothing',
       };
 
       const result = converter.calculateResult(bet, {
         homeScore: 0,
-        awayScore: 1
+        awayScore: 1,
       });
       expect(result).toEqual(expectedBet);
     });

@@ -6,17 +6,19 @@ export default (deleteTeam: IDeleteTeamService): APIGatewayProxyHandler => {
   return async (event) => {
     const teamId = event.pathParameters.teamId as TeamIdType;
     try {
-      await deleteTeam({ teamId });
+      await deleteTeam({
+        teamId, 
+      });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
     return {
       statusCode: 200,
-      body: ''
+      body: '',
     };
   };
 };

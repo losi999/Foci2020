@@ -33,19 +33,19 @@ export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentCon
         homeTeam: {
           ...matchDocument.homeTeam,
           ...internalDocumentPropertiesToRemove,
-          teamId: matchDocument.homeTeam.id
+          teamId: matchDocument.homeTeam.id,
         },
         awayTeam: {
           ...matchDocument.awayTeam,
           ...internalDocumentPropertiesToRemove,
-          teamId: matchDocument.awayTeam.id
+          teamId: matchDocument.awayTeam.id,
         },
         tournament: {
           ...matchDocument.tournament,
           ...internalDocumentPropertiesToRemove,
-          tournamentId: matchDocument.tournament.id
+          tournamentId: matchDocument.tournament.id,
         },
-        finalScore: matchDocument.finalScore
+        finalScore: matchDocument.finalScore,
       };
     },
     update: (matchId, matchRequest, homeTeam, awayTeam, tournament, expiresIn) => {

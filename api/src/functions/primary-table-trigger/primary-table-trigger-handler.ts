@@ -14,7 +14,7 @@ export default (
       await primaryTableTrigger({
         oldDocument,
         newDocument,
-        eventName: record.eventName
+        eventName: record.eventName,
       });
     }));
   };

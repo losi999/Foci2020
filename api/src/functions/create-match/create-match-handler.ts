@@ -10,19 +10,21 @@ export default (createMatch: ICreateMatchService): APIGatewayProxyHandler => {
     try {
       matchId = await createMatch({
         body,
-        expiresIn: Number(event.headers[headerExpiresIn])
+        expiresIn: Number(event.headers[headerExpiresIn]),
       });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ matchId })
+      body: JSON.stringify({
+        matchId, 
+      }),
     };
   };
 };

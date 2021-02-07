@@ -28,7 +28,9 @@ describe('Get match service', () => {
 
     mockMatchDocumentConverter.functions.toResponse.mockReturnValue(response);
 
-    const result = await service({ matchId });
+    const result = await service({
+      matchId, 
+    });
     expect(result).toEqual(response);
     validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
     validateFunctionCall(mockMatchDocumentConverter.functions.toResponse, document);
@@ -38,7 +40,9 @@ describe('Get match service', () => {
   it('should throw error if unable to query match', async () => {
     mockDatabaseService.functions.getMatchById.mockRejectedValue('This is a dynamo error');
 
-    await service({ matchId }).catch(validateError('Unable to query match', 500));
+    await service({
+      matchId, 
+    }).catch(validateError('Unable to query match', 500));
     validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
     validateFunctionCall(mockMatchDocumentConverter.functions.toResponse);
     expect.assertions(4);
@@ -47,7 +51,9 @@ describe('Get match service', () => {
   it('should return with error if no match found', async () => {
     mockDatabaseService.functions.getMatchById.mockResolvedValue(undefined);
 
-    await service({ matchId }).catch(validateError('No match found', 404));
+    await service({
+      matchId, 
+    }).catch(validateError('No match found', 404));
     validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
     validateFunctionCall(mockMatchDocumentConverter.functions.toResponse);
     expect.assertions(4);

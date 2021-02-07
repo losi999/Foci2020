@@ -47,7 +47,7 @@ export const standingDocumentConverterFactory = (): IStandingDocumentConverter =
           nothing,
           outcome,
           goalDifference,
-          exactMatch
+          exactMatch,
         },
         expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined,
         modifiedAt: new Date().toISOString(),
@@ -63,7 +63,7 @@ export const standingDocumentConverterFactory = (): IStandingDocumentConverter =
       tournamentId: undefined,
       expiresAt: undefined,
       modifiedAt: undefined,
-    }))
+    })),
   };
 
   return instance;

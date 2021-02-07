@@ -14,7 +14,7 @@ describe('Set final score of match service', () => {
   const matchId = 'matchId' as MatchIdType;
   const finalScore: MatchFinalScoreRequest = {
     homeScore: 1,
-    awayScore: 2
+    awayScore: 2,
   };
   const now = new Date(2020, 3, 9, 23, 40, 0);
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('Set final score of match service', () => {
 
   it('should return undefined if match is updated with final score', async () => {
     const queriedMatch = matchDocument({
-      startTime: addMinutes(-120, now).toISOString()
+      startTime: addMinutes(-120, now).toISOString(), 
     });
     mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
@@ -39,13 +39,13 @@ describe('Set final score of match service', () => {
 
     const result = await service({
       matchId,
-      finalScore
+      finalScore,
     });
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
     validateFunctionCall(mockDatabaseService.functions.updateMatch, {
       ...queriedMatch,
-      finalScore
+      finalScore,
     });
     expect.assertions(3);
   });
@@ -55,7 +55,7 @@ describe('Set final score of match service', () => {
 
       await service({
         matchId,
-        finalScore
+        finalScore,
       }).catch(validateError('Unable to query match by Id', 500));
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
       validateFunctionCall(mockDatabaseService.functions.updateMatch);
@@ -67,7 +67,7 @@ describe('Set final score of match service', () => {
 
       await service({
         matchId,
-        finalScore
+        finalScore,
       }).catch(validateError('No match found', 404));
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
       validateFunctionCall(mockDatabaseService.functions.updateMatch);
@@ -76,13 +76,13 @@ describe('Set final score of match service', () => {
 
     it('if the match has yet to finish', async () => {
       const queriedMatch = matchDocument({
-        startTime: addMinutes(-104, now).toISOString()
+        startTime: addMinutes(-104, now).toISOString(), 
       });
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
       await service({
         matchId,
-        finalScore
+        finalScore,
       }).catch(validateError('Final score cannot be set during the game', 400));
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
       validateFunctionCall(mockDatabaseService.functions.updateMatch);
@@ -91,7 +91,7 @@ describe('Set final score of match service', () => {
 
     it('if unable to update match', async () => {
       const queriedMatch = matchDocument({
-        startTime: addMinutes(-120, now).toISOString()
+        startTime: addMinutes(-120, now).toISOString(), 
       });
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
 
@@ -99,12 +99,12 @@ describe('Set final score of match service', () => {
 
       await service({
         matchId,
-        finalScore
+        finalScore,
       }).catch(validateError('Unable to update match', 500));
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
       validateFunctionCall(mockDatabaseService.functions.updateMatch, {
         ...queriedMatch,
-        finalScore
+        finalScore,
       });
       expect.assertions(4);
     });

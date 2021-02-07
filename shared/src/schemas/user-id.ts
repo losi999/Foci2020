@@ -7,9 +7,9 @@ const schema: JSONSchema7 = {
   properties: {
     userId: {
       type: 'string',
-      format: 'uuid'
-    }
-  }
+      format: 'uuid',
+    },
+  },
 };
 
 export default schema;

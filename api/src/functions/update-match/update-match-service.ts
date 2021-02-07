@@ -41,7 +41,7 @@ export const updateMatchServiceFactory = (
     const [homeTeam, awayTeam, tournament] = await Promise.all([
       databaseService.getTeamById(body.homeTeamId),
       databaseService.getTeamById(body.awayTeamId),
-      databaseService.getTournamentById(body.tournamentId)
+      databaseService.getTournamentById(body.tournamentId),
     ]).catch((error) => {
       console.error('Query related documents', error);
       throw httpError(500, 'Unable to query related document');

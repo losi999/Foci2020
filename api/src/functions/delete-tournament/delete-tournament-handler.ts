@@ -6,17 +6,19 @@ export default (deleteTournament: IDeleteTournamentService): APIGatewayProxyHand
   return async (event) => {
     const tournamentId = event.pathParameters.tournamentId as TournamentIdType;
     try {
-      await deleteTournament({ tournamentId });
+      await deleteTournament({
+        tournamentId, 
+      });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
     return {
       statusCode: 200,
-      body: ''
+      body: '',
     };
   };
 };

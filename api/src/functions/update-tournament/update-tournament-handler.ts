@@ -12,19 +12,19 @@ export default (updateTournament: IUpdateTournamentService): APIGatewayProxyHand
       await updateTournament({
         body,
         tournamentId,
-        expiresIn: Number(event.headers[headerExpiresIn])
+        expiresIn: Number(event.headers[headerExpiresIn]),
       });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
 
     return {
       statusCode: 200,
-      body: ''
+      body: '',
     };
   };
 };

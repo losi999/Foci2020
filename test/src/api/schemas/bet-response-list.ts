@@ -8,7 +8,7 @@ const schema: JSONSchema7 = {
     additionalProperties: false,
     required: [
       'userId',
-      'userName'
+      'userName',
     ],
     properties: {
       ...score.properties,
@@ -18,14 +18,14 @@ const schema: JSONSchema7 = {
       },
       userId: {
         type: 'string',
-        format: 'uuid'
+        format: 'uuid',
       },
       userName: {
         type: 'string',
-        minLength: 1
-      }
-    }
-  }
+        minLength: 1,
+      },
+    },
+  },
 };
 
 export default schema;

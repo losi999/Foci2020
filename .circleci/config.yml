@@ -7,54 +7,29 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          name: Restoring Shared dependecies from cache
-          key: shared-dependencies-{{ checksum "shared/package.json" }}
+          name: Restoring dependecies from cache
+          key: dependencies-{{ checksum "package.json" }}
 
       - run:
-          name: Installing Shared dependencies
-          command: cd shared && npm install
+          name: Installing dependencies
+          command: npm install
 
       - save_cache:
           paths:
-            - shared/node_modules
-          key: shared-dependencies-{{ checksum "shared/package.json" }}
-
-      - run:
-          name: Running Shared linter
-          command: cd shared && npm run lint
-
-      - run:
-          name: Running Shared unit tests
-          command: cd shared && npm run test
-
-      - store_artifacts:
-          path: shared/coverage
-          destination: shared/coverage
-
-      - restore_cache:
-          name: Restoring API dependencies from cache
-          key: api-dependencies-{{ checksum "api/package.json" }}
-
-      - run:
-          name: Installing API dependencies
-          command: cd api && npm install
-
-      - save_cache:
-          paths:
-            - api/node_modules
-          key: api-dependencies-{{ checksum "api/package.json" }}
+            - node_modules
+          key: dependencies-{{ checksum "package.json" }}
 
       - run:
           name: Running API linter
-          command: cd api && npm run lint
+          command: npm run lint:api
 
       - run:
           name: Running API unit tests
-          command: cd api && npm run test
+          command: npm run test:api
 
       - store_artifacts:
-          path: api/coverage
-          destination: api/coverage
+          path: coverage
+          destination: coverage
 
       - run:
           name: Build API
@@ -63,7 +38,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - repo/api/dist
+            - repo/dist/api
   api_deploy:
     parameters:
       env:
@@ -100,17 +75,17 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          name: Restoring Shared dependecies from cache
-          key: shared-dependencies-{{ checksum "shared/package.json" }}
+          name: Restoring dependecies from cache
+          key: dependencies-{{ checksum "package.json" }}
 
       - run:
-          name: Installing Shared dependencies
-          command: cd shared && npm install
+          name: Installing dependencies
+          command: npm install
 
       - save_cache:
           paths:
-            - shared/node_modules
-          key: shared-dependencies-{{ checksum "shared/package.json" }}
+            - node_modules
+          key: dependencies-{{ checksum "package.json" }}
 
       - restore_cache:
           name: Restoring test dependencies from cache

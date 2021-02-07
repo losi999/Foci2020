@@ -57,8 +57,8 @@ export const databaseServiceFactory = (config: {
       IndexName: 'indexByDocumentType',
       KeyConditionExpression: 'documentType = :documentType',
       ExpressionAttributeValues: {
-        ':documentType': documentType,
-      }
+        ':documentType': documentType, 
+      },
     }).promise()).Items as T[];
   };
 
@@ -69,11 +69,11 @@ export const databaseServiceFactory = (config: {
       Item: document,
       ConditionExpression: '#documentTypeId = :documentTypeId',
       ExpressionAttributeNames: {
-        '#documentTypeId': 'documentType-id',
+        '#documentTypeId': 'documentType-id', 
       },
       ExpressionAttributeValues: {
-        ':documentTypeId': document['documentType-id'],
-      }
+        ':documentTypeId': document['documentType-id'], 
+      },
     }).promise();
   };
 
@@ -82,8 +82,8 @@ export const databaseServiceFactory = (config: {
       ReturnConsumedCapacity: 'INDEXES',
       TableName: config.primaryTableName,
       Key: {
-        'documentType-id': concatenate(documentType, documentId),
-      }
+        'documentType-id': concatenate(documentType, documentId), 
+      },
     }).promise();
   };
 
@@ -92,7 +92,7 @@ export const databaseServiceFactory = (config: {
       ReturnConsumedCapacity: 'INDEXES',
       TableName: config.primaryTableName,
       Key: {
-        'documentType-id': concatenate(documentType, documentId)
+        'documentType-id': concatenate(documentType, documentId), 
       },
     }).promise()).Item as T;
   };
@@ -104,11 +104,11 @@ export const databaseServiceFactory = (config: {
       ReturnConsumedCapacity: 'INDEXES',
       KeyConditionExpression: '#matchIdDocumentType = :matchIdDocumentType',
       ExpressionAttributeNames: {
-        '#matchIdDocumentType': 'matchId-documentType'
+        '#matchIdDocumentType': 'matchId-documentType', 
       },
       ExpressionAttributeValues: {
-        ':matchIdDocumentType': concatenate(matchId, documentType)
-      }
+        ':matchIdDocumentType': concatenate(matchId, documentType), 
+      },
     }).promise()).Items as T[];
   };
 
@@ -120,11 +120,11 @@ export const databaseServiceFactory = (config: {
       KeyConditionExpression: '#tournamentIdDocumentType = :tournamentIdDocumentType',
       ScanIndexForward: isAscending,
       ExpressionAttributeNames: {
-        '#tournamentIdDocumentType': 'tournamentId-documentType'
+        '#tournamentIdDocumentType': 'tournamentId-documentType', 
       },
       ExpressionAttributeValues: {
-        ':tournamentIdDocumentType': concatenate(tournamentId, documentType)
-      }
+        ':tournamentIdDocumentType': concatenate(tournamentId, documentType), 
+      },
     }).promise()).Items as T[];
   };
 
@@ -135,11 +135,11 @@ export const databaseServiceFactory = (config: {
       ReturnConsumedCapacity: 'INDEXES',
       KeyConditionExpression: '#tournamentIdUserIdDocumentType = :tournamentIdUserIdDocumentType',
       ExpressionAttributeNames: {
-        '#tournamentIdUserIdDocumentType': 'tournamentId-userId-documentType'
+        '#tournamentIdUserIdDocumentType': 'tournamentId-userId-documentType', 
       },
       ExpressionAttributeValues: {
-        ':tournamentIdUserIdDocumentType': concatenate(tournamentId, userId, documentType)
-      }
+        ':tournamentIdUserIdDocumentType': concatenate(tournamentId, userId, documentType), 
+      },
     }).promise()).Items as T[];
   };
 
@@ -174,17 +174,17 @@ export const databaseServiceFactory = (config: {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: config.primaryTableName,
         Key: {
-          'documentType-id': matchKey,
+          'documentType-id': matchKey, 
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set tournament = :tournament',
         ExpressionAttributeNames: {
-          '#documentTypeId': 'documentType-id'
+          '#documentTypeId': 'documentType-id', 
         },
         ExpressionAttributeValues: {
           ':documentTypeId': matchKey,
-          ':tournament': tournament
-        }
+          ':tournament': tournament,
+        },
       }).promise();
     },
     updateTeamOfMatch: (matchKey, team, type) => {
@@ -192,18 +192,18 @@ export const databaseServiceFactory = (config: {
         ReturnConsumedCapacity: 'INDEXES',
         TableName: config.primaryTableName,
         Key: {
-          'documentType-id': matchKey,
+          'documentType-id': matchKey, 
         },
         ConditionExpression: '#documentTypeId = :documentTypeId',
         UpdateExpression: 'set #team = :team',
         ExpressionAttributeNames: {
           '#documentTypeId': 'documentType-id',
-          '#team': `${type}Team`
+          '#team': `${type}Team`,
         },
         ExpressionAttributeValues: {
           ':documentTypeId': matchKey,
           ':team': team,
-        }
+        },
       }).promise();
     },
     queryMatchKeysByHomeTeamId: async (teamId) => {
@@ -213,11 +213,11 @@ export const databaseServiceFactory = (config: {
         IndexName: 'indexByHomeTeamIdDocumentType',
         KeyConditionExpression: '#homeTeamIdDocumentType = :homeTeamIdDocumentType',
         ExpressionAttributeNames: {
-          '#homeTeamIdDocumentType': 'homeTeamId-documentType'
+          '#homeTeamIdDocumentType': 'homeTeamId-documentType', 
         },
         ExpressionAttributeValues: {
-          ':homeTeamIdDocumentType': concatenate(teamId, 'match'),
-        }
+          ':homeTeamIdDocumentType': concatenate(teamId, 'match'), 
+        },
       }).promise()).Items as DocumentKey[];
     },
     queryMatchKeysByAwayTeamId: async (teamId) => {
@@ -227,11 +227,11 @@ export const databaseServiceFactory = (config: {
         IndexName: 'indexByAwayTeamIdDocumentType',
         KeyConditionExpression: '#awayTeamIdDocumentType = :awayTeamIdDocumentType',
         ExpressionAttributeNames: {
-          '#awayTeamIdDocumentType': 'awayTeamId-documentType'
+          '#awayTeamIdDocumentType': 'awayTeamId-documentType', 
         },
         ExpressionAttributeValues: {
-          ':awayTeamIdDocumentType': concatenate(teamId, 'match'),
-        }
+          ':awayTeamIdDocumentType': concatenate(teamId, 'match'), 
+        },
       }).promise()).Items as DocumentKey[];
     },
     archiveDocument: (document) => {
@@ -250,11 +250,11 @@ export const databaseServiceFactory = (config: {
             [config.primaryTableName]: batch.map(key => ({
               DeleteRequest: {
                 Key: {
-                  'documentType-id': key
-                }
-              }
-            }))
-          }
+                  'documentType-id': key, 
+                }, 
+              }, 
+            })), 
+          },
         }).promise();
         unprocessItemCount += result.UnprocessedItems?.[config.primaryTableName]?.length;
       }
@@ -271,10 +271,10 @@ export const databaseServiceFactory = (config: {
           RequestItems: {
             [config.primaryTableName]: batch.map(doc => ({
               PutRequest: {
-                Item: doc
-              }
-            }))
-          }
+                Item: doc, 
+              }, 
+            })), 
+          },
         }).promise();
         unprocessItemCount += result.UnprocessedItems?.[config.primaryTableName]?.length;
       }
@@ -282,7 +282,7 @@ export const databaseServiceFactory = (config: {
       if (unprocessItemCount > 0) {
         throw unprocessItemCount;
       }
-    }
+    },
   };
 
   return instance;

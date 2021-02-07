@@ -6,15 +6,15 @@ const schema: JSONSchema7 = {
   additionalProperties: false,
   required: [
     ...tournamentRequest.required,
-    'tournamentId'
+    'tournamentId',
   ],
   properties: {
     ...tournamentRequest.properties,
     tournamentId: {
       type: 'string',
-      format: 'uuid'
-    }
-  }
+      format: 'uuid',
+    },
+  },
 };
 
 export default schema;

@@ -4,6 +4,6 @@ import { IPostDeployService } from '@foci2020/api/functions/post-deploy/post-dep
 export default (postDeploy: IPostDeployService): Handler =>
   async () => {
     await postDeploy({
-      stackName: process.env.INFRASTRUCTURE_STACK
+      stackName: process.env.INFRASTRUCTURE_STACK, 
     });
   };

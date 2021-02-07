@@ -13,7 +13,9 @@ export interface IListStandingsOfTournament {
 export const listStandingsOfTournamentFactory = (databaseService: IDatabaseService, standingDocumentConverter: IStandingDocumentConverter): IListStandingsOfTournament =>
   async ({ tournamentId }) => {
     const tournament = await databaseService.getTournamentById(tournamentId).catch((error) => {
-      console.error('Query tournament by Id', { tournamentId }, error);
+      console.error('Query tournament by Id', {
+        tournamentId, 
+      }, error);
       throw httpError(500, 'Unable to query tournament');
     });
 
@@ -22,7 +24,9 @@ export const listStandingsOfTournamentFactory = (databaseService: IDatabaseServi
     }
 
     const documents = await databaseService.queryStandingsByTournamentId(tournamentId).catch((error) => {
-      console.error('Unable to query standings of tournament', { tournamentId }, error);
+      console.error('Unable to query standings of tournament', {
+        tournamentId, 
+      }, error);
       throw httpError(500, 'Unable to query standings of tournament');
     });
 

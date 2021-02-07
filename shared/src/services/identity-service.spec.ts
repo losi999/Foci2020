@@ -28,7 +28,7 @@ describe('Notification service', () => {
       await service.register({
         displayName,
         email,
-        password
+        password,
       }, 'player');
       expect(mockCognito.functions.adminCreateUser).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
@@ -42,18 +42,18 @@ describe('Notification service', () => {
           {
             Name: 'nickname',
             Value: displayName,
-          }]
+          }],
       });
       expect(mockCognito.functions.adminAddUserToGroup).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
         GroupName: 'player',
-        Username: email
+        Username: email,
       });
       expect(mockCognito.functions.adminSetUserPassword).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
         Password: password,
         Permanent: true,
-        Username: email
+        Username: email,
       });
     });
   });
@@ -67,7 +67,7 @@ describe('Notification service', () => {
 
       await service.login({
         email,
-        password
+        password,
       });
 
       expect(mockCognito.functions.adminInitiateAuth).toHaveBeenCalledWith({
@@ -76,8 +76,8 @@ describe('Notification service', () => {
         AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
         AuthParameters: {
           USERNAME: email,
-          PASSWORD: password
-        }
+          PASSWORD: password,
+        },
       });
     });
   });
@@ -90,15 +90,15 @@ describe('Notification service', () => {
       mockCognito.functions.adminGetUser.mockReturnValue(awsResolvedValue({
         UserAttributes: [{
           Name: 'nickname',
-          Value: nickname
-        }]
+          Value: nickname,
+        }],
       }));
 
       const result = await service.getUserName(userId);
       expect(result).toEqual(nickname);
       expect(mockCognito.functions.adminGetUser).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
-        Username: userId
+        Username: userId,
       });
     });
   });

@@ -5,7 +5,7 @@ const schema: JSONSchema7 = {
   additionalProperties: false,
   required: [
     'homeScore',
-    'awayScore'
+    'awayScore',
   ],
   properties: {
     homeScore: {
@@ -15,8 +15,8 @@ const schema: JSONSchema7 = {
     awayScore: {
       type: 'integer',
       minimum: 0,
-    }
-  }
+    },
+  },
 };
 
 export default schema;

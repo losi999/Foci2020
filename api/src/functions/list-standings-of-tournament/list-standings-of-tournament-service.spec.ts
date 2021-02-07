@@ -27,7 +27,7 @@ describe('List standings of tournament service', () => {
     mockStandingDocumentConverter.functions.toResponseList.mockReturnValue(convertedResponse);
 
     const result = await service({
-      tournamentId
+      tournamentId, 
     });
     expect(result).toEqual(convertedResponse);
     validateFunctionCall(mockDatabaseService.functions.getTournamentById, tournamentId);
@@ -40,7 +40,7 @@ describe('List standings of tournament service', () => {
       mockDatabaseService.functions.getTournamentById.mockRejectedValue('This is a dynamo error');
 
       await service({
-        tournamentId
+        tournamentId, 
       }).catch(validateError('Unable to query tournament', 500));
       validateFunctionCall(mockDatabaseService.functions.getTournamentById, tournamentId);
       validateFunctionCall(mockDatabaseService.functions.queryStandingsByTournamentId);
@@ -51,7 +51,7 @@ describe('List standings of tournament service', () => {
       mockDatabaseService.functions.getTournamentById.mockResolvedValue(undefined);
 
       await service({
-        tournamentId
+        tournamentId, 
       }).catch(validateError('Tournament does not exist', 400));
       validateFunctionCall(mockDatabaseService.functions.getTournamentById, tournamentId);
       validateFunctionCall(mockDatabaseService.functions.queryStandingsByTournamentId);
@@ -63,7 +63,7 @@ describe('List standings of tournament service', () => {
       mockDatabaseService.functions.queryStandingsByTournamentId.mockRejectedValue('This is a dynamo error');
 
       await service({
-        tournamentId
+        tournamentId, 
       }).catch(validateError('Unable to query standings of tournament', 500));
       validateFunctionCall(mockDatabaseService.functions.getTournamentById, tournamentId);
       validateFunctionCall(mockDatabaseService.functions.queryStandingsByTournamentId, tournamentId);

@@ -5,7 +5,7 @@ Parameters:
   LambdaRoleArn:
     Type: String
   UserPoolId:
-    Type: String    
+    Type: String
   Database:
     Type: String
   UserPoolArn:
@@ -51,7 +51,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Betting-PlaceBet
-      CodeUri: api/dist/place-bet
+      CodeUri: dist/api/place-bet
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -67,7 +67,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Betting-ListBetsOfMatch
-      CodeUri: api/dist/list-bets-of-match
+      CodeUri: dist/api/list-bets-of-match
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -83,7 +83,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Betting-ListMatchesOfTournament
-      CodeUri: api/dist/list-matches-of-tournament
+      CodeUri: dist/api/list-matches-of-tournament
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -94,12 +94,12 @@ Resources:
             Method: GET
             Auth:
               Authorizer: CognitoAuthorizer
- 
+
   ListStandingsOfTournament:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Betting-ListStandingsOfTournament
-      CodeUri: api/dist/list-standings-of-tournament
+      CodeUri: dist/api/list-standings-of-tournament
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -115,7 +115,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Betting-CompareWithPlayer
-      CodeUri: api/dist/compare-with-player
+      CodeUri: dist/api/compare-with-player
       Role: !Ref LambdaRoleArn
       Events:
         API:

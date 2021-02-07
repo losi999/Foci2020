@@ -20,18 +20,22 @@ describe('Post deploy handler', () => {
 
     const result = await handlerFuntion(undefined, undefined, undefined);
     expect(result).toBeUndefined();
-    expect(mockPostDeployService).toHaveBeenCalledWith({ stackName: infrastructureStack });
+    expect(mockPostDeployService).toHaveBeenCalledWith({
+      stackName: infrastructureStack, 
+    });
     expect.assertions(2);
   });
 
   it('should throw error if post deploy service fails', async () => {
     const errorMessage = 'This is an error';
     mockPostDeployService.mockRejectedValue({
-      message: errorMessage
+      message: errorMessage, 
     });
 
     await (handlerFuntion(undefined, undefined, undefined) as Promise<any>).catch(validateError(errorMessage));
-    expect(mockPostDeployService).toHaveBeenCalledWith({ stackName: infrastructureStack });
+    expect(mockPostDeployService).toHaveBeenCalledWith({
+      stackName: infrastructureStack, 
+    });
     expect.assertions(2);
   });
 });

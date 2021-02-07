@@ -28,17 +28,17 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument1 = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument2 = tournamentDocumentConverter.create({
-      tournamentName: 'VB 2022'
+      tournamentName: 'VB 2022', 
     }, Cypress.env('EXPIRES_IN'));
     matchDocument = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument1.id,
       group: 'A csoport',
-      startTime: addMinutes(10).toISOString()
+      startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument1, Cypress.env('EXPIRES_IN'));
 
     finishedMatch = matchDocumentConverter.create({
@@ -46,7 +46,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument1.id,
       group: 'A csoport',
-      startTime: addMinutes(10).toISOString()
+      startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument1, Cypress.env('EXPIRES_IN'));
 
     updatedMatch = {
@@ -54,7 +54,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       awayTeamId: homeTeamDocument.id,
       tournamentId: tournamentDocument2.id,
       group: 'B csoport',
-      startTime: addMinutes(15).toISOString()
+      startTime: addMinutes(15).toISOString(),
     };
   });
 
@@ -93,7 +93,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              homeTeamId: undefined
+              homeTeamId: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('homeTeamId', 'body');
@@ -103,7 +103,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              homeTeamId: 1 as any
+              homeTeamId: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('homeTeamId', 'string', 'body');
@@ -113,7 +113,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              homeTeamId: `${uuid()}-not-valid` as TeamIdType
+              homeTeamId: `${uuid()}-not-valid` as TeamIdType,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('homeTeamId', 'uuid', 'body');
@@ -128,7 +128,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
             .authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              homeTeamId: uuid() as TeamIdType
+              homeTeamId: uuid() as TeamIdType,
             })
             .expectBadRequestResponse()
             .expectMessage('Home team not found');
@@ -140,7 +140,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              awayTeamId: undefined
+              awayTeamId: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('awayTeamId', 'body');
@@ -150,7 +150,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              awayTeamId: 1 as any
+              awayTeamId: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('awayTeamId', 'string', 'body');
@@ -160,7 +160,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              awayTeamId: `${uuid()}-not-valid` as TeamIdType
+              awayTeamId: `${uuid()}-not-valid` as TeamIdType,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('awayTeamId', 'uuid', 'body');
@@ -175,7 +175,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
             .authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              awayTeamId: uuid() as TeamIdType
+              awayTeamId: uuid() as TeamIdType,
             })
             .expectBadRequestResponse()
             .expectMessage('Away team not found');
@@ -185,7 +185,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              awayTeamId: awayTeamDocument.id
+              awayTeamId: awayTeamDocument.id,
             })
             .expectBadRequestResponse()
             .expectMessage('Home and away teams cannot be the same');
@@ -197,7 +197,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              tournamentId: undefined
+              tournamentId: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('tournamentId', 'body');
@@ -207,7 +207,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              tournamentId: 1 as any
+              tournamentId: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('tournamentId', 'string', 'body');
@@ -217,7 +217,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              tournamentId: `${uuid()}-not-valid` as TournamentIdType
+              tournamentId: `${uuid()}-not-valid` as TournamentIdType,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('tournamentId', 'uuid', 'body');
@@ -232,7 +232,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
             .authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              tournamentId: uuid() as TournamentIdType
+              tournamentId: uuid() as TournamentIdType,
             })
             .expectBadRequestResponse()
             .expectMessage('Tournament not found');
@@ -244,7 +244,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              group: undefined
+              group: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('group', 'body');
@@ -254,7 +254,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              group: 1 as any
+              group: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('group', 'string', 'body');
@@ -266,7 +266,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              startTime: undefined
+              startTime: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('startTime', 'body');
@@ -276,7 +276,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              startTime: 1 as any
+              startTime: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('startTime', 'string', 'body');
@@ -286,7 +286,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              startTime: 'not-a-date'
+              startTime: 'not-a-date',
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('startTime', 'date-time', 'body');
@@ -296,7 +296,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              startTime: addMinutes(4.9).toISOString()
+              startTime: addMinutes(4.9).toISOString(),
             })
             .expectBadRequestResponse()
             .expectMessage('Start time has to be at least 5 minutes from now');
@@ -324,8 +324,8 @@ describe('PUT /match/v1/matches/{matchId}', () => {
             ...finishedMatch,
             finalScore: {
               homeScore: 1,
-              awayScore: 2
-            }
+              awayScore: 2,
+            },
           })
             .authenticate('admin1')
             .requestUpdateMatch(finishedMatch.id, updatedMatch)

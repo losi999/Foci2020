@@ -11,7 +11,7 @@ describe('Update team handler', () => {
   const handlerEvent = {
     body: '{}',
     pathParameters: {},
-    headers: {}
+    headers: {},
   } as APIGatewayProxyEvent;
   it('should respond with error if updateTeam throws error', async () => {
 
@@ -19,7 +19,7 @@ describe('Update team handler', () => {
     const message = 'This is an error';
     mockUpdateTeamService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await handler(mockUpdateTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

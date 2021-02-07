@@ -18,17 +18,17 @@ describe('Place bet handler', () => {
   const handlerEvent = {
     body: JSON.stringify(bet),
     pathParameters: {
-      matchId
+      matchId, 
     } as any,
     requestContext: {
       authorizer: {
         claims: {
           sub: userId,
           nickname: userName,
-        }
-      }
+        },
+      },
     } as any,
-    headers: {}
+    headers: {},
   } as APIGatewayProxyEvent;
 
   it('should respond with error if placeBet throws error', async () => {
@@ -36,7 +36,7 @@ describe('Place bet handler', () => {
     const message = 'This is an error';
     mockPlaceBetService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
@@ -48,7 +48,7 @@ describe('Place bet handler', () => {
       userId,
       bet,
       userName,
-      expiresIn: NaN
+      expiresIn: NaN,
     });
     expect.assertions(3);
   });
@@ -64,7 +64,7 @@ describe('Place bet handler', () => {
       userId,
       bet,
       userName,
-      expiresIn: NaN
+      expiresIn: NaN,
     });
     expect.assertions(2);
   });

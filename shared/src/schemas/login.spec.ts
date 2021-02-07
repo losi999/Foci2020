@@ -11,12 +11,12 @@ describe('Login schema', () => {
   beforeEach(() => {
     validatorService = validatorServiceFactory(new ajv({
       allErrors: true,
-      format: 'full'
+      format: 'full',
     }));
 
     data = {
       email: 'aaa@aaa.com',
-      password: 'asdfghjk'
+      password: 'asdfghjk',
     };
   });
 

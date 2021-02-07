@@ -25,14 +25,14 @@ describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
     matchDocument1 = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(15).toISOString()
+      startTime: addMinutes(15).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
 
     matchDocument2 = matchDocumentConverter.create({
@@ -40,7 +40,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
       awayTeamId: homeTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'B csoport',
-      startTime: addMinutes(10).toISOString()
+      startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
   });
 
@@ -74,9 +74,9 @@ describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
       describe('if tournamentId', () => {
         it('is not uuid', () => {
           cy.authenticate('player1')
-          .requestGetMatchListOfTournament(`${uuid()}-not-valid`)
-          .expectBadRequestResponse()
-          .expectWrongPropertyFormat('tournamentId', 'uuid', 'pathParameters');
+            .requestGetMatchListOfTournament(`${uuid()}-not-valid`)
+            .expectBadRequestResponse()
+            .expectWrongPropertyFormat('tournamentId', 'uuid', 'pathParameters');
         });
       });
     });

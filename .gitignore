@@ -21,3 +21,4 @@ test/cypress
 .env
 samconfig.toml
 samconfig.*.toml
+!.eslintrc.js

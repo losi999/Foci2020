@@ -48,7 +48,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Team-CreateTeam
-      CodeUri: api/dist/create-team
+      CodeUri: dist/api/create-team
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -64,7 +64,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Team-UpdateTeam
-      CodeUri: api/dist/update-team
+      CodeUri: dist/api/update-team
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -80,7 +80,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Team-ListTeams
-      CodeUri: api/dist/list-teams
+      CodeUri: dist/api/list-teams
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -96,7 +96,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Team-GetTeam
-      CodeUri: api/dist/get-team
+      CodeUri: dist/api/get-team
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -112,7 +112,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Team-DeleteTeam
-      CodeUri: api/dist/delete-team
+      CodeUri: dist/api/delete-team
       Role: !Ref LambdaRoleArn
       Events:
         API:

@@ -28,7 +28,9 @@ describe('List matches of tournament service', () => {
 
     mockMatchDocumentConverter.functions.toResponseList.mockReturnValueOnce(response);
 
-    const result = await service({ tournamentId });
+    const result = await service({
+      tournamentId, 
+    });
     expect(result).toEqual(response);
     validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
     validateFunctionCall(mockMatchDocumentConverter.functions.toResponseList, queriedDocuments);
@@ -37,7 +39,9 @@ describe('List matches of tournament service', () => {
   it('should throw error if unable to query matches', async () => {
     mockDatabaseService.functions.queryMatchesByTournamentId.mockRejectedValue('This is a dynamo error');
 
-    await service({ tournamentId }).catch(validateError('Unable to query matches', 500));
+    await service({
+      tournamentId, 
+    }).catch(validateError('Unable to query matches', 500));
     validateFunctionCall(mockDatabaseService.functions.queryMatchesByTournamentId, tournamentId);
     validateFunctionCall(mockMatchDocumentConverter.functions.toResponseList);
     expect.assertions(4);

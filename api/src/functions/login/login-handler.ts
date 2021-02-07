@@ -8,13 +8,13 @@ export default (login: ILoginService): APIGatewayProxyHandler => {
     let loginResponse: LoginResponse;
     try {
       loginResponse = await login({
-        body
+        body, 
       });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
 

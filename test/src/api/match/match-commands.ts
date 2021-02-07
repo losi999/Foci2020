@@ -13,9 +13,9 @@ const requestCreateMatch = (idToken: string, match: MatchRequest) => {
     url: '/match/v1/matches',
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN'),
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -26,9 +26,9 @@ const requestUpdateMatch = (idToken: string, matchId: MatchIdType, match: MatchR
     url: `/match/v1/matches/${matchId}`,
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN'),
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -37,9 +37,9 @@ const requestDeleteMatch = (idToken: string, matchId: MatchIdType) => {
     method: 'DELETE',
     url: `/match/v1/matches/${matchId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -48,9 +48,9 @@ const requestGetMatch = (idToken: string, matchId: MatchIdType) => {
     method: 'GET',
     url: `/match/v1/matches/${matchId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -59,9 +59,9 @@ const requestGetMatchList = (idToken: string) => {
     method: 'GET',
     url: '/match/v1/matches',
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -71,14 +71,16 @@ const requestSetFinalScoreOfMatch = (idToken: string, matchId: MatchIdType, scor
     method: 'PATCH',
     url: `/match/v1/matches/${matchId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
 const saveMatchDocument = (document: MatchDocument) => {
-  return cy.log('Save match document', document).wrap(databaseService.saveMatch(document), { log: false });
+  return cy.log('Save match document', document).wrap(databaseService.saveMatch(document), {
+    log: false, 
+  });
 };
 
 const validateMatchDocument = (response: MatchResponse,
@@ -235,21 +237,37 @@ const validateMatchDeleted = (matchId: MatchIdType) => {
 };
 
 export const setMatchCommands = () => {
-  Cypress.Commands.add('requestSetFinalScoreOfMatch', { prevSubject: true }, requestSetFinalScoreOfMatch);
-  Cypress.Commands.add('requestCreateMatch', { prevSubject: true }, requestCreateMatch);
-  Cypress.Commands.add('requestUpdateMatch', { prevSubject: true }, requestUpdateMatch);
-  Cypress.Commands.add('requestDeleteMatch', { prevSubject: true }, requestDeleteMatch);
-  Cypress.Commands.add('requestGetMatch', { prevSubject: true }, requestGetMatch);
-  Cypress.Commands.add('requestGetMatchList', { prevSubject: true }, requestGetMatchList);
+  Cypress.Commands.add('requestSetFinalScoreOfMatch', {
+    prevSubject: true, 
+  }, requestSetFinalScoreOfMatch);
+  Cypress.Commands.add('requestCreateMatch', {
+    prevSubject: true, 
+  }, requestCreateMatch);
+  Cypress.Commands.add('requestUpdateMatch', {
+    prevSubject: true, 
+  }, requestUpdateMatch);
+  Cypress.Commands.add('requestDeleteMatch', {
+    prevSubject: true, 
+  }, requestDeleteMatch);
+  Cypress.Commands.add('requestGetMatch', {
+    prevSubject: true, 
+  }, requestGetMatch);
+  Cypress.Commands.add('requestGetMatchList', {
+    prevSubject: true, 
+  }, requestGetMatchList);
 
   Cypress.Commands.add('saveMatchDocument', saveMatchDocument);
 
-  Cypress.Commands.add('validateMatchDocument', { prevSubject: true }, validateMatchDocument);
+  Cypress.Commands.add('validateMatchDocument', {
+    prevSubject: true, 
+  }, validateMatchDocument);
   Cypress.Commands.add('validateMatchFinalScore', validateMatchFinalScore);
   Cypress.Commands.add('validateUpdatedHomeTeam', validateUpdatedHomeTeam);
   Cypress.Commands.add('validateUpdatedAwayTeam', validateUpdatedAwayTeam);
   Cypress.Commands.add('validateUpdatedTournament', validateUpdatedTournament);
-  Cypress.Commands.add('validateMatchResponse', { prevSubject: true }, validateMatchResponse);
+  Cypress.Commands.add('validateMatchResponse', {
+    prevSubject: true, 
+  }, validateMatchResponse);
   Cypress.Commands.add('validateMatchDeleted', validateMatchDeleted);
 };
 

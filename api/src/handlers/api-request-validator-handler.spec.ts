@@ -9,7 +9,7 @@ describe('API request validator handler', () => {
   beforeEach(() => {
     mockValidate = jest.fn();
     mockValidatorService = new (jest.fn<IValidatorService, undefined[]>(() => ({
-      validate: mockValidate
+      validate: mockValidate, 
     })))();
 
     mockInnerHandler = jest.fn();
@@ -17,23 +17,23 @@ describe('API request validator handler', () => {
 
   it('should respond with HTTP 400 if request is not valid', async () => {
     const handlerEvent = {
-      body: '{}'
+      body: '{}', 
     } as APIGatewayProxyEvent;
     const validationError = 'This is a validation error';
     mockValidate.mockReturnValue(validationError);
     const response = await handler(mockValidatorService)({
-      body: {}
+      body: {}, 
     })(mockInnerHandler)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body)).toEqual({
-      body: validationError
+      body: validationError, 
     });
     expect(mockInnerHandler).not.toHaveBeenCalled();
   });
 
   it('should call inner handler if request is valid', async () => {
     const handlerEvent = {
-      body: '{}'
+      body: '{}', 
     } as APIGatewayProxyEvent;
 
     mockValidate.mockReturnValue(undefined);
@@ -41,10 +41,10 @@ describe('API request validator handler', () => {
     const body = 'I\'m a teapot';
     mockInnerHandler.mockResolvedValue({
       statusCode,
-      body
+      body,
     });
     const response = await handler(mockValidatorService)({
-      body: {}
+      body: {}, 
     })(mockInnerHandler)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);

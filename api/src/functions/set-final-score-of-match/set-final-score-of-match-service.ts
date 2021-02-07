@@ -27,7 +27,7 @@ export const setFinalScoreOfMatchServiceFactory = (databaseService: IDatabaseSer
 
     await databaseService.updateMatch({
       ...match,
-      finalScore
+      finalScore,
     }).catch((error) => {
       console.error('Update match', error);
       throw httpError(500, 'Unable to update match');

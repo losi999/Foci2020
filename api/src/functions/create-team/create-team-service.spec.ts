@@ -24,7 +24,10 @@ describe('Create team service', () => {
     mockTeamDocumentConverter.functions.create.mockReturnValue(convertedTeam);
     mockDatabaseService.functions.saveTeam.mockRejectedValue({});
 
-    await service({ body, expiresIn }).catch(validateError('Error while saving team', 500));
+    await service({
+      body,
+      expiresIn, 
+    }).catch(validateError('Error while saving team', 500));
 
     validateFunctionCall(mockTeamDocumentConverter.functions.create, body, expiresIn);
     validateFunctionCall(mockDatabaseService.functions.saveTeam, convertedTeam);
@@ -38,7 +41,10 @@ describe('Create team service', () => {
     mockTeamDocumentConverter.functions.create.mockReturnValue(convertedTeam);
     mockDatabaseService.functions.saveTeam.mockResolvedValue(undefined);
 
-    const result = await service({ body, expiresIn });
+    const result = await service({
+      body,
+      expiresIn, 
+    });
 
     expect(result).toEqual(convertedTeam.id);
     validateFunctionCall(mockTeamDocumentConverter.functions.create, body, expiresIn);

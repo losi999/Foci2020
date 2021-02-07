@@ -5,8 +5,8 @@ export type TournamentRequest = TournamentBase;
 export type TeamRequest = TeamBase;
 
 export type MatchRequest = MatchBase
-    & MatchTeamIds
-    & TournamentId;
+& MatchTeamIds
+& TournamentId;
 
 export type MatchFinalScoreRequest = Score;
 

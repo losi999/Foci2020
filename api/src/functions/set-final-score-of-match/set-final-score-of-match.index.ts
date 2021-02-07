@@ -10,5 +10,5 @@ const setFinalScoreOfMatchService = setFinalScoreOfMatchServiceFactory(databaseS
 
 export default authorizer('admin')(apiRequestValidator({
   body,
-  pathParameters
+  pathParameters,
 })(handler(setFinalScoreOfMatchService)));

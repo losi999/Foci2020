@@ -11,7 +11,7 @@ describe('Compary with player schemas', () => {
   beforeEach(() => {
     data = {
       userId: '36ac8b1d-856a-4449-afa9-57390d82541c',
-      tournamentId: '36ac8b1d-856a-4449-afa9-57390d82541c'
+      tournamentId: '36ac8b1d-856a-4449-afa9-57390d82541c',
     };
   });
 

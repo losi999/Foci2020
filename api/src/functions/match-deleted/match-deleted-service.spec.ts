@@ -22,7 +22,9 @@ describe('Match deleted service', () => {
     mockDatabaseService.functions.queryBetsByMatchId.mockResolvedValue([queriedBet]);
     mockDatabaseService.functions.deleteDocuments.mockResolvedValue(undefined);
 
-    const result = await service({ matchId });
+    const result = await service({
+      matchId, 
+    });
 
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.queryBetsByMatchId, matchId);
@@ -32,9 +34,13 @@ describe('Match deleted service', () => {
 
   describe('should throw error', () => {
     it('if unable to query bets by match Id', async () => {
-      mockDatabaseService.functions.queryBetsByMatchId.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.queryBetsByMatchId.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ matchId }).catch(validateError(dynamoErrorMessage));
+      await service({
+        matchId, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryBetsByMatchId, matchId);
       validateFunctionCall(mockDatabaseService.functions.deleteDocuments);
@@ -43,9 +49,13 @@ describe('Match deleted service', () => {
 
     it('if unable to delete bet', async () => {
       mockDatabaseService.functions.queryBetsByMatchId.mockResolvedValue([queriedBet]);
-      mockDatabaseService.functions.deleteDocuments.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.deleteDocuments.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ matchId }).catch(validateError(dynamoErrorMessage));
+      await service({
+        matchId, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryBetsByMatchId, matchId);
       validateFunctionCall(mockDatabaseService.functions.deleteDocuments, [queriedBet['documentType-id']]);

@@ -13,14 +13,14 @@ describe('Login handler', () => {
 
   it('should respond with error if registration throws error', async () => {
     const handlerEvent = {
-      body: '{}'
+      body: '{}', 
     } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
     mockRegistrationService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
@@ -31,7 +31,7 @@ describe('Login handler', () => {
 
   it('should respond with HTTP 200 and tokens if registration executes successfully', async () => {
     const handlerEvent = {
-      body: '{}'
+      body: '{}', 
     } as APIGatewayProxyEvent;
 
     mockRegistrationService.mockResolvedValue(undefined);

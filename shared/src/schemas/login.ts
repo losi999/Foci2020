@@ -16,7 +16,7 @@ const schema: JSONSchema7 = {
       type: 'string',
       minLength: 6,
     },
-  }
+  },
 };
 
 export default schema;

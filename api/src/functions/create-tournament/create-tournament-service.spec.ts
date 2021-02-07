@@ -24,7 +24,10 @@ describe('Create tournament service', () => {
     mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
     mockDatabaseService.functions.saveTournament.mockRejectedValue({});
 
-    await service({ body, expiresIn }).catch(validateError('Error while saving tournament', 500));
+    await service({
+      body,
+      expiresIn, 
+    }).catch(validateError('Error while saving tournament', 500));
     validateFunctionCall(mockTournamentDocumentConverter.functions.create, body, expiresIn);
     validateFunctionCall(mockDatabaseService.functions.saveTournament, convertedTournament);
     expect.assertions(4);
@@ -37,7 +40,10 @@ describe('Create tournament service', () => {
     mockTournamentDocumentConverter.functions.create.mockReturnValue(convertedTournament);
     mockDatabaseService.functions.saveTournament.mockResolvedValue(undefined);
 
-    const result = await service({ body, expiresIn });
+    const result = await service({
+      body,
+      expiresIn, 
+    });
 
     expect(result).toEqual(convertedTournament.id);
     validateFunctionCall(mockTournamentDocumentConverter.functions.create, body, expiresIn);

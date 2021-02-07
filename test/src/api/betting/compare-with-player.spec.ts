@@ -25,7 +25,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
 
     pendingMatchDocument = matchDocumentConverter.create({
@@ -33,7 +33,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(15).toISOString()
+      startTime: addMinutes(15).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
 
     startedMatchDocument = matchDocumentConverter.create({
@@ -41,7 +41,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
       awayTeamId: homeTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'B csoport',
-      startTime: addMinutes(-10).toISOString()
+      startTime: addMinutes(-10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
   });
 
@@ -69,7 +69,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
             .saveMatchDocument(startedMatchDocument)
             .saveBetForUser('player2', {
               homeScore: 1,
-              awayScore: 1
+              awayScore: 1,
             }, startedMatchDocument.id, startedMatchDocument.tournamentId)
             .authenticate('player1')
             .requestCompareWithPlayer(startedMatchDocument.tournamentId, 'player2')
@@ -83,11 +83,11 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
             .saveMatchDocument(startedMatchDocument)
             .saveBetForUser('player1', {
               homeScore: 4,
-              awayScore: 0
+              awayScore: 0,
             }, pendingMatchDocument.id, pendingMatchDocument.tournamentId)
             .saveBetForUser('player2', {
               homeScore: 1,
-              awayScore: 1
+              awayScore: 1,
             }, pendingMatchDocument.id, pendingMatchDocument.tournamentId)
             .authenticate('player1')
             .requestCompareWithPlayer(startedMatchDocument.tournamentId, 'player2')
@@ -103,7 +103,7 @@ describe('GET /betting/v1/tournaments/{tournamentId}/compare/{userId}', () => {
             .saveMatchDocument(startedMatchDocument)
             .saveBetForUser('player2', {
               homeScore: 1,
-              awayScore: 1
+              awayScore: 1,
             }, pendingMatchDocument.id, pendingMatchDocument.tournamentId)
             .authenticate('player1')
             .requestCompareWithPlayer(startedMatchDocument.tournamentId, 'player2')

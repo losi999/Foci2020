@@ -11,12 +11,12 @@ export default (listTournaments: IListTournamentsService): APIGatewayProxyHandle
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
     return {
       statusCode: 200,
-      body: JSON.stringify(tournaments)
+      body: JSON.stringify(tournaments),
     };
   };
 };

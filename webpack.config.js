@@ -3,7 +3,7 @@ var entry = require('webpack-glob-entry')
 const entries = entry((filePath) => {
   const parts = filePath.split(/[\/\.]/)
   return parts[parts.length - 3];
-}, './src/functions/*/*.index.ts');
+}, './api/src/functions/*/*.index.ts');
 
 module.exports = {
   entry: entries,
@@ -36,18 +36,17 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
-      '@foci2020/api': path.resolve('src'),
-      '@foci2020/shared': path.resolve('../shared/src'),
+      '@foci2020/api': path.resolve('api/src'),
+      '@foci2020/shared': path.resolve('shared/src'),
     }
   },
   optimization: {
     minimize: false,
-    // namedModules: true,
     chunkIds: 'named',
   },
   output: {
     filename: '[name]/index.js',
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, 'dist', 'api'),
     libraryTarget: 'commonjs2'
   }
 };

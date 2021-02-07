@@ -2,46 +2,46 @@ import { TournamentBase, TournamentId, Remove, TeamBase, TeamId, MatchId, MatchB
 import { InternalDocumentProperties, IndexHomeTeamIdDocumentType, IndexAwayTeamIdDocumentType, IndexTournamentIdDocumentType, IndexMatchIdDocumentType, IndexByTournamentIdUserIdDocumentType } from '@foci2020/shared/types/documents';
 
 export type TournamentResponse = TournamentBase
-  & TournamentId
-  & Remove<InternalDocumentProperties>;
+& TournamentId
+& Remove<InternalDocumentProperties>;
 
 export type TeamResponse = TeamBase
-  & TeamId
-  & Remove<InternalDocumentProperties>;
+& TeamId
+& Remove<InternalDocumentProperties>;
 
 export type MatchResponse = MatchId
-  & MatchBase
-  & Remove<Score>
-  & Remove<MatchTeamIds>
-  & Remove<TournamentId>
-  & Remove<IndexHomeTeamIdDocumentType>
-  & Remove<IndexAwayTeamIdDocumentType>
-  & Remove<IndexTournamentIdDocumentType>
-  & Remove<InternalDocumentProperties>
-  & {
-    homeTeam: TeamResponse;
-    awayTeam: TeamResponse;
-    tournament: TournamentResponse;
-    finalScore: Score;
-  };
+& MatchBase
+& Remove<Score>
+& Remove<MatchTeamIds>
+& Remove<TournamentId>
+& Remove<IndexHomeTeamIdDocumentType>
+& Remove<IndexAwayTeamIdDocumentType>
+& Remove<IndexTournamentIdDocumentType>
+& Remove<InternalDocumentProperties>
+& {
+  homeTeam: TeamResponse;
+  awayTeam: TeamResponse;
+  tournament: TournamentResponse;
+  finalScore: Score;
+};
 
 export type BetResponse = (Score | Remove<Score>)
-  & BetBase
-  & Remove<MatchId>
-  & Remove<TournamentId>
-  & Remove<IndexMatchIdDocumentType>
-  & Remove<IndexByTournamentIdUserIdDocumentType>
-  & Remove<InternalDocumentProperties>
-  & Remove<Result>
-  & {
-    point: number;
-  };
+& BetBase
+& Remove<MatchId>
+& Remove<TournamentId>
+& Remove<IndexMatchIdDocumentType>
+& Remove<IndexByTournamentIdUserIdDocumentType>
+& Remove<InternalDocumentProperties>
+& Remove<Result>
+& {
+  point: number;
+};
 
 export type StandingResponse = StandingBase
-  & BetBase
-  & Remove<TournamentId>
-  & Remove<IndexTournamentIdDocumentType>
-  & Remove<InternalDocumentProperties>;
+& BetBase
+& Remove<TournamentId>
+& Remove<IndexTournamentIdDocumentType>
+& Remove<InternalDocumentProperties>;
 
 export type CompareResponse = {
   leftUserName: string

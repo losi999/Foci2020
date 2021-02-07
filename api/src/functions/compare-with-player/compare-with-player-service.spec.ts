@@ -48,7 +48,11 @@ describe('Compare with player service', () => {
     expect(mockDatabaseService.functions.queryBetsByTournamentIdUserId).toHaveBeenNthCalledWith(1, tournamentId, ownUserId);
     expect(mockDatabaseService.functions.queryBetsByTournamentIdUserId).toHaveBeenNthCalledWith(2, tournamentId, otherUserId);
     validateFunctionCall(mockIdentityService.functions.getUserName, otherUserId);
-    validateFunctionCall(mockCompareDocumentConverter.functions.toResponse, [match], { [match.id]: ownBet }, { [match.id]: otherBet }, ownUserName, otherUserName);
+    validateFunctionCall(mockCompareDocumentConverter.functions.toResponse, [match], {
+      [match.id]: ownBet, 
+    }, {
+      [match.id]: otherBet, 
+    }, ownUserName, otherUserName);
     expect.assertions(6);
   });
 

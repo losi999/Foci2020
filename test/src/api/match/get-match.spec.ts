@@ -25,14 +25,14 @@ describe('GET /match/v1/matches/{matchId}', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
     matchDocument = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(10).toISOString()
+      startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
   });
 

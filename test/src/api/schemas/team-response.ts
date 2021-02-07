@@ -6,15 +6,15 @@ const schema: JSONSchema7 = {
   additionalProperties: false,
   required: [
     ...teamRequest.required,
-    'teamId'
+    'teamId',
   ],
   properties: {
     ...teamRequest.properties,
     teamId: {
       type: 'string',
-      format: 'uuid'
-    }
-  }
+      format: 'uuid',
+    },
+  },
 };
 
 export default schema;

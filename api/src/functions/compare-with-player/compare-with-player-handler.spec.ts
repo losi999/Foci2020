@@ -20,16 +20,16 @@ describe('Compare with player handler', () => {
     body: JSON.stringify(bet),
     pathParameters: {
       tournamentId,
-      userId: otherUserId
+      userId: otherUserId,
     } as any,
     requestContext: {
       authorizer: {
         claims: {
           sub: ownUserId,
           nickname: ownUserName,
-        }
-      }
-    } as any
+        },
+      },
+    } as any,
   } as APIGatewayProxyEvent;
 
   it('should respond with error if compareWithPlayer throws error', async () => {
@@ -37,7 +37,7 @@ describe('Compare with player handler', () => {
     const message = 'This is an error';
     mockCompareWithPlayer.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

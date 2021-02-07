@@ -6,17 +6,19 @@ export default (deleteMatch: IDeleteMatchService): APIGatewayProxyHandler => {
   return async (event) => {
     const matchId = event.pathParameters.matchId as MatchIdType;
     try {
-      await deleteMatch({ matchId });
+      await deleteMatch({
+        matchId, 
+      });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
     return {
       statusCode: 200,
-      body: ''
+      body: '',
     };
   };
 };

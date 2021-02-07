@@ -11,13 +11,13 @@ describe('Registration schema', () => {
   beforeEach(() => {
     validatorService = validatorServiceFactory(new ajv({
       allErrors: true,
-      format: 'full'
+      format: 'full',
     }));
 
     data = {
       email: 'aaa@aaa.com',
       displayName: 'John',
-      password: 'asdfghjk'
+      password: 'asdfghjk',
     };
   });
 

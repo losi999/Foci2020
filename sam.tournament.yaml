@@ -48,7 +48,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Tournament-CreateTournament
-      CodeUri: api/dist/create-tournament
+      CodeUri: dist/api/create-tournament
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -64,7 +64,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Tournament-UpdateTournament
-      CodeUri: api/dist/update-tournament
+      CodeUri: dist/api/update-tournament
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -80,7 +80,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Tournament-ListTournaments
-      CodeUri: api/dist/list-tournaments
+      CodeUri: dist/api/list-tournaments
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -96,7 +96,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Tournament-GetTournament
-      CodeUri: api/dist/get-tournament
+      CodeUri: dist/api/get-tournament
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -112,7 +112,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Tournament-DeleteTournament
-      CodeUri: api/dist/delete-tournament
+      CodeUri: dist/api/delete-tournament
       Role: !Ref LambdaRoleArn
       Events:
         API:

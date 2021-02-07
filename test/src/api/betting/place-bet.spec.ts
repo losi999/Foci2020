@@ -25,14 +25,14 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
     pendingMatchDocument = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(15).toISOString()
+      startTime: addMinutes(15).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
 
     startedMatchDocument = matchDocumentConverter.create({
@@ -40,7 +40,7 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
       awayTeamId: homeTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'B csoport',
-      startTime: addMinutes(-10).toISOString()
+      startTime: addMinutes(-10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
 
     cy.saveMatchDocument(startedMatchDocument)
@@ -49,7 +49,7 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
 
   const bet: BetRequest = {
     homeScore: 1,
-    awayScore: 2
+    awayScore: 2,
   };
 
   describe('called as anonymous', () => {
@@ -97,7 +97,7 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
           cy.authenticate('player1')
             .requestPlaceBet(uuid(), {
               ...bet,
-              homeScore: undefined
+              homeScore: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('homeScore', 'body');
@@ -107,7 +107,7 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
           cy.authenticate('player1')
             .requestPlaceBet(uuid(), {
               ...bet,
-              homeScore: 'asd' as any
+              homeScore: 'asd' as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('homeScore', 'integer', 'body');
@@ -117,7 +117,7 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
           cy.authenticate('player1')
             .requestPlaceBet(uuid(), {
               ...bet,
-              homeScore: -1
+              homeScore: -1,
             })
             .expectBadRequestResponse()
             .expectTooSmallNumberProperty('homeScore', 0, 'body');
@@ -129,7 +129,7 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
           cy.authenticate('player1')
             .requestPlaceBet(uuid(), {
               ...bet,
-              awayScore: undefined
+              awayScore: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('awayScore', 'body');
@@ -139,7 +139,7 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
           cy.authenticate('player1')
             .requestPlaceBet(uuid(), {
               ...bet,
-              awayScore: 'asd' as any
+              awayScore: 'asd' as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('awayScore', 'integer', 'body');
@@ -149,7 +149,7 @@ describe('POST /betting/v1/matches/{matchId}/bets', () => {
           cy.authenticate('player1')
             .requestPlaceBet(uuid(), {
               ...bet,
-              awayScore: -1
+              awayScore: -1,
             })
             .expectBadRequestResponse()
             .expectTooSmallNumberProperty('awayScore', 0, 'body');

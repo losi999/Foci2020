@@ -21,7 +21,7 @@ export const tournamentDocumentConverterFactory = (uuid: v4String): ITournamentD
       return {
         ...tournamentDocument,
         ...internalDocumentPropertiesToRemove,
-        tournamentId: tournamentDocument.id
+        tournamentId: tournamentDocument.id,
       };
     },
     update: (tournamentId, tournamentRequest, expiresIn): TournamentDocument => {

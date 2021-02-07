@@ -11,5 +11,5 @@ const updateMatchService = updateMatchServiceFactory(databaseService, matchDocum
 
 export default authorizer('admin')(apiRequestValidator({
   body,
-  pathParameters
+  pathParameters,
 })(handler(updateMatchService)));

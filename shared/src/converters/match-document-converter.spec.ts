@@ -45,13 +45,19 @@ describe('Match document converter', () => {
   describe('create', () => {
     it('should return a match document', () => {
       const body = matchRequest();
-      const homeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType });
-      const awayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType });
+      const homeTeam = teamDocument({
+        id: 'homeTeamId' as TeamIdType, 
+      });
+      const awayTeam = teamDocument({
+        id: 'awayTeamId' as TeamIdType, 
+      });
       const tournament = tournamentDocument();
 
       mockUuid.mockReturnValue(matchId);
 
-      const expectedDocument = matchDocument({ modifiedAt: nowDate.toISOString() });
+      const expectedDocument = matchDocument({
+        modifiedAt: nowDate.toISOString(), 
+      });
 
       const result = converter.create(body, homeTeam, awayTeam, tournament, NaN);
       expect(result).toEqual(expectedDocument);
@@ -59,8 +65,12 @@ describe('Match document converter', () => {
 
     it('should return a match document with expiration date set if it is a test data', () => {
       const body = matchRequest();
-      const homeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType });
-      const awayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType });
+      const homeTeam = teamDocument({
+        id: 'homeTeamId' as TeamIdType, 
+      });
+      const awayTeam = teamDocument({
+        id: 'awayTeamId' as TeamIdType, 
+      });
       const tournament = tournamentDocument();
 
       mockUuid.mockReturnValue(matchId);
@@ -78,10 +88,16 @@ describe('Match document converter', () => {
   describe('update', () => {
     it('should return a match document for update', () => {
       const body = matchRequest();
-      const homeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType });
-      const awayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType });
+      const homeTeam = teamDocument({
+        id: 'homeTeamId' as TeamIdType, 
+      });
+      const awayTeam = teamDocument({
+        id: 'awayTeamId' as TeamIdType, 
+      });
       const tournament = tournamentDocument();
-      const expectedDocument = matchDocument({ modifiedAt: nowDate.toISOString() });
+      const expectedDocument = matchDocument({
+        modifiedAt: nowDate.toISOString(), 
+      });
 
       const result = converter.update(matchId, body, homeTeam, awayTeam, tournament, NaN);
       expect(result).toEqual(expectedDocument);
@@ -89,12 +105,16 @@ describe('Match document converter', () => {
 
     it('should return a match document for update with expiration date set if it is a test data', () => {
       const body = matchRequest();
-      const homeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType });
-      const awayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType });
+      const homeTeam = teamDocument({
+        id: 'homeTeamId' as TeamIdType, 
+      });
+      const awayTeam = teamDocument({
+        id: 'awayTeamId' as TeamIdType, 
+      });
       const tournament = tournamentDocument();
       const expectedDocument = matchDocument({
         expiresAt: now + 3600,
-        modifiedAt: nowDate.toISOString()
+        modifiedAt: nowDate.toISOString(),
       });
 
       const result = converter.update(matchId, body, homeTeam, awayTeam, tournament, 3600);

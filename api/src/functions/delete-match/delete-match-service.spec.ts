@@ -18,7 +18,9 @@ describe('Delete match service', () => {
   it('should return with undefined', async () => {
     mockDatabaseService.functions.deleteMatch.mockResolvedValue(undefined);
 
-    const result = await service({ matchId });
+    const result = await service({
+      matchId, 
+    });
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.deleteMatch, matchId);
   });
@@ -26,7 +28,9 @@ describe('Delete match service', () => {
   it('should throw error if unable to delete match', async () => {
     mockDatabaseService.functions.deleteMatch.mockRejectedValue('This is a dynamo error');
 
-    await service({ matchId }).catch(validateError('Unable to delete match', 500));
+    await service({
+      matchId, 
+    }).catch(validateError('Unable to delete match', 500));
     validateFunctionCall(mockDatabaseService.functions.deleteMatch, matchId);
     expect.assertions(3);
   });

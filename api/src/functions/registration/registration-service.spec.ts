@@ -18,7 +18,9 @@ describe('Registration service', () => {
 
     mockIdentityService.functions.register.mockResolvedValue(undefined);
 
-    const result = await service({ body });
+    const result = await service({
+      body, 
+    });
     expect(result).toBeUndefined();
     validateFunctionCall(mockIdentityService.functions.register, body, 'player');
   });
@@ -26,9 +28,13 @@ describe('Registration service', () => {
   it('should throw error if unable to register', async () => {
     const body = {} as RegistrationRequest;
 
-    mockIdentityService.functions.register.mockRejectedValue({ message: 'This is a cognito error' });
+    mockIdentityService.functions.register.mockRejectedValue({
+      message: 'This is a cognito error', 
+    });
 
-    await service({ body }).catch(validateError('This is a cognito error', 500));
+    await service({
+      body, 
+    }).catch(validateError('This is a cognito error', 500));
     validateFunctionCall(mockIdentityService.functions.register, body, 'player');
     expect.assertions(3);
   });

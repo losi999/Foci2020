@@ -31,7 +31,7 @@ describe('Update team service', () => {
     const result = await service({
       teamId,
       body,
-      expiresIn
+      expiresIn,
     });
     expect(result).toBeUndefined();
     validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body, expiresIn);
@@ -46,12 +46,14 @@ describe('Update team service', () => {
       const converted = teamDocument();
 
       mockTeamDocumentConverter.functions.update.mockReturnValue(converted);
-      mockDatabaseService.functions.updateTeam.mockRejectedValue({ code: 'ConditionalCheckFailedException' });
+      mockDatabaseService.functions.updateTeam.mockRejectedValue({
+        code: 'ConditionalCheckFailedException', 
+      });
 
       await service({
         teamId,
         body,
-        expiresIn
+        expiresIn,
       }).catch(validateError('No team found', 404));
       validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body, expiresIn);
       validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);
@@ -69,7 +71,7 @@ describe('Update team service', () => {
       await service({
         teamId,
         body,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Error while updating team', 500));
       validateFunctionCall(mockTeamDocumentConverter.functions.update, teamId, body, expiresIn);
       validateFunctionCall(mockDatabaseService.functions.updateTeam, converted);

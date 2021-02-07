@@ -10,19 +10,21 @@ export default (createTournament: ICreateTournamentService): APIGatewayProxyHand
     try {
       tournamentId = await createTournament({
         body,
-        expiresIn: Number(event.headers[headerExpiresIn])
+        expiresIn: Number(event.headers[headerExpiresIn]),
       });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ tournamentId })
+      body: JSON.stringify({
+        tournamentId, 
+      }),
     };
   };
 };

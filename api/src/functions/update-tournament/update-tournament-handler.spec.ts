@@ -11,7 +11,7 @@ describe('Update tournament handler', () => {
   const handlerEvent = {
     body: '{}',
     pathParameters: {},
-    headers: {}
+    headers: {},
   } as APIGatewayProxyEvent;
   it('should respond with error if updateTournament throws error', async () => {
 
@@ -19,7 +19,7 @@ describe('Update tournament handler', () => {
     const message = 'This is an error';
     mockUpdateTournamentService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await handler(mockUpdateTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;

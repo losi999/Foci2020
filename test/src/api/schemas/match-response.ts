@@ -20,18 +20,18 @@ const schema: JSONSchema7 = {
     tournament: tournamentResponse,
     group: {
       type: 'string',
-      minLength: 1
+      minLength: 1,
     },
     matchId: {
       type: 'string',
-      format: 'uuid'
+      format: 'uuid',
     },
     startTime: {
       type: 'string',
-      format: 'date-time'
+      format: 'date-time',
     },
-    finalScore: matchScore
-  }
+    finalScore: matchScore,
+  },
 };
 
 export default schema;

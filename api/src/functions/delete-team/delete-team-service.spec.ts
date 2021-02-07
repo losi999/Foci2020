@@ -19,7 +19,9 @@ describe('Delete team service', () => {
 
     mockDatabaseService.functions.deleteTeam.mockResolvedValue(undefined);
 
-    const result = await service({ teamId });
+    const result = await service({
+      teamId, 
+    });
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.deleteTeam, teamId);
     expect.assertions(2);
@@ -28,7 +30,9 @@ describe('Delete team service', () => {
   it('should throw error if unable to delete team', async () => {
     mockDatabaseService.functions.deleteTeam.mockRejectedValue('This is a dynamo error');
 
-    await service({ teamId }).catch(validateError('Unable to delete team', 500));
+    await service({
+      teamId, 
+    }).catch(validateError('Unable to delete team', 500));
     validateFunctionCall(mockDatabaseService.functions.deleteTeam, teamId);
     expect.assertions(3);
   });

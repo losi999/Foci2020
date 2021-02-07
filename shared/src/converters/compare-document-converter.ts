@@ -27,12 +27,12 @@ export const compareDocumentConverterFactory = (): ICompareDocumentConverter => 
           leftScore: leftBet ? {
             homeScore: leftBet.homeScore,
             awayScore: leftBet.awayScore,
-            result: leftBet.result
+            result: leftBet.result,
           } : undefined,
           rightScore: rightBet && showScore ? {
             homeScore: rightBet.homeScore,
             awayScore: rightBet.awayScore,
-            result: rightBet.result
+            result: rightBet.result,
           } : undefined,
         };
       });
@@ -40,7 +40,7 @@ export const compareDocumentConverterFactory = (): ICompareDocumentConverter => 
       return {
         leftUserName,
         rightUserName,
-        matches: compareMatches
+        matches: compareMatches,
       };
     },
   };

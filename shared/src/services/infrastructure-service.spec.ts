@@ -24,32 +24,36 @@ describe('Infrastructure service', () => {
         Outputs: [
           {
             OutputKey: 'PostDeploy1',
-            OutputValue: lambdaArn
-          }
-        ]
+            OutputValue: lambdaArn,
+          },
+        ],
       }] as Stack[];
-      mockCloudformation.functions.describeStacks.mockReturnValue(awsResolvedValue({ Stacks: stacks }));
+      mockCloudformation.functions.describeStacks.mockReturnValue(awsResolvedValue({
+        Stacks: stacks,
+      }));
 
       mockLambda.functions.invoke.mockReturnValue(awsResolvedValue(undefined));
 
       const result = await service.executePostDeployFunctions(stackName);
       expect(result).toBeUndefined();
       expect(mockCloudformation.functions.describeStacks).toHaveBeenCalledWith({
-        StackName: stackName
+        StackName: stackName,
       });
       expect(mockLambda.functions.invoke).toHaveBeenCalledWith({
-        FunctionName: lambdaArn
+        FunctionName: lambdaArn,
       });
       expect.assertions(3);
     });
 
     it('should throw error if unable to get stack outputs', async () => {
       const errorMessage = 'This is a cloudformation error';
-      mockCloudformation.functions.describeStacks.mockReturnValue(awsRejectedValue({ message: errorMessage }));
+      mockCloudformation.functions.describeStacks.mockReturnValue(awsRejectedValue({
+        message: errorMessage,
+      }));
 
       await service.executePostDeployFunctions(stackName).catch(validateError(errorMessage));
       expect(mockCloudformation.functions.describeStacks).toHaveBeenCalledWith({
-        StackName: stackName
+        StackName: stackName,
       });
       expect(mockLambda.functions.invoke).not.toHaveBeenCalled();
       expect.assertions(3);
@@ -61,21 +65,25 @@ describe('Infrastructure service', () => {
         Outputs: [
           {
             OutputKey: 'PostDeploy1',
-            OutputValue: lambdaArn
-          }
-        ]
+            OutputValue: lambdaArn,
+          },
+        ],
       }] as Stack[];
-      mockCloudformation.functions.describeStacks.mockReturnValue(awsResolvedValue({ Stacks: stacks }));
+      mockCloudformation.functions.describeStacks.mockReturnValue(awsResolvedValue({
+        Stacks: stacks,
+      }));
 
       const errorMessage = 'This is a cloudformation error';
-      mockLambda.functions.invoke.mockReturnValue(awsRejectedValue({ message: errorMessage }));
+      mockLambda.functions.invoke.mockReturnValue(awsRejectedValue({
+        message: errorMessage,
+      }));
 
       await service.executePostDeployFunctions(stackName).catch(validateError(errorMessage));
       expect(mockCloudformation.functions.describeStacks).toHaveBeenCalledWith({
-        StackName: stackName
+        StackName: stackName,
       });
       expect(mockLambda.functions.invoke).toHaveBeenCalledWith({
-        FunctionName: lambdaArn
+        FunctionName: lambdaArn,
       });
       expect.assertions(3);
     });

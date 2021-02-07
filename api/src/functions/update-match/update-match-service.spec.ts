@@ -30,14 +30,18 @@ describe('Update match service', () => {
 
   it('should return undefined if match is updated', async () => {
     const queriedMatch = matchDocument();
-    const queriedHomeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType, });
-    const queriedAwayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType, });
+    const queriedHomeTeam = teamDocument({
+      id: 'homeTeamId' as TeamIdType, 
+    });
+    const queriedAwayTeam = teamDocument({
+      id: 'awayTeamId' as TeamIdType, 
+    });
     const queriedTournament = tournamentDocument();
 
     const convertedMatch = matchDocument();
 
     const body = matchRequest({
-      startTime: addMinutes(5.1).toISOString()
+      startTime: addMinutes(5.1).toISOString(), 
     });
 
     mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
@@ -50,7 +54,7 @@ describe('Update match service', () => {
     const result = await service({
       body,
       matchId,
-      expiresIn
+      expiresIn,
     });
 
     expect(result).toBeUndefined();
@@ -66,13 +70,13 @@ describe('Update match service', () => {
   describe('should throw error', () => {
     it('if startTime is less than 5 minutes from now', async () => {
       const body = matchRequest({
-        startTime: addMinutes(4.9).toISOString()
+        startTime: addMinutes(4.9).toISOString(), 
       });
 
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Start time has to be at least 5 minutes from now', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById);
@@ -87,13 +91,13 @@ describe('Update match service', () => {
       const body = matchRequest({
         homeTeamId: 'sameTeamId' as TeamIdType,
         awayTeamId: 'sameTeamId' as TeamIdType,
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(),
       });
 
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Home and away teams cannot be the same', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById);
@@ -106,7 +110,7 @@ describe('Update match service', () => {
 
     it('if unable to query match', async () => {
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockRejectedValue('This is a dynamo error');
@@ -114,7 +118,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Unable to query match', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -127,7 +131,7 @@ describe('Update match service', () => {
 
     it('if no match found', async () => {
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(undefined);
@@ -135,7 +139,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('No match found', 404));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -150,11 +154,11 @@ describe('Update match service', () => {
       const queriedMatch = matchDocument({
         finalScore: {
           homeScore: 1,
-          awayScore: 2
-        }
+          awayScore: 2,
+        },
       });
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
@@ -162,7 +166,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Final score is already set for this match', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -176,7 +180,7 @@ describe('Update match service', () => {
     it('if unable to query home team', async () => {
       const queriedMatch = matchDocument();
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
@@ -185,7 +189,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Unable to query related document', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -199,10 +203,12 @@ describe('Update match service', () => {
 
     it('if unable to query away team', async () => {
       const queriedMatch = matchDocument();
-      const queriedHomeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType, });
+      const queriedHomeTeam = teamDocument({
+        id: 'homeTeamId' as TeamIdType, 
+      });
 
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
@@ -212,7 +218,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Unable to query related document', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -226,11 +232,15 @@ describe('Update match service', () => {
 
     it('if unable to query tournament', async () => {
       const queriedMatch = matchDocument();
-      const queriedHomeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType, });
-      const queriedAwayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType, });
+      const queriedHomeTeam = teamDocument({
+        id: 'homeTeamId' as TeamIdType, 
+      });
+      const queriedAwayTeam = teamDocument({
+        id: 'awayTeamId' as TeamIdType, 
+      });
 
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
@@ -241,7 +251,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Unable to query related document', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -256,7 +266,7 @@ describe('Update match service', () => {
     it('if no home team found', async () => {
       const queriedMatch = matchDocument();
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
@@ -265,7 +275,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Home team not found', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -279,10 +289,12 @@ describe('Update match service', () => {
 
     it('if no away team found', async () => {
       const queriedMatch = matchDocument();
-      const queriedHomeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType, });
+      const queriedHomeTeam = teamDocument({
+        id: 'homeTeamId' as TeamIdType, 
+      });
 
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
@@ -292,7 +304,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Away team not found', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -306,11 +318,15 @@ describe('Update match service', () => {
 
     it('if no tournament found', async () => {
       const queriedMatch = matchDocument();
-      const queriedHomeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType, });
-      const queriedAwayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType, });
+      const queriedHomeTeam = teamDocument({
+        id: 'homeTeamId' as TeamIdType, 
+      });
+      const queriedAwayTeam = teamDocument({
+        id: 'awayTeamId' as TeamIdType, 
+      });
 
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
@@ -321,7 +337,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Tournament not found', 400));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);
@@ -335,14 +351,18 @@ describe('Update match service', () => {
 
     it('if unable to update match', async () => {
       const queriedMatch = matchDocument();
-      const queriedHomeTeam = teamDocument({ id: 'homeTeamId' as TeamIdType, });
-      const queriedAwayTeam = teamDocument({ id: 'awayTeamId' as TeamIdType, });
+      const queriedHomeTeam = teamDocument({
+        id: 'homeTeamId' as TeamIdType, 
+      });
+      const queriedAwayTeam = teamDocument({
+        id: 'awayTeamId' as TeamIdType, 
+      });
       const queriedTournament = tournamentDocument();
 
       const convertedMatch = matchDocument();
 
       const body = matchRequest({
-        startTime: addMinutes(5.1).toISOString()
+        startTime: addMinutes(5.1).toISOString(), 
       });
 
       mockDatabaseService.functions.getMatchById.mockResolvedValue(queriedMatch);
@@ -355,7 +375,7 @@ describe('Update match service', () => {
       await service({
         body,
         matchId,
-        expiresIn
+        expiresIn,
       }).catch(validateError('Error while updating match', 500));
 
       validateFunctionCall(mockDatabaseService.functions.getMatchById, matchId);

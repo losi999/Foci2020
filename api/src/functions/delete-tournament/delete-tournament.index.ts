@@ -8,5 +8,5 @@ import { default as pathParameters } from '@foci2020/shared/schemas/tournament-i
 const deleteTournamentService = deleteTournamentServiceFactory(databaseService);
 
 export default authorizer('admin')(apiRequestValidator({
-  pathParameters
+  pathParameters, 
 })(handler(deleteTournamentService)));

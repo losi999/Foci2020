@@ -15,7 +15,7 @@ export const createTestUsersServiceFactory = (identityService: IIdentityService)
       await identityService.register({
         email,
         password: process.env.TEST_USER_PASSWORD,
-        displayName: `${userGroup}${index}`
+        displayName: `${userGroup}${index}`,
       }, userGroup);
     } catch (error) {
       if (error.code !== 'UsernameExistsException') {
@@ -26,7 +26,7 @@ export const createTestUsersServiceFactory = (identityService: IIdentityService)
   return async ({ numberOfAdmins, numberOfPlayers }) => {
     await Promise.all([
       ...[...Array(numberOfAdmins).keys()].map(x => createUser('admin', x + 1)),
-      ...[...Array(numberOfPlayers).keys()].map(x => createUser('player', x + 1))
+      ...[...Array(numberOfPlayers).keys()].map(x => createUser('player', x + 1)),
     ]);
   };
 };

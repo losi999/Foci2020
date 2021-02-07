@@ -20,7 +20,7 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
   let nothingBet: BetDocument;
   const finalScore: MatchFinalScoreRequest = {
     homeScore: 1,
-    awayScore: 2
+    awayScore: 2,
   };
   beforeEach(() => {
     homeTeamDocument = teamDocumentConverter.create({
@@ -34,14 +34,14 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
     matchDocument = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(-110).toISOString()
+      startTime: addMinutes(-110).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
 
     ongoingMatch = matchDocumentConverter.create({
@@ -49,24 +49,24 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(-100).toISOString()
+      startTime: addMinutes(-100).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
 
     exactMatchBet = betDocumentConverter.create(finalScore, uuid() as UserIdType, 'user', matchDocument.id, matchDocument.tournamentId, Cypress.env('EXPIRES_IN'));
 
     goalDifferenceBet = betDocumentConverter.create({
       homeScore: finalScore.homeScore + 1,
-      awayScore: finalScore.awayScore + 1
+      awayScore: finalScore.awayScore + 1,
     }, uuid() as UserIdType, 'user', matchDocument.id, matchDocument.tournamentId, Cypress.env('EXPIRES_IN'));
 
     outcomeBet = betDocumentConverter.create({
       homeScore: finalScore.homeScore * 2,
-      awayScore: finalScore.awayScore * 2
+      awayScore: finalScore.awayScore * 2,
     }, uuid() as UserIdType, 'user', matchDocument.id, matchDocument.tournamentId, Cypress.env('EXPIRES_IN'));
 
     nothingBet = betDocumentConverter.create({
       homeScore: finalScore.awayScore,
-      awayScore: finalScore.homeScore
+      awayScore: finalScore.homeScore,
     }, uuid() as UserIdType, 'user', matchDocument.id, matchDocument.tournamentId, Cypress.env('EXPIRES_IN'));
   });
 
@@ -133,19 +133,19 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
           .wait(2000)
           .validateStandingDocument(matchDocument.tournamentId, exactMatchBet.userId, {
             ...emptyResults,
-            exactMatch: 1
+            exactMatch: 1,
           })
           .validateStandingDocument(matchDocument.tournamentId, goalDifferenceBet.userId, {
             ...emptyResults,
-            goalDifference: 1
+            goalDifference: 1,
           })
           .validateStandingDocument(matchDocument.tournamentId, outcomeBet.userId, {
             ...emptyResults,
-            outcome: 1
+            outcome: 1,
           })
           .validateStandingDocument(matchDocument.tournamentId, nothingBet.userId, {
             ...emptyResults,
-            nothing: 1
+            nothing: 1,
           });
       });
     });
@@ -171,7 +171,7 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestSetFinalScoreOfMatch(matchDocument.id, {
               ...finalScore,
-              homeScore: undefined
+              homeScore: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('homeScore', 'body');
@@ -181,7 +181,7 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestSetFinalScoreOfMatch(matchDocument.id, {
               ...finalScore,
-              homeScore: 'a' as any
+              homeScore: 'a' as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('homeScore', 'integer', 'body');
@@ -191,7 +191,7 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestSetFinalScoreOfMatch(matchDocument.id, {
               ...finalScore,
-              homeScore: -1
+              homeScore: -1,
             })
             .expectBadRequestResponse()
             .expectTooSmallNumberProperty('homeScore', 0, 'body');
@@ -203,7 +203,7 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestSetFinalScoreOfMatch(matchDocument.id, {
               ...finalScore,
-              awayScore: undefined
+              awayScore: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('awayScore', 'body');
@@ -213,7 +213,7 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestSetFinalScoreOfMatch(matchDocument.id, {
               ...finalScore,
-              awayScore: 'a' as any
+              awayScore: 'a' as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('awayScore', 'integer', 'body');
@@ -223,7 +223,7 @@ describe('PATCH /match/v1/matches/{matchId}', () => {
           cy.authenticate('admin1')
             .requestSetFinalScoreOfMatch(matchDocument.id, {
               ...finalScore,
-              awayScore: -1
+              awayScore: -1,
             })
             .expectBadRequestResponse()
             .expectTooSmallNumberProperty('awayScore', 0, 'body');

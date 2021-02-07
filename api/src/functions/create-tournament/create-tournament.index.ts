@@ -9,5 +9,5 @@ import { createTournamentServiceFactory } from '@foci2020/api/functions/create-t
 const createTournamentService = createTournamentServiceFactory(databaseService, tournamentDocumentConverter);
 
 export default authorizer('admin')(apiRequestValidator({
-  body
+  body, 
 })(handler(createTournamentService)));

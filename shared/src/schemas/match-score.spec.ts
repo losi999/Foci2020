@@ -11,12 +11,12 @@ describe('Match score schema', () => {
   beforeEach(() => {
     validatorService = validatorServiceFactory(new ajv({
       allErrors: true,
-      format: 'full'
+      format: 'full',
     }));
 
     data = {
       homeScore: 1,
-      awayScore: 0
+      awayScore: 0,
     };
   });
 

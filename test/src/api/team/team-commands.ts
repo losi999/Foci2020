@@ -13,9 +13,9 @@ const requestCreateTeam = (idToken: string, team: TeamRequest) => {
     url: '/team/v1/teams',
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN'),
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -26,9 +26,9 @@ const requestUpdateTeam = (idToken: string, teamId: TeamIdType, team: TeamReques
     url: `/team/v1/teams/${teamId}`,
     headers: {
       Authorization: idToken,
-      [headerExpiresIn]: Cypress.env('EXPIRES_IN')
+      [headerExpiresIn]: Cypress.env('EXPIRES_IN'),
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -37,9 +37,9 @@ const requestDeleteTeam = (idToken: string, teamId: TeamIdType) => {
     method: 'DELETE',
     url: `/team/v1/teams/${teamId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -48,9 +48,9 @@ const requestGetTeam = (idToken: string, teamId: TeamIdType) => {
     method: 'GET',
     url: `/team/v1/teams/${teamId}`,
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
@@ -59,14 +59,16 @@ const requestGetTeamList = (idToken: string) => {
     method: 'GET',
     url: '/team/v1/teams',
     headers: {
-      Authorization: idToken
+      Authorization: idToken, 
     },
-    failOnStatusCode: false
+    failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
 };
 
 const saveTeamDocument = (document: TeamDocument): void => {
-  cy.log('Save team document', document).wrap(databaseService.saveTeam(document), { log: false });
+  cy.log('Save team document', document).wrap(databaseService.saveTeam(document), {
+    log: false, 
+  });
 };
 
 const validateTeamDocument = (response: TeamResponse, request: TeamRequest, teamId?: string) => {
@@ -97,16 +99,30 @@ const validateTeamDeleted = (teamId: TeamIdType) => {
 };
 
 export const setTeamCommands = () => {
-  Cypress.Commands.add('requestCreateTeam', { prevSubject: true }, requestCreateTeam);
-  Cypress.Commands.add('requestUpdateTeam', { prevSubject: true }, requestUpdateTeam);
-  Cypress.Commands.add('requestDeleteTeam', { prevSubject: true }, requestDeleteTeam);
-  Cypress.Commands.add('requestGetTeam', { prevSubject: true }, requestGetTeam);
-  Cypress.Commands.add('requestGetTeamList', { prevSubject: true }, requestGetTeamList);
+  Cypress.Commands.add('requestCreateTeam', {
+    prevSubject: true, 
+  }, requestCreateTeam);
+  Cypress.Commands.add('requestUpdateTeam', {
+    prevSubject: true, 
+  }, requestUpdateTeam);
+  Cypress.Commands.add('requestDeleteTeam', {
+    prevSubject: true, 
+  }, requestDeleteTeam);
+  Cypress.Commands.add('requestGetTeam', {
+    prevSubject: true, 
+  }, requestGetTeam);
+  Cypress.Commands.add('requestGetTeamList', {
+    prevSubject: true, 
+  }, requestGetTeamList);
 
   Cypress.Commands.add('saveTeamDocument', saveTeamDocument);
 
-  Cypress.Commands.add('validateTeamDocument', { prevSubject: true }, validateTeamDocument);
-  Cypress.Commands.add('validateTeamResponse', { prevSubject: true }, validateTeamResponse);
+  Cypress.Commands.add('validateTeamDocument', {
+    prevSubject: true, 
+  }, validateTeamDocument);
+  Cypress.Commands.add('validateTeamResponse', {
+    prevSubject: true, 
+  }, validateTeamResponse);
   Cypress.Commands.add('validateTeamDeleted', validateTeamDeleted);
 };
 

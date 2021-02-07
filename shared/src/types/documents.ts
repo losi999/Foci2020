@@ -38,36 +38,36 @@ export type IndexByTournamentIdUserIdDocumentType = {
 };
 
 export type TournamentDocument = TournamentBase
-  & InternalDocumentProperties<TournamentIdType, 'tournament'>;
+& InternalDocumentProperties<TournamentIdType, 'tournament'>;
 
 export type TeamDocument = TeamBase
-  & InternalDocumentProperties<TeamIdType, 'team'>;
+& InternalDocumentProperties<TeamIdType, 'team'>;
 
 export type MatchDocument = MatchBase
-  & MatchTeamIds
-  & TournamentId
-  & IndexHomeTeamIdDocumentType
-  & IndexAwayTeamIdDocumentType
-  & IndexTournamentIdDocumentType
-  & InternalDocumentProperties<MatchIdType, 'match'>
-  & {
-    homeTeam: TeamDocument;
-    awayTeam: TeamDocument;
-    tournament: TournamentDocument;
-    finalScore?: Score;
-  };
+& MatchTeamIds
+& TournamentId
+& IndexHomeTeamIdDocumentType
+& IndexAwayTeamIdDocumentType
+& IndexTournamentIdDocumentType
+& InternalDocumentProperties<MatchIdType, 'match'>
+& {
+  homeTeam: TeamDocument;
+  awayTeam: TeamDocument;
+  tournament: TournamentDocument;
+  finalScore?: Score;
+};
 
 export type BetDocument = Score
-  & BetBase
-  & MatchId
-  & TournamentId
-  & IndexMatchIdDocumentType
-  & IndexByTournamentIdUserIdDocumentType
-  & InternalDocumentProperties<string, 'bet'>
-  & Partial<Result>;
+& BetBase
+& MatchId
+& TournamentId
+& IndexMatchIdDocumentType
+& IndexByTournamentIdUserIdDocumentType
+& InternalDocumentProperties<string, 'bet'>
+& Partial<Result>;
 
 export type StandingDocument = StandingBase
-  & BetBase
-  & TournamentId
-  & IndexTournamentIdDocumentType
-  & InternalDocumentProperties<string, 'standing'>;
+& BetBase
+& TournamentId
+& IndexTournamentIdDocumentType
+& InternalDocumentProperties<string, 'standing'>;

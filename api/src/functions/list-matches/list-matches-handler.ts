@@ -11,12 +11,12 @@ export default (listMatches: IListMatchesService): APIGatewayProxyHandler => {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
     return {
       statusCode: 200,
-      body: JSON.stringify(matches)
+      body: JSON.stringify(matches),
     };
   };
 };

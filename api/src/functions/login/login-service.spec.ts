@@ -22,16 +22,18 @@ describe('Login service', () => {
     mockIdentityService.functions.login.mockResolvedValue({
       AuthenticationResult: {
         IdToken: idToken,
-        RefreshToken: refreshToken
-      }
+        RefreshToken: refreshToken,
+      },
     });
 
     const expectedResult: LoginResponse = {
       idToken,
-      refreshToken
+      refreshToken,
     };
 
-    const result = await service({ body });
+    const result = await service({
+      body, 
+    });
     expect(result).toEqual(expectedResult);
     validateFunctionCall(mockIdentityService.functions.login, body);
   });
@@ -39,9 +41,13 @@ describe('Login service', () => {
   it('should throw error if unable to login', async () => {
     const body = {} as LoginRequest;
 
-    mockIdentityService.functions.login.mockRejectedValue({ message: 'This is a cognito error' });
+    mockIdentityService.functions.login.mockRejectedValue({
+      message: 'This is a cognito error', 
+    });
 
-    await service({ body }).catch(validateError('This is a cognito error', 500));
+    await service({
+      body, 
+    }).catch(validateError('This is a cognito error', 500));
     validateFunctionCall(mockIdentityService.functions.login, body);
     expect.assertions(3);
   });

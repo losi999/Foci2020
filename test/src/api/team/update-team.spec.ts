@@ -11,13 +11,13 @@ describe('PUT /team/v1/teams/{teamId}', () => {
   const team: TeamRequest = {
     teamName: 'Magyarország',
     image: 'http://image.com/hun.png',
-    shortName: 'HUN'
+    shortName: 'HUN',
   };
 
   const teamToUpdate: TeamRequest = {
     teamName: 'to update',
     image: 'http://toupdate.com',
-    shortName: 'TUP'
+    shortName: 'TUP',
   };
 
   let homeTeamDocument: TeamDocument;
@@ -37,7 +37,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020'
+      tournamentName: 'EB 2020', 
     }, Cypress.env('EXPIRES_IN'));
 
     matchDocument = matchDocumentConverter.create({
@@ -45,7 +45,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
-      startTime: addMinutes(10).toISOString()
+      startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
   });
 
@@ -77,7 +77,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
     it('should update a team without image', () => {
       const request: TeamRequest = {
         ...team,
-        image: undefined
+        image: undefined,
       };
 
       cy.saveTeamDocument(homeTeamDocument)
@@ -119,7 +119,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           cy.authenticate('admin1')
             .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
-              teamName: undefined
+              teamName: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('teamName', 'body');
@@ -129,7 +129,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           cy.authenticate('admin1')
             .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
-              teamName: 1 as any
+              teamName: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('teamName', 'string', 'body');
@@ -141,7 +141,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           cy.authenticate('admin1')
             .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
-              image: 1 as any
+              image: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('image', 'string', 'body');
@@ -151,7 +151,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           cy.authenticate('admin1')
             .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
-              image: 'not.an.uri'
+              image: 'not.an.uri',
             })
             .expectBadRequestResponse()
             .expectWrongPropertyFormat('image', 'uri', 'body');
@@ -163,7 +163,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           cy.authenticate('admin1')
             .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
-              shortName: undefined
+              shortName: undefined,
             })
             .expectBadRequestResponse()
             .expectRequiredProperty('shortName', 'body');
@@ -173,7 +173,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           cy.authenticate('admin1')
             .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
-              shortName: 1 as any
+              shortName: 1 as any,
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('shortName', 'string', 'body');
@@ -183,7 +183,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           cy.authenticate('admin1')
             .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
-              shortName: 'AB'
+              shortName: 'AB',
             })
             .expectBadRequestResponse()
             .expectTooShortProperty('shortName', 3, 'body');
@@ -193,7 +193,7 @@ describe('PUT /team/v1/teams/{teamId}', () => {
           cy.authenticate('admin1')
             .requestUpdateTeam(uuid() as TeamIdType, {
               ...team,
-              shortName: 'ABCD'
+              shortName: 'ABCD',
             })
             .expectBadRequestResponse()
             .expectTooLongProperty('shortName', 3, 'body');

@@ -3,5 +3,5 @@ import { databaseServiceFactory } from '@foci2020/shared/services/database-servi
 
 export const databaseService = databaseServiceFactory({
   primaryTableName: process.env.DYNAMO_TABLE,
-  archiveTableName: process.env.ARCHIVE_TABLE
+  archiveTableName: process.env.ARCHIVE_TABLE,
 }, dynamoDbClient);

@@ -26,11 +26,36 @@ describe('Standing document converter', () => {
   describe('create', () => {
     it('should create a standing document', () => {
       const bets: BetDocument[] = [
-        betDocument({ userId, tournamentId, userName, result: 'nothing' }),
-        betDocument({ userId, tournamentId, userName, result: 'outcome' }),
-        betDocument({ userId, tournamentId, userName, result: 'goalDifference' }),
-        betDocument({ userId, tournamentId, userName, result: 'exactMatch' }),
-        betDocument({ userId, tournamentId, userName, result: 'outcome' }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'nothing',
+        }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'outcome',
+        }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'goalDifference',
+        }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'exactMatch',
+        }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'outcome',
+        }),
       ];
 
       const expectedDocument = standingDocument({
@@ -42,9 +67,9 @@ describe('Standing document converter', () => {
           nothing: 1,
           outcome: 2,
           goalDifference: 1,
-          exactMatch: 1
+          exactMatch: 1,
         },
-        modifiedAt: nowDate.toISOString()
+        modifiedAt: nowDate.toISOString(),
       });
 
       const result = converter.create(bets, NaN);
@@ -53,11 +78,36 @@ describe('Standing document converter', () => {
 
     it('should create a standing document with expiration date set if it is a test data', () => {
       const bets: BetDocument[] = [
-        betDocument({ userId, tournamentId, userName, result: 'nothing' }),
-        betDocument({ userId, tournamentId, userName, result: 'outcome' }),
-        betDocument({ userId, tournamentId, userName, result: 'goalDifference' }),
-        betDocument({ userId, tournamentId, userName, result: 'exactMatch' }),
-        betDocument({ userId, tournamentId, userName, result: 'outcome' }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'nothing',
+        }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'outcome',
+        }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'goalDifference',
+        }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'exactMatch',
+        }),
+        betDocument({
+          userId,
+          tournamentId,
+          userName,
+          result: 'outcome',
+        }),
       ];
 
       const expectedDocument = standingDocument({
@@ -69,10 +119,10 @@ describe('Standing document converter', () => {
           nothing: 1,
           outcome: 2,
           goalDifference: 1,
-          exactMatch: 1
+          exactMatch: 1,
         },
         expiresAt: now + 3600,
-        modifiedAt: nowDate.toISOString()
+        modifiedAt: nowDate.toISOString(),
       });
 
       const result = converter.create(bets, 3600);

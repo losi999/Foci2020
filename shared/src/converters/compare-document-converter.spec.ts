@@ -26,11 +26,18 @@ describe('Compare document converter', () => {
       it('if betting time is expired', () => {
         const match = matchDocument({
           startTime: addMinutes(4).toISOString(),
-          homeTeam: teamDocument({ image: homeFlag }),
-          awayTeam: teamDocument({ image: awayFlag })
+          homeTeam: teamDocument({
+            image: homeFlag, 
+          }),
+          awayTeam: teamDocument({
+            image: awayFlag, 
+          }),
         });
 
-        const otherBet = betDocument({ homeScore: 3, awayScore: 4 });
+        const otherBet = betDocument({
+          homeScore: 3,
+          awayScore: 4, 
+        });
 
         const expectedResult = compareResponse({
           leftUserName,
@@ -42,23 +49,35 @@ describe('Compare document converter', () => {
             rightScore: {
               homeScore: otherBet.homeScore,
               awayScore: otherBet.awayScore,
-            }
-          }]
+            },
+          }],
         });
 
-        const result = converter.toResponse([match], {}, { [match.id]: otherBet }, leftUserName, rightUserName);
+        const result = converter.toResponse([match], {}, {
+          [match.id]: otherBet, 
+        }, leftUserName, rightUserName);
         expect(result).toEqual(expectedResult);
       });
 
       it('if own player has already placed a bet', () => {
         const match = matchDocument({
           startTime: addMinutes(6).toISOString(),
-          homeTeam: teamDocument({ image: homeFlag }),
-          awayTeam: teamDocument({ image: awayFlag })
+          homeTeam: teamDocument({
+            image: homeFlag, 
+          }),
+          awayTeam: teamDocument({
+            image: awayFlag, 
+          }),
         });
 
-        const ownBet = betDocument({ homeScore: 1, awayScore: 2 });
-        const otherBet = betDocument({ homeScore: 3, awayScore: 4 });
+        const ownBet = betDocument({
+          homeScore: 1,
+          awayScore: 2, 
+        });
+        const otherBet = betDocument({
+          homeScore: 3,
+          awayScore: 4, 
+        });
 
         const expectedResult = compareResponse({
           leftUserName,
@@ -74,11 +93,15 @@ describe('Compare document converter', () => {
             rightScore: {
               homeScore: otherBet.homeScore,
               awayScore: otherBet.awayScore,
-            }
-          }]
+            },
+          }],
         });
 
-        const result = converter.toResponse([match], { [match.id]: ownBet }, { [match.id]: otherBet }, leftUserName, rightUserName);
+        const result = converter.toResponse([match], {
+          [match.id]: ownBet, 
+        }, {
+          [match.id]: otherBet, 
+        }, leftUserName, rightUserName);
         expect(result).toEqual(expectedResult);
       });
     });
@@ -86,11 +109,18 @@ describe('Compare document converter', () => {
     it('should hide other player bets', () => {
       const match = matchDocument({
         startTime: addMinutes(6).toISOString(),
-        homeTeam: teamDocument({ image: homeFlag }),
-        awayTeam: teamDocument({ image: awayFlag })
+        homeTeam: teamDocument({
+          image: homeFlag, 
+        }),
+        awayTeam: teamDocument({
+          image: awayFlag, 
+        }),
       });
 
-      const otherBet = betDocument({ homeScore: 3, awayScore: 4 });
+      const otherBet = betDocument({
+        homeScore: 3,
+        awayScore: 4, 
+      });
 
       const expectedResult = compareResponse({
         leftUserName,
@@ -99,10 +129,12 @@ describe('Compare document converter', () => {
           homeFlag,
           awayFlag,
           matchId: match.id,
-        }]
+        }],
       });
 
-      const result = converter.toResponse([match], {}, { [match.id]: otherBet }, leftUserName, rightUserName);
+      const result = converter.toResponse([match], {}, {
+        [match.id]: otherBet, 
+      }, leftUserName, rightUserName);
       expect(result).toEqual(expectedResult);
     });
   });

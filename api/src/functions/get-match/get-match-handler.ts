@@ -8,17 +8,19 @@ export default (getMatch: IGetMatchService): APIGatewayProxyHandler => {
     const matchId = event.pathParameters.matchId as MatchIdType;
     let match: MatchResponse;
     try {
-      match = await getMatch({ matchId });
+      match = await getMatch({
+        matchId, 
+      });
     } catch (error) {
       console.error(error);
       return {
         statusCode: error.statusCode,
-        body: error.message
+        body: error.message,
       };
     }
     return {
       statusCode: 200,
-      body: JSON.stringify(match)
+      body: JSON.stringify(match),
     };
   };
 };

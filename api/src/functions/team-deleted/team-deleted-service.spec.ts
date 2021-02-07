@@ -18,10 +18,10 @@ describe('Team deleted service', () => {
   const matchKey1 = 'match#1' as KeyType;
   const matchKey2 = 'match#2' as KeyType;
   const queriedHomeMatches: DocumentKey[] = [{
-    'documentType-id': matchKey1
+    'documentType-id': matchKey1, 
   }];
   const queriedAwayMatches: DocumentKey[] = [{
-    'documentType-id': matchKey2
+    'documentType-id': matchKey2, 
   }];
   const dynamoErrorMessage = 'This is a dynamo error';
 
@@ -30,7 +30,9 @@ describe('Team deleted service', () => {
     mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
     mockDatabaseService.functions.deleteDocuments.mockResolvedValue(undefined);
 
-    const result = await service({ teamId });
+    const result = await service({
+      teamId, 
+    });
 
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, teamId);
@@ -41,10 +43,14 @@ describe('Team deleted service', () => {
 
   describe('should throw error', () => {
     it('if unable to query matches by homeTeam Id', async () => {
-      mockDatabaseService.functions.queryMatchKeysByHomeTeamId.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.queryMatchKeysByHomeTeamId.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
       mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
 
-      await service({ teamId }).catch(validateError(dynamoErrorMessage));
+      await service({
+        teamId, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, teamId);
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByAwayTeamId, teamId);
@@ -54,9 +60,13 @@ describe('Team deleted service', () => {
 
     it('if unable to query matches by awayTeam Id', async () => {
       mockDatabaseService.functions.queryMatchKeysByHomeTeamId.mockResolvedValue(queriedHomeMatches);
-      mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ teamId }).catch(validateError(dynamoErrorMessage));
+      await service({
+        teamId, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, teamId);
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByAwayTeamId, teamId);
@@ -67,9 +77,13 @@ describe('Team deleted service', () => {
     it('if unable to delete matches', async () => {
       mockDatabaseService.functions.queryMatchKeysByHomeTeamId.mockResolvedValue(queriedHomeMatches);
       mockDatabaseService.functions.queryMatchKeysByAwayTeamId.mockResolvedValue(queriedAwayMatches);
-      mockDatabaseService.functions.deleteDocuments.mockRejectedValue({ message: dynamoErrorMessage });
+      mockDatabaseService.functions.deleteDocuments.mockRejectedValue({
+        message: dynamoErrorMessage, 
+      });
 
-      await service({ teamId }).catch(validateError(dynamoErrorMessage));
+      await service({
+        teamId, 
+      }).catch(validateError(dynamoErrorMessage));
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, teamId);
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByAwayTeamId, teamId);

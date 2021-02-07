@@ -18,7 +18,7 @@ export const listBetsOfMatchServiceFactory = (
   async ({ matchId, userId }) => {
     const [match, bets] = await Promise.all([
       databaseService.getMatchById(matchId),
-      databaseService.queryBetsByMatchId(matchId)
+      databaseService.queryBetsByMatchId(matchId),
     ]).catch((error) => {
       console.error('Query documents', error);
       throw httpError(500, 'Unable to query documents');

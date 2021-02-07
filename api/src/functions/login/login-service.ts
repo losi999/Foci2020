@@ -18,7 +18,7 @@ export const loginServiceFactory = (identityService: IIdentityService): ILoginSe
 
     return {
       idToken: loginResponse.AuthenticationResult.IdToken,
-      refreshToken: loginResponse.AuthenticationResult.RefreshToken
+      refreshToken: loginResponse.AuthenticationResult.RefreshToken,
     };
   };
 };

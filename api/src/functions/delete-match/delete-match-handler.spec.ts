@@ -11,14 +11,14 @@ describe('Delete match handler', () => {
   it('should respond with error if deleteMatch throws error', async () => {
     const handlerEvent = {
       pathParameters: {},
-      body: '{}'
+      body: '{}',
     } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
     mockDeleteMatchService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await handler(mockDeleteMatchService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
@@ -30,7 +30,7 @@ describe('Delete match handler', () => {
   it('should respond with HTTP 200 if deleteMatch executes successfully', async () => {
     const handlerEvent = {
       pathParameters: {},
-      body: '{}'
+      body: '{}',
     } as APIGatewayProxyEvent;
 
     mockDeleteMatchService.mockResolvedValue(undefined);

@@ -10,11 +10,11 @@ describe('MatchId schema', () => {
   beforeEach(() => {
     validatorService = validatorServiceFactory(new ajv({
       allErrors: true,
-      format: 'full'
+      format: 'full',
     }));
 
     data = {
-      matchId: '36ac8b1d-856a-4449-afa9-57390d82541c'
+      matchId: '36ac8b1d-856a-4449-afa9-57390d82541c', 
     };
   });
 

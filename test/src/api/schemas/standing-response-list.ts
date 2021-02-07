@@ -9,7 +9,7 @@ const schema: JSONSchema7 = {
       'total',
       'results',
       'userId',
-      'userName'
+      'userName',
     ],
     properties: {
       total: {
@@ -41,18 +41,18 @@ const schema: JSONSchema7 = {
             type: 'integer',
             minimum: 0,
           },
-        }
+        },
       },
       userId: {
         type: 'string',
-        format: 'uuid'
+        format: 'uuid',
       },
       userName: {
         type: 'string',
-        minLength: 1
-      }
-    }
-  }
+        minLength: 1,
+      },
+    },
+  },
 };
 
 export default schema;

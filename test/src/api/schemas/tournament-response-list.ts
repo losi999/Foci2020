@@ -3,7 +3,7 @@ import { default as tournamentResponse } from '@foci2020/test/api/schemas/tourna
 
 const schema: JSONSchema7 = {
   type: 'array',
-  items: tournamentResponse
+  items: tournamentResponse,
 };
 
 export default schema;

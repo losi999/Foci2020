@@ -12,14 +12,14 @@ describe('Get tournament handler', () => {
   it('should respond with error if getTournament throws error', async () => {
     const handlerEvent = {
       pathParameters: {},
-      body: '{}'
+      body: '{}',
     } as APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
     mockGetTournamentService.mockRejectedValue({
       statusCode,
-      message
+      message,
     });
 
     const response = await handler(mockGetTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
@@ -31,7 +31,7 @@ describe('Get tournament handler', () => {
   it('should respond with HTTP 200 and tournament if getTournament executes successfully', async () => {
     const handlerEvent = {
       pathParameters: {},
-      body: '{}'
+      body: '{}',
     } as APIGatewayProxyEvent;
     const tournament = tournamentResponse();
     mockGetTournamentService.mockResolvedValue(tournament);

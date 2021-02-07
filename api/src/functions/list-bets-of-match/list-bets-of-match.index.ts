@@ -9,5 +9,5 @@ import { authorizer } from '@foci2020/api/dependencies/handlers/authorizer-handl
 const listBetsOfMatchService = listBetsOfMatchServiceFactory(databaseService, betDocumentConverter);
 
 export default authorizer('player')(apiRequestValidator({
-  pathParameters
+  pathParameters, 
 })(handler(listBetsOfMatchService)));

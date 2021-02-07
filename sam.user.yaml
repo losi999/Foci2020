@@ -45,7 +45,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-User-Registration
-      CodeUri: api/dist/registration
+      CodeUri: dist/api/registration
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -59,7 +59,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-User-Login
-      CodeUri: api/dist/login
+      CodeUri: dist/api/login
       Role: !Ref LambdaRoleArn
       Events:
         API:

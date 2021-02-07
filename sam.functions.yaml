@@ -41,7 +41,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-PostDeploy
-      CodeUri: api/dist/post-deploy
+      CodeUri: dist/api/post-deploy
       Role: !Ref LambdaRoleArn
       Environment:
         Variables:
@@ -52,7 +52,7 @@ Resources:
     Condition: ShouldCreateTestUsers
     Properties:
       FunctionName: !Sub Foci2020-${Env}-CreateTestUsers
-      CodeUri: api/dist/create-test-users
+      CodeUri: dist/api/create-test-users
       Role: !Ref LambdaRoleArn
       Environment:
         Variables:
@@ -66,7 +66,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-PrimaryTableTrigger
-      CodeUri: api/dist/primary-table-trigger
+      CodeUri: dist/api/primary-table-trigger
       Role: !Ref LambdaRoleArn
       Environment:
         Variables:
@@ -92,7 +92,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-ArchiveDocument
-      CodeUri: api/dist/archive-document
+      CodeUri: dist/api/archive-document
       Role: !Ref LambdaRoleArn
       Environment:
         Variables:
@@ -107,7 +107,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-BetResultCalculated
-      CodeUri: api/dist/bet-result-calculated
+      CodeUri: dist/api/bet-result-calculated
       Role: !Ref LambdaRoleArn
       DeadLetterQueue:
         Type: SQS
@@ -119,7 +119,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-MatchDeleted
-      CodeUri: api/dist/match-deleted
+      CodeUri: dist/api/match-deleted
       Role: !Ref LambdaRoleArn
       DeadLetterQueue:
         Type: SQS
@@ -131,7 +131,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-MatchFinalScoreUpdated
-      CodeUri: api/dist/match-final-score-updated
+      CodeUri: dist/api/match-final-score-updated
       Role: !Ref LambdaRoleArn
       DeadLetterQueue:
         Type: SQS
@@ -143,7 +143,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-TeamDeleted
-      CodeUri: api/dist/team-deleted
+      CodeUri: dist/api/team-deleted
       Role: !Ref LambdaRoleArn
       DeadLetterQueue:
         Type: SQS
@@ -155,7 +155,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-TeamUpdated
-      CodeUri: api/dist/team-updated
+      CodeUri: dist/api/team-updated
       Role: !Ref LambdaRoleArn
       DeadLetterQueue:
         Type: SQS
@@ -167,7 +167,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-TournamentDeleted
-      CodeUri: api/dist/tournament-deleted
+      CodeUri: dist/api/tournament-deleted
       Role: !Ref LambdaRoleArn
       DeadLetterQueue:
         Type: SQS
@@ -179,7 +179,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-TournamentUpdated
-      CodeUri: api/dist/tournament-updated
+      CodeUri: dist/api/tournament-updated
       Role: !Ref LambdaRoleArn
       DeadLetterQueue:
         Type: SQS

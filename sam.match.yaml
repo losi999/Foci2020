@@ -48,7 +48,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Match-CreateMatch
-      CodeUri: api/dist/create-match
+      CodeUri: dist/api/create-match
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -64,7 +64,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Match-UpdateMatch
-      CodeUri: api/dist/update-match
+      CodeUri: dist/api/update-match
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -80,7 +80,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Match-SetFinalScoreOfMatch
-      CodeUri: api/dist/set-final-score-of-match
+      CodeUri: dist/api/set-final-score-of-match
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -96,7 +96,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Match-ListMatches
-      CodeUri: api/dist/list-matches
+      CodeUri: dist/api/list-matches
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -112,7 +112,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Match-GetMatch
-      CodeUri: api/dist/get-match
+      CodeUri: dist/api/get-match
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -128,7 +128,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub Foci2020-${Env}-Match-DeleteMatch
-      CodeUri: api/dist/delete-match
+      CodeUri: dist/api/delete-match
       Role: !Ref LambdaRoleArn
       Events:
         API:
@@ -139,7 +139,7 @@ Resources:
             Method: DELETE
             Auth:
               Authorizer: CognitoAuthorizer
-            
+
 Outputs:
   MatchApi:
     Description: "Foci 2020 Match API"

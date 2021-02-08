@@ -230,3 +230,7 @@ Outputs:
   FociApi:
     Description: "Foci 2020 API"
     Value: !Sub https://${Api.DomainName}
+  WebsiteBucket:
+    Value: !GetAtt Infrastructure.Outputs.WebsiteBucket
+  Database:
+    Value: !GetAtt Data.Outputs.Database

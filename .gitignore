@@ -3,7 +3,6 @@ coverage
 output
 dist
 
-*.js
 !webpack.config.js
 packaged.*.yaml
 
@@ -21,4 +20,3 @@ test/cypress
 .env
 samconfig.toml
 samconfig.*.toml
-!.eslintrc.js

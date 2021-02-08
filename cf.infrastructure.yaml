@@ -54,9 +54,32 @@ Resources:
       QueueName: !Sub Foci2020-${Env}-EventDeadLetterQueue
       MessageRetentionPeriod: 1209000
 
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+  WebSiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Id: Foci2020Policy
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub '${WebsiteBucket.Arn}/*'
+      Bucket: !Ref WebsiteBucket
+
 Outputs:
   LambdaRoleArn:
     Value: !GetAtt LambdaRole.Arn
   EventDeadLetterQueueArn:
     Value: !GetAtt EventDeadLetterQueue.Arn
+  WebsiteBucket:
+    Value: !Ref WebsiteBucket
 

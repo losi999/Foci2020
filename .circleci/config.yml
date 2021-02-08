@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  api_unit_test:
+  unit_test:
     docker:
       - image: circleci/node:12.13.1
     working_directory: ~/repo
@@ -12,20 +12,41 @@ jobs:
 
       - run:
           name: Installing dependencies
-          command: npm install
+          command: yarn install
 
       - save_cache:
           paths:
             - node_modules
           key: dependencies-{{ checksum "package.json" }}
 
+      - restore_cache:
+          name: Restoring dependecies from cache
+          key: web-dependencies-{{ checksum "web/package.json" }}
+
+      - run:
+          name: Installing dependencies
+          command: cd web && yarn install
+
+      - save_cache:
+          paths:
+            - web/node_modules
+          key: web-dependencies-{{ checksum "web/package.json" }}
+
       - run:
           name: Running API linter
-          command: npm run lint:api
+          command: yarn run lint:api
+
+      # - run:
+      #     name: Running Web linter
+      #     command: yarn run lint:web
 
       - run:
           name: Running API unit tests
-          command: npm run test:api
+          command: yarn run test:api
+
+      # - run:
+      #     name: Running Web unit tests
+      #     command: yarn run test:web
 
       - store_artifacts:
           path: coverage
@@ -33,12 +54,16 @@ jobs:
 
       - run:
           name: Build API
-          command: npm run build:api
+          command: yarn run build:api
+
+      - run:
+          name: Build Web
+          command: yarn run build:web
 
       - persist_to_workspace:
           root: ~/
           paths:
-            - repo/dist/api
+            - repo/dist
   api_deploy:
     parameters:
       env:
@@ -63,6 +88,27 @@ jobs:
       - run:
           name: Invoke Post deploy Lambda
           command: aws lambda invoke --function-name Foci2020-<<parameters.env>>-PostDeploy /dev/null
+      - run:
+          name: Get Database name
+          command: echo "export CYPRESS_DYNAMO_TABLE=$(aws cloudformation describe-stacks --stack-name foci2020-<<parameters.env>> --query "Stacks[0].Outputs[?OutputKey=='Database'].OutputValue" --output text)" >> env
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - repo/env
+  web_deploy:
+    parameters:
+      env:
+        type: string
+    docker:
+      - image: cibuilds/aws:1.16.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - deploy:
+          name: Web deploy
+          command: aws s3 sync dist/web s3://$(aws cloudformation describe-stacks --stack-name foci2020-<<parameters.env>> --query "Stacks[0].Outputs[?OutputKey=='WebsiteBucket'].OutputValue" --output text)
   test:
     parameters:
       env:
@@ -74,13 +120,15 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - restore_cache:
           name: Restoring dependecies from cache
           key: dependencies-{{ checksum "package.json" }}
 
       - run:
           name: Installing dependencies
-          command: npm install
+          command: yarn install
 
       - save_cache:
           paths:
@@ -93,7 +141,7 @@ jobs:
 
       - run:
           name: Installing test dependencies
-          command: cd test && npm install
+          command: cd test && yarn install
 
       - save_cache:
           paths:
@@ -102,8 +150,12 @@ jobs:
           key: test-dependencies-{{ checksum "test/package.json" }}
 
       - run:
+          name: Set environment variables
+          command: cat env >> $BASH_ENV
+
+      - run:
           name: Running tests
-          command: cd test && npm run test
+          command: cd test && yarn run test
 
       - store_artifacts:
           path: test/cypress/screenshots
@@ -112,14 +164,23 @@ workflows:
   version: 2.1
   api:
     jobs:
-      - api_unit_test
+      - unit_test
       - api_deploy:
           name: api_deploy_dev
           env: "DEV"
           cypress_password: ${CYPRESS_PASSWORD}
           admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
-            - api_unit_test
+            - unit_test
+          filters:
+            branches:
+              only:
+                - develop
+      - web_deploy:
+          name: web_deploy_dev
+          env: "DEV"
+          requires:
+            - unit_test
           filters:
             branches:
               only:
@@ -130,7 +191,16 @@ workflows:
           cypress_password: ${CYPRESS_PASSWORD}
           admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
-            - api_unit_test
+            - unit_test
+          filters:
+            branches:
+              only:
+                - release
+      - web_deploy:
+          name: web_deploy_uat
+          env: "UAT"
+          requires:
+            - unit_test
           filters:
             branches:
               only:
@@ -141,7 +211,16 @@ workflows:
           cypress_password: ""
           admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
-            - api_unit_test
+            - unit_test
+          filters:
+            branches:
+              only:
+                - master
+      - web_deploy:
+          name: web_deploy_prod
+          env: "PROD"
+          requires:
+            - unit_test
           filters:
             branches:
               only:
@@ -151,6 +230,7 @@ workflows:
           env: "DEV"
           requires:
             - api_deploy_dev
+            - web_deploy_dev
           filters:
             branches:
               only:
@@ -160,6 +240,7 @@ workflows:
           env: "UAT"
           requires:
             - api_deploy_uat
+            - web_deploy_uat
           filters:
             branches:
               only:

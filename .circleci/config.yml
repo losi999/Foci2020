@@ -180,7 +180,7 @@ workflows:
           name: web_deploy_dev
           env: "DEV"
           requires:
-            - unit_test
+            - api_deploy_dev
           filters:
             branches:
               only:
@@ -200,7 +200,7 @@ workflows:
           name: web_deploy_uat
           env: "UAT"
           requires:
-            - unit_test
+            - api_deploy_uat
           filters:
             branches:
               only:
@@ -220,7 +220,7 @@ workflows:
           name: web_deploy_prod
           env: "PROD"
           requires:
-            - unit_test
+            - api_deploy_prod
           filters:
             branches:
               only:
@@ -229,7 +229,6 @@ workflows:
           name: test_dev
           env: "DEV"
           requires:
-            - api_deploy_dev
             - web_deploy_dev
           filters:
             branches:
@@ -239,7 +238,6 @@ workflows:
           name: test_uat
           env: "UAT"
           requires:
-            - api_deploy_uat
             - web_deploy_uat
           filters:
             branches:

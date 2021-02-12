@@ -445,9 +445,11 @@ describe('Database service', () => {
 
   describe('queryMatchKeysByHomeTeamId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
-      const queriedItems = [{
-        'documentType-id': 'matchId', 
-      }] as DocumentKey[];
+      const queriedItems = [
+        {
+          'documentType-id': 'matchId', 
+        },
+      ] as DocumentKey[];
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
         Items: queriedItems, 
       }));
@@ -476,9 +478,11 @@ describe('Database service', () => {
 
   describe('queryMatchKeysByAwayTeamId', () => {
     it('should call dynamo.query with correct parameters and return queried data', async () => {
-      const queriedItems = [{
-        'documentType-id': 'matchId', 
-      }] as DocumentKey[];
+      const queriedItems = [
+        {
+          'documentType-id': 'matchId', 
+        },
+      ] as DocumentKey[];
       mockDynamoClient.functions.query.mockReturnValue(awsResolvedValue({
         Items: queriedItems, 
       }));

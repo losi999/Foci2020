@@ -20,14 +20,16 @@ describe('Infrastructure service', () => {
 
     it('should return undefined if post deploy functions are executed', async () => {
       const lambdaArn = 'lambda.arn';
-      const stacks = [{
-        Outputs: [
-          {
-            OutputKey: 'PostDeploy1',
-            OutputValue: lambdaArn,
-          },
-        ],
-      }] as Stack[];
+      const stacks = [
+        {
+          Outputs: [
+            {
+              OutputKey: 'PostDeploy1',
+              OutputValue: lambdaArn,
+            },
+          ],
+        },
+      ] as Stack[];
       mockCloudformation.functions.describeStacks.mockReturnValue(awsResolvedValue({
         Stacks: stacks,
       }));
@@ -61,14 +63,16 @@ describe('Infrastructure service', () => {
 
     it('should throw error if unable to execute function', async () => {
       const lambdaArn = 'lambda.arn';
-      const stacks = [{
-        Outputs: [
-          {
-            OutputKey: 'PostDeploy1',
-            OutputValue: lambdaArn,
-          },
-        ],
-      }] as Stack[];
+      const stacks = [
+        {
+          Outputs: [
+            {
+              OutputKey: 'PostDeploy1',
+              OutputValue: lambdaArn,
+            },
+          ],
+        },
+      ] as Stack[];
       mockCloudformation.functions.describeStacks.mockReturnValue(awsResolvedValue({
         Stacks: stacks,
       }));

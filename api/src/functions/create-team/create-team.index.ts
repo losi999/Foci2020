@@ -6,9 +6,10 @@ import { apiRequestValidator } from '@foci2020/api/dependencies/handlers/api-req
 import { authorizer } from '@foci2020/api/dependencies/handlers/authorizer-handler';
 import { default as body } from '@foci2020/shared/schemas/team';
 import { createTeamServiceFactory } from '@foci2020/api/functions/create-team/create-team-service';
+import { cors } from '@foci2020/api/dependencies/handlers/cors-handler';
 
 const createTeamService = createTeamServiceFactory(databaseService, teamDocumentConverter);
 
-export default authorizer('admin')(apiRequestValidator({
-  body, 
-})(handler(createTeamService)));
+export default cors(authorizer('admin')(apiRequestValidator({
+  body,
+})(handler(createTeamService))));

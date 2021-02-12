@@ -4,9 +4,10 @@ import { apiRequestValidator } from '@foci2020/api/dependencies/handlers/api-req
 import { authorizer } from '@foci2020/api/dependencies/handlers/authorizer-handler';
 import { deleteTeamServiceFactory } from '@foci2020/api/functions/delete-team/delete-team-service';
 import { default as pathParameters } from '@foci2020/shared/schemas/team-id';
+import { cors } from '@foci2020/api/dependencies/handlers/cors-handler';
 
 const deleteTeamService = deleteTeamServiceFactory(databaseService);
 
-export default authorizer('admin')(apiRequestValidator({
-  pathParameters, 
-})(handler(deleteTeamService)));
+export default cors(authorizer('admin')(apiRequestValidator({
+  pathParameters,
+})(handler(deleteTeamService))));

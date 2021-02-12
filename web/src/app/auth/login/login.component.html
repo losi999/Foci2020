@@ -1,0 +1,23 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div>
+    <label>
+      Email cím
+      <input placeholder="Email cím" type="email" formControlName="email">
+    </label>
+    <ng-container *ngIf="form.controls.email.touched">
+      <span *ngIf="form.controls.email.errors?.required">Kötelező</span>
+      <span *ngIf="form.controls.email.errors?.email">Nem email</span>
+    </ng-container>
+  </div>
+  <div>
+    <label>
+      Jelszó
+      <input placeholder="Jelszó" type="password" formControlName="password">
+    </label>
+    <ng-container *ngIf="form.controls.password.touched">
+      <span *ngIf="form.controls.password.errors?.required">Kötelező</span>
+      <span *ngIf="form.controls.password.errors?.minlength">Túl rövid</span>
+    </ng-container>
+  </div>
+  <button [disabled]="form.invalid" type="submit">Bejelentkezés</button>
+</form>

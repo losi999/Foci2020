@@ -12,11 +12,6 @@ Parameters:
     Type: String
 
 Globals:
-  Api:
-    Cors:
-      AllowMethods: "'*'"
-      AllowHeaders: "'*'"
-      AllowOrigin: "'*'"
   Function:
     Handler: index.default
     Runtime: nodejs12.x
@@ -34,6 +29,10 @@ Resources:
     Properties:
       Name: !Sub Foci2020-${Env}-User
       StageName: user
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
       TracingEnabled: true
       GatewayResponses:
         MISSING_AUTHENTICATION_TOKEN:

@@ -1,0 +1,21 @@
+@font-face {
+    font-family: "PFBeauSansPro-SemiBold";
+    src: url("assets/PFBeauSansPro-SemiBold.ttf");
+  }
+
+  @font-face {
+    font-family: "PFBeauSansPro-Regular";
+    src: url("assets/PFBeauSansPro-Regular.ttf");
+  }
+
+  body {
+    color: #2E2E2E;
+    margin: 0;
+  }
+
+  ul,
+  li,
+  p {
+    margin: 0;
+    padding: 0;
+  }

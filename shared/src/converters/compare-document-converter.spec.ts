@@ -42,15 +42,17 @@ describe('Compare document converter', () => {
         const expectedResult = compareResponse({
           leftUserName,
           rightUserName,
-          matches: [{
-            homeFlag,
-            awayFlag,
-            matchId: match.id,
-            rightScore: {
-              homeScore: otherBet.homeScore,
-              awayScore: otherBet.awayScore,
+          matches: [
+            {
+              homeFlag,
+              awayFlag,
+              matchId: match.id,
+              rightScore: {
+                homeScore: otherBet.homeScore,
+                awayScore: otherBet.awayScore,
+              },
             },
-          }],
+          ],
         });
 
         const result = converter.toResponse([match], {}, {
@@ -82,19 +84,21 @@ describe('Compare document converter', () => {
         const expectedResult = compareResponse({
           leftUserName,
           rightUserName,
-          matches: [{
-            homeFlag,
-            awayFlag,
-            matchId: match.id,
-            leftScore: {
-              homeScore: ownBet.homeScore,
-              awayScore: ownBet.awayScore,
+          matches: [
+            {
+              homeFlag,
+              awayFlag,
+              matchId: match.id,
+              leftScore: {
+                homeScore: ownBet.homeScore,
+                awayScore: ownBet.awayScore,
+              },
+              rightScore: {
+                homeScore: otherBet.homeScore,
+                awayScore: otherBet.awayScore,
+              },
             },
-            rightScore: {
-              homeScore: otherBet.homeScore,
-              awayScore: otherBet.awayScore,
-            },
-          }],
+          ],
         });
 
         const result = converter.toResponse([match], {
@@ -125,11 +129,13 @@ describe('Compare document converter', () => {
       const expectedResult = compareResponse({
         leftUserName,
         rightUserName,
-        matches: [{
-          homeFlag,
-          awayFlag,
-          matchId: match.id,
-        }],
+        matches: [
+          {
+            homeFlag,
+            awayFlag,
+            matchId: match.id,
+          },
+        ],
       });
 
       const result = converter.toResponse([match], {}, {

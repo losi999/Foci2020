@@ -1,0 +1,29 @@
+<div class="betting-match-list-item-row">
+  <div class="betting-match-list__match">
+    <div class="betting-match-list-item__location">Róma</div>
+    <div class="betting-match-list-item__group">{{match.group}}</div>
+    <div class="betting-match-list-item__home-flag">
+      <span>
+        <img [src]="match.homeTeam.image" alt="">
+      </span>
+    </div>
+    <div class="betting-match-list-item__home-name">{{match.homeTeam.teamName}}</div>
+    <div class="betting-match-list-item__away-flag">
+      <span>
+        <img [src]="match.awayTeam.image" alt="">
+      </span>
+    </div>
+    <div class="betting-match-list-item__away-name">{{match.awayTeam.teamName}}</div>
+    <div class="betting-match-list-item__time">{{match.startTime | date:'HH:mm'}}</div>
+  </div>
+  <!-- <div class="betting-match-list-item__expandable">
+      <div class="betting-match-list-item__bet-panel">
+          <input class="betting-match-list-item__home-input" type="number" min="0" placeholder="TUR">
+          <input class="betting-match-list-item__away-input" type="number" min="0" placeholder="ITA">
+          <input class="betting-match-list-item__ok" type="button" value="OK">
+      </div>
+  </div>
+  <div class="betting-match-list-item__indicator">
+      <i class="fas fa-caret-up"></i>
+  </div> -->
+</div>

@@ -17,12 +17,16 @@ describe('Team deleted service', () => {
   const teamId = 'teamId' as TeamIdType;
   const matchKey1 = 'match#1' as KeyType;
   const matchKey2 = 'match#2' as KeyType;
-  const queriedHomeMatches: DocumentKey[] = [{
-    'documentType-id': matchKey1, 
-  }];
-  const queriedAwayMatches: DocumentKey[] = [{
-    'documentType-id': matchKey2, 
-  }];
+  const queriedHomeMatches: DocumentKey[] = [
+    {
+      'documentType-id': matchKey1, 
+    },
+  ];
+  const queriedAwayMatches: DocumentKey[] = [
+    {
+      'documentType-id': matchKey2, 
+    },
+  ];
   const dynamoErrorMessage = 'This is a dynamo error';
 
   it('should return undefined if matches are deleted successfully', async () => {
@@ -37,7 +41,10 @@ describe('Team deleted service', () => {
     expect(result).toBeUndefined();
     validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, teamId);
     validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByAwayTeamId, teamId);
-    validateFunctionCall(mockDatabaseService.functions.deleteDocuments, [matchKey1, matchKey2]);
+    validateFunctionCall(mockDatabaseService.functions.deleteDocuments, [
+      matchKey1,
+      matchKey2,
+    ]);
     expect.assertions(4);
   });
 
@@ -87,7 +94,10 @@ describe('Team deleted service', () => {
 
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByHomeTeamId, teamId);
       validateFunctionCall(mockDatabaseService.functions.queryMatchKeysByAwayTeamId, teamId);
-      validateFunctionCall(mockDatabaseService.functions.deleteDocuments, [matchKey1, matchKey2]);
+      validateFunctionCall(mockDatabaseService.functions.deleteDocuments, [
+        matchKey1,
+        matchKey2,
+      ]);
       expect.assertions(4);
     });
   });

@@ -42,7 +42,8 @@ describe('Notification service', () => {
           {
             Name: 'nickname',
             Value: displayName,
-          }],
+          },
+        ],
       });
       expect(mockCognito.functions.adminAddUserToGroup).toHaveBeenCalledWith({
         UserPoolId: userPoolId,
@@ -88,10 +89,12 @@ describe('Notification service', () => {
       const userId = 'userId' as UserIdType;
 
       mockCognito.functions.adminGetUser.mockReturnValue(awsResolvedValue({
-        UserAttributes: [{
-          Name: 'nickname',
-          Value: nickname,
-        }],
+        UserAttributes: [
+          {
+            Name: 'nickname',
+            Value: nickname,
+          },
+        ],
       }));
 
       const result = await service.getUserName(userId);

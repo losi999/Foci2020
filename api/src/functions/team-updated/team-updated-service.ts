@@ -7,7 +7,10 @@ export interface ITeamUpdatedService {
 
 export const teamUpdatedServiceFactory = (databaseService: IDatabaseService): ITeamUpdatedService => {
   return async ({ team }) => {
-    const [homeMatches, awayMatches] = await Promise.all([
+    const [
+      homeMatches,
+      awayMatches,
+    ] = await Promise.all([
       databaseService.queryMatchKeysByHomeTeamId(team.id),
       databaseService.queryMatchKeysByAwayTeamId(team.id),
     ]).catch((error) => {

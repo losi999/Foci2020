@@ -1,0 +1,115 @@
+.betting-match-list-item-row{
+  padding: 5px 10px;
+}
+
+.betting-match-list__match {
+  display: grid;
+  font-family: "PFBeauSansPro-Regular";
+  padding-top: 5px;
+  border-top: 1px solid #b8c3c9;
+}
+
+.betting-match-list-item__location {
+  grid-area: location;
+}
+
+.betting-match-list-item__group {
+  grid-area: group;
+  justify-self: end;
+}
+
+.betting-match-list-item__home-flag, .betting-match-list-item__away-flag {
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  overflow: hidden;
+  text-align: center;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #b8c3c9;
+  align-self: center;
+  justify-self: center;
+}
+
+.betting-match-list-item__home-flag span,
+.betting-match-list-item__away-flag span{
+  display: block;
+  width: 195px;
+  height: 100%;
+  margin-left: -80px;
+}
+
+.betting-match-list-item__home-flag img,
+.betting-match-list-item__away-flag img {
+  height: 100%;
+  display: inline-block;
+}
+
+.betting-match-list-item__home-flag {
+  grid-area: home-flag;
+}
+
+.betting-match-list-item__away-flag {
+  grid-area: away-flag;
+}
+
+.betting-match-list-item__home-name {
+  grid-area: home-name;
+  align-self: center;
+}
+
+.betting-match-list-item__away-name {
+  grid-area: away-name;
+  align-self: center;
+}
+
+.betting-match-list-item__time {
+  grid-area: time;
+  align-self: center;
+}
+
+.betting-match-list-item__indicator {
+  text-align: center;
+}
+
+@media (max-width: 425px) {
+  .betting-match-list__match {
+      grid-template-columns: 40px auto auto;
+      grid-template-rows: auto 40px 40px;
+      grid-template-areas:
+      "location location location group"
+      "home-flag home-name home-name time"
+      "away-flag away-name away-name time";
+  }
+
+  .betting-match-list-item__home-name, .betting-match-list-item__away-name {
+      margin-left: 10px;
+  }
+
+  .betting-match-list-item__time {
+      justify-self: end;
+  }
+}
+
+@media (min-width: 426px) {
+  .betting-match-list__match {
+      grid-template-columns: 1fr 40px 60px  40px 1fr;
+      grid-template-rows: auto 40px;
+      grid-template-areas:
+      "location location countdown group group"
+      "home-name home-flag time away-flag away-name";
+  }
+
+  .betting-match-list-item__time {
+      justify-self: center;
+  }
+
+  .betting-match-list-item__away-name {
+      margin-left: 10px;
+  }
+
+  .betting-match-list-item__home-name {
+      justify-self: end;
+      margin-right: 10px;
+  }
+}

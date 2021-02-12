@@ -38,7 +38,11 @@ export const updateMatchServiceFactory = (
       throw httpError(400, 'Final score is already set for this match');
     }
 
-    const [homeTeam, awayTeam, tournament] = await Promise.all([
+    const [
+      homeTeam,
+      awayTeam,
+      tournament,
+    ] = await Promise.all([
       databaseService.getTeamById(body.homeTeamId),
       databaseService.getTeamById(body.awayTeamId),
       databaseService.getTournamentById(body.tournamentId),

@@ -32,7 +32,8 @@ export const identityServiceFactory = (
           {
             Name: 'nickname',
             Value: body.displayName,
-          }],
+          },
+        ],
       }).promise();
 
       await cognito.adminAddUserToGroup({

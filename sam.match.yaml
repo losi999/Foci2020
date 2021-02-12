@@ -12,11 +12,6 @@ Parameters:
     Type: String
 
 Globals:
-  Api:
-    Cors:
-      AllowMethods: "'*'"
-      AllowHeaders: "'*'"
-      AllowOrigin: "'*'"
   Function:
     Handler: index.default
     Runtime: nodejs12.x
@@ -34,6 +29,10 @@ Resources:
       Name: !Sub Foci2020-${Env}-Match
       StageName: match
       TracingEnabled: true
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
       Auth:
         Authorizers:
           CognitoAuthorizer:

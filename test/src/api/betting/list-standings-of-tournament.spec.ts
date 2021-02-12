@@ -28,14 +28,18 @@ describe('GET /betting/v1/tournaments/{tournamentId}/standings', () => {
       awayScore: 2,
     }, uuid() as UserIdType, 'user2', uuid() as MatchIdType, tournamentDocument.id, Cypress.env('EXPIRES_IN'));
 
-    higherStandingDocument = standingDocumentConverter.create([betDocumentConverter.calculateResult(exactMatchBet, {
-      homeScore: 1,
-      awayScore: 2,
-    })], Cypress.env('EXPIRES_IN'));
-    lowerStandingDocument = standingDocumentConverter.create([betDocumentConverter.calculateResult(outcomeBet, {
-      homeScore: 3,
-      awayScore: 5,
-    })], Cypress.env('EXPIRES_IN'));
+    higherStandingDocument = standingDocumentConverter.create([
+      betDocumentConverter.calculateResult(exactMatchBet, {
+        homeScore: 1,
+        awayScore: 2,
+      }),
+    ], Cypress.env('EXPIRES_IN'));
+    lowerStandingDocument = standingDocumentConverter.create([
+      betDocumentConverter.calculateResult(outcomeBet, {
+        homeScore: 3,
+        awayScore: 5,
+      }),
+    ], Cypress.env('EXPIRES_IN'));
   });
 
   describe('called as anonymous', () => {
@@ -63,7 +67,10 @@ describe('GET /betting/v1/tournaments/{tournamentId}/standings', () => {
         .requestGetStandingListOfTournament(tournamentDocument.id)
         .expectOkResponse()
         .expectValidResponseSchema(schema)
-        .validateStandingResponse([higherStandingDocument, lowerStandingDocument]);
+        .validateStandingResponse([
+          higherStandingDocument,
+          lowerStandingDocument,
+        ]);
     });
 
     describe('should return error', () => {

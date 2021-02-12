@@ -35,14 +35,18 @@ describe('List bets of match service', () => {
         startTime: addMinutes(6, now).toISOString(), 
       }));
 
-      const queriedBets = [betDocument({
-        userId: userId2, 
-      })];
+      const queriedBets = [
+        betDocument({
+          userId: userId2, 
+        }),
+      ];
       mockDatabaseService.functions.queryBetsByMatchId.mockResolvedValue(queriedBets);
 
-      const convertedResponse = [betResponse({
-        userId: userId2, 
-      })];
+      const convertedResponse = [
+        betResponse({
+          userId: userId2, 
+        }),
+      ];
       mockBetDocumentConverter.functions.toResponseList.mockReturnValue(convertedResponse);
 
       const result = await service({
@@ -61,14 +65,18 @@ describe('List bets of match service', () => {
         startTime: addMinutes(4, now).toISOString(), 
       }));
 
-      const queriedBets = [betDocument({
-        userId: userId2, 
-      })];
+      const queriedBets = [
+        betDocument({
+          userId: userId2, 
+        }),
+      ];
       mockDatabaseService.functions.queryBetsByMatchId.mockResolvedValue(queriedBets);
 
-      const convertedResponse = [betResponse({
-        userId: userId2, 
-      })];
+      const convertedResponse = [
+        betResponse({
+          userId: userId2, 
+        }),
+      ];
       mockBetDocumentConverter.functions.toResponseList.mockReturnValue(convertedResponse);
 
       const result = await service({

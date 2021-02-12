@@ -37,9 +37,7 @@ const schema: JSONSchema7 = {
           leftScore: {
             type: 'object',
             additionalProperties: false,
-            required: [
-              ...matchScore.required,
-            ],
+            required: [...matchScore.required],
             properties: {
               ...matchScore.properties,
               result: {
@@ -56,9 +54,7 @@ const schema: JSONSchema7 = {
           rightScore: {
             type: 'object',
             additionalProperties: false,
-            required: [
-              ...matchScore.required,
-            ],
+            required: [...matchScore.required],
             properties: {
               ...matchScore.properties,
               result: {

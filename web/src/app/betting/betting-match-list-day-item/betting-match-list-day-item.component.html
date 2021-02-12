@@ -1,0 +1,4 @@
+<div class="betting-match-list__date">
+  {{day | date:'yyyy. MMMM d., EEEE':'0000':'hu'}}
+</div>
+<app-betting-match-list-match-item *ngFor="let m of matches" [match]="m"></app-betting-match-list-match-item>

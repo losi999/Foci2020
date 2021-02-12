@@ -5,9 +5,10 @@ import { databaseService } from '@foci2020/shared/dependencies/services/database
 import { betDocumentConverter } from '@foci2020/shared/dependencies/converters/bet-document-converter';
 import { apiRequestValidator } from '@foci2020/api/dependencies/handlers/api-request-validator-handler';
 import { authorizer } from '@foci2020/api/dependencies/handlers/authorizer-handler';
+import { cors } from '@foci2020/api/dependencies/handlers/cors-handler';
 
 const listBetsOfMatchService = listBetsOfMatchServiceFactory(databaseService, betDocumentConverter);
 
-export default authorizer('player')(apiRequestValidator({
-  pathParameters, 
-})(handler(listBetsOfMatchService)));
+export default cors(authorizer('player')(apiRequestValidator({
+  pathParameters,
+})(handler(listBetsOfMatchService))));

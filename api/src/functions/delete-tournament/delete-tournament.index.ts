@@ -4,9 +4,10 @@ import { apiRequestValidator } from '@foci2020/api/dependencies/handlers/api-req
 import { authorizer } from '@foci2020/api/dependencies/handlers/authorizer-handler';
 import { deleteTournamentServiceFactory } from '@foci2020/api/functions/delete-tournament/delete-tournament-service';
 import { default as pathParameters } from '@foci2020/shared/schemas/tournament-id';
+import { cors } from '@foci2020/api/dependencies/handlers/cors-handler';
 
 const deleteTournamentService = deleteTournamentServiceFactory(databaseService);
 
-export default authorizer('admin')(apiRequestValidator({
-  pathParameters, 
-})(handler(deleteTournamentService)));
+export default cors(authorizer('admin')(apiRequestValidator({
+  pathParameters,
+})(handler(deleteTournamentService))));

@@ -1,1 +1,32 @@
-<p>team-form works!</p>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div>
+    <label>
+      Név
+      <input placeholder="Név" type="text" formControlName="teamName">
+    </label>
+    <ng-container *ngIf="form.controls.teamName.touched">
+      <span *ngIf="form.controls.teamName.errors?.required">Kötelező</span>
+    </ng-container>
+  </div>
+  <div>
+    <label>
+      Rövidítés
+      <input placeholder="Rövidítés" type="text" formControlName="shortName">
+    </label>
+    <ng-container *ngIf="form.controls.shortName.touched">
+      <span *ngIf="form.controls.shortName.errors?.required">Kötelező</span>
+      <span *ngIf="form.controls.shortName.errors?.minLength">Túl rövid</span>
+      <span *ngIf="form.controls.shortName.errors?.maxLength">Túl hosszú</span>
+    </ng-container>
+  </div>
+  <div>
+    <label>
+      Kép
+      <input placeholder="Kép" type="text" formControlName="image">
+    </label>
+    <ng-container *ngIf="form.controls.image.touched">
+      <span *ngIf="form.controls.image.errors?.required">Kötelező</span>
+    </ng-container>
+  </div>
+  <button [disabled]="form.invalid" type="submit">Mentés</button>
+</form>

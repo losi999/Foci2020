@@ -5,23 +5,24 @@ import { environment } from 'src/environments/environment';
 import { LoginRequest, RegistrationRequest }from '@foci2020/shared/types/requests';
 import { LoginResponse }from '@foci2020/shared/types/responses';
 import { default as jwtDecode } from 'jwt-decode';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private router: Router) { }
 
-  get indexRedirect(): string {
+  redirect(): void {
     if(this.isPlayer) {
-      return '/';
+      this.router.navigate(['/']);
     }
     if(this.isAdmin) {
-      return '/admin';
+      this.router.navigate(['/admin']);
     }
     if(!this.isLoggedIn) {
-      return '/login';
+      this.router.navigate(['/login']);
     }
   }
 
@@ -47,6 +48,7 @@ export class AuthService {
       next: (data) => {
         console.log(data);
         localStorage.setItem('idToken', data.idToken);
+        this.redirect();
       },
       error: (error) => {
         console.log(error);
@@ -71,5 +73,6 @@ export class AuthService {
 
   public logout() {
     localStorage.removeItem('idToken');
+    this.redirect();
   }
 }

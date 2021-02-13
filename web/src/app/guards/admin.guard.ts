@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanLoad, Router, UrlTree } from '@angular/router';
+import { CanLoad, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
 
@@ -7,15 +7,11 @@ import { AuthService } from 'src/app/auth/auth.service';
   providedIn: 'root',
 })
 export class AdminGuard implements CanLoad {
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService) { }
 
   canLoad(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    if(!this.authService.isLoggedIn) {
-      this.router.navigate(['/login']);
-      return false;
-    }
     if(!this.authService.isAdmin) {
-      this.router.navigate(['/']);
+      this.authService.redirect();
       return false;
     }
 

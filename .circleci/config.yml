@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  unit_test:
+  install:
     docker:
       - image: circleci/node:12.13.1
     working_directory: ~/repo
@@ -8,7 +8,7 @@ jobs:
       - checkout
       - restore_cache:
           name: Restoring dependecies from cache
-          key: dependencies-{{ checksum "package.json" }}
+          key: dependencies-v1-{{ checksum "package.json" }}
 
       - run:
           name: Installing dependencies
@@ -17,11 +17,11 @@ jobs:
       - save_cache:
           paths:
             - node_modules
-          key: dependencies-{{ checksum "package.json" }}
+          key: dependencies-v1-{{ checksum "package.json" }}
 
       - restore_cache:
-          name: Restoring dependecies from cache
-          key: web-dependencies-{{ checksum "web/package.json" }}
+          name: Restoring web dependecies from cache
+          key: web-dependencies-v1-{{ checksum "web/package.json" }}
 
       - run:
           name: Installing dependencies
@@ -30,15 +30,33 @@ jobs:
       - save_cache:
           paths:
             - web/node_modules
-          key: web-dependencies-{{ checksum "web/package.json" }}
+          key: web-dependencies-v1-{{ checksum "web/package.json" }}
+
+      - restore_cache:
+          name: Restoring test dependencies from cache
+          key: test-dependencies-v1-{{ checksum "test/package.json" }}
 
       - run:
-          name: Running API linter
-          command: yarn lint:api
+          name: Installing test dependencies
+          command: cd test && yarn
 
-      # - run:
-      #     name: Running Web linter
-      #     command: yarn lint:web
+      - save_cache:
+          paths:
+            - test/node_modules
+            - /root/.cache/Cypress
+          key: test-dependencies-v1-{{ checksum "test/package.json" }}
+
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - repo
+  unit_test:
+    docker:
+      - image: circleci/node:12.13.1
+    working_directory: ~/repo
+    steps:
+      - attach_workspace:
+          at: ~/
 
       - run:
           name: Running API unit tests
@@ -51,14 +69,39 @@ jobs:
       - store_artifacts:
           path: coverage
           destination: coverage
+  lint:
+    docker:
+      - image: circleci/node:12.13.1
+    working_directory: ~/repo
+    steps:
+      - attach_workspace:
+          at: ~/
+
+      - run:
+          name: Running API linter
+          command: yarn lint:api
+
+      # - run:
+      #     name: Running Web linter
+      #     command: yarn lint:web
+  build:
+    parameters:
+      env:
+        type: string
+    docker:
+      - image: circleci/node:12.13.1
+    working_directory: ~/repo
+    steps:
+      - attach_workspace:
+          at: ~/
 
       - run:
           name: Build API
           command: yarn build:api
 
-      # - run:
-      #     name: Build Web
-      #     command: yarn build:web
+      - run:
+          name: Build Web
+          command: yarn build:web -c <<parameters.env>>
 
       - persist_to_workspace:
           root: ~/
@@ -76,7 +119,6 @@ jobs:
       - image: cibuilds/aws:1.16.1
     working_directory: ~/repo
     steps:
-      - checkout
       - attach_workspace:
           at: ~/
       - deploy:
@@ -103,7 +145,6 @@ jobs:
       - image: cibuilds/aws:1.16.1
     working_directory: ~/repo
     steps:
-      - checkout
       - attach_workspace:
           at: ~/
       - deploy:
@@ -119,35 +160,12 @@ jobs:
           ENV: <<parameters.env>>
     working_directory: ~/repo
     steps:
-      - checkout
       - attach_workspace:
           at: ~/
-      - restore_cache:
-          name: Restoring dependecies from cache
-          key: dependencies-{{ checksum "package.json" }}
-
-      - run:
-          name: Installing dependencies
-          command: yarn install
-
-      - save_cache:
-          paths:
-            - node_modules
-          key: dependencies-{{ checksum "package.json" }}
 
       - restore_cache:
           name: Restoring test dependencies from cache
-          key: test-dependencies-{{ checksum "test/package.json" }}
-
-      - run:
-          name: Installing test dependencies
-          command: cd test && yarn install
-
-      - save_cache:
-          paths:
-            - test/node_modules
-            - /root/.cache/Cypress
-          key: test-dependencies-{{ checksum "test/package.json" }}
+          key: test-dependencies-v1-{{ checksum "test/package.json" }}
 
       - run:
           name: Set environment variables
@@ -162,84 +180,137 @@ jobs:
           destination: test/cypress/screenshots
 workflows:
   version: 2.1
-  api:
+  local:
     jobs:
-      - unit_test
+      - install
+      - unit_test:
+          name: unit_test
+          requires:
+            - install
+      - lint:
+          name: lint
+          requires:
+            - install
+      - build:
+          name: build
+          env: "LOCAL"
+          requires:
+            - install
+  dev:
+    jobs:
+      - install:
+          name: install
+          filters:
+            branches:
+              only:
+                - develop
+      - unit_test:
+          name: unit_test
+          requires:
+            - install
+      - lint:
+          name: lint
+          requires:
+            - install
+      - build:
+          name: build
+          env: "DEV"
+          requires:
+            - install
       - api_deploy:
-          name: api_deploy_dev
+          name: api_deploy
           env: "DEV"
           cypress_password: ${CYPRESS_PASSWORD}
           admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
             - unit_test
-          filters:
-            branches:
-              only:
-                - develop
+            - lint
+            - build
       - web_deploy:
-          name: web_deploy_dev
+          name: web_deploy
           env: "DEV"
           requires:
-            - api_deploy_dev
+            - api_deploy
+      - test:
+          name: test
+          env: "DEV"
+          requires:
+            - web_deploy
+
+  uat:
+    jobs:
+      - install:
+          name: install
           filters:
             branches:
               only:
-                - develop
+                - release
+      - unit_test:
+          name: unit_test
+          requires:
+            - install
+      - lint:
+          name: lint
+          requires:
+            - install
+      - build:
+          name: build
+          env: "UAT"
+          requires:
+            - install
       - api_deploy:
-          name: api_deploy_uat
+          name: api_deploy
           env: "UAT"
           cypress_password: ${CYPRESS_PASSWORD}
           admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
             - unit_test
-          filters:
-            branches:
-              only:
-                - release
+            - lint
+            - build
       - web_deploy:
-          name: web_deploy_uat
+          name: web_deploy
           env: "UAT"
           requires:
-            - api_deploy_uat
+            - api_deploy
+      - test:
+          name: test
+          env: "UAT"
+          requires:
+            - web_deploy
+
+  prod:
+    jobs:
+      - install:
+          name: install
           filters:
             branches:
               only:
-                - release
+                - master
+      - unit_test:
+          name: unit_test
+          requires:
+            - install
+      - lint:
+          name: lint
+          requires:
+            - install
+      - build:
+          name: build
+          env: "PROD"
+          requires:
+            - install
       - api_deploy:
-          name: api_deploy_prod
+          name: api_deploy
           env: "PROD"
           cypress_password: ""
           admin_user_email: ${ADMIN_USER_EMAIL}
           requires:
             - unit_test
-          filters:
-            branches:
-              only:
-                - master
+            - lint
+            - build
       - web_deploy:
-          name: web_deploy_prod
+          name: web_deploy
           env: "PROD"
           requires:
-            - api_deploy_prod
-          filters:
-            branches:
-              only:
-                - master
-      - test:
-          name: test_dev
-          env: "DEV"
-          requires:
-            - web_deploy_dev
-          filters:
-            branches:
-              only:
-                - develop
-      - test:
-          name: test_uat
-          env: "UAT"
-          requires:
-            - web_deploy_uat
-          filters:
-            branches:
-              only:
-                - release
+            - api_deploy
+

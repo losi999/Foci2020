@@ -4,9 +4,10 @@
   "scripts": {
     "samconfig": "cp samconfig.${ENV}.toml samconfig.toml",
     "deploy:api:LOCAL": "export ENV=LOCAL && yarn samconfig && sam deploy -t cf.foci2020.yaml --profile losonczil && yarn postdeploy --profile losonczil",
-    "deploy:api:CI": "export ENV=CI && yarn samconfig && sam deploy -t cf.foci2020.yaml -profile ci && yarn postdeploy --profile ci",
+    "deploy:api:CI": "export ENV=CI && yarn samconfig && sam deploy -t cf.foci2020.yaml --profile ci && yarn postdeploy --profile ci",
     "postdeploy": "aws lambda invoke --function-name Foci2020-${ENV}-PostDeploy /dev/null",
     "build:api": "rimraf ./dist/api && webpack",
+    "build:web": "rimraf ./dist/web && cd web && yarn build",
     "build:web:LOCAL": "export ENV=LOCAL && rimraf ./dist/web && cd web && yarn build -c ${ENV}",
     "build:web:CI": "export ENV=CI && rimraf ./dist/web && cd web && yarn build -c ${ENV}",
     "deploy:web:LOCAL": "export ENV=LOCAL && aws s3 sync dist/web s3://$(aws cloudformation describe-stacks --stack-name foci2020-${ENV} --query \"Stacks[0].Outputs[?OutputKey=='WebsiteBucket'].OutputValue\" --output text --profile losonczil) --profile losonczil",

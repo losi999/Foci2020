@@ -1,42 +1,53 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div>
-    <label>
-      Email cím
-      <input placeholder="Email cím" type="email" formControlName="email">
-    </label>
-    <ng-container *ngIf="form.controls.email.touched">
-      <span *ngIf="form.controls.email.errors?.required">Kötelező</span>
-      <span *ngIf="form.controls.email.errors?.email">Nem email</span>
-    </ng-container>
-  </div>
-  <div>
-    <label>
-      Jelszó
-      <input placeholder="Jelszó" type="password" formControlName="password">
-    </label>
-    <ng-container *ngIf="form.controls.password.touched">
-      <span *ngIf="form.controls.password.errors?.required">Kötelező</span>
-      <span *ngIf="form.controls.password.errors?.minlength">Túl rövid</span>
-    </ng-container>
-  </div>
-  <div>
-    <label>
-      Jelszó újra
-      <input placeholder="Jelszó újra" type="password" formControlName="passwordConfirm">
-    </label>
-    <ng-container *ngIf="form.controls.passwordConfirm.touched">
-      <span *ngIf="form.controls.passwordConfirm.errors?.required">Kötelező</span>
-      <span *ngIf="form.errors?.passwordsNotMatch">Jelszavak nem egyeznek</span>
-    </ng-container>
-  </div>
-  <div>
-    <label>
-      Megjelenítendő név
-      <input placeholder="Megjelenítendő név" type="text" formControlName="displayName">
-    </label>
-    <ng-container *ngIf="form.controls.displayName.touched">
-      <span *ngIf="form.controls.displayName.errors?.required">Kötelező</span>
-    </ng-container>
-  </div>
-  <button [disabled]="form.invalid" type="submit">Regisztráció</button>
-</form>
+<div class="registration-panel">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="email">
+        Email cím
+      </label>
+      <input placeholder="Email cím" type="email" formControlName="email" id="email" class="form-control"
+        [ngClass]="{'is-invalid' : form.controls.email.touched && form.controls.email.invalid}">
+      <ng-container *ngIf="form.controls.email.touched">
+        <span class="invalid-feedback" *ngIf="form.controls.email.errors?.required">Email megadása kötelező</span>
+        <span class="invalid-feedback" *ngIf="form.controls.email.errors?.email">Helytelen formátum</span>
+      </ng-container>
+    </div>
+    <div class="form-group">
+      <label for="password">
+        Jelszó
+      </label>
+      <input placeholder="Jelszó" type="password" formControlName="password" id="password" class="form-control"
+        [ngClass]="{'is-invalid' : form.controls.password.touched && form.controls.password.invalid}">
+      <ng-container *ngIf="form.controls.password.touched">
+        <span class="invalid-feedback" *ngIf="form.controls.password.errors?.required">Jelszó megadása kötelező</span>
+        <span class="invalid-feedback" *ngIf="form.controls.password.errors?.minlength">Minimum 6 karakter hosszú jelszó
+          szükséges</span>
+      </ng-container>
+    </div>
+    <div class="form-group">
+      <label for="passwordConfirm">
+        Jelszó újra
+      </label>
+      <input placeholder="Jelszó újra" type="password" formControlName="passwordConfirm" id="passwordConfirm"
+        class="form-control"
+        [ngClass]="{'is-invalid' : form.controls.passwordConfirm.touched && form.controls.passwordConfirm.invalid}">
+      <ng-container *ngIf="form.controls.passwordConfirm.touched">
+        <span class="invalid-feedback" *ngIf="form.controls.passwordConfirm.errors?.required">Jelszó megadása
+          kötelező</span>
+        <span class="invalid-feedback" *ngIf="form.errors?.passwordsNotMatch">Jelszavak nem egyeznek</span>
+      </ng-container>
+    </div>
+    <div class="form-group">
+      <label for="displayName">
+        Megjelenítendő név
+      </label>
+      <input placeholder="Megjelenítendő név" type="text" formControlName="displayName" id="displayName"
+        class="form-control"
+        [ngClass]="{'is-invalid' : form.controls.displayName.touched && form.controls.displayName.invalid}">
+      <ng-container *ngIf="form.controls.displayName.touched">
+        <span class="invalid-feedback" *ngIf="form.controls.displayName.errors?.required">Megjelenítendő név megadása kötelező</span>
+      </ng-container>
+    </div>
+    <button [disabled]="form.invalid" type="submit" class="btn btn-primary">Regisztráció</button>
+  </form>
+  <button class="btn btn-link registration-panel__login" [routerLink]="['/login']">Bejelentkezés</button>
+</div>

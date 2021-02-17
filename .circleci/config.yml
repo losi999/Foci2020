@@ -12,7 +12,7 @@ jobs:
 
       - run:
           name: Installing dependencies
-          command: yarn install
+          command: yarn
 
       - save_cache:
           paths:
@@ -25,7 +25,7 @@ jobs:
 
       - run:
           name: Installing dependencies
-          command: cd web && yarn install
+          command: cd web && yarn
 
       - save_cache:
           paths:
@@ -34,19 +34,19 @@ jobs:
 
       - run:
           name: Running API linter
-          command: yarn run lint:api
+          command: yarn lint:api
 
       # - run:
       #     name: Running Web linter
-      #     command: yarn run lint:web
+      #     command: yarn lint:web
 
       - run:
           name: Running API unit tests
-          command: yarn run test:api
+          command: yarn test:api
 
       # - run:
       #     name: Running Web unit tests
-      #     command: yarn run test:web
+      #     command: yarn test:web
 
       - store_artifacts:
           path: coverage
@@ -54,11 +54,11 @@ jobs:
 
       - run:
           name: Build API
-          command: yarn run build:api
+          command: yarn build:api
 
-      - run:
-          name: Build Web
-          command: yarn run build:web
+      # - run:
+      #     name: Build Web
+      #     command: yarn build:web
 
       - persist_to_workspace:
           root: ~/

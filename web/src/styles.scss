@@ -1,3 +1,5 @@
+@import "~bootstrap/scss/bootstrap";
+
 @font-face {
     font-family: "PFBeauSansPro-SemiBold";
     src: url("assets/PFBeauSansPro-SemiBold.ttf");
@@ -19,3 +21,6 @@
     margin: 0;
     padding: 0;
   }
+
+/* Importing Bootstrap SCSS file. */
+@import '~bootstrap/scss/bootstrap';

@@ -1,1 +1,62 @@
-<p>match-form works!</p>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="homeTeam">
+      Hazai csapat
+      <select formControlName="homeTeamId" class="custom-select" id="homeTeam">
+        <option *ngFor="let t of teams" [ngValue]="t.teamId">{{t.teamName}}</option>
+      </select>
+    </label>
+    <ng-container *ngIf="form.controls.homeTeamId.touched">
+      <span *ngIf="form.controls.homeTeamId.errors?.required">Kötelező</span>
+    </ng-container>
+  </div>
+  <div class="form-group">
+    <label for="awayTeam">
+      Vendég csapat
+      <select formControlName="awayTeamId" class="custom-select" id="awayTeam">
+        <option *ngFor="let t of teams" [ngValue]="t.teamId">{{t.teamName}}</option>
+      </select>
+    </label>
+    <ng-container *ngIf="form.controls.awayTeamId.touched">
+      <span *ngIf="form.controls.awayTeamId.errors?.required">Kötelező</span>
+    </ng-container>
+  </div>
+  <div class="form-group">
+    <label for="tournament">
+      Torna
+      <select formControlName="tournamentId" class="custom-select" id="tournament">
+        <option *ngFor="let t of tournaments" [ngValue]="t.tournamentId">{{t.tournamentName}}</option>
+      </select>
+    </label>
+    <ng-container *ngIf="form.controls.tournamentId.touched">
+      <span *ngIf="form.controls.tournamentId.errors?.required">Kötelező</span>
+    </ng-container>
+  </div>
+  <div class="form-group">
+    <label for="group">
+      Csoport
+      <input type="text" class="form-control" formControlName="group" id="group">
+    </label>
+    <ng-container *ngIf="form.controls.group.touched">
+      <span *ngIf="form.controls.group.errors?.required">Kötelező</span>
+    </ng-container>
+  </div>
+  <div class="form-group">
+    <label>
+      Dátum
+      <div class="input-group">
+        <input class="form-control" formControlName="startDate" ngbDatepicker #d="ngbDatepicker" />
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary bi bi-calendar-date" (click)="d.toggle()" type="button"></button>
+        </div>
+      </div>
+      <ngb-timepicker formControlName="startTime"></ngb-timepicker>
+    </label>
+    <!-- <ng-container *ngIf="form.controls.shortName.touched">
+      <span *ngIf="form.controls.shortName.errors?.required">Kötelező</span>
+      <span *ngIf="form.controls.shortName.errors?.minLength">Túl rövid</span>
+      <span *ngIf="form.controls.shortName.errors?.maxLength">Túl hosszú</span>
+    </ng-container> -->
+  </div>
+  <button type="submit">Mentés</button>
+</form>

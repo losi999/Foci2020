@@ -34,7 +34,7 @@ module.exports = {
         }],
         'object-curly-spacing': ['error', 'always'],
         '@typescript-eslint/indent': ['error', 2],
-        '@typescript-eslint/quotes': ["error", "single"],
+        '@typescript-eslint/quotes': ['error', 'single'],
         'prefer-template': 'error',
         '@typescript-eslint/no-extra-semi': 'error',
         'newline-per-chained-call': 'error',
@@ -48,5 +48,6 @@ module.exports = {
         'array-bracket-newline': 'error',
         'array-element-newline': 'error',
         'quote-props': ['error', 'as-needed'],
+        'space-infix-ops': 'error'
     }
 };

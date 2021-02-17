@@ -10,9 +10,9 @@ import { TournamentService } from 'src/app/tournament/tournament.service';
   providedIn: 'root',
 })
 export class TournamentListResolver implements Resolve<TournamentResponse[]> {
-  constructor(private tournamentSevice: TournamentService) {}
+  constructor(private tournamentService: TournamentService) {}
 
   resolve(): Observable<TournamentResponse[]> {
-    return this.tournamentSevice.listTournaments();
+    return this.tournamentService.listTournaments();
   }
 }

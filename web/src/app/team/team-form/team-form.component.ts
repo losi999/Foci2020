@@ -20,12 +20,12 @@ export class TeamFormComponent implements OnInit {
   ngOnInit(): void {
     this.form = new FormGroup({
       teamName: new FormControl(this.team?.teamName, [Validators.required]),
-      shortName: new FormControl(this.team?.teamName, [
+      shortName: new FormControl(this.team?.shortName, [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(3),
       ]),
-      image: new FormControl(this.team?.teamName, [Validators.required]),
+      image: new FormControl(this.team?.image, [Validators.required]),
     });
   }
 

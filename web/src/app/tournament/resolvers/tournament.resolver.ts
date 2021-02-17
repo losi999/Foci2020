@@ -12,9 +12,9 @@ import { TournamentService } from 'src/app/tournament/tournament.service';
   providedIn: 'root',
 })
 export class TournamentResolver implements Resolve<TournamentResponse> {
-  constructor(private tournamentSevice: TournamentService) {}
+  constructor(private tournamentService: TournamentService) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<TournamentResponse> {
-    return this.tournamentSevice.getTournament(route.paramMap.get('tournamentId') as TournamentIdType);
+    return this.tournamentService.getTournament(route.paramMap.get('tournamentId') as TournamentIdType);
   }
 }

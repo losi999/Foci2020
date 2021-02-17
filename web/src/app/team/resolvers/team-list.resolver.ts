@@ -10,9 +10,9 @@ import { TeamService } from 'src/app/team/team.service';
   providedIn: 'root',
 })
 export class TeamListResolver implements Resolve<TeamResponse[]> {
-  constructor(private teamSevice: TeamService) {}
+  constructor(private teamService: TeamService) {}
 
   resolve(): Observable<TeamResponse[]> {
-    return this.teamSevice.listTeams();
+    return this.teamService.listTeams();
   }
 }

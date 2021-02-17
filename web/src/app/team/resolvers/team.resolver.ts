@@ -12,9 +12,9 @@ import { TeamService } from 'src/app/team/team.service';
   providedIn: 'root',
 })
 export class TeamResolver implements Resolve<TeamResponse> {
-  constructor(private teamSevice: TeamService) {}
+  constructor(private teamService: TeamService) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<TeamResponse> {
-    return this.teamSevice.getTeam(route.paramMap.get('teamId') as TeamIdType);
+    return this.teamService.getTeam(route.paramMap.get('teamId') as TeamIdType);
   }
 }

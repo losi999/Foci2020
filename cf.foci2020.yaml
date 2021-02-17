@@ -94,7 +94,7 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
-        Comment: !Ref Env
+        Comment: !Sub "${Env}-API"
         Enabled: true
         PriceClass: PriceClass_100
         DefaultCacheBehavior:
@@ -226,10 +226,37 @@ Resources:
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
 
+  Website:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: !Sub "${Env}-Web"
+        Enabled: true
+        PriceClass: PriceClass_100
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+          MinTTL: 0
+          MaxTTL: 0
+          DefaultTTL: 0
+          TargetOriginId: Web
+          ForwardedValues:
+            QueryString: true
+        Origins:
+          - DomainName: !Sub ${Infrastructure.Outputs.WebsiteBucket}.s3-website-${AWS::Region}.${AWS::URLSuffix}
+            Id: Web
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+
 Outputs:
   FociApi:
     Description: "Foci 2020 API"
     Value: !Sub https://${Api.DomainName}
+  FociWeb:
+    Description: "Foci 2020 Web"
+    Value: !Sub https://${Website.DomainName}
   WebsiteBucket:
     Value: !GetAtt Infrastructure.Outputs.WebsiteBucket
   Database:

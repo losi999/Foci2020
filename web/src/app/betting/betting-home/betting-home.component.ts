@@ -17,7 +17,7 @@ export class BettingHomeComponent implements OnInit {
     this.matches = (this.activatedRoute.snapshot.data.matchList as MatchResponse[]).reduce<{
       [date: string]: MatchResponse[]
     }>((accumulator, currentValue) => {
-      const date = currentValue.startTime.split('T')[0];
+      const date = new Date(currentValue.startTime.split('T')[0]).toISOString();
       if(!accumulator[date]) {
         accumulator[date] = [];
       }

@@ -5,6 +5,8 @@ import { MatchListItemComponent } from './match-list-item/match-list-item.compon
 import { MatchFormComponent } from './match-form/match-form.component';
 import { MatchHomeComponent } from './match-home/match-home.component';
 import { MatchRoutingModule } from 'src/app/match/match-routing.module';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NgbDatepickerModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -16,6 +18,9 @@ import { MatchRoutingModule } from 'src/app/match/match-routing.module';
   imports: [
     CommonModule,
     MatchRoutingModule,
+    ReactiveFormsModule,
+    NgbDatepickerModule,
+    NgbTimepickerModule,
   ],
 })
 export class MatchModule { }

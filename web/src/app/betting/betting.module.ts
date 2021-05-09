@@ -12,6 +12,8 @@ import { BettingMatchBetPanelComponent } from './betting-match-bet-panel/betting
 import { BettingMatchBetListComponent } from './betting-match-bet-list/betting-match-bet-list.component';
 import { BettingMatchOwnBetComponent } from './betting-match-own-bet/betting-match-own-bet.component';
 import { BetResultToCssClassPipe } from '../pipes/bet-result-to-css-class.pipe';
+import { StandingsListComponent } from './standings-list/standings-list.component';
+import { StandingsListItemComponent } from './standings-list-item/standings-list-item.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +25,8 @@ import { BetResultToCssClassPipe } from '../pipes/bet-result-to-css-class.pipe';
     BettingMatchBetListComponent,
     BettingMatchOwnBetComponent,
     BetResultToCssClassPipe,
+    StandingsListComponent,
+    StandingsListItemComponent,
   ],
   imports: [
     CommonModule,

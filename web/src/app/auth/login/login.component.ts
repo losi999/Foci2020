@@ -9,9 +9,11 @@ import { AuthService } from 'src/app/auth/auth.service';
 })
 export class LoginComponent implements OnInit {
   form: FormGroup;
+  isInProgress: boolean;
   constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
+    this.isInProgress = false;
     this.form = new FormGroup({
       email: new FormControl(null, [
         Validators.required,
@@ -28,9 +30,16 @@ export class LoginComponent implements OnInit {
     this.form.markAllAsTouched();
 
     if(this.form.valid) {
+      this.isInProgress = true;
       this.authService.login({
         email: this.form.value.email,
         password: this.form.value.password,
+      }).subscribe({
+        error: (error) => {
+          console.log(error);
+          alert('¯\\_(ツ)_/¯');
+          this.isInProgress = false;
+        },
       });
     }
   }

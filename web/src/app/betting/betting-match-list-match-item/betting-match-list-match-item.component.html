@@ -1,5 +1,5 @@
 <div class="betting-match-list-item-row">
-  <div class="betting-match-list__match">
+  <div class="betting-match-list__match" (click)="toggleExpand()">
     <div class="betting-match-list-item__location">Róma</div>
     <div class="betting-match-list-item__group">{{match.group}}</div>
     <div class="betting-match-list-item__home-flag">
@@ -14,16 +14,27 @@
       </span>
     </div>
     <div class="betting-match-list-item__away-name">{{match.awayTeam.teamName}}</div>
-    <div class="betting-match-list-item__time">{{match.startTime | date:'HH:mm'}}</div>
+    <div class="betting-match-list-item__score-time" *ngIf="match.finalScore">
+      {{match.finalScore.homeScore}} - {{match.finalScore.awayScore}}
+    </div>
+    <div class="betting-match-list-item__score-time" *ngIf="!match.finalScore">
+      {{match.startTime | date:'HH:mm'}}
+    </div>
   </div>
-  <!-- <div class="betting-match-list-item__expandable">
-      <div class="betting-match-list-item__bet-panel">
-          <input class="betting-match-list-item__home-input" type="number" min="0" placeholder="TUR">
-          <input class="betting-match-list-item__away-input" type="number" min="0" placeholder="ITA">
-          <input class="betting-match-list-item__ok" type="button" value="OK">
-      </div>
+  <div *ngIf="isExpanded" class="betting-match-list-item__expandable">
+    <div class="betting-match-list-item__spinner" *ngIf="isInitiating">
+      <span class="spinner-border" role="status" aria-hidden="true"></span>
+    </div>
+    <app-betting-match-bet-panel *ngIf="!ownBet && !isInitiating && !hasBettingExpired" [match]="match"
+      (betSent)="betSent($event)">
+    </app-betting-match-bet-panel>
+    <app-betting-match-own-bet *ngIf="!isInitiating && (ownBet || hasBettingExpired)" [match]="match" [bet]="ownBet">
+    </app-betting-match-own-bet>
+    <app-betting-match-bet-list *ngIf="!isInitiating" [bets]="bets">
+    </app-betting-match-bet-list>
   </div>
-  <div class="betting-match-list-item__indicator">
-      <i class="fas fa-caret-up"></i>
-  </div> -->
+  <div class="betting-match-list-item__indicator" (click)="toggleExpand()">
+    <fa-icon *ngIf="isExpanded" [icon]="['fas', 'caret-up']"></fa-icon>
+    <fa-icon *ngIf="!isExpanded" [icon]="['fas', 'caret-down']"></fa-icon>
+  </div>
 </div>

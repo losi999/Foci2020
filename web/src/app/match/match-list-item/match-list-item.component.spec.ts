@@ -8,9 +8,9 @@ describe('MatchListItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MatchListItemComponent ]
+      declarations: [ MatchListItemComponent ],
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

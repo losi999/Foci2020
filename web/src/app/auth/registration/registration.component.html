@@ -16,7 +16,7 @@
         Jelszó
       </label>
       <input placeholder="Jelszó" type="password" formControlName="password" id="password" class="form-control"
-        [ngClass]="{'is-invalid' : form.controls.password.touched && form.controls.password.invalid}">
+        [ngClass]="{'is-invalid' : form.controls.password.touched && form.controls.password.invalid}" autocomplete="new-password">
       <ng-container *ngIf="form.controls.password.touched">
         <span class="invalid-feedback" *ngIf="form.controls.password.errors?.required">Jelszó megadása kötelező</span>
         <span class="invalid-feedback" *ngIf="form.controls.password.errors?.minlength">Minimum 6 karakter hosszú jelszó
@@ -29,7 +29,7 @@
       </label>
       <input placeholder="Jelszó újra" type="password" formControlName="passwordConfirm" id="passwordConfirm"
         class="form-control"
-        [ngClass]="{'is-invalid' : form.controls.passwordConfirm.touched && form.controls.passwordConfirm.invalid}">
+        [ngClass]="{'is-invalid' : form.controls.passwordConfirm.touched && (form.controls.passwordConfirm.invalid || form.errors?.passwordsNotMatch)}">
       <ng-container *ngIf="form.controls.passwordConfirm.touched">
         <span class="invalid-feedback" *ngIf="form.controls.passwordConfirm.errors?.required">Jelszó megadása
           kötelező</span>
@@ -44,10 +44,15 @@
         class="form-control"
         [ngClass]="{'is-invalid' : form.controls.displayName.touched && form.controls.displayName.invalid}">
       <ng-container *ngIf="form.controls.displayName.touched">
-        <span class="invalid-feedback" *ngIf="form.controls.displayName.errors?.required">Megjelenítendő név megadása kötelező</span>
+        <span class="invalid-feedback" *ngIf="form.controls.displayName.errors?.required">Megjelenítendő név megadása
+          kötelező</span>
       </ng-container>
     </div>
-    <button [disabled]="form.invalid" type="submit" class="btn btn-primary">Regisztráció</button>
+    <button type="submit" [disabled]="form.invalid" class="btn btn-primary" *ngIf="!isInProgress">Regisztráció</button>
+    <button class="btn btn-primary" type="button" disabled *ngIf="isInProgress">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Bejelentkezés...
+    </button>
   </form>
   <button class="btn btn-link registration-panel__login" [routerLink]="['/login']">Bejelentkezés</button>
 </div>

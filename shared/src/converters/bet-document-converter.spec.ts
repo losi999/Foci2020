@@ -121,7 +121,7 @@ describe('Bet document converter', () => {
           userId: userId2,
           homeScore: undefined,
           awayScore: undefined,
-          point: undefined,
+          point: 2,
         }),
       ];
 

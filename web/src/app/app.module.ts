@@ -8,11 +8,15 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import localeHu from '@angular/common/locales/hu';
 import { registerLocaleData } from '@angular/common';
+import { NavBarComponent } from './nav-bar/nav-bar.component';
 
 registerLocaleData(localeHu);
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+    NavBarComponent,
+  ],
   imports: [
     BrowserModule,
     HttpClientModule,

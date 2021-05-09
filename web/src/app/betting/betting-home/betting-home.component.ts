@@ -26,8 +26,6 @@ export class BettingHomeComponent implements OnInit {
 
       return accumulator;
     }, {});
-
-    console.log(this.matches);
   }
 
 }

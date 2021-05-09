@@ -146,6 +146,10 @@ Resources:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
       GenerateSecret: false
+      TokenValidityUnits:
+        IdToken: "days"
+      RefreshTokenValidity: 365
+      IdTokenValidity: 1
       ReadAttributes:
         - nickname
         - email

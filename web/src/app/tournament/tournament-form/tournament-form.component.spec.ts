@@ -8,9 +8,9 @@ describe('TournamentFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TournamentFormComponent ]
+      declarations: [ TournamentFormComponent ],
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

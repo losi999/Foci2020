@@ -15,15 +15,19 @@
       <label for="password">
         Jelszó
       </label>
-      <input placeholder="Jelszó" type="password" formControlName="password" id="password"
-        class="form-control"
+      <input placeholder="Jelszó" type="password" formControlName="password" id="password" class="form-control"
         [ngClass]="{'is-invalid' : form.controls.password.touched && form.controls.password.invalid}">
       <ng-container *ngIf="form.controls.password.touched">
         <span class="invalid-feedback" *ngIf="form.controls.password.errors?.required">Jelszó megadása kötelező</span>
-        <span class="invalid-feedback" *ngIf="form.controls.password.errors?.minlength">Minimum 6 karakter hosszú jelszó szükséges</span>
+        <span class="invalid-feedback" *ngIf="form.controls.password.errors?.minlength">Minimum 6 karakter hosszú jelszó
+          szükséges</span>
       </ng-container>
     </div>
-    <button [disabled]="form.invalid" type="submit" class="btn btn-primary">Bejelentkezés</button>
+    <button [disabled]="form.invalid" type="submit" class="btn btn-primary" *ngIf="!isInProgress">Bejelentkezés</button>
+    <button class="btn btn-primary" type="button" disabled *ngIf="isInProgress">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Bejelentkezés...
+    </button>
   </form>
   <button class="btn btn-link login-panel__registration" [routerLink]="['/registration']">Regisztráció</button>
 </div>

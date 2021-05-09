@@ -38,8 +38,22 @@ Resources:
           CognitoAuthorizer:
             UserPoolArn: !Ref UserPoolArn
       GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 401
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'            
         MISSING_AUTHENTICATION_TOKEN:
           StatusCode: 404
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
           ResponseTemplates:
             application/json: '{ "message": $context.error.messageString }'
 

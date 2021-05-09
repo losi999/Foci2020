@@ -2,10 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { LoginRequest, RegistrationRequest }from '@foci2020/shared/types/requests';
-import { LoginResponse }from '@foci2020/shared/types/responses';
+import { LoginRequest, RefreshTokenRequest, RegistrationRequest }from '@foci2020/shared/types/requests';
+import { IdTokenResponse, LoginResponse }from '@foci2020/shared/types/responses';
 import { default as jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
+import { map } from 'rxjs/operators';
+
+type TokenClaims = {
+  sub: string;
+  'cognito:groups': string[];
+};
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +19,10 @@ import { Router } from '@angular/router';
 export class AuthService {
 
   constructor(private httpClient: HttpClient, private router: Router) { }
+
+  private static decodeToken(token: string) {
+    return jwtDecode<TokenClaims>(token);
+  }
 
   redirect(): void {
     if(this.isPlayer) {
@@ -35,44 +45,43 @@ export class AuthService {
   }
 
   get isPlayer(): boolean {
-    console.log(this.isLoggedIn, this.idToken);
-    return this.isLoggedIn && jwtDecode(this.idToken)['cognito:groups'].includes('player');
+    return this.isLoggedIn && AuthService.decodeToken(this.idToken)['cognito:groups'].includes('player');
   }
 
   get isAdmin(): boolean {
-    return this.isLoggedIn && jwtDecode(this.idToken)['cognito:groups'].includes('admin');
+    return this.isLoggedIn && AuthService.decodeToken(this.idToken)['cognito:groups'].includes('admin');
   }
 
-  public login (request: LoginRequest): Observable<void> {
-    this.httpClient.post<LoginResponse>(`${environment.apiUrl}/user/v1/login`, request).subscribe({
-      next: (data) => {
-        console.log(data);
+  get userId(): string {
+    return AuthService.decodeToken(this.idToken).sub;
+  }
+
+  public login (request: LoginRequest): Observable<unknown> {
+    return this.httpClient.post<LoginResponse>(`${environment.apiUrl}/user/v1/login`, request).pipe(
+      map((data) => {
         localStorage.setItem('idToken', data.idToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
         this.redirect();
-      },
-      error: (error) => {
-        console.log(error);
-      },
-    });
-
-    return undefined;
+      }),
+    );
   }
 
-  public registration (request: RegistrationRequest): Observable<void> {
-    this.httpClient.post(`${environment.apiUrl}/user/v1/registration`, request).subscribe({
-      next: (data) => {
-        console.log(data);
-      },
-      error: (error) => {
-        console.log(error);
-      },
-    });
+  public registration (request: RegistrationRequest): Observable<unknown> {
+    return this.httpClient.post(`${environment.apiUrl}/user/v1/registration`, request);
+  }
 
-    return undefined;
+  public refreshToken(): Observable<unknown> {
+    const request: RefreshTokenRequest = {
+      refreshToken: localStorage.getItem('refreshToken'),
+    };
+    return this.httpClient.post<IdTokenResponse>(`${environment.apiUrl}/user/v1/refreshToken`, request).pipe(map((data) => {
+      localStorage.setItem('idToken', data.idToken);
+    }));
   }
 
   public logout() {
     localStorage.removeItem('idToken');
+    localStorage.removeItem('refreshToken');
     this.redirect();
   }
 }

@@ -7,6 +7,20 @@ Parameters:
     Default: ""
   AdminUserEmail:
     Type: String
+  DomainCertificateArn:
+    Type: String
+
+Mappings: 
+  EnvMapping: 
+    LOCAL: 
+      WebsiteDomain: local-foci.losi999.hu
+      ApiDomain: local-fociapi.losi999.hu
+    DEV: 
+      WebsiteDomain: dev-foci.losi999.hu
+      ApiDomain: dev-fociapi.losi999.hu
+    CI: 
+      WebsiteDomain: ci-foci.losi999.hu
+      ApiDomain: ci-fociapi.losi999.hu
 
 Resources:
   Functions:
@@ -95,6 +109,12 @@ Resources:
     Properties:
       DistributionConfig:
         Comment: !Sub "${Env}-API"
+        Aliases: 
+          - !FindInMap [EnvMapping, !Ref Env, ApiDomain]
+        ViewerCertificate:
+          AcmCertificateArn: !Ref DomainCertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2019          
         Enabled: true
         PriceClass: PriceClass_100
         DefaultCacheBehavior:
@@ -226,11 +246,27 @@ Resources:
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
 
+  ApiDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: "losi999.hu."
+      AliasTarget:
+        DNSName: !GetAtt Api.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+      Name: !FindInMap [EnvMapping, !Ref Env, ApiDomain]
+      Type: A
+
   Website:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
         Comment: !Sub "${Env}-Web"
+        Aliases: 
+          - !FindInMap [EnvMapping, !Ref Env, WebsiteDomain]
+        ViewerCertificate:
+          AcmCertificateArn: !Ref DomainCertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2019  
         Enabled: true
         PriceClass: PriceClass_100
         DefaultCacheBehavior:
@@ -250,13 +286,27 @@ Resources:
             CustomOriginConfig:
               OriginProtocolPolicy: http-only
 
+  WebsiteDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: "losi999.hu."
+      AliasTarget:
+        DNSName: !GetAtt Website.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+      Name: !FindInMap [EnvMapping, !Ref Env, WebsiteDomain]
+      Type: A
+
 Outputs:
   FociApi:
     Description: "Foci 2020 API"
-    Value: !Sub https://${Api.DomainName}
+    Value: !Sub
+             - "https://${Domain}"
+             - Domain: !FindInMap [EnvMapping, !Ref Env, ApiDomain]
   FociWeb:
     Description: "Foci 2020 Web"
-    Value: !Sub https://${Website.DomainName}
+    Value: !Sub
+             - "https://${Domain}"
+             - Domain: !FindInMap [EnvMapping, !Ref Env, WebsiteDomain]
   WebsiteBucket:
     Value: !GetAtt Infrastructure.Outputs.WebsiteBucket
   Database:

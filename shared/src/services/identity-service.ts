@@ -1,4 +1,4 @@
-import { RegistrationRequest, LoginRequest } from '@foci2020/shared/types/requests';
+import { RegistrationRequest, LoginRequest, RefreshTokenRequest } from '@foci2020/shared/types/requests';
 import { UserType, UserIdType } from '@foci2020/shared/types/common';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
 
@@ -6,6 +6,7 @@ export interface IIdentityService {
   getUserName(userId: UserIdType): Promise<string>;
   register(body: RegistrationRequest, userGroup: UserType): Promise<any>;
   login(body: LoginRequest): Promise<CognitoIdentityServiceProvider.AdminInitiateAuthResponse>;
+  refreshToken(body: RefreshTokenRequest): Promise<CognitoIdentityServiceProvider.AdminInitiateAuthResponse>;
 }
 
 export const identityServiceFactory = (
@@ -57,6 +58,16 @@ export const identityServiceFactory = (
         AuthParameters: {
           USERNAME: body.email,
           PASSWORD: body.password,
+        },
+      }).promise();
+    },
+    refreshToken: (body) => {
+      return cognito.adminInitiateAuth({
+        UserPoolId: userPoolId,
+        ClientId: clientId,
+        AuthFlow: 'REFRESH_TOKEN_AUTH',
+        AuthParameters: {
+          REFRESH_TOKEN: body.refreshToken,
         },
       }).promise();
     },

@@ -25,7 +25,7 @@ export const betDocumentConverterFactory = (): IBetDocumentConverter => {
       'matchId-documentType': undefined,
       homeScore: hideScore ? undefined : bet.homeScore,
       awayScore: hideScore ? undefined : bet.awayScore,
-      point: hideScore ? undefined : betResultPoint[bet.result],
+      point: betResultPoint[bet.result],
     };
   };
   const instance: IBetDocumentConverter = {

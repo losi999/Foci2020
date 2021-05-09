@@ -56,7 +56,10 @@ export type CompareResponse = {
   }[];
 };
 
-export type LoginResponse = {
-  idToken: string;
+export type LoginResponse = IdTokenResponse & {
   refreshToken: string;
+};
+
+export type IdTokenResponse = {
+  idToken: string;
 };

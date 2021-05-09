@@ -15,7 +15,7 @@
   <div class="betting-match-list-item__bet-score">
     {{bet?.homeScore}} - {{bet?.awayScore}}
   </div>
-  <div class="betting-match-list-item__bet-point" *ngIf="bet?.point !== null && bet.point !== undefined" [ngClass]="bet.point | betResultToCssClass">
+  <div class="betting-match-list-item__bet-point" *ngIf="bet?.point !== null && bet.point !== undefined" [ngClass]="bet.result | betResultToCssClass">
     {{bet?.point}} pont
   </div>
 </div>

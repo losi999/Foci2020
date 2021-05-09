@@ -1,5 +1,5 @@
 <div class="betting-match-list-item__bet-list">
-  <div class="betting-match-list-item__bet-item" *ngFor="let b of bets" [ngClass]="b.point | betResultToCssClass">
+  <div class="betting-match-list-item__bet-item" *ngFor="let b of bets" [ngClass]="b.result | betResultToCssClass">
     <div class="betting-match-list-item__bet-item-name">
       {{b.userName}}
     </div>

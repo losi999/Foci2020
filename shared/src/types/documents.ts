@@ -64,7 +64,7 @@ export type BetDocument = Score
 & IndexMatchIdDocumentType
 & IndexByTournamentIdUserIdDocumentType
 & InternalDocumentProperties<string, 'bet'>
-& Partial<Result>;
+& Result;
 
 export type StandingDocument = StandingBase
 & BetBase

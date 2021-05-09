@@ -1,4 +1,11 @@
-.betting-match-list-item {
+.compare-list-item {
+  display: grid;
+  grid-template-columns: 1fr 50px 50px 1fr;
+  grid-template-rows: 35px 50px;
+  grid-template-areas:
+    "left-bet home-flag away-flag right-bet"
+    "left-bet final-score final-score right-bet";
+
   &__home-flag,
   &__away-flag {
     height: 35px;
@@ -35,34 +42,28 @@
     grid-area: away-flag;
   }
 
-
-  &__bet-panel {
-    display: grid;
-    grid-template-columns: 50px 50px;
-    grid-template-rows: auto;
-    row-gap: 5px;
-    grid-template-areas:
-    "title title"
-    "home-flag away-flag"
-    "bet bet"
-    "point point";
+  &__final-score {
+    grid-area: final-score;
+    color: white;
   }
 
-  &__bet-title {
-    grid-area: title;
+  &__left-bet {
+    grid-area: left-bet;
+  }
+
+  &__right-bet {
+    grid-area: right-bet;
+  }
+
+  &__left-bet,
+  &__right-bet {
+    padding: 10px;
+  }
+
+  &__final-score,
+  &__left-bet,
+  &__right-bet {
+    align-self: center;
     justify-self: center;
-    font-size: 1.5rem;
-  }
-
-  &__bet-score {
-    grid-area: bet;
-    justify-self: center;
-    font-size: 1.7rem;
-  }
-
-  &__bet-point {
-    grid-area: point;
-    text-align: center;
-    font-size: 1.3rem;
   }
 }

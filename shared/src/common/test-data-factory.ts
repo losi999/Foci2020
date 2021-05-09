@@ -176,12 +176,13 @@ export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | '
     documentType: 'bet',
     orderingValue: 'userName',
     expiresAt: undefined,
+    result: undefined,
     modifiedAt: 'now',
     ...doc,
   };
 };
 
-export const betResponse = (res?: Partial<Pick<BetResponse, keyof BetRequest | 'userId' | 'point' | 'homeScore' | 'awayScore' | 'userName'>>): BetResponse => {
+export const betResponse = (res?: Partial<Pick<BetResponse, keyof BetRequest | 'userId' | 'point' | 'homeScore' | 'awayScore' | 'userName' | 'result'>>): BetResponse => {
   const userId = res?.userId ?? 'userId' as UserIdType;
   return {
     userId,

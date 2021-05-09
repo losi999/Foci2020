@@ -85,6 +85,7 @@ describe('Bet document converter', () => {
       });
       const expectedResponse = betResponse({
         point: 1, 
+        result: 'outcome',
       });
 
       const [res] = converter.toResponseList([input]);
@@ -115,6 +116,7 @@ describe('Bet document converter', () => {
           homeScore,
           awayScore,
           point: 3,
+          result: 'exactMatch',
         }),
 
         betResponse({
@@ -122,6 +124,7 @@ describe('Bet document converter', () => {
           homeScore: undefined,
           awayScore: undefined,
           point: 2,
+          result: 'goalDifference',
         }),
       ];
 

@@ -27,12 +27,12 @@ export type MatchResponse = MatchId
 
 export type BetResponse = (Score | Remove<Score>)
 & BetBase
+& Result
 & Remove<MatchId>
 & Remove<TournamentId>
 & Remove<IndexMatchIdDocumentType>
 & Remove<IndexByTournamentIdUserIdDocumentType>
 & Remove<InternalDocumentProperties>
-& Remove<Result>
 & {
   point: number;
 };

@@ -291,6 +291,8 @@ Resources:
 
   Website:
     Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - Api
     Properties:
       DistributionConfig:
         Comment: !Sub "${Env}-Web"

@@ -19,13 +19,13 @@ export const betDocumentConverterFactory = (): IBetDocumentConverter => {
       ...bet,
       ...internalDocumentPropertiesToRemove,
       matchId: undefined,
-      result: undefined,
       tournamentId: undefined,
+      result: bet.result,
       'tournamentId-userId-documentType': undefined,
       'matchId-documentType': undefined,
       homeScore: hideScore ? undefined : bet.homeScore,
       awayScore: hideScore ? undefined : bet.awayScore,
-      point: hideScore ? undefined : betResultPoint[bet.result],
+      point: betResultPoint[bet.result],
     };
   };
   const instance: IBetDocumentConverter = {
@@ -43,9 +43,9 @@ export const betDocumentConverterFactory = (): IBetDocumentConverter => {
         'tournamentId-userId-documentType': concatenate(tournamentId, userId, documentType),
         'matchId-documentType': concatenate(matchId, documentType),
         id: betId,
+        result: undefined,
         orderingValue: userName,
         expiresAt: expiresIn ? Math.floor(addSeconds(expiresIn).getTime() / 1000) : undefined,
-        // createdAt: now,
         modifiedAt: now,
       };
     },

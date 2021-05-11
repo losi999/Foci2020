@@ -1,5 +1,5 @@
 import { TeamRequest, TournamentRequest, MatchRequest, BetRequest } from '@foci2020/shared/types/requests';
-import { TeamDocument, TournamentDocument, MatchDocument, BetDocument, StandingDocument } from '@foci2020/shared/types/documents';
+import { TeamDocument, TournamentDocument, MatchDocument, BetDocument, StandingDocument, SettingDocument } from '@foci2020/shared/types/documents';
 import { TeamResponse, TournamentResponse, MatchResponse, BetResponse, StandingResponse, CompareResponse } from '@foci2020/shared/types/responses';
 import { RecursivePartial, TeamIdType, TournamentIdType, MatchIdType, UserIdType, KeyType } from '@foci2020/shared/types/common';
 
@@ -176,12 +176,13 @@ export const betDocument = (doc?: Partial<Pick<BetDocument, keyof BetRequest | '
     documentType: 'bet',
     orderingValue: 'userName',
     expiresAt: undefined,
+    result: undefined,
     modifiedAt: 'now',
     ...doc,
   };
 };
 
-export const betResponse = (res?: Partial<Pick<BetResponse, keyof BetRequest | 'userId' | 'point' | 'homeScore' | 'awayScore' | 'userName'>>): BetResponse => {
+export const betResponse = (res?: Partial<Pick<BetResponse, keyof BetRequest | 'userId' | 'point' | 'homeScore' | 'awayScore' | 'userName' | 'result'>>): BetResponse => {
   const userId = res?.userId ?? 'userId' as UserIdType;
   return {
     userId,
@@ -269,5 +270,19 @@ export const compareResponse = (res?: RecursivePartial<CompareResponse>): Compar
     rightUserName,
     matches,
     ...res,
+  };
+};
+
+export const settingDocument = (doc?: Partial<Pick<SettingDocument, 'id' |'value'>>): SettingDocument => {
+  const id = doc?.id ?? 'defaultTournamentId';
+  return {
+    id,
+    documentType: 'setting',
+    orderingValue: id,
+    modifiedAt: 'now',
+    expiresAt: undefined,
+    'documentType-id': `setting#${id}` as KeyType,
+    value: 'value',
+    ...doc,
   };
 };

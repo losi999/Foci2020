@@ -1,0 +1,26 @@
+<a *ngIf="player.userId !== ownUserId; else itemContent" [routerLink]="['/compare', player.userId]">
+  <ng-container *ngTemplateOutlet="itemContent"></ng-container>
+</a>
+
+<ng-template #itemContent>
+  <div class="standings-list-item">
+    <div>
+      {{position}}.
+    </div>
+    <div class="standings-list-item__name">
+      {{player.userName}}
+    </div>
+    <div class="green standings-list-item__result">
+      {{player.results.exactMatch}}
+    </div>
+    <div class="blue standings-list-item__result">
+      {{player.results.goalDifference}}
+    </div>
+    <div class="yellow standings-list-item__result">
+      {{player.results.outcome}}
+    </div>
+    <div class="standings-list-item__total">
+      {{player.total}} pont
+    </div>
+  </div>
+</ng-template>

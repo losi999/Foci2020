@@ -36,8 +36,24 @@ describe('addMinutes common function', () => {
 
 describe('chunk', () => {
   it('should split the array', () => {
-    const input = [1, 2, 3, 4, 5];
+    const input = [
+      1,
+      2,
+      3,
+      4,
+      5,
+    ];
     const result = chunk(input, 3);
-    expect(result).toEqual([[1, 2, 3], [4, 5]]);
+    expect(result).toEqual([
+      [
+        1,
+        2,
+        3,
+      ],
+      [
+        4,
+        5,
+      ],
+    ]);
   });
 });

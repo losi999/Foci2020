@@ -6,9 +6,10 @@ import { compareDocumentConverter } from '@foci2020/shared/dependencies/converte
 import { apiRequestValidator } from '@foci2020/api/dependencies/handlers/api-request-validator-handler';
 import { authorizer } from '@foci2020/api/dependencies/handlers/authorizer-handler';
 import { pathParameters } from '@foci2020/api/functions/compare-with-player/compare-with-player-schemas';
+import { cors } from '@foci2020/api/dependencies/handlers/cors-handler';
 
 const compareWithPlayerService = compareWithPlayerServiceFactory(databaseService, identityService, compareDocumentConverter);
 
-export default authorizer('player')(apiRequestValidator({
-  pathParameters, 
-})(handler(compareWithPlayerService)));
+export default cors(authorizer('player')(apiRequestValidator({
+  pathParameters,
+})(handler(compareWithPlayerService))));

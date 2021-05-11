@@ -1,0 +1,19 @@
+<nav>
+  <ul class="nav justify-content-center" *ngIf="isLoggedIn">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/">
+        Tippelés
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/standings">
+        Ranglista
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" (click)="onLogout()">
+        Kijelentkezés
+      </a>
+    </li>
+  </ul>
+</nav>

@@ -1,0 +1,9 @@
+<div>
+  <span>{{match.homeTeam.teamName}}</span>
+  <span>{{match.awayTeam.teamName}}</span>
+  <span>{{match.tournament.tournamentName}}</span>
+  <span>{{match.group}}</span>
+  <span>{{match.startTime}}</span>
+  <button routerLink="{{match.matchId}}">Szerkesztés</button>
+  <button (click)="onMatchDelete()">Törlés</button>
+</div>

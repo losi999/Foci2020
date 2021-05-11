@@ -10,7 +10,10 @@ const getAs = (...aliases: string[]): any => {
   for (const alias of aliases) {
     promise.then((arr) => {
       return cy.get(alias.startsWith('@') ? alias : `@${alias}`).then((got) => {
-        return cy.wrap([...arr, got], {
+        return cy.wrap([
+          ...arr,
+          got,
+        ], {
           log: false, 
         });
       });

@@ -12,11 +12,6 @@ Parameters:
     Type: String
 
 Globals:
-  Api:
-    Cors:
-      AllowMethods: "'*'"
-      AllowHeaders: "'*'"
-      AllowOrigin: "'*'"
   Function:
     Handler: index.default
     Runtime: nodejs12.x
@@ -34,10 +29,28 @@ Resources:
     Properties:
       Name: !Sub Foci2020-${Env}-User
       StageName: user
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
       TracingEnabled: true
       GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 401
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'            
         MISSING_AUTHENTICATION_TOKEN:
           StatusCode: 404
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
           ResponseTemplates:
             application/json: '{ "message": $context.error.messageString }'
 
@@ -68,6 +81,20 @@ Resources:
             RestApiId: !Ref UserApi
             Path: /v1/login
             Method: POST
+
+  RefreshToken:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-User-RefreshToken
+      CodeUri: dist/api/refresh-token
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /v1/refreshToken
+            Method: POST            
 
 Outputs:
   UserApi:

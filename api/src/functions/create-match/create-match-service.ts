@@ -23,7 +23,11 @@ export const createMatchServiceFactory = (
       throw httpError(400, 'Home and away teams cannot be the same');
     }
 
-    const [homeTeam, awayTeam, tournament] = await Promise.all([
+    const [
+      homeTeam,
+      awayTeam,
+      tournament,
+    ] = await Promise.all([
       databaseService.getTeamById(body.homeTeamId),
       databaseService.getTeamById(body.awayTeamId),
       databaseService.getTournamentById(body.tournamentId),

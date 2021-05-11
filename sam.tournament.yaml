@@ -12,11 +12,6 @@ Parameters:
     Type: String
 
 Globals:
-  Api:
-    Cors:
-      AllowMethods: "'*'"
-      AllowHeaders: "'*'"
-      AllowOrigin: "'*'"
   Function:
     Handler: index.default
     Runtime: nodejs12.x
@@ -34,13 +29,31 @@ Resources:
       Name: !Sub Foci2020-${Env}-Tournament
       StageName: tournament
       TracingEnabled: true
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
       Auth:
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !Ref UserPoolArn
       GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 401
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'            
         MISSING_AUTHENTICATION_TOKEN:
           StatusCode: 404
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
           ResponseTemplates:
             application/json: '{ "message": $context.error.messageString }'
 

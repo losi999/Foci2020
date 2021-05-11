@@ -15,6 +15,8 @@ module.exports = {
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/ban-ts-comment': 'off',
         '@typescript-eslint/semi': 'error',
+        '@typescript-eslint/no-empty-function': 'off',
+        '@typescript-eslint/type-annotation-spacing': 'error',
         'curly': 'error',
         'eqeqeq': 'error',
         'no-else-return': 'error',
@@ -32,12 +34,20 @@ module.exports = {
         }],
         'object-curly-spacing': ['error', 'always'],
         '@typescript-eslint/indent': ['error', 2],
-        '@typescript-eslint/quotes': ["error", "single"],
+        '@typescript-eslint/quotes': ['error', 'single'],
         'prefer-template': 'error',
         '@typescript-eslint/no-extra-semi': 'error',
         'newline-per-chained-call': 'error',
         'space-before-blocks': 'error',
         'arrow-spacing': 'error',
-
+        'key-spacing': 'error',
+        'space-in-parens': 'error',
+        'comma-spacing': 'error',
+        'no-multi-spaces': 'error',
+        'no-multiple-empty-lines': ['error', { max: 1 }],
+        'array-bracket-newline': 'error',
+        'array-element-newline': 'error',
+        'quote-props': ['error', 'as-needed'],
+        'space-infix-ops': 'error'
     }
 };

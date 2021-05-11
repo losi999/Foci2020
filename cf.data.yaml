@@ -2,8 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
   Env:
     Type: String
-  AdminUserEmail:
-    Type: String
 
 Resources:
   Database:
@@ -146,6 +144,10 @@ Resources:
         - ALLOW_ADMIN_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
       GenerateSecret: false
+      TokenValidityUnits:
+        IdToken: "days"
+      RefreshTokenValidity: 365
+      IdTokenValidity: 1
       ReadAttributes:
         - nickname
         - email
@@ -167,10 +169,10 @@ Resources:
     Type: AWS::Cognito::UserPoolUser
     Properties:
       UserPoolId: !Ref UserPool
-      Username: !Ref AdminUserEmail
+      Username: "{{resolve:ssm:AdminUserEmail:1}}"
       UserAttributes:
         - Name: email
-          Value: !Ref AdminUserEmail
+          Value: "{{resolve:ssm:AdminUserEmail:1}}"
         - Name: nickname
           Value: Losi
   AdminUserToAdminGroup:
@@ -179,14 +181,14 @@ Resources:
     Properties:
       GroupName: admin
       UserPoolId: !Ref UserPool
-      Username: !Ref AdminUserEmail
+      Username: "{{resolve:ssm:AdminUserEmail:1}}"
   AdminUserToPlayerGroup:
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     DependsOn: AdminUser
     Properties:
       GroupName: player
       UserPoolId: !Ref UserPool
-      Username: !Ref AdminUserEmail
+      Username: "{{resolve:ssm:AdminUserEmail:1}}"
 
 
 Outputs:

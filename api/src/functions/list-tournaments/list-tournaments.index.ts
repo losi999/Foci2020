@@ -3,7 +3,8 @@ import { databaseService } from '@foci2020/shared/dependencies/services/database
 import { tournamentDocumentConverter } from '@foci2020/shared/dependencies/converters/tournament-document-converter';
 import { authorizer } from '@foci2020/api/dependencies/handlers/authorizer-handler';
 import { listTournamentsServiceFactory } from '@foci2020/api/functions/list-tournaments/list-tournaments-service';
+import { cors } from '@foci2020/api/dependencies/handlers/cors-handler';
 
 const listTournamentsService = listTournamentsServiceFactory(databaseService, tournamentDocumentConverter);
 
-export default authorizer('admin')(handler(listTournamentsService));
+export default cors(authorizer('admin')(handler(listTournamentsService)));

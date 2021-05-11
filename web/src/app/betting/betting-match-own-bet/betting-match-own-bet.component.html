@@ -1,0 +1,21 @@
+<div class="betting-match-list-item__bet-panel">
+  <div class="betting-match-list-item__bet-title">
+    Tipped
+  </div>
+  <div class="betting-match-list-item__home-flag">
+    <span>
+      <img [src]="match.homeTeam.image" alt="">
+    </span>
+  </div>
+  <div class="betting-match-list-item__away-flag">
+    <span>
+      <img [src]="match.awayTeam.image" alt="">
+    </span>
+  </div>
+  <div class="betting-match-list-item__bet-score">
+    {{bet?.homeScore}} - {{bet?.awayScore}}
+  </div>
+  <div class="betting-match-list-item__bet-point" *ngIf="bet?.point !== null && bet.point !== undefined" [ngClass]="bet.result | betResultToCssClass">
+    {{bet?.point}} pont
+  </div>
+</div>

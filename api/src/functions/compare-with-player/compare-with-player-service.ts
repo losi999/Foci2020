@@ -20,7 +20,12 @@ export const compareWithPlayerServiceFactory = (
   compareDocumentConverter: ICompareDocumentConverter): ICompareWithPlayerService => {
 
   return async ({ otherUserId, ownUserId, ownUserName, tournamentId }) => {
-    const [matches, ownBetDocuments, otherBetDocuments, otherUserName] = await Promise.all([
+    const [
+      matches,
+      ownBetDocuments,
+      otherBetDocuments,
+      otherUserName,
+    ] = await Promise.all([
       databaseService.queryMatchesByTournamentId(tournamentId),
       databaseService.queryBetsByTournamentIdUserId(tournamentId, ownUserId),
       databaseService.queryBetsByTournamentIdUserId(tournamentId, otherUserId),

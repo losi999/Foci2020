@@ -1,4 +1,4 @@
-import { BetDocument, MatchDocument, StandingDocument, TeamDocument, TournamentDocument, Document, DocumentType, DocumentKey } from '@foci2020/shared/types/documents';
+import { BetDocument, MatchDocument, StandingDocument, TeamDocument, TournamentDocument, Document, DocumentType, DocumentKey, SettingKey, SettingDocument } from '@foci2020/shared/types/documents';
 import { chunk, concatenate } from '@foci2020/shared/common/utils';
 import { UserIdType, MatchIdType, TeamIdType, TournamentIdType, KeyType } from '@foci2020/shared/types/common';
 import { DocumentClient } from 'aws-sdk/lib/dynamodb/document_client';
@@ -18,6 +18,7 @@ export interface IDatabaseService {
   getTournamentById(tournamentId: TournamentIdType): Promise<TournamentDocument>;
   getBetById(userId: UserIdType, matchId: MatchIdType): Promise<BetDocument>;
   getStandingById(tournamentId: TournamentIdType, userId: UserIdType): Promise<StandingDocument>;
+  getSettingByKey(key: SettingKey): Promise<SettingDocument>;
   queryBetsByMatchId(matchId: MatchIdType): Promise<BetDocument[]>;
   queryBetsByTournamentIdUserId(tournamentId: TournamentIdType, userId: UserIdType): Promise<BetDocument[]>;
   queryMatchesByTournamentId(tournamentId: TournamentIdType): Promise<MatchDocument[]>;
@@ -165,6 +166,7 @@ export const databaseServiceFactory = (config: {
     getMatchById: matchId => getDocumentById(matchId, 'match'),
     getTeamById: teamId => getDocumentById(teamId, 'team'),
     getTournamentById: tournamentId => getDocumentById(tournamentId, 'tournament'),
+    getSettingByKey: key => getDocumentById(key, 'setting'),
     queryBetsByMatchId: matchId => queryDocumentsByMatchId(matchId, 'bet'),
     queryBetsByTournamentIdUserId: (tournamentId, userId) => queryDocumentsByTournamentIdUserId(tournamentId, userId, 'bet'),
     queryMatchesByTournamentId: tournamentId => queryDocumentsByTournamentId(tournamentId, 'match'),

@@ -12,6 +12,10 @@ export type MatchFinalScoreRequest = Score;
 
 export type BetRequest = Score;
 
+export type RefreshTokenRequest = {
+  refreshToken: string;
+};
+
 export type LoginRequest = {
   email: string;
   password: string;

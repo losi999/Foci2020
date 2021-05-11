@@ -5,9 +5,10 @@ import { apiRequestValidator } from '@foci2020/api/dependencies/handlers/api-req
 import { authorizer } from '@foci2020/api/dependencies/handlers/authorizer-handler';
 import { default as body } from '@foci2020/shared/schemas/tournament';
 import { createTournamentServiceFactory } from '@foci2020/api/functions/create-tournament/create-tournament-service';
+import { cors } from '@foci2020/api/dependencies/handlers/cors-handler';
 
 const createTournamentService = createTournamentServiceFactory(databaseService, tournamentDocumentConverter);
 
-export default authorizer('admin')(apiRequestValidator({
-  body, 
-})(handler(createTournamentService)));
+export default cors(authorizer('admin')(apiRequestValidator({
+  body,
+})(handler(createTournamentService))));

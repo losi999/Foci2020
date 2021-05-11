@@ -1,0 +1,58 @@
+<div class="registration-panel">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="email">
+        Email cím
+      </label>
+      <input placeholder="Email cím" type="email" formControlName="email" id="email" class="form-control"
+        [ngClass]="{'is-invalid' : form.controls.email.touched && form.controls.email.invalid}">
+      <ng-container *ngIf="form.controls.email.touched">
+        <span class="invalid-feedback" *ngIf="form.controls.email.errors?.required">Email megadása kötelező</span>
+        <span class="invalid-feedback" *ngIf="form.controls.email.errors?.email">Helytelen formátum</span>
+      </ng-container>
+    </div>
+    <div class="form-group">
+      <label for="password">
+        Jelszó
+      </label>
+      <input placeholder="Jelszó" type="password" formControlName="password" id="password" class="form-control"
+        [ngClass]="{'is-invalid' : form.controls.password.touched && form.controls.password.invalid}" autocomplete="new-password">
+      <ng-container *ngIf="form.controls.password.touched">
+        <span class="invalid-feedback" *ngIf="form.controls.password.errors?.required">Jelszó megadása kötelező</span>
+        <span class="invalid-feedback" *ngIf="form.controls.password.errors?.minlength">Minimum 6 karakter hosszú jelszó
+          szükséges</span>
+      </ng-container>
+    </div>
+    <div class="form-group">
+      <label for="passwordConfirm">
+        Jelszó újra
+      </label>
+      <input placeholder="Jelszó újra" type="password" formControlName="passwordConfirm" id="passwordConfirm"
+        class="form-control"
+        [ngClass]="{'is-invalid' : form.controls.passwordConfirm.touched && (form.controls.passwordConfirm.invalid || form.errors?.passwordsNotMatch)}">
+      <ng-container *ngIf="form.controls.passwordConfirm.touched">
+        <span class="invalid-feedback" *ngIf="form.controls.passwordConfirm.errors?.required">Jelszó megadása
+          kötelező</span>
+        <span class="invalid-feedback" *ngIf="form.errors?.passwordsNotMatch">Jelszavak nem egyeznek</span>
+      </ng-container>
+    </div>
+    <div class="form-group">
+      <label for="displayName">
+        Megjelenítendő név
+      </label>
+      <input placeholder="Megjelenítendő név" type="text" formControlName="displayName" id="displayName"
+        class="form-control"
+        [ngClass]="{'is-invalid' : form.controls.displayName.touched && form.controls.displayName.invalid}">
+      <ng-container *ngIf="form.controls.displayName.touched">
+        <span class="invalid-feedback" *ngIf="form.controls.displayName.errors?.required">Megjelenítendő név megadása
+          kötelező</span>
+      </ng-container>
+    </div>
+    <button type="submit" [disabled]="form.invalid" class="btn btn-primary" *ngIf="!isInProgress">Regisztráció</button>
+    <button class="btn btn-primary" type="button" disabled *ngIf="isInProgress">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Bejelentkezés...
+    </button>
+  </form>
+  <button class="btn btn-link registration-panel__login" [routerLink]="['/login']">Bejelentkezés</button>
+</div>

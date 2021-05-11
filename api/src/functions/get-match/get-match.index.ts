@@ -5,9 +5,10 @@ import { apiRequestValidator } from '@foci2020/api/dependencies/handlers/api-req
 import { authorizer } from '@foci2020/api/dependencies/handlers/authorizer-handler';
 import { getMatchServiceFactory } from '@foci2020/api/functions/get-match/get-match-service';
 import { default as pathParameters } from '@foci2020/shared/schemas/match-id';
+import { cors } from '@foci2020/api/dependencies/handlers/cors-handler';
 
 const getMatchService = getMatchServiceFactory(databaseService, matchDocumentConverter);
 
-export default authorizer('admin')(apiRequestValidator({
-  pathParameters, 
-})(handler(getMatchService)));
+export default cors(authorizer('admin')(apiRequestValidator({
+  pathParameters,
+})(handler(getMatchService))));

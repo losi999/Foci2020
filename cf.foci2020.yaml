@@ -5,10 +5,6 @@ Parameters:
   TestUserPassword:
     Type: String
     Default: ""
-  AdminUserEmail:
-    Type: String
-  DomainCertificateArn:
-    Type: String
 
 Mappings: 
   EnvMapping: 
@@ -21,6 +17,12 @@ Mappings:
     CI: 
       WebsiteDomain: ci-foci.losi999.hu
       ApiDomain: ci-fociapi.losi999.hu
+    UAT: 
+      WebsiteDomain: uat-foci.losi999.hu
+      ApiDomain: uat-fociapi.losi999.hu
+    PROD: 
+      WebsiteDomain: foci.losi999.hu
+      ApiDomain: fociapi.losi999.hu            
 
 Resources:
   Functions:
@@ -44,7 +46,6 @@ Resources:
       TemplateURL: cf.data.yaml
       Parameters:
         Env: !Ref Env
-        AdminUserEmail: !Ref AdminUserEmail
 
   Infrastructure:
     Type: AWS::CloudFormation::Stack
@@ -112,7 +113,7 @@ Resources:
         Aliases: 
           - !FindInMap [EnvMapping, !Ref Env, ApiDomain]
         ViewerCertificate:
-          AcmCertificateArn: !Ref DomainCertificateArn
+          AcmCertificateArn: "{{resolve:ssm:DomainCertificateArn:1}}"
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2019          
         Enabled: true
@@ -264,7 +265,7 @@ Resources:
         Aliases: 
           - !FindInMap [EnvMapping, !Ref Env, WebsiteDomain]
         ViewerCertificate:
-          AcmCertificateArn: !Ref DomainCertificateArn
+          AcmCertificateArn: "{{resolve:ssm:DomainCertificateArn:1}}"
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2019  
         Enabled: true

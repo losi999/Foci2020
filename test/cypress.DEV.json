@@ -2,8 +2,10 @@
     "integrationFolder": "src/api",
     "testFiles": "**/*.spec.ts",
     "supportFile": "src/support",
-    "baseUrl": "https://d2acwaw2vg2h1u.cloudfront.net",
+    "baseUrl": "https://dev-fociapi.losi999.hu",
     "pluginsFile": "src/plugins",
+    "viewportWidth": 0,
+    "viewportHeight": 0,
     "videoCompression": false,
     "defaultCommandTimeout": 10000
 }

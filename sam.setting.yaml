@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 Setting Api"
+Parameters:
+  LambdaRoleArn:
+    Type: String
+  Database:
+    Type: String
+  UserPoolArn:
+    Type: String
+  Env:
+    Type: String
+
+Globals:
+  Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 512
+    Tracing: Active
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !Ref Database
+
+Resources:
+  SettingApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub Foci2020-${Env}-Setting
+      StageName: setting
+      TracingEnabled: true
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref UserPoolArn
+      GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 401
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'            
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
+
+  GetDefaultTournamentId:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Setting-GetDefaultTournamentId
+      CodeUri: dist/api/get-default-tournament-id
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SettingApi
+            Path: /v1/settings/defaultTournamentId
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+Outputs:
+  SettingApi:
+    Description: "Foci 2020 Setting API"
+    Value: !Sub "${SettingApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

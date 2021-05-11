@@ -9,13 +9,12 @@ export type InternalDocumentProperties<Id extends Brand<any, any> = never, Doc e
   documentType: Doc;
   orderingValue: string;
   expiresAt: number;
-  // createdAt: string;
   modifiedAt: string;
 };
 
-export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing';
+export type DocumentType = 'tournament' | 'team' | 'match' | 'bet' | 'standing' | 'setting';
 
-export type Document = TournamentDocument | TeamDocument | MatchDocument | BetDocument | StandingDocument;
+export type Document = TournamentDocument | TeamDocument | MatchDocument | BetDocument | StandingDocument | SettingDocument;
 
 export type IndexMatchIdDocumentType = {
   'matchId-documentType': string;
@@ -71,3 +70,9 @@ export type StandingDocument = StandingBase
 & TournamentId
 & IndexTournamentIdDocumentType
 & InternalDocumentProperties<string, 'standing'>;
+
+export type SettingKey = 'defaultTournamentId';
+export type SettingDocument = InternalDocumentProperties<SettingKey, 'setting'>
+& {
+  value: string;
+};

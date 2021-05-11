@@ -1,9 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { MatchResponse, BetResponse, StandingResponse, CompareResponse }from '@foci2020/shared/types/responses';
 import { BetRequest } from '@foci2020/shared/types/requests';
+import { TournamentId } from '@foci2020/shared/types/common';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +13,23 @@ import { BetRequest } from '@foci2020/shared/types/requests';
 export class BettingService {
 
   constructor(private httpClient: HttpClient) { }
+
+  get defaultTournamentId(): Observable<string> {
+    const storedTournamentId = localStorage.getItem('defaultTournamentId');
+    if(!storedTournamentId) {
+      return this.getDefaultTournamentId().pipe(
+        map(({ tournamentId }) => {
+          localStorage.setItem('defaultTournamentId', tournamentId);
+          return tournamentId;
+        })
+      );
+    }
+    return of(storedTournamentId);
+  }
+
+  getDefaultTournamentId(): Observable<TournamentId> {
+    return this.httpClient.get<TournamentId>(`${environment.apiUrl}/setting/v1/settings/defaultTournamentId`);
+  }
 
   listMatchesOfTournament(tournamentId: string): Observable<MatchResponse[]> {
     return this.httpClient.get<MatchResponse[]>(`${environment.apiUrl}/betting/v1/tournaments/${tournamentId}/matches`);

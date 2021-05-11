@@ -8,9 +8,9 @@ describe('CompareListItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CompareListItemComponent ]
+      declarations: [ CompareListItemComponent ],
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

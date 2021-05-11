@@ -5,6 +5,7 @@ import {
 } from '@angular/router';
 import { CompareResponse } from '@foci2020/shared/types/responses';
 import { Observable } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 import { BettingService } from '../betting.service';
 
 @Injectable({
@@ -15,6 +16,11 @@ export class CompareResolver implements Resolve<CompareResponse> {
 
   resolve(route: ActivatedRouteSnapshot): Observable<CompareResponse> {
     const userId = route.paramMap.get('userId');
-    return this.bettingService.compare('cc1797bf-6545-407e-982a-42fe2378b434', userId);
+
+    return this.bettingService.defaultTournamentId.pipe(
+      mergeMap((tournamentId) => {
+        return this.bettingService.compare(tournamentId, userId);
+      })
+    );
   }
 }

@@ -1,0 +1,206 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  Env:
+    Type: String
+
+Resources:
+  Database:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub Foci2020-${Env}-20201215
+      BillingMode: PAY_PER_REQUEST
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: True
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      AttributeDefinitions:
+        - AttributeName: documentType-id
+          AttributeType: S
+        - AttributeName: documentType
+          AttributeType: S
+        - AttributeName: orderingValue
+          AttributeType: S
+        - AttributeName: matchId-documentType
+          AttributeType: S
+        - AttributeName: homeTeamId-documentType
+          AttributeType: S
+        - AttributeName: awayTeamId-documentType
+          AttributeType: S
+        - AttributeName: tournamentId-documentType
+          AttributeType: S
+        - AttributeName: tournamentId-userId-documentType
+          AttributeType: S
+      KeySchema:
+        - AttributeName: documentType-id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: indexByTournamentIdDocumentType
+          KeySchema:
+            - AttributeName: tournamentId-documentType
+              KeyType: HASH
+            - AttributeName: orderingValue
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: indexByAwayTeamIdDocumentType
+          KeySchema:
+            - AttributeName: awayTeamId-documentType
+              KeyType: HASH
+          Projection:
+            ProjectionType: KEYS_ONLY
+        - IndexName: indexByHomeTeamIdDocumentType
+          KeySchema:
+            - AttributeName: homeTeamId-documentType
+              KeyType: HASH
+          Projection:
+            ProjectionType: KEYS_ONLY
+        - IndexName: indexByMatchIdDocumentType
+          KeySchema:
+            - AttributeName: matchId-documentType
+              KeyType: HASH
+            - AttributeName: orderingValue
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: indexByTournamentIdUserIdDocumentType
+          KeySchema:
+            - AttributeName: tournamentId-userId-documentType
+              KeyType: HASH
+            - AttributeName: orderingValue
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: indexByDocumentType
+          KeySchema:
+            - AttributeName: documentType
+              KeyType: HASH
+            - AttributeName: orderingValue
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+  DatabaseArchive:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub Foci2020-Archive-${Env}-20201215
+      BillingMode: PAY_PER_REQUEST
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: True
+      AttributeDefinitions:
+        - AttributeName: documentType-id
+          AttributeType: S
+        - AttributeName: modifiedAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: documentType-id
+          KeyType: HASH
+        - AttributeName: modifiedAt
+          KeyType: RANGE
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          TemporaryPasswordValidityDays: 45
+      Schema:
+        - Name: nickname
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: true
+          StringAttributeConstraints:
+            MinLength: "0"
+            MaxLength: "2048"
+        - Name: email
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: true
+          StringAttributeConstraints:
+            MinLength: "0"
+            MaxLength: "2048"
+      UserPoolName: !Sub Foci2020-${Env}
+  ApplicationClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub Foci2020-${Env}-Application
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      GenerateSecret: false
+      TokenValidityUnits:
+        IdToken: "days"
+      RefreshTokenValidity: 365
+      IdTokenValidity: 1
+      ReadAttributes:
+        - nickname
+        - email
+      UserPoolId: !Ref UserPool
+      WriteAttributes:
+        - nickname
+        - email
+  AdminUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref UserPool
+      GroupName: admin
+  PlayerUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref UserPool
+      GroupName: player
+  AdminUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      UserPoolId: !Ref UserPool
+      Username: "{{resolve:ssm:AdminUserEmail:1}}"
+      UserAttributes:
+        - Name: email
+          Value: "{{resolve:ssm:AdminUserEmail:1}}"
+        - Name: nickname
+          Value: Losi
+  AdminUserToAdminGroup:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    DependsOn: AdminUser
+    Properties:
+      GroupName: admin
+      UserPoolId: !Ref UserPool
+      Username: "{{resolve:ssm:AdminUserEmail:1}}"
+  AdminUserToPlayerGroup:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    DependsOn: AdminUser
+    Properties:
+      GroupName: player
+      UserPoolId: !Ref UserPool
+      Username: "{{resolve:ssm:AdminUserEmail:1}}"
+
+
+Outputs:
+  Database:
+    Value: !Ref Database
+  DatabaseStreamArn:
+    Value: !GetAtt Database.StreamArn
+  DatabaseArchive:
+    Value: !Ref DatabaseArchive
+  UserPoolId:
+    Value: !Ref UserPool
+  ClientId:
+    Value: !Ref ApplicationClient
+  UserPoolArn:
+    Value: !GetAtt UserPool.Arn

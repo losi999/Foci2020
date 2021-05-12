@@ -1,0 +1,146 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 Betting API"
+Parameters:
+  LambdaRoleArn:
+    Type: String
+  UserPoolId:
+    Type: String
+  Database:
+    Type: String
+  UserPoolArn:
+    Type: String
+  Env:
+    Type: String
+
+Globals:
+  Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 512
+    Tracing: Active
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !Ref Database
+        USER_POOL_ID: !Ref UserPoolId
+
+Resources:
+  BettingApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub Foci2020-${Env}-Betting
+      StageName: betting
+      TracingEnabled: true
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref UserPoolArn
+      GatewayResponses:   
+        UNAUTHORIZED:
+          StatusCode: 401
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'            
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
+
+  PlaceBet:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Betting-PlaceBet
+      CodeUri: dist/api/place-bet
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BettingApi
+            Path: /v1/matches/{matchId}/bets
+            Method: POST
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  ListBetsOfMatch:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Betting-ListBetsOfMatch
+      CodeUri: dist/api/list-bets-of-match
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BettingApi
+            Path: /v1/matches/{matchId}/bets
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  ListMatchesOfTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Betting-ListMatchesOfTournament
+      CodeUri: dist/api/list-matches-of-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BettingApi
+            Path: /v1/tournaments/{tournamentId}/matches
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  ListStandingsOfTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Betting-ListStandingsOfTournament
+      CodeUri: dist/api/list-standings-of-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BettingApi
+            Path: /v1/tournaments/{tournamentId}/standings
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  CompareWithPlayer:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Betting-CompareWithPlayer
+      CodeUri: dist/api/compare-with-player
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BettingApi
+            Path: /v1/tournaments/{tournamentId}/compare/{userId}
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+Outputs:
+  BettingApi:
+    Description: "Foci 2020 Betting API"
+    Value: !Sub "${BettingApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

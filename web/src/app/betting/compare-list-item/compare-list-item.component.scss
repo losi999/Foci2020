@@ -1,0 +1,69 @@
+.compare-list-item {
+  display: grid;
+  grid-template-columns: 1fr 50px 50px 1fr;
+  grid-template-rows: 35px 50px;
+  grid-template-areas:
+    "left-bet home-flag away-flag right-bet"
+    "left-bet final-score final-score right-bet";
+
+  &__home-flag,
+  &__away-flag {
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    text-align: center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #b8c3c9;
+    align-self: center;
+    justify-self: center;
+  }
+
+  &__home-flag span,
+  &__away-flag span {
+    display: block;
+    width: 195px;
+    height: 100%;
+    margin-left: -80px;
+  }
+
+  &__home-flag img,
+  &__away-flag img {
+    height: 100%;
+    display: inline-block;
+  }
+
+  &__home-flag {
+    grid-area: home-flag;
+  }
+
+  &__away-flag {
+    grid-area: away-flag;
+  }
+
+  &__final-score {
+    grid-area: final-score;
+    color: white;
+  }
+
+  &__left-bet {
+    grid-area: left-bet;
+  }
+
+  &__right-bet {
+    grid-area: right-bet;
+  }
+
+  &__left-bet,
+  &__right-bet {
+    padding: 10px;
+  }
+
+  &__final-score,
+  &__left-bet,
+  &__right-bet {
+    align-self: center;
+    justify-self: center;
+  }
+}

@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 Tournament API"
+Parameters:
+  LambdaRoleArn:
+    Type: String
+  Database:
+    Type: String
+  UserPoolArn:
+    Type: String
+  Env:
+    Type: String
+
+Globals:
+  Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 512
+    Tracing: Active
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !Ref Database
+
+Resources:
+  TournamentApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub Foci2020-${Env}-Tournament
+      StageName: tournament
+      TracingEnabled: true
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref UserPoolArn
+      GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 401
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'            
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
+
+  CreateTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Tournament-CreateTournament
+      CodeUri: dist/api/create-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TournamentApi
+            Path: /v1/tournaments
+            Method: POST
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  UpdateTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Tournament-UpdateTournament
+      CodeUri: dist/api/update-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TournamentApi
+            Path: /v1/tournaments/{tournamentId}
+            Method: PUT
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  ListTournaments:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Tournament-ListTournaments
+      CodeUri: dist/api/list-tournaments
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TournamentApi
+            Path: /v1/tournaments
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Tournament-GetTournament
+      CodeUri: dist/api/get-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TournamentApi
+            Path: /v1/tournaments/{tournamentId}
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  DeleteTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Tournament-DeleteTournament
+      CodeUri: dist/api/delete-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TournamentApi
+            Path: /v1/tournaments/{tournamentId}
+            Method: DELETE
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+Outputs:
+  TournamentApi:
+    Description: "Foci 2020 Tournament API"
+    Value: !Sub "${TournamentApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

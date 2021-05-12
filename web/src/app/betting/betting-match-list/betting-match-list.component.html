@@ -1,0 +1,4 @@
+<div class="betting-match-list">
+  <app-betting-match-list-day-item *ngFor="let m of matches | keyvalue" [day]="m.key" [matches]="m.value">
+  </app-betting-match-list-day-item>
+</div>

@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Foci 2020 Team Api"
+Parameters:
+  LambdaRoleArn:
+    Type: String
+  Database:
+    Type: String
+  UserPoolArn:
+    Type: String
+  Env:
+    Type: String
+
+Globals:
+  Function:
+    Handler: index.default
+    Runtime: nodejs12.x
+    Timeout: 10
+    MemorySize: 512
+    Tracing: Active
+    Environment:
+      Variables:
+        DYNAMO_TABLE: !Ref Database
+
+Resources:
+  TeamApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub Foci2020-${Env}-Team
+      StageName: team
+      TracingEnabled: true
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Ref UserPoolArn
+      GatewayResponses:
+        UNAUTHORIZED:
+          StatusCode: 401
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'            
+        MISSING_AUTHENTICATION_TOKEN:
+          StatusCode: 404
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"  
+              Access-Control-Allow-Headers: "'*'"
+              Access-Control-Allow-Methods: "'*'"
+          ResponseTemplates:
+            application/json: '{ "message": $context.error.messageString }'
+
+  CreateTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Team-CreateTeam
+      CodeUri: dist/api/create-team
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /v1/teams
+            Method: POST
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  UpdateTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Team-UpdateTeam
+      CodeUri: dist/api/update-team
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /v1/teams/{teamId}
+            Method: PUT
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  ListTeams:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Team-ListTeams
+      CodeUri: dist/api/list-teams
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /v1/teams
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Team-GetTeam
+      CodeUri: dist/api/get-team
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /v1/teams/{teamId}
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  DeleteTeam:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Team-DeleteTeam
+      CodeUri: dist/api/delete-team
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TeamApi
+            Path: /v1/teams/{teamId}
+            Method: DELETE
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+Outputs:
+  TeamApi:
+    Description: "Foci 2020 Team API"
+    Value: !Sub "${TeamApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"

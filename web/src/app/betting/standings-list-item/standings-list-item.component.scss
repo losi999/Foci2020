@@ -1,0 +1,38 @@
+a {
+  text-decoration: none;
+  color: #2e2e2e;
+}
+
+.standings-list-item {
+  background-color: white;
+  margin: 15px 0;
+  padding: 0 10px;
+  display: grid;
+  grid-template-columns: 20px auto 50px 50px 50px 75px;
+
+  div {
+    padding: 15px 0;
+  }
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__result {
+    text-align: center;
+  }
+
+  &__total {
+    text-align: right;
+  }
+}
+@media (max-width: 425px) {
+  .standings-list-item {
+    grid-template-columns: 20px auto 35px 35px 35px 50px;
+
+    div {
+      padding: 5px 0;
+    }
+  }
+}

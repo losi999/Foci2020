@@ -1,0 +1,13 @@
+<div class="betting-match-list-item__bet-list">
+  <div class="betting-match-list-item__bet-item" *ngFor="let b of bets" [ngClass]="b.result | betResultToCssClass">
+    <div class="betting-match-list-item__bet-item-name">
+      {{b.userName}}
+    </div>
+    <div class="betting-match-list-item__bet-item-score" *ngIf="b.homeScore >= 0 && b.awayScore >= 0">
+      {{b.homeScore}} - {{b.awayScore}}
+    </div>
+    <div class="betting-match-list-item__bet-item-point" *ngIf="b.point >= 0">
+      {{b.point}} pont
+    </div>
+  </div>
+</div>

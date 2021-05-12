@@ -1,0 +1,345 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  Env:
+    Type: String
+  TestUserPassword:
+    Type: String
+    Default: ""
+
+Mappings: 
+  EnvMapping: 
+    LOCAL: 
+      WebsiteDomain: local-foci.losi999.hu
+      ApiDomain: local-fociapi.losi999.hu
+    DEV: 
+      WebsiteDomain: dev-foci.losi999.hu
+      ApiDomain: dev-fociapi.losi999.hu
+    CI: 
+      WebsiteDomain: ci-foci.losi999.hu
+      ApiDomain: ci-fociapi.losi999.hu
+    PROD: 
+      WebsiteDomain: foci.losi999.hu
+      ApiDomain: fociapi.losi999.hu            
+
+Resources:
+  Functions:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.functions.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        DatabaseStreamArn: !GetAtt Data.Outputs.DatabaseStreamArn
+        UserPoolId: !GetAtt Data.Outputs.UserPoolId
+        ClientId: !GetAtt Data.Outputs.ClientId
+        Env: !Ref Env
+        TestUserPassword: !Ref TestUserPassword
+        DatabaseArchive: !GetAtt Data.Outputs.DatabaseArchive
+        EventDeadLetterQueueArn: !GetAtt Infrastructure.Outputs.EventDeadLetterQueueArn
+
+  Data:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: cf.data.yaml
+      Parameters:
+        Env: !Ref Env
+
+  Infrastructure:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: cf.infrastructure.yaml
+      Parameters:
+        Env: !Ref Env
+
+  Team:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.team.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
+        Env: !Ref Env
+
+  Tournament:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.tournament.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
+        Env: !Ref Env
+
+  Match:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.match.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
+        Env: !Ref Env
+
+  Betting:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.betting.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        UserPoolId: !GetAtt Data.Outputs.UserPoolId
+        Database: !GetAtt Data.Outputs.Database
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
+        Env: !Ref Env
+
+  User:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.user.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        UserPoolId: !GetAtt Data.Outputs.UserPoolId
+        ClientId: !GetAtt Data.Outputs.ClientId
+        Env: !Ref Env
+
+  Setting:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: sam.setting.yaml
+      Parameters:
+        LambdaRoleArn: !GetAtt Infrastructure.Outputs.LambdaRoleArn
+        Database: !GetAtt Data.Outputs.Database
+        UserPoolArn: !GetAtt Data.Outputs.UserPoolArn
+        Env: !Ref Env
+
+  Api:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: !Sub "${Env}-API"
+        Aliases: 
+          - !FindInMap [EnvMapping, !Ref Env, ApiDomain]
+        ViewerCertificate:
+          AcmCertificateArn: "{{resolve:ssm:DomainCertificateArn:1}}"
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2019          
+        Enabled: true
+        PriceClass: PriceClass_100
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - PATCH
+            - POST
+            - DELETE
+          MinTTL: 0
+          MaxTTL: 0
+          DefaultTTL: 0
+          ForwardedValues:
+            QueryString: true
+          TargetOriginId: Team
+        CacheBehaviors:
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /team/*
+            TargetOriginId: Team
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /match/*
+            TargetOriginId: Match
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /tournament/*
+            TargetOriginId: Tournament
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /betting/*
+            TargetOriginId: Betting
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /user/*
+            TargetOriginId: User
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+          - ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+            PathPattern: /setting/*
+            TargetOriginId: Setting
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 0
+            DefaultTTL: 0
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE              
+        Origins:
+          - DomainName: !GetAtt Team.Outputs.TeamApi
+            Id: Team
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt Match.Outputs.MatchApi
+            Id: Match
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt Tournament.Outputs.TournamentApi
+            Id: Tournament
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt Betting.Outputs.BettingApi
+            Id: Betting
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt User.Outputs.UserApi
+            Id: User
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+          - DomainName: !GetAtt Setting.Outputs.SettingApi
+            Id: Setting
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only              
+
+  ApiDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: "losi999.hu."
+      AliasTarget:
+        DNSName: !GetAtt Api.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+      Name: !FindInMap [EnvMapping, !Ref Env, ApiDomain]
+      Type: A
+
+  Website:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - Api
+    Properties:
+      DistributionConfig:
+        Comment: !Sub "${Env}-Web"
+        Aliases: 
+          - !FindInMap [EnvMapping, !Ref Env, WebsiteDomain]
+        ViewerCertificate:
+          AcmCertificateArn: "{{resolve:ssm:DomainCertificateArn:1}}"
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2019  
+        Enabled: true
+        PriceClass: PriceClass_100
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+          MinTTL: 0
+          MaxTTL: 0
+          DefaultTTL: 0
+          TargetOriginId: Web
+          ForwardedValues:
+            QueryString: true
+        Origins:
+          - DomainName: !Sub ${Infrastructure.Outputs.WebsiteBucket}.s3-website-${AWS::Region}.${AWS::URLSuffix}
+            Id: Web
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+
+  WebsiteDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: "losi999.hu."
+      AliasTarget:
+        DNSName: !GetAtt Website.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+      Name: !FindInMap [EnvMapping, !Ref Env, WebsiteDomain]
+      Type: A
+
+Outputs:
+  FociApi:
+    Description: "Foci 2020 API"
+    Value: !Sub
+             - "https://${Domain}"
+             - Domain: !FindInMap [EnvMapping, !Ref Env, ApiDomain]
+  FociWeb:
+    Description: "Foci 2020 Web"
+    Value: !Sub
+             - "https://${Domain}"
+             - Domain: !FindInMap [EnvMapping, !Ref Env, WebsiteDomain]
+  WebsiteBucket:
+    Value: !GetAtt Infrastructure.Outputs.WebsiteBucket
+  Database:
+    Value: !GetAtt Data.Outputs.Database

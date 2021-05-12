@@ -1,0 +1,66 @@
+.betting-match-list-item {
+  &__home-flag,
+  &__away-flag {
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    text-align: center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #b8c3c9;
+    align-self: center;
+    justify-self: center;
+  }
+
+  &__home-flag span,
+  &__away-flag span {
+    display: block;
+    width: 195px;
+    height: 100%;
+    margin-left: -80px;
+  }
+
+  &__home-flag img,
+  &__away-flag img {
+    height: 100%;
+    display: inline-block;
+  }
+
+  &__home-flag {
+    grid-area: home-flag;
+  }
+
+  &__away-flag {
+    grid-area: away-flag;
+  }
+
+  &__bet-panel {
+    display: grid;
+    grid-template-columns: 50px 50px;
+    grid-template-rows: 30px 35px 30px 38px;
+    row-gap: 5px;
+    grid-template-areas:
+      "title title"
+      "home-flag away-flag"
+      "home-bet away-bet"
+      "submit submit";
+  }
+
+  &__bet-title {
+    grid-area: title;
+    text-align: center;
+  }
+
+  &__home-input {
+    grid-area: home-bet;
+  }
+
+  &__away-input {
+    grid-area: away-bet;
+  }
+
+  &__ok {
+    grid-area: submit;
+  }
+}

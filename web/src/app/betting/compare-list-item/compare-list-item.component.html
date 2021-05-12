@@ -1,0 +1,21 @@
+<div class="compare-list-item">
+  <div class="compare-list-item__home-flag">
+    <span>
+      <img [src]="match.homeFlag" alt="">
+    </span>
+  </div>
+  <div class="compare-list-item__away-flag">
+    <span>
+      <img [src]="match.awayFlag" alt="">
+    </span>
+  </div>
+  <div class="compare-list-item__final-score" *ngIf="match.matchScore">
+    {{match.matchScore.homeScore}}-{{match.matchScore.awayScore}}
+  </div>
+  <div class="compare-list-item__left-bet" *ngIf="match.leftScore" [ngClass]="match.leftScore.result | betResultToCssClass">
+    {{match.leftScore.homeScore}}-{{match.leftScore.awayScore}}
+  </div>
+  <div class="compare-list-item__right-bet" *ngIf="match.rightScore" [ngClass]="match.rightScore.result | betResultToCssClass">
+    {{match.rightScore.homeScore}}-{{match.rightScore.awayScore}}
+  </div>
+</div>

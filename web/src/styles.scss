@@ -1,0 +1,48 @@
+@import "~bootstrap/scss/bootstrap";
+
+@font-face {
+  font-family: "PFBeauSansPro-SemiBold";
+  src: url("assets/PFBeauSansPro-SemiBold.ttf");
+}
+
+@font-face {
+  font-family: "PFBeauSansPro-Regular";
+  src: url("assets/PFBeauSansPro-Regular.ttf");
+}
+
+body {
+  color: #2e2e2e;
+  background-color: #1b9eb2 !important;
+  margin: 0;
+  font-family: "PFBeauSansPro-Regular" !important;
+}
+
+ul,
+li,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+.red {
+  background-color: crimson;
+  color: white;
+}
+
+.green {
+  background-color: seagreen;
+  color: white;
+}
+
+.blue {
+  background-color: cornflowerblue;
+  color: white;
+}
+
+.yellow {
+  background-color: gold;
+}
+
+.gray {
+  background-color: silver;
+}

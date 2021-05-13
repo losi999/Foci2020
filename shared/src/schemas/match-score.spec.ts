@@ -1,19 +1,12 @@
 import { default as schema } from '@foci2020/shared/schemas/match-score';
-import { IValidatorService, validatorServiceFactory } from '@foci2020/shared/services/validator-service';
-import ajv from 'ajv';
+import { validatorService } from '@foci2020/shared/dependencies/services/validator-service';
 import { validateSchemaAdditionalProperties, validateSchemaRequired, validateSchemaType, validateSchemaMinimum } from '@foci2020/shared/common/unit-testing';
 import { MatchFinalScoreRequest } from '@foci2020/shared/types/requests';
 
 describe('Match score schema', () => {
   let data: MatchFinalScoreRequest;
-  let validatorService: IValidatorService;
 
   beforeEach(() => {
-    validatorService = validatorServiceFactory(new ajv({
-      allErrors: true,
-      format: 'full',
-    }));
-
     data = {
       homeScore: 1,
       awayScore: 0,

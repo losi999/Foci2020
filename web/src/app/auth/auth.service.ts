@@ -80,8 +80,7 @@ export class AuthService {
   }
 
   public logout() {
-    localStorage.removeItem('idToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.clear();
     this.redirect();
   }
 }

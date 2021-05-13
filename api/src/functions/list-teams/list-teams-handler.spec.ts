@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/list-teams/list-teams-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { teamResponse } from '@foci2020/shared/common/test-data-factory';
 
 describe('List teams handler', () => {
@@ -12,7 +11,7 @@ describe('List teams handler', () => {
   it('should respond with error if listTeams throws error', async () => {
     const handlerEvent = {
       body: '{}', 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -21,7 +20,7 @@ describe('List teams handler', () => {
       message,
     });
 
-    const response = await handler(mockListTeamsService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockListTeamsService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -30,12 +29,12 @@ describe('List teams handler', () => {
   it('should respond with HTTP 200 and list of teams if listTeams executes successfully', async () => {
     const handlerEvent = {
       body: '{}', 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     const teams = [teamResponse()];
     mockListTeamsService.mockResolvedValue(teams);
 
-    const response = await handler(mockListTeamsService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockListTeamsService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body)).toEqual(teams);

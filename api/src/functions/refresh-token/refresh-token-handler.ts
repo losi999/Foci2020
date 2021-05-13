@@ -1,8 +1,7 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import { IRefreshTokenService } from '@foci2020/api/functions/refresh-token/refresh-token-service';
 import { IdTokenResponse } from '@foci2020/shared/types/responses';
 
-export default (refreshToken: IRefreshTokenService): APIGatewayProxyHandler => {
+export default (refreshToken: IRefreshTokenService): AWSLambda.APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body);
     let loginResponse: IdTokenResponse;

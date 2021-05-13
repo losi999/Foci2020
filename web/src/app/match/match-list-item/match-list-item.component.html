@@ -3,7 +3,13 @@
   <span>{{match.awayTeam.teamName}}</span>
   <span>{{match.tournament.tournamentName}}</span>
   <span>{{match.group}}</span>
+  <span>{{match.city}}</span>
   <span>{{match.startTime}}</span>
-  <button routerLink="{{match.matchId}}">Szerkesztés</button>
-  <button (click)="onMatchDelete()">Törlés</button>
+  <button routerLink="{{match.matchId}}">Sz</button>
+  <button (click)="onMatchDelete()">X</button>
+  <form *ngIf="form" [formGroup]="form">
+    <input class="betting-match-list-item__home-input" type="number" formControlName="homeScore" min="0" pattern="\d*">
+    <input class="betting-match-list-item__away-input" type="number" formControlName="awayScore" min="0" pattern="\d*">
+    <button (click)="onSetFinalScore()" [disabled]="form.invalid">Végeredmény</button>
+  </form>
 </div>

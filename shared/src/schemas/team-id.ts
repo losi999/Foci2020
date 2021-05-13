@@ -1,6 +1,6 @@
-import { JSONSchema7 } from 'json-schema';
+import { StrictJSONSchema7, TeamId } from '@foci2020/shared/types/common';
 
-const schema: JSONSchema7 = {
+const schema: StrictJSONSchema7<TeamId> = {
   type: 'object',
   additionalProperties: false,
   required: ['teamId'],

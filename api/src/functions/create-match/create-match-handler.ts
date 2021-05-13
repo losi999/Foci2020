@@ -1,8 +1,7 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import { ICreateMatchService } from '@foci2020/api/functions/create-match/create-match-service';
 import { headerExpiresIn } from '@foci2020/shared/constants';
 
-export default (createMatch: ICreateMatchService): APIGatewayProxyHandler => {
+export default (createMatch: ICreateMatchService): AWSLambda.APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body);
 

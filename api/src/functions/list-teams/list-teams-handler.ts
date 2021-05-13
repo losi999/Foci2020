@@ -1,8 +1,7 @@
 import { IListTeamsService } from '@foci2020/api/functions/list-teams/list-teams-service';
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import { TeamResponse } from '@foci2020/shared/types/responses';
 
-export default (listTeams: IListTeamsService): APIGatewayProxyHandler => {
+export default (listTeams: IListTeamsService): AWSLambda.APIGatewayProxyHandler => {
   return async () => {
     let teams: TeamResponse[];
     try {

@@ -22,8 +22,6 @@ export const matchDocumentConverterFactory = (uuid: v4String): IMatchDocumentCon
         ...matchDocument,
         ...internalDocumentPropertiesToRemove,
         matchId: matchDocument.id,
-        homeScore: undefined,
-        awayScore: undefined,
         homeTeamId: undefined,
         awayTeamId: undefined,
         tournamentId: undefined,

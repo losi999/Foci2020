@@ -1,19 +1,12 @@
 import { default as schema } from '@foci2020/shared/schemas/tournament';
-import { IValidatorService, validatorServiceFactory } from '@foci2020/shared/services/validator-service';
-import ajv from 'ajv';
+import { validatorService } from '@foci2020/shared/dependencies/services/validator-service';
 import { TournamentRequest } from '@foci2020/shared/types/requests';
 import { validateSchemaAdditionalProperties, validateSchemaRequired, validateSchemaType, validateSchemaMinLength } from '@foci2020/shared/common/unit-testing';
 
 describe('Tournament schema', () => {
   let data: TournamentRequest;
-  let validatorService: IValidatorService;
 
   beforeEach(() => {
-    validatorService = validatorServiceFactory(new ajv({
-      allErrors: true,
-      format: 'full',
-    }));
-
     data = {
       tournamentName: 'Magyarország', 
     };

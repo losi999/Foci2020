@@ -182,7 +182,14 @@ workflows:
   version: 2.1
   local:
     jobs:
-      - install
+      - install:
+          name: install
+          filters:
+            branches:
+              ignores:
+                - develop
+                - release
+                - master
       - unit_test:
           name: unit_test
           requires:

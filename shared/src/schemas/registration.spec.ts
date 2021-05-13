@@ -1,19 +1,12 @@
 import { default as schema } from '@foci2020/shared/schemas/registration';
-import { IValidatorService, validatorServiceFactory } from '@foci2020/shared/services/validator-service';
-import ajv from 'ajv';
+import { validatorService } from '@foci2020/shared/dependencies/services/validator-service';
 import { RegistrationRequest } from '@foci2020/shared/types/requests';
 import { validateSchemaAdditionalProperties, validateSchemaRequired, validateSchemaType, validateSchemaFormat, validateSchemaMinLength } from '@foci2020/shared/common/unit-testing';
 
 describe('Registration schema', () => {
   let data: RegistrationRequest;
-  let validatorService: IValidatorService;
 
   beforeEach(() => {
-    validatorService = validatorServiceFactory(new ajv({
-      allErrors: true,
-      format: 'full',
-    }));
-
     data = {
       email: 'aaa@aaa.com',
       displayName: 'John',

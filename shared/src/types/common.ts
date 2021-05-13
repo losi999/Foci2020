@@ -1,3 +1,19 @@
+import { JSONSchema7 } from 'json-schema';
+
+type JSONSchemaType<T> =
+  T extends string ? 'string' :
+    T extends number ? 'number' | 'integer' :
+      T extends boolean ? 'boolean' :
+        T extends any[] ? 'array' :
+          'object';
+
+export type StrictJSONSchema7<T> = Omit<JSONSchema7, 'properties' | 'type' | 'required' | 'items'> & {
+  type: JSONSchemaType<T>;
+  required?: JSONSchemaType<T> extends 'object' ? (keyof T)[] : never;
+  properties?: JSONSchemaType<T> extends 'object' ? { [prop in keyof T]: StrictJSONSchema7<T[prop]> } : never;
+  items?: T extends any[] ? StrictJSONSchema7<T[0]> : never;
+};
+
 export type UserType = 'admin' | 'player';
 export type Remove<T> = { [prop in keyof T]: undefined };
 export type Brand<K, T> = K & { __brand: T };
@@ -33,6 +49,7 @@ export type TeamId = {
 export type MatchBase = {
   startTime: string;
   group: string;
+  city: string;
 };
 
 export type Score = {
@@ -57,9 +74,11 @@ export type MatchTeamIds = {
 export type BetResult = 'nothing' | 'outcome' | 'goalDifference' | 'exactMatch';
 
 export type UserIdType = Brand<string, 'userId'>;
-export type BetBase = {
-  userName: string;
+export type UserId = {
   userId: UserIdType;
+};
+export type BetBase = UserId & {
+  userName: string;
 };
 
 export type StandingBase = {

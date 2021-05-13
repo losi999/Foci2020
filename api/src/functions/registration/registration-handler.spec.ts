@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/registration/registration-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Login handler', () => {
   let mockRegistrationService: jest.Mock;
@@ -14,7 +13,7 @@ describe('Login handler', () => {
   it('should respond with error if registration throws error', async () => {
     const handlerEvent = {
       body: '{}', 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -23,7 +22,7 @@ describe('Login handler', () => {
       message,
     });
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -32,11 +31,11 @@ describe('Login handler', () => {
   it('should respond with HTTP 200 and tokens if registration executes successfully', async () => {
     const handlerEvent = {
       body: '{}', 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     mockRegistrationService.mockResolvedValue(undefined);
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toEqual('');

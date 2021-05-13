@@ -1,6 +1,7 @@
-import { JSONSchema7 } from 'json-schema';
+import { StrictJSONSchema7 } from '@foci2020/shared/types/common';
+import { MatchFinalScoreRequest } from '@foci2020/shared/types/requests';
 
-const schema: JSONSchema7 = {
+const schema: StrictJSONSchema7<MatchFinalScoreRequest> = {
   type: 'object',
   additionalProperties: false,
   required: [

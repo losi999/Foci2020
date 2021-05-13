@@ -1,8 +1,8 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
+
 import { ICreateTeamService } from '@foci2020/api/functions/create-team/create-team-service';
 import { headerExpiresIn } from '@foci2020/shared/constants';
 
-export default (createTeam: ICreateTeamService): APIGatewayProxyHandler => {
+export default (createTeam: ICreateTeamService): AWSLambda.APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body);
 

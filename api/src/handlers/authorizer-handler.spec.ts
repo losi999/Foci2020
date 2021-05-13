@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/handlers/authorizer-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Authorizer handler', () => {
   let authHandler: ReturnType<typeof handler>;
@@ -19,7 +18,7 @@ describe('Authorizer handler', () => {
           }, 
         }, 
       } as any, 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     await authHandler('player')(innerHandler)(handlerEvent, undefined, undefined);
     expect(innerHandler).toHaveBeenCalledTimes(1);
@@ -35,9 +34,9 @@ describe('Authorizer handler', () => {
           }, 
         }, 
       } as any, 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
-    const result = await authHandler('player')(innerHandler)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const result = await authHandler('player')(innerHandler)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
     expect(result.statusCode).toEqual(403);
     expect(innerHandler).not.toHaveBeenCalled();
     expect.assertions(2);

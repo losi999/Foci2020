@@ -1,25 +1,19 @@
 import { default as schema } from '@foci2020/shared/schemas/match';
-import { IValidatorService, validatorServiceFactory } from '@foci2020/shared/services/validator-service';
-import ajv from 'ajv';
+import { validatorService } from '@foci2020/shared/dependencies/services/validator-service';
 import { validateSchemaAdditionalProperties, validateSchemaRequired, validateSchemaType, validateSchemaFormat, validateSchemaMinLength } from '@foci2020/shared/common/unit-testing';
 import { MatchRequest } from '@foci2020/shared/types/requests';
 import { TeamIdType, TournamentIdType } from '@foci2020/shared/types/common';
 
 describe('Match schema', () => {
   let data: MatchRequest;
-  let validatorService: IValidatorService;
 
   beforeEach(() => {
-    validatorService = validatorServiceFactory(new ajv({
-      allErrors: true,
-      format: 'full',
-    }));
-
     data = {
       awayTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TeamIdType,
       tournamentId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TournamentIdType,
       startTime: '2019-10-08T18:25:07.291Z',
       group: 'Döntő',
+      city: 'Budapest',
       homeTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TeamIdType,
     };
   });
@@ -75,6 +69,26 @@ describe('Match schema', () => {
         data.group = '';
         const result = validatorService.validate(data, schema);
         validateSchemaMinLength(result, 'group', 1);
+      });
+    });
+
+    describe('if data.city', () => {
+      it('is missing', () => {
+        data.city = undefined;
+        const result = validatorService.validate(data, schema);
+        validateSchemaRequired(result, 'city');
+      });
+
+      it('is not string', () => {
+        (data.city as any) = 2;
+        const result = validatorService.validate(data, schema);
+        validateSchemaType(result, 'city', 'string');
+      });
+
+      it('is too short', () => {
+        data.city = '';
+        const result = validatorService.validate(data, schema);
+        validateSchemaMinLength(result, 'city', 1);
       });
     });
 

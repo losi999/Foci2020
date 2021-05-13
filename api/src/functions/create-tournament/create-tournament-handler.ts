@@ -1,8 +1,8 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
+
 import { ICreateTournamentService } from '@foci2020/api/functions/create-tournament/create-tournament-service';
 import { headerExpiresIn } from '@foci2020/shared/constants';
 
-export default (createTournament: ICreateTournamentService): APIGatewayProxyHandler => {
+export default (createTournament: ICreateTournamentService): AWSLambda.APIGatewayProxyHandler => {
   return async (event) => {
     const body = JSON.parse(event.body);
 

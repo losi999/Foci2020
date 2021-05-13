@@ -1,18 +1,11 @@
 import { default as schema } from '@foci2020/shared/schemas/user-id';
-import { IValidatorService, validatorServiceFactory } from '@foci2020/shared/services/validator-service';
-import ajv from 'ajv';
+import { validatorService } from '@foci2020/shared/dependencies/services/validator-service';
 import { validateSchemaAdditionalProperties, validateSchemaFormat, validateSchemaType, validateSchemaRequired } from '@foci2020/shared/common/unit-testing';
 
 describe('UserId schema', () => {
   let data: { userId: string };
-  let validatorService: IValidatorService;
 
   beforeEach(() => {
-    validatorService = validatorServiceFactory(new ajv({
-      allErrors: true,
-      format: 'full',
-    }));
-
     data = {
       userId: '36ac8b1d-856a-4449-afa9-57390d82541c', 
     };

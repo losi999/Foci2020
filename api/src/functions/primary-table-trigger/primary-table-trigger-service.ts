@@ -1,10 +1,9 @@
 import { Document } from '@foci2020/shared/types/documents';
 import { IEventService } from '@foci2020/shared/services/event-service';
-import { DynamoDBRecord } from 'aws-lambda';
 
 export interface IPrimaryTableTriggerService {
   (ctx: {
-    eventName: DynamoDBRecord['eventName'];
+    eventName: AWSLambda.DynamoDBRecord['eventName'];
     oldDocument: Document;
     newDocument: Document;
   }): Promise<void>;
@@ -67,6 +66,13 @@ export const primaryTableTriggerServiceFactory = (eventService: IEventService): 
               matchId: oldDocument.id, 
             });
           } break;
+          case 'bet': {
+            await eventService.invokeBetResultCalculated({
+              tournamentId: oldDocument.tournamentId,
+              userId: oldDocument.userId,
+              expiresIn: oldDocument.expiresAt - (new Date().getTime() / 1000),
+            });
+          }
         }
       } break;
     }

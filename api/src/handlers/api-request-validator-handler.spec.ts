@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/handlers/api-request-validator-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { IValidatorService } from '@foci2020/shared/services/validator-service';
 
 describe('API request validator handler', () => {
@@ -18,12 +17,12 @@ describe('API request validator handler', () => {
   it('should respond with HTTP 400 if request is not valid', async () => {
     const handlerEvent = {
       body: '{}', 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
     const validationError = 'This is a validation error';
     mockValidate.mockReturnValue(validationError);
     const response = await handler(mockValidatorService)({
       body: {}, 
-    })(mockInnerHandler)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    })(mockInnerHandler)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
     expect(response.statusCode).toEqual(400);
     expect(JSON.parse(response.body)).toEqual({
       body: validationError, 
@@ -34,7 +33,7 @@ describe('API request validator handler', () => {
   it('should call inner handler if request is valid', async () => {
     const handlerEvent = {
       body: '{}', 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     mockValidate.mockReturnValue(undefined);
     const statusCode = 418;
@@ -45,7 +44,7 @@ describe('API request validator handler', () => {
     });
     const response = await handler(mockValidatorService)({
       body: {}, 
-    })(mockInnerHandler)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    })(mockInnerHandler)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(body);

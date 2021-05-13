@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/compare-with-player/compare-with-player-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Compare with player handler', () => {
   let apiHandler: ReturnType<typeof handler>;
@@ -30,7 +29,7 @@ describe('Compare with player handler', () => {
         },
       },
     } as any,
-  } as APIGatewayProxyEvent;
+  } as AWSLambda.APIGatewayProxyEvent;
 
   it('should respond with error if compareWithPlayer throws error', async () => {
     const statusCode = 418;
@@ -40,7 +39,7 @@ describe('Compare with player handler', () => {
       message,
     });
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -56,7 +55,7 @@ describe('Compare with player handler', () => {
   it('should respond with HTTP 200 if compareWithPlayer executes successfully', async () => {
     mockCompareWithPlayer.mockResolvedValue(undefined);
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(mockCompareWithPlayer).toHaveBeenCalledWith({

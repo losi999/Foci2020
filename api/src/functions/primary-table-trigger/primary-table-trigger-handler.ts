@@ -1,11 +1,10 @@
-import { DynamoDBStreamHandler } from 'aws-lambda';
 import { DynamoDB } from 'aws-sdk';
 import { Document } from '@foci2020/shared/types/documents';
 import { IPrimaryTableTriggerService } from '@foci2020/api/functions/primary-table-trigger/primary-table-trigger-service';
 
 export default (
   primaryTableTrigger: IPrimaryTableTriggerService
-): DynamoDBStreamHandler =>
+): AWSLambda.DynamoDBStreamHandler =>
   async (event) => {
     await Promise.all(event.Records.map(async (record) => {
       const newDocument = DynamoDB.Converter.unmarshall(record.dynamodb.NewImage) as Document;

@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/list-standings-of-tournament/list-standings-of-tournament-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { standingResponse } from '@foci2020/shared/common/test-data-factory';
 
 describe('List standings of tournament handler', () => {
@@ -15,9 +14,9 @@ describe('List standings of tournament handler', () => {
     const handlerEvent = {
       pathParameters: {
         tournamentId, 
-      } as APIGatewayProxyEvent['pathParameters'],
+      } as AWSLambda.APIGatewayProxyEvent['pathParameters'],
       body: '{}',
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -26,7 +25,7 @@ describe('List standings of tournament handler', () => {
       message,
     });
 
-    const response = await handler(mockListStandingsOfTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockListStandingsOfTournamentService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -36,14 +35,14 @@ describe('List standings of tournament handler', () => {
     const handlerEvent = {
       pathParameters: {
         tournamentId, 
-      } as APIGatewayProxyEvent['pathParameters'],
+      } as AWSLambda.APIGatewayProxyEvent['pathParameters'],
       body: '{}',
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     const standings = [standingResponse()];
     mockListStandingsOfTournamentService.mockResolvedValue(standings);
 
-    const response = await handler(mockListStandingsOfTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockListStandingsOfTournamentService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body)).toEqual(standings);

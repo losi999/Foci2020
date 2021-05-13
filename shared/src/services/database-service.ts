@@ -9,6 +9,7 @@ export interface IDatabaseService {
   saveStanding(document: StandingDocument): Promise<unknown>;
   saveTeam(document: TeamDocument): Promise<unknown>;
   saveTournament(document: TournamentDocument): Promise<unknown>;
+  saveSetting(document: SettingDocument): Promise<unknown>;
   deleteBet(userId: UserIdType, matchId: MatchIdType): Promise<unknown>;
   deleteMatch(matchId: MatchIdType): Promise<unknown>;
   deleteTeam(teamId: TeamIdType): Promise<unknown>;
@@ -150,6 +151,7 @@ export const databaseServiceFactory = (config: {
     saveStanding: document => saveDocument(document),
     saveTeam: document => saveDocument(document),
     saveTournament: document => saveDocument(document),
+    saveSetting: document => saveDocument(document),
     listMatches: () => listDocuments('match'),
     listTeams: () => listDocuments('team'),
     listTournaments: () => listDocuments('tournament'),

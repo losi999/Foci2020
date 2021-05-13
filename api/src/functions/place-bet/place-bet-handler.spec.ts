@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/place-bet/place-bet-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Place bet handler', () => {
   let apiHandler: ReturnType<typeof handler>;
@@ -29,7 +28,7 @@ describe('Place bet handler', () => {
       },
     } as any,
     headers: {},
-  } as APIGatewayProxyEvent;
+  } as AWSLambda.APIGatewayProxyEvent;
 
   it('should respond with error if placeBet throws error', async () => {
     const statusCode = 418;
@@ -39,7 +38,7 @@ describe('Place bet handler', () => {
       message,
     });
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -56,7 +55,7 @@ describe('Place bet handler', () => {
   it('should respond with HTTP 200 if placeBet executes successfully', async () => {
     mockPlaceBetService.mockResolvedValue(undefined);
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(mockPlaceBetService).toHaveBeenCalledWith({

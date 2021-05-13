@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/update-tournament/update-tournament-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Update tournament handler', () => {
   let mockUpdateTournamentService: jest.Mock;
@@ -12,7 +11,7 @@ describe('Update tournament handler', () => {
     body: '{}',
     pathParameters: {},
     headers: {},
-  } as APIGatewayProxyEvent;
+  } as AWSLambda.APIGatewayProxyEvent;
   it('should respond with error if updateTournament throws error', async () => {
 
     const statusCode = 418;
@@ -22,7 +21,7 @@ describe('Update tournament handler', () => {
       message,
     });
 
-    const response = await handler(mockUpdateTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockUpdateTournamentService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -31,7 +30,7 @@ describe('Update tournament handler', () => {
   it('should respond with HTTP 200 if updateTournament executes successfully', async () => {
     mockUpdateTournamentService.mockResolvedValue(undefined);
 
-    const response = await handler(mockUpdateTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockUpdateTournamentService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toEqual('');

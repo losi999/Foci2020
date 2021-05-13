@@ -186,7 +186,7 @@ workflows:
           name: install
           filters:
             branches:
-              ignores:
+              ignore:
                 - develop
                 - release
                 - master

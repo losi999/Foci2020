@@ -1,9 +1,8 @@
 import { ICompareWithPlayerService } from '@foci2020/api/functions/compare-with-player/compare-with-player-service';
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import { CompareResponse } from '@foci2020/shared/types/responses';
 import { TournamentIdType, UserIdType } from '@foci2020/shared/types/common';
 
-export default (compareWithPlayer: ICompareWithPlayerService): APIGatewayProxyHandler =>
+export default (compareWithPlayer: ICompareWithPlayerService): AWSLambda.APIGatewayProxyHandler =>
   async (event) => {
     const tournamentId = event.pathParameters.tournamentId as TournamentIdType;
     const otherUserId = event.pathParameters.userId as UserIdType;

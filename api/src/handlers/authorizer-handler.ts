@@ -1,9 +1,8 @@
-import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { UserType } from '@foci2020/shared/types/common';
 
 export default () =>
   (...userTypes: UserType[]) =>
-    (handler: APIGatewayProxyHandler): APIGatewayProxyHandler =>
+    (handler: AWSLambda.APIGatewayProxyHandler): AWSLambda.APIGatewayProxyHandler =>
       async (event, context, callback) => {
         const groups = event.requestContext.authorizer.claims['cognito:groups'].split(',');
 
@@ -13,5 +12,5 @@ export default () =>
             body: '',
           };
         }
-        return handler(event, context, callback) as Promise<APIGatewayProxyResult>;
+        return handler(event, context, callback) as Promise<AWSLambda.APIGatewayProxyResult>;
       };

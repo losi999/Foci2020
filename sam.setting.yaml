@@ -73,6 +73,22 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
 
+  SetDefaultTournament:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-Setting-SetDefaultTournament
+      CodeUri: dist/api/set-default-tournament
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SettingApi
+            Path: /v1/settings/defaultTournament
+            Method: POST
+            Auth:
+              Authorizer: CognitoAuthorizer
+
 Outputs:
   SettingApi:
     Description: "Foci 2020 Setting API"

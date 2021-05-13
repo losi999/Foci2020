@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/delete-team/delete-team-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Delete team handler', () => {
   let mockDeleteTeamService: jest.Mock;
@@ -12,7 +11,7 @@ describe('Delete team handler', () => {
     const handlerEvent = {
       pathParameters: {},
       body: '{}',
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -21,7 +20,7 @@ describe('Delete team handler', () => {
       message,
     });
 
-    const response = await handler(mockDeleteTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockDeleteTeamService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -31,11 +30,11 @@ describe('Delete team handler', () => {
     const handlerEvent = {
       pathParameters: {},
       body: '{}',
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     mockDeleteTeamService.mockResolvedValue(undefined);
 
-    const response = await handler(mockDeleteTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockDeleteTeamService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(response.body).toEqual('');

@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/get-tournament/get-tournament-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { tournamentResponse } from '@foci2020/shared/common/test-data-factory';
 
 describe('Get tournament handler', () => {
@@ -13,7 +12,7 @@ describe('Get tournament handler', () => {
     const handlerEvent = {
       pathParameters: {},
       body: '{}',
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -22,7 +21,7 @@ describe('Get tournament handler', () => {
       message,
     });
 
-    const response = await handler(mockGetTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockGetTournamentService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -32,11 +31,11 @@ describe('Get tournament handler', () => {
     const handlerEvent = {
       pathParameters: {},
       body: '{}',
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
     const tournament = tournamentResponse();
     mockGetTournamentService.mockResolvedValue(tournament);
 
-    const response = await handler(mockGetTournamentService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockGetTournamentService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body)).toEqual(tournament);

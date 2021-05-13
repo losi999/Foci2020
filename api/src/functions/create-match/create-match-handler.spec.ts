@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/create-match/create-match-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Create match handler', () => {
   let mockCreateMatchService: jest.Mock;
@@ -11,7 +10,7 @@ describe('Create match handler', () => {
   const handlerEvent = {
     body: '{}',
     headers: {},
-  } as APIGatewayProxyEvent;
+  } as AWSLambda.APIGatewayProxyEvent;
   it('should respond with error if createMatch throws error', async () => {
 
     const statusCode = 418;
@@ -21,7 +20,7 @@ describe('Create match handler', () => {
       message,
     });
 
-    const response = await handler(mockCreateMatchService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockCreateMatchService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -32,7 +31,7 @@ describe('Create match handler', () => {
 
     mockCreateMatchService.mockResolvedValue(matchId);
 
-    const response = await handler(mockCreateMatchService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockCreateMatchService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body).matchId).toEqual(matchId);

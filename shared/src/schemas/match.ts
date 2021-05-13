@@ -1,9 +1,11 @@
-import { JSONSchema7 } from 'json-schema';
+import { StrictJSONSchema7 } from '@foci2020/shared/types/common';
+import { MatchRequest } from '@foci2020/shared/types/requests';
 
-const schema: JSONSchema7 = {
+const schema: StrictJSONSchema7<MatchRequest> = {
   type: 'object',
   additionalProperties: false,
   required: [
+    'city',
     'startTime',
     'group',
     'homeTeamId',
@@ -11,6 +13,10 @@ const schema: JSONSchema7 = {
     'tournamentId',
   ],
   properties: {
+    city: {
+      type: 'string',
+      minLength: 1,
+    },
     startTime: {
       type: 'string',
       format: 'date-time',

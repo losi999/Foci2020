@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatchIdType } from '@foci2020/shared/types/common';
-import { MatchRequest } from '@foci2020/shared/types/requests';
+import { MatchFinalScoreRequest, MatchRequest } from '@foci2020/shared/types/requests';
 import { MatchResponse } from '@foci2020/shared/types/responses';
 import { Subject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -43,5 +43,9 @@ export class MatchService {
         console.error(error);
       },
     });
+  }
+
+  setFinalScoreOfMatch(matchId: MatchIdType, score: MatchFinalScoreRequest): Observable<unknown> {
+    return this.httpClient.patch(`${environment.apiUrl}/match/v1/matches/${matchId}`, score);
   }
 }

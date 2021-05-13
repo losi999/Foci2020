@@ -18,4 +18,8 @@ export class TournamentListItemComponent implements OnInit {
   onTournamentDelete() {
     this.tournamentService.deleteTournament(this.tournament.tournamentId);
   }
+
+  onSetDefaultTournament() {
+    this.tournamentService.setDefaultTournament(this.tournament.tournamentId);
+  }
 }

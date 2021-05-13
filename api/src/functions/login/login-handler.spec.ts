@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/login/login-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { LoginResponse } from '@foci2020/shared/types/responses';
 
 describe('Login handler', () => {
@@ -15,7 +14,7 @@ describe('Login handler', () => {
   it('should respond with error if login throws error', async () => {
     const handlerEvent = {
       body: '{}', 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
 
     const statusCode = 418;
     const message = 'This is an error';
@@ -24,7 +23,7 @@ describe('Login handler', () => {
       message,
     });
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -33,14 +32,14 @@ describe('Login handler', () => {
   it('should respond with HTTP 200 and tokens if login executes successfully', async () => {
     const handlerEvent = {
       body: '{}', 
-    } as APIGatewayProxyEvent;
+    } as AWSLambda.APIGatewayProxyEvent;
     const tokens: LoginResponse = {
       idToken: 'some.id.token',
       refreshToken: 'some.refresh.token',
     };
     mockLoginService.mockResolvedValue(tokens);
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body)).toEqual(tokens);

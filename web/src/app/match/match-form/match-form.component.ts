@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MatchRequest } from '@foci2020/shared/types/requests';
 import { MatchResponse, TeamResponse, TournamentResponse } from '@foci2020/shared/types/responses';
 import { MatchService } from 'src/app/match/match.service';
 
@@ -27,6 +28,7 @@ export class MatchFormComponent implements OnInit {
     const date = this.match && new Date(this.match.startTime);
     this.form = new FormGroup({
       group: new FormControl(this.match?.group, [Validators.required]),
+      city: new FormControl(this.match?.city, [Validators.required]),
       homeTeamId: new FormControl(this.match?.homeTeam.teamId, [Validators.required]),
       awayTeamId: new FormControl(this.match?.awayTeam.teamId, [Validators.required]),
       tournamentId: new FormControl(this.match?.tournament.tournamentId, [Validators.required]),
@@ -38,6 +40,7 @@ export class MatchFormComponent implements OnInit {
       startTime: new FormControl(date ? {
         hour: date.getHours(),
         minute: date.getMinutes(),
+        second: date.getSeconds(),
       } : undefined, [Validators.required]),
     });
   }
@@ -60,25 +63,22 @@ export class MatchFormComponent implements OnInit {
       const { hour, minute, second } = this.form.value.startTime;
       const date = new Date(year, month - 1, day, hour, minute, second);
 
+      const request: MatchRequest = {
+        homeTeamId: this.form.value.homeTeamId,
+        awayTeamId: this.form.value.awayTeamId,
+        tournamentId: this.form.value.tournamentId,
+        group: this.form.value.group,
+        city: this.form.value.city,
+        startTime: date.toISOString(),
+      };
+
       if(this.match) {
-        this.matchService.updateMatch(this.match.matchId, {
-          homeTeamId: this.form.value.homeTeamId,
-          awayTeamId: this.form.value.awayTeamId,
-          tournamentId: this.form.value.tournamentId,
-          group: this.form.value.group,
-          startTime: date.toISOString(),
-        }).subscribe({
+        this.matchService.updateMatch(this.match.matchId, request).subscribe({
           next,
           error,
         });
       } else {
-        this.matchService.createMatch({
-          homeTeamId: this.form.value.homeTeamId,
-          awayTeamId: this.form.value.awayTeamId,
-          tournamentId: this.form.value.tournamentId,
-          group: this.form.value.group,
-          startTime: date.toISOString(),
-        }).subscribe({
+        this.matchService.createMatch(request).subscribe({
           next,
           error,
         });

@@ -11,7 +11,6 @@ export type TeamResponse = TeamBase
 
 export type MatchResponse = MatchId
 & MatchBase
-& Remove<Score>
 & Remove<MatchTeamIds>
 & Remove<TournamentId>
 & Remove<IndexHomeTeamIdDocumentType>

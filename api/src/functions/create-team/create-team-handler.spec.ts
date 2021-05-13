@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/create-team/create-team-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Create team handler', () => {
   let mockCreateTeamService: jest.Mock;
@@ -11,7 +10,7 @@ describe('Create team handler', () => {
   const handlerEvent = {
     body: '{}',
     headers: {},
-  } as APIGatewayProxyEvent;
+  } as AWSLambda.APIGatewayProxyEvent;
   it('should respond with error if createTeam throws error', async () => {
 
     const statusCode = 418;
@@ -21,7 +20,7 @@ describe('Create team handler', () => {
       message,
     });
 
-    const response = await handler(mockCreateTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockCreateTeamService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -32,7 +31,7 @@ describe('Create team handler', () => {
 
     mockCreateTeamService.mockResolvedValue(teamId);
 
-    const response = await handler(mockCreateTeamService)(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await handler(mockCreateTeamService)(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body).teamId).toEqual(teamId);

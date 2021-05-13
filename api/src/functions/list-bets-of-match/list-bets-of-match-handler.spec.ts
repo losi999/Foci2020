@@ -1,5 +1,4 @@
 import { default as handler } from '@foci2020/api/functions/list-bets-of-match/list-bets-of-match-handler';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 describe('Place bet handler', () => {
   let apiHandler: ReturnType<typeof handler>;
@@ -24,7 +23,7 @@ describe('Place bet handler', () => {
         },
       },
     } as any,
-  } as APIGatewayProxyEvent;
+  } as AWSLambda.APIGatewayProxyEvent;
 
   it('should respond with error if list bets of match throws error', async () => {
     const statusCode = 418;
@@ -34,7 +33,7 @@ describe('Place bet handler', () => {
       message,
     });
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(statusCode);
     expect(response.body).toEqual(message);
@@ -48,7 +47,7 @@ describe('Place bet handler', () => {
   it('should respond with HTTP 200 if list bets of match executes successfully', async () => {
     mockListBetsOfMatchService.mockResolvedValue(undefined);
 
-    const response = await apiHandler(handlerEvent, undefined, undefined) as APIGatewayProxyResult;
+    const response = await apiHandler(handlerEvent, undefined, undefined) as AWSLambda.APIGatewayProxyResult;
 
     expect(response.statusCode).toEqual(200);
     expect(mockListBetsOfMatchService).toHaveBeenCalledWith({

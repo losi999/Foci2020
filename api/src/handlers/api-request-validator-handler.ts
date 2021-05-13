@@ -1,5 +1,4 @@
 import { JSONSchema7 } from 'json-schema';
-import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { IValidatorService } from '@foci2020/shared/services/validator-service';
 
 type RequestSchemaTypes = {
@@ -13,7 +12,7 @@ const keys = <O extends object>(obj: O): (keyof O)[] => {
 };
 
 export default (validatorService: IValidatorService) => {
-  return (schemas: RequestSchemaTypes): ((handler: APIGatewayProxyHandler) => APIGatewayProxyHandler) => {
+  return (schemas: RequestSchemaTypes): ((handler: AWSLambda.APIGatewayProxyHandler) => AWSLambda.APIGatewayProxyHandler) => {
     return (handler) => {
       return async (event, context, callback) => {
         const validationErrors = keys(schemas).reduce((accumulator, currentValue) => {
@@ -35,7 +34,7 @@ export default (validatorService: IValidatorService) => {
           };
         }
 
-        return handler(event, context, callback) as Promise<APIGatewayProxyResult>;
+        return handler(event, context, callback) as Promise<AWSLambda.APIGatewayProxyResult>;
       };
     };
   };

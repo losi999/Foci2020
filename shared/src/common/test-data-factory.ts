@@ -76,11 +76,12 @@ export const matchRequest = (req?: Partial<MatchRequest>): MatchRequest => ({
   homeTeamId: 'homeTeamId' as TeamIdType,
   tournamentId: 'tournamentId' as TournamentIdType,
   group: 'Group',
+  city: 'City',
   startTime: 'startTime',
   ...req,
 });
 
-export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'group' | 'id' | 'finalScore' | 'homeTeam' | 'awayTeam' | 'tournament' | 'expiresAt' | 'modifiedAt'>>): MatchDocument => {
+export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'group' | 'city' | 'id' | 'finalScore' | 'homeTeam' | 'awayTeam' | 'tournament' | 'expiresAt' | 'modifiedAt'>>): MatchDocument => {
   const homeTeam = doc?.homeTeam ?? teamDocument({
     id: 'homeTeamId' as TeamIdType, 
   });
@@ -103,6 +104,7 @@ export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'g
     tournament,
     id,
     group: 'Group',
+    city: 'City',
     startTime: 'startTime',
     'documentType-id': `match#${id}` as KeyType,
     'tournamentId-documentType': `${tournamentId}#match`,
@@ -123,6 +125,7 @@ export const matchResponse = (res?: Partial<Pick<MatchResponse, keyof MatchReque
   return {
     matchId: 'matchId' as MatchIdType,
     group: 'Group',
+    city: 'City',
     startTime: 'startTime',
     finalScore: undefined,
     awayTeamId: undefined,
@@ -131,8 +134,6 @@ export const matchResponse = (res?: Partial<Pick<MatchResponse, keyof MatchReque
     'documentType-id': undefined,
     documentType: undefined,
     orderingValue: undefined,
-    homeScore: undefined,
-    awayScore: undefined,
     id: undefined,
     'tournamentId-documentType': undefined,
     'homeTeamId-documentType': undefined,

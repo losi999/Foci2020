@@ -1,9 +1,8 @@
 import { IGetTournamentService } from '@foci2020/api/functions/get-tournament/get-tournament-service';
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import { TournamentResponse } from '@foci2020/shared/types/responses';
 import { TournamentIdType } from '@foci2020/shared/types/common';
 
-export default (getTournament: IGetTournamentService): APIGatewayProxyHandler => {
+export default (getTournament: IGetTournamentService): AWSLambda.APIGatewayProxyHandler => {
   return async (event) => {
     const tournamentId = event.pathParameters.tournamentId as TournamentIdType;
     let tournament: TournamentResponse;

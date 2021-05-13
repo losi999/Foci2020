@@ -1,7 +1,7 @@
 import { default as handler } from '@foci2020/api/functions/get-default-tournament-id/get-default-tournament-id-handler';
 import { IGetDefaultTournamentIdService } from './get-default-tournament-id-service';
 
-describe('List teams handler', () => {
+describe('Get default tournament Id handler', () => {
   let mockGetDefaultTournamentId: jest.Mock<ReturnType<IGetDefaultTournamentIdService>, Parameters<IGetDefaultTournamentIdService>>;
 
   beforeEach(() => {

@@ -11,10 +11,20 @@ import { environment } from 'src/environments/environment';
 })
 export class TournamentService {
   private _tournamentDeleted: Subject<TournamentIdType> = new Subject();
+  private _defaultTournamentChanged: Subject<TournamentIdType> = new Subject();
+
+  get defaultTournamentId(): string {
+    return localStorage.getItem('defaultTournamentId');
+  }
 
   get tournamentDeleted(): Observable<TournamentIdType> {
     return this._tournamentDeleted.asObservable();
   }
+
+  get defaultTournamentChanged(): Observable<TournamentIdType> {
+    return this._defaultTournamentChanged.asObservable();
+  }
+
   constructor(private httpClient: HttpClient) { }
 
   createTournament(request: TournamentRequest): Observable<unknown> {
@@ -40,6 +50,16 @@ export class TournamentService {
       },
       error: (error) => {
         console.error(error);
+      },
+    });
+  }
+
+  setDefaultTournament(tournamentId: TournamentIdType): void {
+    this.httpClient.post(`${environment.apiUrl}/setting/v1/settings/defaultTournament`, {
+      tournamentId,
+    }).subscribe({
+      next: () => {
+        this._defaultTournamentChanged.next(tournamentId);
       },
     });
   }

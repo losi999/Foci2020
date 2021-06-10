@@ -27,7 +27,8 @@ export class MatchFormComponent implements OnInit {
   ngOnInit(): void {
     const date = this.match && new Date(this.match.startTime);
     this.form = new FormGroup({
-      group: new FormControl(this.match?.group, [Validators.required]),
+      group: new FormControl(this.match?.group),
+      stadium: new FormControl(this.match?.stadium),
       city: new FormControl(this.match?.city, [Validators.required]),
       homeTeamId: new FormControl(this.match?.homeTeam.teamId, [Validators.required]),
       awayTeamId: new FormControl(this.match?.awayTeam.teamId, [Validators.required]),
@@ -56,8 +57,6 @@ export class MatchFormComponent implements OnInit {
       console.log(error);
     };
 
-    console.log(this.form);
-
     if(this.form.valid) {
       const { year, month, day } = this.form.value.startDate;
       const { hour, minute, second } = this.form.value.startTime;
@@ -67,7 +66,8 @@ export class MatchFormComponent implements OnInit {
         homeTeamId: this.form.value.homeTeamId,
         awayTeamId: this.form.value.awayTeamId,
         tournamentId: this.form.value.tournamentId,
-        group: this.form.value.group,
+        group: this.form.value.group || undefined,
+        stadium: this.form.value.stadium || undefined,
         city: this.form.value.city,
         startTime: date.toISOString(),
       };

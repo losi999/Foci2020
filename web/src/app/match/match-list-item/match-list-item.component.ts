@@ -45,6 +45,5 @@ export class MatchListItemComponent implements OnInit {
         this.form = undefined;
       },
     });
-    console.log(this.form);
   }
 }

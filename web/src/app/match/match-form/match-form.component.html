@@ -37,9 +37,6 @@
       Csoport
       <input type="text" class="form-control" formControlName="group" id="group">
     </label>
-    <ng-container *ngIf="form.controls.group.touched">
-      <span *ngIf="form.controls.group.errors?.required">Kötelező</span>
-    </ng-container>
   </div>
   <div class="form-group">
     <label for="city">
@@ -49,6 +46,12 @@
     <ng-container *ngIf="form.controls.city.touched">
       <span *ngIf="form.controls.city.errors?.required">Kötelező</span>
     </ng-container>
+  </div>
+  <div class="form-group">
+    <label for="stadium">
+      Stadion
+      <input type="text" class="form-control" formControlName="stadium" id="stadium">
+    </label>
   </div>
   <div class="form-group">
     <label>
@@ -61,11 +64,6 @@
       </div>
       <ngb-timepicker formControlName="startTime"></ngb-timepicker>
     </label>
-    <!-- <ng-container *ngIf="form.controls.shortName.touched">
-      <span *ngIf="form.controls.shortName.errors?.required">Kötelező</span>
-      <span *ngIf="form.controls.shortName.errors?.minLength">Túl rövid</span>
-      <span *ngIf="form.controls.shortName.errors?.maxLength">Túl hosszú</span>
-    </ng-container> -->
   </div>
   <button type="submit">Mentés</button>
 </form>

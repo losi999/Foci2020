@@ -35,9 +35,8 @@ export class LoginComponent implements OnInit {
         email: this.form.value.email,
         password: this.form.value.password,
       }).subscribe({
-        error: (error) => {
-          console.log(error);
-          alert('¯\\_(ツ)_/¯');
+        error: () => {
+          alert('Hibás felhasználónév vagy jelszó');
           this.isInProgress = false;
         },
       });

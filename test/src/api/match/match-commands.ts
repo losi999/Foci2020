@@ -37,7 +37,7 @@ const requestDeleteMatch = (idToken: string, matchId: MatchIdType) => {
     method: 'DELETE',
     url: `/match/v1/matches/${matchId}`,
     headers: {
-      Authorization: idToken, 
+      Authorization: idToken,
     },
     failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
@@ -48,7 +48,7 @@ const requestGetMatch = (idToken: string, matchId: MatchIdType) => {
     method: 'GET',
     url: `/match/v1/matches/${matchId}`,
     headers: {
-      Authorization: idToken, 
+      Authorization: idToken,
     },
     failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
@@ -59,7 +59,7 @@ const requestGetMatchList = (idToken: string) => {
     method: 'GET',
     url: '/match/v1/matches',
     headers: {
-      Authorization: idToken, 
+      Authorization: idToken,
     },
     failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
@@ -71,7 +71,7 @@ const requestSetFinalScoreOfMatch = (idToken: string, matchId: MatchIdType, scor
     method: 'PATCH',
     url: `/match/v1/matches/${matchId}`,
     headers: {
-      Authorization: idToken, 
+      Authorization: idToken,
     },
     failOnStatusCode: false,
   }) as Cypress.ChainableResponse;
@@ -79,7 +79,7 @@ const requestSetFinalScoreOfMatch = (idToken: string, matchId: MatchIdType, scor
 
 const saveMatchDocument = (document: MatchDocument) => {
   return cy.log('Save match document', document).wrap(databaseService.saveMatch(document), {
-    log: false, 
+    log: false,
   });
 };
 
@@ -95,6 +95,8 @@ const validateMatchDocument = (response: MatchResponse,
     .should((document: MatchDocument) => {
       expect(document.id).to.equal(id);
       expect(document.group).to.equal(match.group);
+      expect(document.city).to.equal(match.city);
+      expect(document.stadium).to.equal(match.stadium);
       expect(document.startTime).to.equal(match.startTime);
       expect(document.homeTeam.id).to.equal(homeTeam.id);
       expect(document.homeTeam.teamName).to.equal(homeTeam.teamName);
@@ -121,6 +123,8 @@ const validateUpdatedHomeTeam = (
     .should((document: MatchDocument) => {
       expect(document.id).to.equal(matchId);
       expect(document.group).to.equal(match.group);
+      expect(document.city).to.equal(match.city);
+      expect(document.stadium).to.equal(match.stadium);
       expect(document.startTime).to.equal(match.startTime);
       expect(document.homeTeam.id).to.equal(homeTeam.id);
       expect(document.homeTeam.teamName).to.equal(updated.teamName);
@@ -146,6 +150,8 @@ const validateUpdatedAwayTeam = (updated: TeamRequest,
     .should((document: MatchDocument) => {
       expect(document.id).to.equal(matchId);
       expect(document.group).to.equal(match.group);
+      expect(document.city).to.equal(match.city);
+      expect(document.stadium).to.equal(match.stadium);
       expect(document.startTime).to.equal(match.startTime);
       expect(document.homeTeam.id).to.equal(homeTeam.id);
       expect(document.homeTeam.teamName).to.equal(homeTeam.teamName);
@@ -171,6 +177,8 @@ const validateUpdatedTournament = (updated: TournamentRequest,
     .should((document: MatchDocument) => {
       expect(document.id).to.equal(matchId);
       expect(document.group).to.equal(match.group);
+      expect(document.city).to.equal(match.city);
+      expect(document.stadium).to.equal(match.stadium);
       expect(document.startTime).to.equal(match.startTime);
       expect(document.homeTeam.id).to.equal(homeTeam.id);
       expect(document.homeTeam.teamName).to.equal(homeTeam.teamName);
@@ -196,6 +204,8 @@ const validateMatchFinalScore = (finalScore: MatchFinalScoreRequest,
     .should((document: MatchDocument) => {
       expect(document.id).to.equal(matchId);
       expect(document.group).to.equal(match.group);
+      expect(document.city).to.equal(match.city);
+      expect(document.stadium).to.equal(match.stadium);
       expect(document.startTime).to.equal(match.startTime);
       expect(document.homeTeam.id).to.equal(homeTeam.id);
       expect(document.homeTeam.teamName).to.equal(homeTeam.teamName);
@@ -215,6 +225,8 @@ const validateMatchFinalScore = (finalScore: MatchFinalScoreRequest,
 const validateMatchResponse = (response: MatchResponse, document: MatchDocument, homeTeam: TeamDocument, awayTeam: TeamDocument, tournament: TournamentDocument) => {
   expect(response.matchId).to.equal(document.id);
   expect(response.group).to.equal(document.group);
+  expect(document.city).to.equal(document.city);
+  expect(document.stadium).to.equal(document.stadium);
   expect(response.startTime).to.equal(document.startTime);
   expect(response.homeTeam.teamId).to.equal(homeTeam.id);
   expect(response.homeTeam.teamName).to.equal(homeTeam.teamName);
@@ -238,35 +250,35 @@ const validateMatchDeleted = (matchId: MatchIdType) => {
 
 export const setMatchCommands = () => {
   Cypress.Commands.add('requestSetFinalScoreOfMatch', {
-    prevSubject: true, 
+    prevSubject: true,
   }, requestSetFinalScoreOfMatch);
   Cypress.Commands.add('requestCreateMatch', {
-    prevSubject: true, 
+    prevSubject: true,
   }, requestCreateMatch);
   Cypress.Commands.add('requestUpdateMatch', {
-    prevSubject: true, 
+    prevSubject: true,
   }, requestUpdateMatch);
   Cypress.Commands.add('requestDeleteMatch', {
-    prevSubject: true, 
+    prevSubject: true,
   }, requestDeleteMatch);
   Cypress.Commands.add('requestGetMatch', {
-    prevSubject: true, 
+    prevSubject: true,
   }, requestGetMatch);
   Cypress.Commands.add('requestGetMatchList', {
-    prevSubject: true, 
+    prevSubject: true,
   }, requestGetMatchList);
 
   Cypress.Commands.add('saveMatchDocument', saveMatchDocument);
 
   Cypress.Commands.add('validateMatchDocument', {
-    prevSubject: true, 
+    prevSubject: true,
   }, validateMatchDocument);
   Cypress.Commands.add('validateMatchFinalScore', validateMatchFinalScore);
   Cypress.Commands.add('validateUpdatedHomeTeam', validateUpdatedHomeTeam);
   Cypress.Commands.add('validateUpdatedAwayTeam', validateUpdatedAwayTeam);
   Cypress.Commands.add('validateUpdatedTournament', validateUpdatedTournament);
   Cypress.Commands.add('validateMatchResponse', {
-    prevSubject: true, 
+    prevSubject: true,
   }, validateMatchResponse);
   Cypress.Commands.add('validateMatchDeleted', validateMatchDeleted);
 };

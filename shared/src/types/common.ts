@@ -49,6 +49,7 @@ export type TeamId = {
 export type MatchBase = {
   startTime: string;
   group: string;
+  stadium: string;
   city: string;
 };
 

@@ -10,7 +10,7 @@
       grid-template-columns: 40px auto auto;
       grid-template-rows: auto 40px 40px;
       grid-template-areas:
-        "location location location group"
+        "details details details details"
         "home-flag home-name home-name time"
         "away-flag away-name away-name time";
     }
@@ -21,7 +21,7 @@
       grid-template-columns: 1fr 40px 60px 40px 1fr;
       grid-template-rows: auto 40px;
       grid-template-areas:
-        "location location countdown group group"
+        "details details details details details"
         "home-name home-flag time away-flag away-name";
     }
   }
@@ -31,13 +31,8 @@
       margin: 10px 0;
     }
 
-    &__location {
-      grid-area: location;
-    }
-
-    &__group {
-      grid-area: group;
-      justify-self: end;
+    &__details {
+      grid-area: details;
     }
 
     &__home-flag,

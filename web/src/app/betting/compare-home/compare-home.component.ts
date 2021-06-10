@@ -13,7 +13,6 @@ export class CompareHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.comparison = this.activatedRoute.snapshot.data.comparison;
-    console.log(this.comparison);
   }
 
 }

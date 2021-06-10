@@ -23,13 +23,15 @@ describe('POST /match/v1/matches', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020', 
+      tournamentName: 'EB 2020',
     }, Cypress.env('EXPIRES_IN'));
     match = {
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
+      stadium: 'Arena',
+      city: 'Budapest',
       startTime: addMinutes(10).toISOString(),
     };
   });
@@ -59,6 +61,21 @@ describe('POST /match/v1/matches', () => {
         .requestCreateMatch(match)
         .expectOkResponse()
         .validateMatchDocument(match, homeTeamDocument, awayTeamDocument, tournamentDocument);
+    });
+
+    it('should create a match with only required properties', () => {
+      const onlyRequiredMatch: MatchRequest = {
+        ...match,
+        group: undefined,
+        stadium: undefined,
+      };
+      cy.saveTeamDocument(homeTeamDocument)
+        .saveTeamDocument(awayTeamDocument)
+        .saveTournamentDocument(tournamentDocument)
+        .authenticate('admin1')
+        .requestCreateMatch(onlyRequiredMatch)
+        .expectOkResponse()
+        .validateMatchDocument(onlyRequiredMatch, homeTeamDocument, awayTeamDocument, tournamentDocument);
     });
 
     describe('should return error', () => {
@@ -207,17 +224,29 @@ describe('POST /match/v1/matches', () => {
         });
       });
 
-      describe('if group', () => {
+      describe('if city', () => {
         it('is missing from body', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
               ...match,
-              group: undefined,
+              city: undefined,
             })
             .expectBadRequestResponse()
-            .expectRequiredProperty('group', 'body');
+            .expectRequiredProperty('city', 'body');
         });
 
+        it('is not string', () => {
+          cy.authenticate('admin1')
+            .requestCreateMatch({
+              ...match,
+              city: 1 as any,
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('city', 'string', 'body');
+        });
+      });
+
+      describe('if group', () => {
         it('is not string', () => {
           cy.authenticate('admin1')
             .requestCreateMatch({
@@ -226,6 +255,18 @@ describe('POST /match/v1/matches', () => {
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('group', 'string', 'body');
+        });
+      });
+
+      describe('if stadium', () => {
+        it('is not string', () => {
+          cy.authenticate('admin1')
+            .requestCreateMatch({
+              ...match,
+              stadium: 1 as any,
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('stadium', 'string', 'body');
         });
       });
 

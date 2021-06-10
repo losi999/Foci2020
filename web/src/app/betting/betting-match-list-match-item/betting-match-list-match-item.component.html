@@ -1,7 +1,6 @@
 <div class="betting-match-list-item-row">
   <div class="betting-match-list__match" (click)="toggleExpand()">
-    <div class="betting-match-list-item__location">{{match.city}}</div>
-    <div class="betting-match-list-item__group">{{match.group}}</div>
+    <div class="betting-match-list-item__details">{{details}}</div>
     <div class="betting-match-list-item__home-flag">
       <span>
         <img [src]="match.homeTeam.image" alt="">

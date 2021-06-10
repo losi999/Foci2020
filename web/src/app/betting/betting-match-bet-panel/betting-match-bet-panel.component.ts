@@ -42,11 +42,10 @@ export class BettingMatchBetPanelComponent implements OnInit {
 
       this.bettingService.placeBet(this.match.matchId, request).subscribe({
         next: () => {
-          console.log('¯\\_(ツ)_/¯');
           this.betSent.emit(request);
         },
-        error: () => {
-          console.log('ERROR ¯\\_(ツ)_/¯');
+        error: (error) => {
+          console.error(error);
           this.isBettingInProgress = false;
         },
       });

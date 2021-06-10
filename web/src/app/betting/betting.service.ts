@@ -15,11 +15,11 @@ export class BettingService {
   constructor(private httpClient: HttpClient) { }
 
   get defaultTournamentId(): Observable<string> {
-    const storedTournamentId = localStorage.getItem('defaultTournamentId');
+    const storedTournamentId = localStorage.getItem('tournamentId');
     if(!storedTournamentId) {
       return this.getDefaultTournamentId().pipe(
         map(({ tournamentId }) => {
-          localStorage.setItem('defaultTournamentId', tournamentId);
+          localStorage.setItem('tournamentId', tournamentId);
           return tournamentId;
         })
       );

@@ -25,13 +25,15 @@ describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020', 
+      tournamentName: 'EB 2020',
     }, Cypress.env('EXPIRES_IN'));
     matchDocument1 = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'A csoport',
+      city: 'Budapest',
+      stadium: 'Arena',
       startTime: addMinutes(15).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
 
@@ -40,6 +42,8 @@ describe('GET /betting/v1/tournaments/{tournamentId}/matches', () => {
       awayTeamId: homeTeamDocument.id,
       tournamentId: tournamentDocument.id,
       group: 'B csoport',
+      city: 'Budapest',
+      stadium: 'Arena',
       startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument, Cypress.env('EXPIRES_IN'));
   });

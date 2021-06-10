@@ -24,13 +24,20 @@ export class BettingMatchListMatchItemComponent implements OnInit {
     return addMinutes(5).toISOString() > this.match.startTime;
   }
 
+  get details(): string {
+    return [
+      this.match.city,
+      this.match.stadium,
+      this.match.group,
+    ].filter(p => !!p).join(', ');
+  }
+
   ngOnInit(): void {
     this.isExpanded = false;
     this.isInitiating = true;
   }
 
   betSent(event: BetRequest) {
-    console.log('BETSENT', event);
     this.ownBet = event as BetResponse;
     this.fetchBets();
   }
@@ -41,8 +48,6 @@ export class BettingMatchListMatchItemComponent implements OnInit {
       this.bets = bets.filter(b => b.userId !== this.authService.userId);
       this.ownBet = bets.find(b => b.userId === this.authService.userId);
 
-      console.log('OTHER', this.bets);
-      console.log('OWN', this.ownBet);
     });
   }
 

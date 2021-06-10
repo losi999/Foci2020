@@ -59,7 +59,7 @@ export class RegistrationComponent implements OnInit {
         },
         error: (error) => {
           console.log(error);
-          alert('¯\\_(ツ)_/¯');
+          alert('Felhasználónév foglalt');
           this.isInProgress = false;
         },
       });

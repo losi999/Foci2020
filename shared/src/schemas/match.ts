@@ -7,13 +7,16 @@ const schema: StrictJSONSchema7<MatchRequest> = {
   required: [
     'city',
     'startTime',
-    'group',
     'homeTeamId',
     'awayTeamId',
     'tournamentId',
   ],
   properties: {
     city: {
+      type: 'string',
+      minLength: 1,
+    },
+    stadium: {
       type: 'string',
       minLength: 1,
     },

@@ -10,7 +10,7 @@ const schema: JSONSchema7 = {
     'homeTeam',
     'awayTeam',
     'tournament',
-    'group',
+    'city',
     'matchId',
     'startTime',
   ],
@@ -18,6 +18,14 @@ const schema: JSONSchema7 = {
     homeTeam: teamResponse,
     awayTeam: teamResponse,
     tournament: tournamentResponse,
+    city: {
+      type: 'string',
+      minLength: 1,
+    },
+    stadium: {
+      type: 'string',
+      minLength: 1,
+    },
     group: {
       type: 'string',
       minLength: 1,

@@ -28,16 +28,18 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       shortName: 'ENG',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument1 = tournamentDocumentConverter.create({
-      tournamentName: 'EB 2020', 
+      tournamentName: 'EB 2020',
     }, Cypress.env('EXPIRES_IN'));
     tournamentDocument2 = tournamentDocumentConverter.create({
-      tournamentName: 'VB 2022', 
+      tournamentName: 'VB 2022',
     }, Cypress.env('EXPIRES_IN'));
     matchDocument = matchDocumentConverter.create({
       homeTeamId: homeTeamDocument.id,
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument1.id,
       group: 'A csoport',
+      city: 'Budapest',
+      stadium: 'Arena',
       startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument1, Cypress.env('EXPIRES_IN'));
 
@@ -46,6 +48,8 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       awayTeamId: awayTeamDocument.id,
       tournamentId: tournamentDocument1.id,
       group: 'A csoport',
+      city: 'Budapest',
+      stadium: 'Arena',
       startTime: addMinutes(10).toISOString(),
     }, homeTeamDocument, awayTeamDocument, tournamentDocument1, Cypress.env('EXPIRES_IN'));
 
@@ -53,7 +57,9 @@ describe('PUT /match/v1/matches/{matchId}', () => {
       homeTeamId: awayTeamDocument.id,
       awayTeamId: homeTeamDocument.id,
       tournamentId: tournamentDocument2.id,
-      group: 'B csoport',
+      group: undefined,
+      city: 'Felcsút',
+      stadium: undefined,
       startTime: addMinutes(15).toISOString(),
     };
   });
@@ -75,7 +81,7 @@ describe('PUT /match/v1/matches/{matchId}', () => {
   });
 
   describe('called as an admin', () => {
-    it('should update a match', () => {
+    it.only('should update a match', () => {
       cy.saveTeamDocument(homeTeamDocument)
         .saveTeamDocument(awayTeamDocument)
         .saveTournamentDocument(tournamentDocument1)
@@ -239,17 +245,29 @@ describe('PUT /match/v1/matches/{matchId}', () => {
         });
       });
 
-      describe('if group', () => {
+      describe('if city', () => {
         it('is missing from body', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
               ...updatedMatch,
-              group: undefined,
+              city: undefined,
             })
             .expectBadRequestResponse()
-            .expectRequiredProperty('group', 'body');
+            .expectRequiredProperty('city', 'body');
         });
 
+        it('is not string', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              city: 1 as any,
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('city', 'string', 'body');
+        });
+      });
+
+      describe('if group', () => {
         it('is not string', () => {
           cy.authenticate('admin1')
             .requestUpdateMatch(matchDocument.id, {
@@ -258,6 +276,18 @@ describe('PUT /match/v1/matches/{matchId}', () => {
             })
             .expectBadRequestResponse()
             .expectWrongPropertyType('group', 'string', 'body');
+        });
+      });
+
+      describe('if stadium', () => {
+        it('is not string', () => {
+          cy.authenticate('admin1')
+            .requestUpdateMatch(matchDocument.id, {
+              ...updatedMatch,
+              stadium: 1 as any,
+            })
+            .expectBadRequestResponse()
+            .expectWrongPropertyType('stadium', 'string', 'body');
         });
       });
 

@@ -14,6 +14,7 @@ describe('Match schema', () => {
       startTime: '2019-10-08T18:25:07.291Z',
       group: 'Döntő',
       city: 'Budapest',
+      stadium: 'Arena',
       homeTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TeamIdType,
     };
   });
@@ -53,12 +54,6 @@ describe('Match schema', () => {
     });
 
     describe('if data.group', () => {
-      it('is missing', () => {
-        data.group = undefined;
-        const result = validatorService.validate(data, schema);
-        validateSchemaRequired(result, 'group');
-      });
-
       it('is not string', () => {
         (data.group as any) = 2;
         const result = validatorService.validate(data, schema);
@@ -69,6 +64,20 @@ describe('Match schema', () => {
         data.group = '';
         const result = validatorService.validate(data, schema);
         validateSchemaMinLength(result, 'group', 1);
+      });
+    });
+
+    describe('if data.stadium', () => {
+      it('is not string', () => {
+        (data.stadium as any) = 2;
+        const result = validatorService.validate(data, schema);
+        validateSchemaType(result, 'stadium', 'string');
+      });
+
+      it('is too short', () => {
+        data.stadium = '';
+        const result = validatorService.validate(data, schema);
+        validateSchemaMinLength(result, 'stadium', 1);
       });
     });
 

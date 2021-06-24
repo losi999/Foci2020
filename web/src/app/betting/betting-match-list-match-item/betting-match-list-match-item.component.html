@@ -24,6 +24,7 @@
     <div class="betting-match-list-item__spinner" *ngIf="isInitiating">
       <span class="spinner-border" role="status" aria-hidden="true"></span>
     </div>
+    <div class="betting-match-list-item__extra-time-help" *ngIf="match.hasExtraTime && !isInitiating">Hosszabbítás esetén a 120 perc eredménye számít</div>
     <app-betting-match-bet-panel *ngIf="!ownBet && !isInitiating && !hasBettingExpired" [match]="match"
       (betSent)="betSent($event)">
     </app-betting-match-bet-panel>

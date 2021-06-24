@@ -96,9 +96,17 @@
       background-color: white;
       padding: 10px;
       display: grid;
+      grid-template-rows: auto auto;
       grid-template-columns: 100px auto;
       column-gap: 10px;
-      grid-template-areas: "bet-panel bet-list";
+      grid-template-areas:
+      "extra-time-help extra-time-help"
+      "bet-panel bet-list";
+    }
+
+    &__extra-time-help {
+      grid-area: extra-time-help;
+      font-size: 14px;
     }
 
     &__spinner {

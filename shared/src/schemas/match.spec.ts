@@ -16,6 +16,7 @@ describe('Match schema', () => {
       city: 'Budapest',
       stadium: 'Arena',
       homeTeamId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' as TeamIdType,
+      hasExtraTime: false,
     };
   });
 
@@ -98,6 +99,20 @@ describe('Match schema', () => {
         data.city = '';
         const result = validatorService.validate(data, schema);
         validateSchemaMinLength(result, 'city', 1);
+      });
+    });
+
+    describe('if data.hasExtraTime', () => {
+      it('is missing', () => {
+        data.hasExtraTime = undefined;
+        const result = validatorService.validate(data, schema);
+        validateSchemaRequired(result, 'hasExtraTime');
+      });
+
+      it('is not boolean', () => {
+        (data.hasExtraTime as any) = 2;
+        const result = validatorService.validate(data, schema);
+        validateSchemaType(result, 'hasExtraTime', 'boolean');
       });
     });
 

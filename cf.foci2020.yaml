@@ -17,9 +17,6 @@ Mappings:
     CI: 
       WebsiteDomain: ci-foci.losi999.hu
       ApiDomain: ci-fociapi.losi999.hu
-    UAT: 
-      WebsiteDomain: uat-foci.losi999.hu
-      ApiDomain: uat-fociapi.losi999.hu
     PROD: 
       WebsiteDomain: foci.losi999.hu
       ApiDomain: fociapi.losi999.hu            

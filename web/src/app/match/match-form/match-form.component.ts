@@ -30,6 +30,7 @@ export class MatchFormComponent implements OnInit {
       group: new FormControl(this.match?.group),
       stadium: new FormControl(this.match?.stadium),
       city: new FormControl(this.match?.city, [Validators.required]),
+      hasExtraTime: new FormControl(this.match?.hasExtraTime),
       homeTeamId: new FormControl(this.match?.homeTeam.teamId, [Validators.required]),
       awayTeamId: new FormControl(this.match?.awayTeam.teamId, [Validators.required]),
       tournamentId: new FormControl(this.match?.tournament.tournamentId, [Validators.required]),
@@ -69,6 +70,7 @@ export class MatchFormComponent implements OnInit {
         group: this.form.value.group || undefined,
         stadium: this.form.value.stadium || undefined,
         city: this.form.value.city,
+        hasExtraTime: this.form.value.hasExtraTime,
         startTime: date.toISOString(),
       };
 

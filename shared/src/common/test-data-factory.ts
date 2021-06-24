@@ -79,6 +79,7 @@ export const matchRequest = (req?: Partial<MatchRequest>): MatchRequest => ({
   city: 'City',
   stadium: 'Arena',
   startTime: 'startTime',
+  hasExtraTime: false,
   ...req,
 });
 
@@ -116,6 +117,7 @@ export const matchDocument = (doc?: Partial<Pick<MatchDocument, 'startTime' | 'g
     orderingValue: 'startTime',
     expiresAt: undefined,
     modifiedAt: 'now',
+    hasExtraTime: false,
     ...doc,
   };
 };
@@ -130,6 +132,7 @@ export const matchResponse = (res?: Partial<Pick<MatchResponse, keyof MatchReque
     city: 'City',
     stadium: 'Arena',
     startTime: 'startTime',
+    hasExtraTime: false,
     finalScore: undefined,
     awayTeamId: undefined,
     homeTeamId: undefined,

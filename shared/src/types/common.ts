@@ -51,6 +51,7 @@ export type MatchBase = {
   group: string;
   stadium: string;
   city: string;
+  hasExtraTime: boolean;
 };
 
 export type Score = {

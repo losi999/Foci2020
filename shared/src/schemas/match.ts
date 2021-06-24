@@ -10,6 +10,7 @@ const schema: StrictJSONSchema7<MatchRequest> = {
     'homeTeamId',
     'awayTeamId',
     'tournamentId',
+    'hasExtraTime',
   ],
   properties: {
     city: {
@@ -39,6 +40,9 @@ const schema: StrictJSONSchema7<MatchRequest> = {
     tournamentId: {
       type: 'string',
       format: 'uuid',
+    },
+    hasExtraTime: {
+      type: 'boolean',
     },
   },
 };

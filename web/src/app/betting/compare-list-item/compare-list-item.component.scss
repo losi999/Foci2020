@@ -1,15 +1,15 @@
 .compare-list-item {
   display: grid;
   grid-template-columns: 1fr 50px 50px 1fr;
-  grid-template-rows: 35px 50px;
+  grid-template-rows: 36px 50px;
   grid-template-areas:
     "left-bet home-flag away-flag right-bet"
     "left-bet final-score final-score right-bet";
 
   &__home-flag,
   &__away-flag {
-    height: 35px;
-    width: 35px;
+    height: 36px;
+    width: 36px;
     border-radius: 50%;
     overflow: hidden;
     text-align: center;

@@ -1,8 +1,8 @@
 .betting-match-list-item {
   &__home-flag,
   &__away-flag {
-    height: 35px;
-    width: 35px;
+    height: 36px;
+    width: 36px;
     border-radius: 50%;
     overflow: hidden;
     text-align: center;
@@ -38,7 +38,7 @@
   &__bet-panel {
     display: grid;
     grid-template-columns: 50px 50px;
-    grid-template-rows: 30px 35px 30px 38px;
+    grid-template-rows: 30px 36px 30px 38px;
     row-gap: 5px;
     grid-template-areas:
       "title title"

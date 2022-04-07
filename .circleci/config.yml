@@ -188,7 +188,6 @@ workflows:
             branches:
               ignore:
                 - develop
-                - release
                 - master
       - unit_test:
           name: unit_test
@@ -241,47 +240,6 @@ workflows:
       - test:
           name: test
           env: "DEV"
-          requires:
-            - web_deploy
-
-  uat:
-    jobs:
-      - install:
-          name: install
-          filters:
-            branches:
-              only:
-                - release
-      - unit_test:
-          name: unit_test
-          requires:
-            - install
-      - lint:
-          name: lint
-          requires:
-            - install
-      - build:
-          name: build
-          env: "UAT"
-          requires:
-            - install
-      - api_deploy:
-          name: api_deploy
-          env: "UAT"
-          cypress_password: ${CYPRESS_PASSWORD}
-          admin_user_email: ${ADMIN_USER_EMAIL}
-          requires:
-            - unit_test
-            - lint
-            - build
-      - web_deploy:
-          name: web_deploy
-          env: "UAT"
-          requires:
-            - api_deploy
-      - test:
-          name: test
-          env: "UAT"
           requires:
             - web_deploy
 

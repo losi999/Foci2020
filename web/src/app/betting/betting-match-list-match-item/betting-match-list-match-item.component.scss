@@ -37,8 +37,8 @@
 
     &__home-flag,
     &__away-flag {
-      height: 35px;
-      width: 35px;
+      height: 36px;
+      width: 36px;
       border-radius: 50%;
       overflow: hidden;
       text-align: center;
@@ -100,8 +100,8 @@
       grid-template-columns: 100px auto;
       column-gap: 10px;
       grid-template-areas:
-      "extra-time-help extra-time-help"
-      "bet-panel bet-list";
+        "extra-time-help extra-time-help"
+        "bet-panel bet-list";
     }
 
     &__extra-time-help {

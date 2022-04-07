@@ -35,7 +35,7 @@
             "scripts": []
           },
           "configurations": {
-            "production": {
+            "PROD": {
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -151,8 +151,8 @@
             "browserTarget": "web:build"
           },
           "configurations": {
-            "production": {
-              "browserTarget": "web:build:production"
+            "PROD": {
+              "browserTarget": "web:build:PROD"
             },
             "LOCAL": {
               "browserTarget": "web:build:LOCAL"
@@ -202,7 +202,7 @@
             "devServerTarget": "web:serve"
           },
           "configurations": {
-            "production": {
+            "PROD": {
               "devServerTarget": "web:serve:production"
             }
           }

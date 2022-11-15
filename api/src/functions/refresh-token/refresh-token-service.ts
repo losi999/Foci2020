@@ -4,7 +4,7 @@ import { RefreshTokenRequest } from '@foci2020/shared/types/requests';
 import { IdTokenResponse } from '@foci2020/shared/types/responses';
 
 export interface IRefreshTokenService {
-  (CTX: {
+  (ctx: {
     body: RefreshTokenRequest
   }): Promise<IdTokenResponse>;
 }

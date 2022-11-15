@@ -2,6 +2,8 @@ AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
   Env:
     Type: String
+  WebsiteDomain:
+    Type: String
 
 Resources:
   Database:
@@ -118,6 +120,10 @@ Resources:
         PasswordPolicy:
           MinimumLength: 6
           TemporaryPasswordValidityDays: 45
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+        EmailSubject: "Foci jelszó emlékeztető"
+        EmailMessage: !Sub "Kattints az alábbi linkre: https://${WebsiteDomain}/confirm-forgot-password?confirmationCode={####}"
       Schema:
         - Name: nickname
           AttributeDataType: String

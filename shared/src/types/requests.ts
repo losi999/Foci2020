@@ -26,3 +26,13 @@ export type RegistrationRequest = {
   displayName: string;
   password: string;
 };
+
+export type ForgotPasswordRequest = {
+  email: string;
+};
+
+export type ConfirmForgotPasswordRequest = {
+  email: string;
+  confirmationCode: string;
+  password: string;
+};

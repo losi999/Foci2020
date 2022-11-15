@@ -4,7 +4,7 @@ import { LoginRequest } from '@foci2020/shared/types/requests';
 import { LoginResponse } from '@foci2020/shared/types/responses';
 
 export interface ILoginService {
-  (CTX: {
+  (ctx: {
     body: LoginRequest
   }): Promise<LoginResponse>;
 }

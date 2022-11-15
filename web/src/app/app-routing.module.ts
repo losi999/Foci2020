@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ConfirmForgotPasswordComponent } from 'src/app/auth/confirm-forgot-password/confirm-forgot-password.component';
+import { ForgotPasswordComponent } from 'src/app/auth/forgot-password/forgot-password.component';
 import { LoginComponent } from 'src/app/auth/login/login.component';
 import { RegistrationComponent } from 'src/app/auth/registration/registration.component';
 import { AdminGuard } from 'src/app/guards/admin.guard';
@@ -15,6 +17,16 @@ const routes: Routes = [
   {
     path: 'registration',
     component: RegistrationComponent,
+    canActivate: [AnonymousGuard],
+  },
+  {
+    path: 'forgot-password',
+    component: ForgotPasswordComponent,
+    canActivate: [AnonymousGuard],
+  },
+  {
+    path: 'confirm-forgot-password',
+    component: ConfirmForgotPasswordComponent,
     canActivate: [AnonymousGuard],
   },
   {

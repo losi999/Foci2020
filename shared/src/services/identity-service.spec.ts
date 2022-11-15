@@ -43,6 +43,10 @@ describe('Notification service', () => {
             Name: 'nickname',
             Value: displayName,
           },
+          {
+            Name: 'email_verified',
+            Value: 'True',
+          },
         ],
       });
       expect(mockCognito.functions.adminAddUserToGroup).toHaveBeenCalledWith({

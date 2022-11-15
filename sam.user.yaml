@@ -82,6 +82,34 @@ Resources:
             Path: /v1/login
             Method: POST
 
+  ForgotPassword:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-User-ForgotPassword
+      CodeUri: dist/api/forgot-password
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /v1/forgotPassword
+            Method: POST
+
+  ConfirmForgotPassword:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub Foci2020-${Env}-User-ConfirmForgotPassword
+      CodeUri: dist/api/confirm-forgot-password
+      Role: !Ref LambdaRoleArn
+      Events:
+        API:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UserApi
+            Path: /v1/confirmForgotPassword
+            Method: POST            
+
   RefreshToken:
     Type: AWS::Serverless::Function
     Properties:

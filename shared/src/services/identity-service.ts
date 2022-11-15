@@ -1,4 +1,4 @@
-import { RegistrationRequest, LoginRequest, RefreshTokenRequest } from '@foci2020/shared/types/requests';
+import { RegistrationRequest, LoginRequest, RefreshTokenRequest, ForgotPasswordRequest, ConfirmForgotPasswordRequest } from '@foci2020/shared/types/requests';
 import { UserType, UserIdType } from '@foci2020/shared/types/common';
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
 
@@ -7,6 +7,8 @@ export interface IIdentityService {
   register(body: RegistrationRequest, userGroup: UserType): Promise<any>;
   login(body: LoginRequest): Promise<CognitoIdentityServiceProvider.AdminInitiateAuthResponse>;
   refreshToken(body: RefreshTokenRequest): Promise<CognitoIdentityServiceProvider.AdminInitiateAuthResponse>;
+  forgotPassword(body: ForgotPasswordRequest): Promise<unknown>;
+  confirmForgotPassword(body: ConfirmForgotPasswordRequest): Promise<unknown>;
 }
 
 export const identityServiceFactory = (
@@ -33,6 +35,10 @@ export const identityServiceFactory = (
           {
             Name: 'nickname',
             Value: body.displayName,
+          },
+          {
+            Name: 'email_verified',
+            Value: 'True',
           },
         ],
       }).promise();
@@ -69,6 +75,20 @@ export const identityServiceFactory = (
         AuthParameters: {
           REFRESH_TOKEN: body.refreshToken,
         },
+      }).promise();
+    },
+    forgotPassword: (body) => {
+      return cognito.forgotPassword({
+        ClientId: clientId,
+        Username: body.email,
+      }).promise();
+    },
+    confirmForgotPassword: (body) => {
+      return cognito.confirmForgotPassword({
+        ClientId: clientId,
+        Username: body.email,
+        ConfirmationCode: body.confirmationCode,
+        Password: body.password,
       }).promise();
     },
   };

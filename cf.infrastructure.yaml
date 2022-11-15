@@ -43,6 +43,8 @@ Resources:
                   - cognito-idp:AdminInitiateAuth
                   - cognito-idp:AdminAddUserToGroup
                   - cognito-idp:AdminSetUserPassword
+                  - cognito-idp:ForgotPassword
+                  - cognito-idp:ConfirmForgotPassword
                   - cloudformation:DescribeStacks
                   - lambda:InvokeFunction
                   - sqs:SendMessage

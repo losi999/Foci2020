@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { LoginRequest, RefreshTokenRequest, RegistrationRequest }from '@foci2020/shared/types/requests';
+import { ConfirmForgotPasswordRequest, ForgotPasswordRequest, LoginRequest, RefreshTokenRequest, RegistrationRequest }from '@foci2020/shared/types/requests';
 import { IdTokenResponse, LoginResponse }from '@foci2020/shared/types/responses';
 import { default as jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
@@ -64,6 +64,14 @@ export class AuthService {
         this.redirect();
       }),
     );
+  }
+
+  public forgotPassword (request: ForgotPasswordRequest): Observable<unknown> {
+    return this.httpClient.post(`${environment.apiUrl}/user/v1/forgotPassword`, request);
+  }
+
+  public confirmForgotPassword (request: ConfirmForgotPasswordRequest): Observable<unknown> {
+    return this.httpClient.post(`${environment.apiUrl}/user/v1/confirmForgotPassword`, request);
   }
 
   public registration (request: RegistrationRequest): Observable<unknown> {

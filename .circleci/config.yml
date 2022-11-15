@@ -231,12 +231,12 @@ workflows:
           requires:
             - unit_test
             - lint
-            - build
+            - build_dev
       - web_deploy:
           name: web_deploy_dev
           env: "DEV"
           requires:
-            - api_deploy
+            - api_deploy_dev
       # - test:
       #     name: test_dev
       #     env: "DEV"
@@ -272,10 +272,10 @@ workflows:
           requires:
             - unit_test
             - lint
-            - build
+            - build_prod
       - web_deploy:
           name: web_deploy_prod
           env: "PROD"
           requires:
-            - api_deploy
+            - api_deploy_prod
 
